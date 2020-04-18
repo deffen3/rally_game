@@ -5,7 +5,7 @@ use amethyst::input::{InputHandler};
 
 use std::f32::consts::PI;
 
-use crate::rally::{Vehicle, ARENA_HEIGHT, ARENA_WIDTH, AxisBinding, MovementBindingTypes};
+use crate::rally::{Vehicle, Player, ARENA_HEIGHT, ARENA_WIDTH, AxisBinding, MovementBindingTypes};
 
 pub const WALL_HIT_BOUNCE_DECEL_PCT: f32 = -0.35;
 pub const WALL_HIT_NON_BOUNCE_DECEL_PCT: f32 = 0.35;
@@ -21,16 +21,17 @@ pub struct VehicleMoveSystem;
 
 impl<'s> System<'s> for VehicleMoveSystem {
     type SystemData = (
+        WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
         Read<'s, Time>,
         Read<'s, InputHandler<MovementBindingTypes>>,
     );
 
-    fn run(&mut self, (mut transforms, mut vehicles, time, input): Self::SystemData) {
-        for (vehicle, transform) in (&mut vehicles, &mut transforms).join() {
-            let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(vehicle.id));
-            let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(vehicle.id));
+    fn run(&mut self, (mut players, mut transforms, mut vehicles, time, input): Self::SystemData) {
+        for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
+            let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
+            let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
 
             //println!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
 
@@ -49,13 +50,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             //Update vehicle velocity from vehicle speed accel input
             if let Some(move_amount) = vehicle_accel {
-                let mut scaled_amount;
-                if move_amount > 0.0 {
-                    scaled_amount = VEHICLE_ACCEL_RATE * move_amount as f32;
+
+                let scaled_amount: f32 = if move_amount > 0.0 {
+                    VEHICLE_ACCEL_RATE * move_amount as f32
                 }
                 else {
-                    scaled_amount = VEHICLE_DECEL_RATE * move_amount as f32;
-                }
+                    VEHICLE_DECEL_RATE * move_amount as f32
+                };
 
                 vehicle.dx += scaled_amount * yaw_x_comp * dt;
                 vehicle.dy += scaled_amount * yaw_y_comp * dt;
@@ -74,18 +75,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             //println!("vel_angle_sin:{0:>6.3}, vel_angle_cos:{1:>6.3}", velocity_x_comp, velocity_y_comp);
 
-            if vehicle.dx > 0.0 { //left direction
-                vehicle.dx -= VEHICLE_FRICTION_DECEL_RATE * velocity_x_comp * dt;
-            }
-            else if vehicle.dx < 0.0 {
-                vehicle.dx -= VEHICLE_FRICTION_DECEL_RATE * velocity_x_comp * dt;
-            }
-            if vehicle.dy > 0.0 { //up direction
-                vehicle.dy -= VEHICLE_FRICTION_DECEL_RATE * velocity_y_comp * dt;
-            }
-            else if vehicle.dy < 0.0 {
-                vehicle.dy -= VEHICLE_FRICTION_DECEL_RATE * velocity_y_comp * dt;
-            }
+            vehicle.dx -= VEHICLE_FRICTION_DECEL_RATE * velocity_x_comp * dt;
+            vehicle.dy -= VEHICLE_FRICTION_DECEL_RATE * velocity_y_comp * dt;
+
 
             //println!("vel_x:{0:>6.3}, vel_y:{1:>6.3}", vehicle.dx, vehicle.dy);
 

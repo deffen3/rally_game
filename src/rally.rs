@@ -1,10 +1,9 @@
 use amethyst::{
     assets::{AssetStorage, Loader, Handle},
     core::transform::Transform,
-    ecs::prelude::{Component, DenseVecStorage},
+    ecs::prelude::{Component, DenseVecStorage, Entity},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
-    input::{is_key_down, VirtualKeyCode},
 };
 
 use std::fmt::{self, Display};
@@ -40,10 +39,11 @@ impl SimpleState for Rally {
         initialise_camera(world);
 
         for player_index in 0..MAX_PLAYERS {
-            initialize_vehicle(
+            intialize_player(
                 world, 
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index as usize,
+                WeaponTypes::LaserDouble,
             );
         }
 
@@ -80,7 +80,6 @@ pub struct Weapon {
     pub weapon_type: WeaponTypes,
     pub weapon_cooldown_timer: f32,
     pub weapon_cooldown_reset: f32,
-    pub weapon_firing: bool,
 }
 
 impl Component for Weapon {
@@ -93,10 +92,9 @@ impl Weapon {
             x: 0.0,
             y: 0.0,
             aim_angle: 0.0,
-            weapon_type: weapon_type,
+            weapon_type,
             weapon_cooldown_timer: -1.0,
             weapon_cooldown_reset: 2.0,
-            weapon_firing: false,
         }
     }
 }
@@ -111,7 +109,6 @@ pub struct WeaponFire {
     pub spawn_y: f32,
     pub spawn_angle: f32,
     pub weapon_type: WeaponTypes,
-    pub active: bool,
 }
 
 impl Component for WeaponFire {
@@ -129,8 +126,7 @@ impl WeaponFire {
             spawn_x: 0.0,
             spawn_y: 0.0,
             spawn_angle: 0.0,
-            weapon_type: weapon_type,
-            active: false,
+            weapon_type,
         }
     }
 }
@@ -142,7 +138,7 @@ pub struct Vehicle {
     pub height: f32,
     pub dx: f32,
     pub dy: f32,
-    pub id: usize,
+    pub weapon: Entity,
 }
 
 impl Component for Vehicle {
@@ -150,18 +146,36 @@ impl Component for Vehicle {
 }
 
 impl Vehicle {
-    fn new(id: usize) -> Vehicle {
+    fn new(weapon: Entity) -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
             height: VEHICLE_HEIGHT,
             dx: 0.0,
             dy: 0.0,
-            id: id,
+            weapon, 
         }
     }
 }
 
 
+
+pub struct Player {
+    pub id: usize,
+    pub vehicle: Entity,
+}
+
+impl Component for Player {
+    type Storage = DenseVecStorage<Self>;
+}
+
+impl Player {
+    fn new(id: usize, vehicle: Entity) -> Player {
+        Player {
+            id,
+            vehicle,
+        }
+    }
+}
 
 
 
@@ -191,29 +205,125 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
 }
 
 
-fn initialize_vehicle(
-    world: &mut World, 
-    sprite_sheet_handle: Handle<SpriteSheet>,
-    ship_index: usize,
-) {
-let mut local_transform = Transform::default();
-local_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT /2.0, 0.0);
 
-// Assign the sprite for the vehicle
-let sprite_render = SpriteRender {
-    sprite_sheet: sprite_sheet_handle.clone(),
-    sprite_number: ship_index,
-};
 
-world
-    .create_entity()
-    .with(sprite_render)
-    .with(Vehicle::new(ship_index))
-    .with(local_transform)
-    .build();
+fn intialize_player(
+        world: &mut World, 
+        sprite_sheet_handle: Handle<SpriteSheet>,
+        player_index: usize,
+        weapon_type: WeaponTypes,
+    ) {
+        
+
+    let mut vehicle_transform = Transform::default();
+    vehicle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT /2.0, 0.0);
+
+    let vehicle_sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: player_index,
+    };
+
+    let mut weapon_transform = Transform::default();
+    weapon_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT /2.0, 0.0);
+
+    let weapon_sprite_number = match weapon_type.clone() {
+        WeaponTypes::NoWeapon => 7 as usize,
+        WeaponTypes::LaserBeam => 8 as usize,
+        WeaponTypes::LaserPulse => 8 as usize,
+        WeaponTypes::LaserDouble => 8 as usize,
+        WeaponTypes::ProjectileRapidFire => 9 as usize,
+        WeaponTypes::ProjectileBurstFire => 9 as usize,
+        WeaponTypes::ProjectileSnipeFire => 9 as usize,
+        WeaponTypes::Rocket => 10 as usize,
+        WeaponTypes::Missile => 10 as usize,
+        WeaponTypes::Mine => 10 as usize,
+    };
+
+    let weapon_sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: weapon_sprite_number,
+    };
+
+    let weapon = world
+        .create_entity()
+        .with(weapon_sprite_render)
+        .with(Weapon::new(weapon_type))
+        .with(weapon_transform)
+        .build();
+
+    let vehicle = world
+        .create_entity()
+        .with(vehicle_sprite_render)
+        .with(Vehicle::new(weapon))
+        .with(vehicle_transform)
+        .build();
+
+    world
+        .create_entity()
+        .with(Player::new(player_index, vehicle))
+        .build();
 }
 
 
+
+/*
+
+fn intialize_vehicle(
+        world: &mut World, 
+        sprite_sheet_handle: Handle<SpriteSheet>,
+        player_index: usize,
+    ) {
+    let mut local_transform = Transform::default();
+    local_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT /2.0, 0.0);
+
+    // Assign the sprite for the vehicle
+    let sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet_handle,
+        sprite_number: player_index,
+    };
+
+    world
+        .create_entity()
+        .with(sprite_render)
+        .with(Vehicle::new())
+        .with(local_transform)
+        .build();
+}
+
+*/
+
+
+/*
+let p1_transform = UiTransform::new(
+        "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
+        -50., -50., 1., 200., 50.,
+    );
+    let p2_transform = UiTransform::new(
+        "P2".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
+        50., -50., 1., 200., 50.,
+    );
+
+    let p1_score = world
+        .create_entity()
+        .with(p1_transform)
+        .with(UiText::new(
+            font.clone(),
+            "0".to_string(),
+            [1., 1., 1., 1.],
+            50.,
+        ))
+        .build();
+
+    let p2_score = world
+        .create_entity()
+        .with(p2_transform)
+        .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
+        .build();
+        */
+
+
+
+/*
 fn initialize_weapon(
         world: &mut World, 
         sprite_sheet_handle: Handle<SpriteSheet>,
@@ -280,6 +390,8 @@ fn initialize_weapon(
             .build();
     }
 }
+*/
+
 
 
 fn initialise_camera(world: &mut World) {

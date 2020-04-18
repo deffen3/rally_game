@@ -18,13 +18,13 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
     fn run(&mut self, (mut transforms, mut weapon_fires, time): Self::SystemData) {
         let dt = time.delta_seconds();
 
-        for (weapon_fire, transform) in (&mut weapon_fires, &mut transforms).join() {
-            if weapon_fire.active == true {
-                transform.set_rotation_2d(weapon_fire.spawn_angle);
+        // for (weapon_fire, transform) in (&mut weapon_fires, &mut transforms).join() {
+        //     if weapon_fire.active == true {
+        //         transform.set_rotation_2d(weapon_fire.spawn_angle);
 
-                transform.prepend_translation_x(weapon_fire.spawn_x);
-                transform.prepend_translation_y(weapon_fire.spawn_y);
-            }
-        }
+        //         transform.prepend_translation_x(weapon_fire.spawn_x);
+        //         transform.prepend_translation_y(weapon_fire.spawn_y);
+        //     }
+        // }
     }
 }

@@ -20,8 +20,8 @@ impl<'s> System<'s> for VehicleWeaponFireSystem {
     fn run(&mut self, (mut transforms, mut weapons, time, input): Self::SystemData) {
         let dt = time.delta_seconds();
 
-        for (weapon, transform) in (&mut weapons, &mut transforms).join() {
+        // for (weapon, transform) in (&mut weapons, &mut transforms).join() {
 
-        }
+        // }
     }
 }

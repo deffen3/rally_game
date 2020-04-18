@@ -26,37 +26,43 @@ List((
             width: 7,
             height: 12,
         ),
-        ( //laser
+        ( //laser #4
             x: 1,
             y: 14,
             width: 1,
             height: 6,
         ),
-        ( //projectile
+        ( //projectile #5
             x: 3,
             y: 14,
             width: 1,
             height: 1,
         ),
-        ( //mine
+        ( //mine #6
             x: 6,
             y: 14,
             width: 3,
             height: 3,
         ),
-        ( //laser weapon
+        ( //no weapon #7
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+        ),
+        ( //laser weapon #8
             x: 3,
             y: 18,
             width: 2,
             height: 2,
         ),
-        ( //projectile weapon
+        ( //projectile weapon #9
             x: 6,
             y: 18,
             width: 2,
             height: 2,
         ),
-        ( //mine weapon
+        ( //mine weapon #10
             x: 9,
             y: 18,
             width: 2,
