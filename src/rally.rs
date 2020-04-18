@@ -1,10 +1,11 @@
 use amethyst::{
     assets::{AssetStorage, Loader, Handle},
     core::transform::Transform,
-    ecs::prelude::{Component, DenseVecStorage, Entity},
+    ecs::prelude::{Component, DenseVecStorage, Entity, Entities, ReadExpect, LazyUpdate},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
+use amethyst::core::math::Vector3;
 
 use std::fmt::{self, Display};
 
@@ -20,10 +21,13 @@ pub const ARENA_WIDTH: f32 = 300.0;
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 6.0;
 
+pub const LASER_SPEED: f32 = 3.7;
 
-pub const MAX_PLAYERS: usize = 4;
+pub const WEAPON_COOLDOWN: f32 = 0.5;
 
-//testing git
+
+pub const MAX_PLAYERS: usize = 2;
+
 
 #[derive(Default)]
 pub struct Rally {
@@ -37,6 +41,7 @@ impl SimpleState for Rally {
         self.sprite_sheet_handle.replace(load_sprite_sheet(world));
 
         initialise_camera(world);
+        initialise_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
         for player_index in 0..MAX_PLAYERS {
             intialize_player(
@@ -53,9 +58,12 @@ impl SimpleState for Rally {
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        data.world.maintain();
+
         Trans::None
     }
 }
+
 
 
 #[derive(Clone)]
@@ -94,12 +102,13 @@ impl Weapon {
             aim_angle: 0.0,
             weapon_type,
             weapon_cooldown_timer: -1.0,
-            weapon_cooldown_reset: 2.0,
+            weapon_cooldown_reset: WEAPON_COOLDOWN,
         }
     }
 }
 
 
+#[derive(Clone)]
 pub struct WeaponFire {
     pub width: f32,
     pub height: f32,
@@ -138,7 +147,6 @@ pub struct Vehicle {
     pub height: f32,
     pub dx: f32,
     pub dy: f32,
-    pub weapon: Entity,
 }
 
 impl Component for Vehicle {
@@ -146,13 +154,12 @@ impl Component for Vehicle {
 }
 
 impl Vehicle {
-    fn new(weapon: Entity) -> Vehicle {
+    fn new() -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
             height: VEHICLE_HEIGHT,
             dx: 0.0,
             dy: 0.0,
-            weapon, 
         }
     }
 }
@@ -161,7 +168,6 @@ impl Vehicle {
 
 pub struct Player {
     pub id: usize,
-    pub vehicle: Entity,
 }
 
 impl Component for Player {
@@ -169,10 +175,9 @@ impl Component for Player {
 }
 
 impl Player {
-    fn new(id: usize, vehicle: Entity) -> Player {
+    fn new(id: usize) -> Player {
         Player {
             id,
-            vehicle,
         }
     }
 }
@@ -223,6 +228,7 @@ fn intialize_player(
         sprite_number: player_index,
     };
 
+    /*
     let mut weapon_transform = Transform::default();
     weapon_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT /2.0, 0.0);
 
@@ -244,153 +250,93 @@ fn intialize_player(
         sprite_number: weapon_sprite_number,
     };
 
+
     let weapon = world
         .create_entity()
         .with(weapon_sprite_render)
         .with(Weapon::new(weapon_type))
         .with(weapon_transform)
         .build();
+    */
 
-    let vehicle = world
+    world
         .create_entity()
-        .with(vehicle_sprite_render)
-        .with(Vehicle::new(weapon))
         .with(vehicle_transform)
-        .build();
-
-    world
-        .create_entity()
-        .with(Player::new(player_index, vehicle))
-        .build();
-}
-
-
-
-/*
-
-fn intialize_vehicle(
-        world: &mut World, 
-        sprite_sheet_handle: Handle<SpriteSheet>,
-        player_index: usize,
-    ) {
-    let mut local_transform = Transform::default();
-    local_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT /2.0, 0.0);
-
-    // Assign the sprite for the vehicle
-    let sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet_handle,
-        sprite_number: player_index,
-    };
-
-    world
-        .create_entity()
-        .with(sprite_render)
+        .with(vehicle_sprite_render)
         .with(Vehicle::new())
-        .with(local_transform)
+        .with(Weapon::new(weapon_type))
+        .with(Player::new(player_index))
         .build();
+
+
+    //I can build all of this as one entity, but then I get only one sprite.
+    //if I separate it into three entities, then now my systems are broken as their
+    //  is no relationship between these entities. Do I need to apply parent child relationships?
+    //  Isn't this going against the purpose/elegance of ECS?
 }
 
-*/
-
-
-/*
-let p1_transform = UiTransform::new(
-        "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
-        -50., -50., 1., 200., 50.,
-    );
-    let p2_transform = UiTransform::new(
-        "P2".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
-        50., -50., 1., 200., 50.,
-    );
-
-    let p1_score = world
-        .create_entity()
-        .with(p1_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 1., 1., 1.],
-            50.,
-        ))
-        .build();
-
-    let p2_score = world
-        .create_entity()
-        .with(p2_transform)
-        .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
-        .build();
-        */
 
 
 
-/*
-fn initialize_weapon(
-        world: &mut World, 
-        sprite_sheet_handle: Handle<SpriteSheet>,
-        weapon_type: WeaponTypes,
-    ) {
+#[derive(Clone)]
+pub struct WeaponFireResource {
+    /// The component used to create a laser entity
+    pub component: WeaponFire,
+    /// The render that locates the sprite in a sprite sheet resource
+    pub sprite_render: SpriteRender,
+}
 
-    let mut weapon_local_transform = Transform::default();
-    weapon_local_transform.set_translation_xyz(-ARENA_WIDTH, -ARENA_HEIGHT, 0.0);
 
-    let mut fire_local_transform = Transform::default();
-    fire_local_transform.set_translation_xyz(-ARENA_WIDTH, ARENA_HEIGHT, 0.0);
 
-    let fire_sprite_number = match weapon_type.clone() {
-        WeaponTypes::NoWeapon => 0 as usize,
-        WeaponTypes::LaserBeam => 4 as usize,
-        WeaponTypes::LaserPulse => 4 as usize,
-        WeaponTypes::LaserDouble => 4 as usize,
-        WeaponTypes::ProjectileRapidFire => 5 as usize,
-        WeaponTypes::ProjectileBurstFire => 5 as usize,
-        WeaponTypes::ProjectileSnipeFire => 5 as usize,
-        WeaponTypes::Rocket => 6 as usize,
-        WeaponTypes::Missile => 6 as usize,
-        WeaponTypes::Mine => 6 as usize,
-    };
-
-    let weapon_sprite_number = match weapon_type.clone() {
-        WeaponTypes::NoWeapon => 0 as usize,
-        WeaponTypes::LaserBeam => 7 as usize,
-        WeaponTypes::LaserPulse => 7 as usize,
-        WeaponTypes::LaserDouble => 7 as usize,
-        WeaponTypes::ProjectileRapidFire => 8 as usize,
-        WeaponTypes::ProjectileBurstFire => 8 as usize,
-        WeaponTypes::ProjectileSnipeFire => 8 as usize,
-        WeaponTypes::Rocket => 9 as usize,
-        WeaponTypes::Missile => 9 as usize,
-        WeaponTypes::Mine => 9 as usize,
-    };
-
-    if weapon_sprite_number > 0 {
-        let weapon_sprite_render = SpriteRender {
+pub fn initialise_weapon_fire_resource(
+    world: &mut World,
+    sprite_sheet_handle: Handle<SpriteSheet>,
+) -> WeaponFireResource {
+    let weapon_fire_resource = WeaponFireResource {
+        component: WeaponFire::new(WeaponTypes::LaserDouble),
+        sprite_render: SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: weapon_sprite_number,
-        };
-
-        world
-            .create_entity()
-            .with(weapon_sprite_render)
-            .with(Weapon::new(weapon_type.clone()))
-            .with(weapon_local_transform)
-            .build();
-
-
-        // Assign the sprite for the weapon fire
-        let fire_sprite_render = SpriteRender {
-            sprite_sheet: sprite_sheet_handle,
-            sprite_number: fire_sprite_number,
-        };
-
-        world
-            .create_entity()
-            .with(fire_sprite_render)
-            .with(WeaponFire::new(weapon_type.clone()))
-            .with(fire_local_transform)
-            .build();
-    }
+            sprite_number: 4,
+        },
+    };
+    world.insert(weapon_fire_resource.clone());
+    weapon_fire_resource
 }
-*/
+
+
+pub fn fire_weapon(
+    entities: &Entities,
+    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
+    fire_position: Vector3<f32>,
+    fire_angle: f32,
+    lazy_update: &ReadExpect<LazyUpdate>,
+) {
+    let fire_entity: Entity = entities.create();
+    let mut weapon_fire = weapon_fire_resource.component.clone();
+
+    let local_transform = {
+        let mut local_transform = Transform::default();
+        local_transform.set_translation(fire_position);
+
+        let angle_x_comp: f32 = -fire_angle.sin(); //left is -, right is +
+        let angle_y_comp: f32 = fire_angle.cos(); //up is +, down is -
+
+        local_transform.set_rotation_2d(fire_angle);
+
+        weapon_fire.dx = LASER_SPEED * angle_x_comp;
+        weapon_fire.dy = LASER_SPEED * angle_y_comp;
+
+        // the fire position actually represents the middle of our laser. Adjust accordingly.
+        let p = local_transform.translation()[0];
+        local_transform.set_translation_x(p - (weapon_fire.width / 2.0));
+        local_transform
+    };
+    lazy_update.insert(fire_entity, weapon_fire);
+    lazy_update.insert(fire_entity, weapon_fire_resource.sprite_render.clone());
+    lazy_update.insert(fire_entity, local_transform);
+}
+
+
 
 
 

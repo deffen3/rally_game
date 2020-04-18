@@ -48,8 +48,7 @@ fn main() -> amethyst::Result<()> {
         //depends on input bundle system
         .with(systems::VehicleMoveSystem, "vehicle_move_system", &["input_system"])
         .with(systems::VehicleWeaponsSystem, "vehicle_weapons_system", &["input_system"])
-        .with(systems::VehicleWeaponFireSystem, "vehicle_weapon_fire_system", &["vehicle_weapons_system"])
-        .with(systems::MoveWeaponFireSystem, "move_weapon_fire_system", &["vehicle_weapon_fire_system"])
+        .with(systems::MoveWeaponFireSystem, "move_weapon_fire_system", &["vehicle_weapons_system"])
         .with_bundle(TransformBundle::new())?;
 
     let mut game = Application::new(assets_dir, Rally::default(), game_data)?;
