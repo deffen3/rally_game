@@ -1,0 +1,66 @@
+List((
+    texture_width: 30,
+    texture_height: 20,
+    sprites: [
+        ( //ship 0
+            x: 0,
+            y: 0,
+            width: 6,
+            height: 12,
+        ),
+        ( //ship 1
+            x: 7,
+            y: 0,
+            width: 7,
+            height: 12,
+        ),
+        ( //ship 2
+            x: 15,
+            y: 0,
+            width: 6,
+            height: 12,
+        ),
+        ( //ship 3
+            x: 22,
+            y: 0,
+            width: 7,
+            height: 12,
+        ),
+        ( //laser
+            x: 1,
+            y: 14,
+            width: 1,
+            height: 6,
+        ),
+        ( //projectile
+            x: 3,
+            y: 14,
+            width: 1,
+            height: 1,
+        ),
+        ( //mine
+            x: 6,
+            y: 14,
+            width: 3,
+            height: 3,
+        ),
+        ( //laser weapon
+            x: 3,
+            y: 18,
+            width: 2,
+            height: 2,
+        ),
+        ( //projectile weapon
+            x: 6,
+            y: 18,
+            width: 2,
+            height: 2,
+        ),
+        ( //mine weapon
+            x: 9,
+            y: 18,
+            width: 2,
+            height: 2,
+        ),
+    ],
+))

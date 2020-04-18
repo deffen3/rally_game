@@ -1,0 +1,4 @@
+(
+  title: "Rally!",
+  dimensions: Some((1000, 1000)),
+)
