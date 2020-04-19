@@ -21,7 +21,7 @@ pub const ARENA_WIDTH: f32 = 300.0;
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 6.0;
 
-pub const MAX_PLAYERS: usize = 2;
+pub const MAX_PLAYERS: usize = 4;
 
 
 #[derive(Default)]
@@ -57,7 +57,7 @@ impl SimpleState for Rally {
             world, 
             self.sprite_sheet_handle.clone().unwrap(),
             1 as usize,
-            WeaponTypes::Missile,
+            WeaponTypes::LaserBeam,
         );
         intialize_player(
             world, 

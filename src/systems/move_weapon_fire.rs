@@ -23,7 +23,6 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
             transform.prepend_translation_x(weapon_fire.dx * dt);
             transform.prepend_translation_y(weapon_fire.dy * dt);
 
-
             //out of arena logic
             let fire_x = transform.translation().x;
             let fire_y = transform.translation().y;
