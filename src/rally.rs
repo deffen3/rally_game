@@ -15,8 +15,8 @@ use amethyst::input::{BindingTypes};
 
 
 
-pub const ARENA_HEIGHT: f32 = 300.0;
-pub const ARENA_WIDTH: f32 = 300.0;
+pub const ARENA_HEIGHT: f32 = 400.0;
+pub const ARENA_WIDTH: f32 = 400.0;
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 6.0;
@@ -51,19 +51,19 @@ impl SimpleState for Rally {
             world, 
             self.sprite_sheet_handle.clone().unwrap(),
             0 as usize,
-            WeaponTypes::ProjectileCannonFire,
-        );
-        intialize_player(
-            world, 
-            self.sprite_sheet_handle.clone().unwrap(),
-            1 as usize,
             WeaponTypes::LaserBeam,
         );
         intialize_player(
             world, 
             self.sprite_sheet_handle.clone().unwrap(),
+            1 as usize,
+            WeaponTypes::ProjectileBurstFire,
+        );
+        intialize_player(
+            world, 
+            self.sprite_sheet_handle.clone().unwrap(),
             2 as usize,
-            WeaponTypes::Rockets,
+            WeaponTypes::ProjectileRapidFire,
         );
         intialize_player(
             world, 
@@ -124,7 +124,7 @@ impl Weapon {
             WeaponTypes::LaserBeam => 0.0,
             WeaponTypes::LaserPulse => 1.0,
             WeaponTypes::ProjectileBurstFire => 0.5,
-            WeaponTypes::ProjectileRapidFire => 0.2,
+            WeaponTypes::ProjectileRapidFire => 0.15,
             WeaponTypes::ProjectileCannonFire => 1.0,
             WeaponTypes::Missile => 3.0,
             WeaponTypes::Rockets => 3.0,
@@ -134,11 +134,11 @@ impl Weapon {
         let mut burst_cooldown;
         let mut burst_shot_limit; 
         if weapon_type.clone() == WeaponTypes::LaserPulse {
-            burst_cooldown = 0.2 as f32;
+            burst_cooldown = 0.1 as f32;
             burst_shot_limit = 2 as u32;
         }
         else if weapon_type.clone() == WeaponTypes::ProjectileBurstFire{
-            burst_cooldown = 0.2 as f32;
+            burst_cooldown = 0.1 as f32;
             burst_shot_limit = 2 as u32;
         }
         else {
@@ -171,6 +171,7 @@ pub struct WeaponFire {
     pub spawn_y: f32,
     pub spawn_angle: f32,
     pub speed: f32,
+    pub owner_player_id: usize,
     pub weapon_type: WeaponTypes,
 }
 
@@ -180,7 +181,7 @@ impl Component for WeaponFire {
 
 
 impl WeaponFire {
-    fn new(weapon_type: WeaponTypes) -> WeaponFire {
+    fn new(weapon_type: WeaponTypes, owner_player_id: usize) -> WeaponFire {
         let weapon_shot_speed = match weapon_type.clone() {
             WeaponTypes::LaserDouble => 400.0,
             WeaponTypes::LaserBeam => 2800.0,
@@ -195,13 +196,14 @@ impl WeaponFire {
 
         WeaponFire {
             width: 1.0,
-            height: 3.0,
+            height: 6.0,
             dx: 0.0,
             dy: 0.0,
             spawn_x: 0.0,
             spawn_y: 0.0,
             spawn_angle: 0.0,
             speed: weapon_shot_speed,
+            owner_player_id,
             weapon_type,
         }
     }
@@ -383,29 +385,36 @@ pub fn fire_weapon(
     weapon_type: WeaponTypes,
     fire_position: Vector3<f32>,
     fire_angle: f32,
+    player_id: usize,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
     let fire_entity: Entity = entities.create();
-    let mut weapon_fire = WeaponFire::new(weapon_type.clone());
+    let mut weapon_fire = WeaponFire::new(weapon_type.clone(), player_id);
 
     let local_transform = {
         let mut local_transform = Transform::default();
         local_transform.set_translation(fire_position);
 
-        let angle_x_comp: f32 = -fire_angle.sin(); //left is -, right is +
-        let angle_y_comp: f32 = fire_angle.cos(); //up is +, down is -
+        let angle_x_comp: f32 = -fire_angle.sin();
+        let angle_y_comp: f32 = fire_angle.cos();
 
         local_transform.set_rotation_2d(fire_angle);
 
         weapon_fire.dx = weapon_fire.speed * angle_x_comp;
         weapon_fire.dy = weapon_fire.speed * angle_y_comp;
         
-        // the fire position actually represents the middle of our laser. Adjust accordingly.
+        //adjust the first postion
         let x = local_transform.translation().x;
         let y = local_transform.translation().y;
 
-        // local_transform.set_translation_x(x - (weapon_fire.width * angle_x_comp / 2.0));
-        // local_transform.set_translation_y(y + (weapon_fire.height * angle_y_comp));
+        //let yaw_width = weapon_fire.height*0.5 * angle_x_comp + weapon_fire.width*0.5 * (1.0-angle_x_comp);
+        //let yaw_height = weapon_fire.height*0.5 * angle_y_comp + weapon_fire.width*0.5 * (1.0-angle_y_comp);
+        let yaw_width = 0.0;
+        let yaw_height = 0.0;
+
+        local_transform.set_translation_x(x - yaw_width);
+        local_transform.set_translation_y(y + yaw_height);
+
         local_transform
     };
     lazy_update.insert(fire_entity, weapon_fire);
