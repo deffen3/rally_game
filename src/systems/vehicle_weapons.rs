@@ -5,7 +5,7 @@ use amethyst::input::{InputHandler};
 use amethyst::core::math::Vector3;
 
 use crate::rally::{Vehicle, Player, ActionBinding, MovementBindingTypes, 
-    Weapon, WeaponFire, WeaponFireResource, fire_weapon, WEAPON_COOLDOWN};
+    Weapon, WeaponFire, WeaponFireResource, fire_weapon};
 
 #[derive(SystemDesc)]
 pub struct VehicleWeaponsSystem;
@@ -44,9 +44,17 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                     let vehicle_rotation = transform.rotation();
                     let (_, _, fire_angle) = vehicle_rotation.euler_angles();
 
-                    fire_weapon(&entities, &weapon_fire_resource, fire_position, fire_angle, &lazy_update);
+                    fire_weapon(&entities, &weapon_fire_resource, weapon.weapon_type.clone(), fire_position, fire_angle, &lazy_update);
 
-                    weapon.weapon_cooldown_timer = WEAPON_COOLDOWN;
+                    if fire && weapon.burst_shots < weapon.burst_shot_limit {
+                        weapon.weapon_cooldown_timer = weapon.burst_cooldown_reset;
+                        weapon.burst_shots += 1;
+                    }
+                    else {
+                        weapon.weapon_cooldown_timer = weapon.weapon_cooldown_reset;
+                        weapon.burst_shots = 0;
+                    }
+                    
                 }
             }
             weapon.weapon_cooldown_timer = (weapon.weapon_cooldown_timer - dt).max(-1.0);

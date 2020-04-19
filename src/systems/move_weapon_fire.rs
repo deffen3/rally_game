@@ -20,8 +20,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         let dt = time.delta_seconds();
 
         for (entity, weapon_fire, transform) in (&*entities, &mut weapon_fires, &mut transforms).join() {
-            transform.prepend_translation_x(weapon_fire.dx);
-            transform.prepend_translation_y(weapon_fire.dy);
+            transform.prepend_translation_x(weapon_fire.dx * dt);
+            transform.prepend_translation_y(weapon_fire.dy * dt);
 
 
             //out of arena logic

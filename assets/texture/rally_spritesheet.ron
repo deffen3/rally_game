@@ -26,47 +26,60 @@ List((
             width: 7,
             height: 12,
         ),
-        ( //laser #4
+        ( //laser double #4
             x: 1,
             y: 14,
-            width: 1,
+            width: 3,
             height: 6,
         ),
-        ( //projectile #5
-            x: 3,
+        ( //laser beam #5
+            x: 6,
+            y: 0,
+            width: 1,
+            height: 20,
+        ),
+        ( //laser burst #6
+            x: 8,
             y: 14,
             width: 1,
-            height: 1,
+            height: 3,
         ),
-        ( //mine #6
-            x: 6,
+        ( //projectile snipe #7
+            x: 10,
+            y: 14,
+            width: 2,
+            height: 3,
+        ),
+        ( //projectile burst #8
+            x: 13,
+            y: 14,
+            width: 1,
+            height: 4,
+        ),
+        ( //projectile rapid #9
+            x: 15,
+            y: 14,
+            width: 1,
+            height: 2,
+        ),
+        ( //mine #10
+            x: 17,
             y: 14,
             width: 3,
             height: 3,
         ),
-        ( //no weapon #7
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
+        ( //missile #11
+            x: 21,
+            y: 14,
+            width: 3,
+            height: 5,
         ),
-        ( //laser weapon #8
-            x: 3,
-            y: 18,
-            width: 2,
-            height: 2,
+        ( //rockets #12
+            x: 25,
+            y: 14,
+            width: 5,
+            height: 3,
         ),
-        ( //projectile weapon #9
-            x: 6,
-            y: 18,
-            width: 2,
-            height: 2,
-        ),
-        ( //mine weapon #10
-            x: 9,
-            y: 18,
-            width: 2,
-            height: 2,
-        ),
+        
     ],
 ))
