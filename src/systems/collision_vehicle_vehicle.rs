@@ -1,34 +1,34 @@
 use amethyst::core::{Transform, Time};
 use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage};
+use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, Entities, Write};
+use amethyst::shrev::{EventChannel};
 
 use std::f32::consts::PI;
 
-use crate::rally::{Vehicle, Player};
+use crate::rally::{Vehicle, Player, CollisionEvent};
 
-#[derive(SystemDesc)]
-pub struct CollisionVehicleVehicleSystem;
-
-
-pub const VEHICLE_HIT_BOUNCE_DECEL_PCT: f32 = -0.35;
+#[derive(SystemDesc, Default)]
+pub struct CollisionVehToVehSystem;
 
 
-impl<'s> System<'s> for CollisionVehicleVehicleSystem {
+impl<'s> System<'s> for CollisionVehToVehSystem {
     type SystemData = (
+        Entities<'s>,
         ReadStorage<'s, Transform>,
         ReadStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         Read<'s, Time>,
+        Write<'s, EventChannel<CollisionEvent>>,
     );
 
-    fn run(&mut self, (transforms, players, mut vehicles, time): Self::SystemData) {
+    fn run(&mut self, (entities, transforms, players, mut vehicles, time, mut collision_event_channel): Self::SystemData) {
         //let dt = time.delta_seconds();
 
-        for (vehicle_1, player_1, vehicle_1_transform) in (&vehicles, &players, &transforms).join() {
+        for (vehicle_1_entity, vehicle_1, player_1, vehicle_1_transform) in (&*entities, &vehicles, &players, &transforms).join() {
             let vehicle_1_x = vehicle_1_transform.translation().x;
             let vehicle_1_y = vehicle_1_transform.translation().y;
 
-            for (vehicle_2, player_2, vehicle_2_transform) in (&vehicles, &players, &transforms).join() {
+            for (vehicle_2_entity, vehicle_2, player_2, vehicle_2_transform) in (&*entities, &vehicles, &players, &transforms).join() {
                 let vehicle_2_x = vehicle_2_transform.translation().x;
                 let vehicle_2_y = vehicle_2_transform.translation().y;
 
@@ -48,6 +48,10 @@ impl<'s> System<'s> for CollisionVehicleVehicleSystem {
 
                         //vehicle_2.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_x_comp.abs();
                         //vehicle_2.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_y_comp.abs();
+
+
+
+                        collision_event_channel.single_write(CollisionEvent::new(vehicle_1_entity, vehicle_2_entity));
                     }
                 }
             }

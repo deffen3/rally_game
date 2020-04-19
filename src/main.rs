@@ -49,7 +49,8 @@ fn main() -> amethyst::Result<()> {
         .with(systems::VehicleMoveSystem, "vehicle_move_system", &["input_system"])
         .with(systems::VehicleWeaponsSystem, "vehicle_weapons_system", &["input_system"])
         .with(systems::MoveWeaponFireSystem, "move_weapon_fire_system", &["vehicle_weapons_system"])
-        //.with(systems::CollisionVehicleVehicleSystem, "collision_vehicle_vehicle_system", &["vehicle_move_system"])
+        .with(systems::CollisionVehToVehSystem, "collision_vehicle_vehicle_system", &["vehicle_move_system"])
+        //.with(systems::CollisionVehHandlerSystem, "collision_vehicle_vehicle_handler_system", &["collision_vehicle_vehicle_system"])
         .with(systems::CollisionVehicleWeaponFireSystem, "collision_vehicle_weapon_fire_system", &["vehicle_move_system"])
         .with_bundle(TransformBundle::new())?;
 

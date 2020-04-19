@@ -253,6 +253,24 @@ impl Player {
 
 
 
+
+#[derive(Debug)]
+pub struct CollisionEvent {
+    pub entity_1: Entity,
+    pub entity_2: Entity,
+}
+
+impl CollisionEvent {
+    pub fn new(entity_1: Entity, entity_2: Entity) -> CollisionEvent {
+        CollisionEvent {entity_1, entity_2}
+    }
+}
+
+
+
+
+
+
 fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     // Load the sprite sheet necessary to render the graphics.
     // The texture is the pixel data
