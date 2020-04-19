@@ -7,20 +7,8 @@ use std::f32::consts::PI;
 
 use crate::rally::{Vehicle, Player, CollisionEvent};
 
-/*
-#[derive(SystemDesc)]
-pub struct CollisionVehHandlerSystem;
-*/
-
-/*
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehHandlerSystem {
-    event_reader: Option<ReaderId<CollisionEvent>>,
-}
-*/
-
-#[derive(Default)]
-pub struct CollisionVehHandlerSystem{
     event_reader: Option<ReaderId<CollisionEvent>>,
 }
 
