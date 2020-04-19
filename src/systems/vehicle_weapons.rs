@@ -5,10 +5,11 @@ use amethyst::input::{InputHandler};
 use amethyst::core::math::Vector3;
 
 use crate::rally::{Vehicle, Player, ActionBinding, MovementBindingTypes, 
-    Weapon, WeaponFire, WeaponFireResource, fire_weapon};
+    Weapon, WeaponFireResource, fire_weapon};
 
 #[derive(SystemDesc)]
 pub struct VehicleWeaponsSystem;
+
 
 impl<'s> System<'s> for VehicleWeaponsSystem {
     type SystemData = (

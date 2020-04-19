@@ -290,7 +290,8 @@ fn intialize_player(
         
 
     let mut vehicle_transform = Transform::default();
-    vehicle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT /2.0, 0.0);
+
+    vehicle_transform.set_translation_xyz(ARENA_WIDTH / 5.0 * ((player_index + 1) as f32), ARENA_HEIGHT /2.0, 0.0);
 
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
