@@ -12,14 +12,7 @@ use crate::rally::{Vehicle, Player, CollisionEvent};
 pub struct CollisionVehHandlerSystem;
 */
 
-/*
 #[derive(SystemDesc, Default)]
-pub struct CollisionVehHandlerSystem {
-    event_reader: Option<ReaderId<CollisionEvent>>,
-}
-*/
-
-#[derive(Default)]
 pub struct CollisionVehHandlerSystem{
     event_reader: Option<ReaderId<CollisionEvent>>,
 }
@@ -37,11 +30,11 @@ impl<'s> System<'s> for CollisionVehHandlerSystem {
         Write<'s, EventChannel<CollisionEvent>>,
     );
 
-    /*
+
     fn setup(&mut self, world: &mut World) {
         Self::SystemData::setup(world);
         self.event_reader = Some(world.fetch_mut::<EventChannel<CollisionEvent>>().register_reader());
-    }*/
+    }
 
     fn run(&mut self, (entities, transforms, players, mut vehicles, time, mut collision_event_channel): Self::SystemData) {
         //let dt = time.delta_seconds();
