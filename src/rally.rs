@@ -254,18 +254,6 @@ impl Player {
 
 
 
-#[derive(Debug)]
-pub struct CollisionEvent {
-    pub entity_1: Entity,
-    pub entity_2: Entity,
-}
-
-impl CollisionEvent {
-    pub fn new(entity_1: Entity, entity_2: Entity) -> CollisionEvent {
-        CollisionEvent {entity_1, entity_2}
-    }
-}
-
 
 
 

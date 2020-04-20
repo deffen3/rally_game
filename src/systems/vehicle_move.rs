@@ -10,7 +10,7 @@ use crate::rally::{Vehicle, Player, ARENA_HEIGHT, ARENA_WIDTH, AxisBinding, Move
 pub const WALL_HIT_BOUNCE_DECEL_PCT: f32 = -0.35;
 pub const WALL_HIT_NON_BOUNCE_DECEL_PCT: f32 = 0.35;
 
-pub const VEHICLE_ROTATE_ACCEL_RATE: f32 = 3.2;
+pub const VEHICLE_ROTATE_ACCEL_RATE: f32 = 2.7;
 pub const VEHICLE_ACCEL_RATE: f32 = 0.9;
 pub const VEHICLE_DECEL_RATE: f32 = 0.6;
 pub const VEHICLE_FRICTION_DECEL_RATE: f32 = 0.3;

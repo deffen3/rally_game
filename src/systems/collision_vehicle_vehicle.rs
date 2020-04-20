@@ -1,11 +1,10 @@
 use amethyst::core::{Transform, Time};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, Entities, Write};
-use amethyst::shrev::{EventChannel};
 
 use std::f32::consts::PI;
 
-use crate::rally::{Vehicle, Player, CollisionEvent};
+use crate::rally::{Vehicle, Player};
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
@@ -18,10 +17,9 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
         ReadStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         Read<'s, Time>,
-        Write<'s, EventChannel<CollisionEvent>>,
     );
 
-    fn run(&mut self, (entities, transforms, players, mut vehicles, time, mut collision_event_channel): Self::SystemData) {
+    fn run(&mut self, (entities, transforms, players, mut vehicles, time): Self::SystemData) {
         //let dt = time.delta_seconds();
 
         for (vehicle_1_entity, vehicle_1, player_1, vehicle_1_transform) in (&*entities, &vehicles, &players, &transforms).join() {
@@ -49,9 +47,6 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         //vehicle_2.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_x_comp.abs();
                         //vehicle_2.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_y_comp.abs();
 
-
-
-                        collision_event_channel.single_write(CollisionEvent::new(vehicle_1_entity, vehicle_2_entity));
                     }
                 }
             }
