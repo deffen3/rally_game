@@ -83,6 +83,38 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
 
                         play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         vehicle.collision_cooldown_timer = 1.0;
+
+                        let mut damage:f32 = 20.0;
+
+                        if vehicle.shield > 0.0 {
+                            vehicle.shield -= damage;
+                            damage = 0.0;
+
+                            if vehicle.shield < 0.0 {
+                                damage -= vehicle.shield; //over damage on shields, needs taken from armor
+                            }
+                        }
+
+                        if vehicle.armor > 0.0 {
+                            vehicle.armor -= damage;
+                            damage = 0.0;
+
+                            if vehicle.armor < 0.0 {
+                                damage -= vehicle.armor; //over damage on armor, needs taken from health
+                            }
+                        }
+
+                        if vehicle.health <= damage {
+                            //vehicle destroyed
+                            vehicle.health = 0.0;
+                            let _ = entities.delete(vehicle_entity);
+                        }
+                        else {
+                            vehicle.health -= damage;
+                            damage = 0.0;
+                        }
+
+                        println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
                     }
                     else {
                         vehicle.collision_cooldown_timer -= dt;

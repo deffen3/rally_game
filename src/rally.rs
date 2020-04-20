@@ -55,17 +55,18 @@ impl SimpleState for Rally {
 
         let mut rng = rand::thread_rng();
 
+        /*
         let weapon1: WeaponTypes = weapon_type_from_u8(6);
         let weapon2: WeaponTypes = weapon_type_from_u8(7);
         let weapon3: WeaponTypes = weapon_type_from_u8(8);
         let weapon4: WeaponTypes = weapon_type_from_u8(100);
-
-        /*
+        */
+        
         let weapon1: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon2: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon3: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon4: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
-        */
+        
 
         intialize_player(
             world, 
@@ -208,6 +209,11 @@ pub struct WeaponFire {
     pub spawn_angle: f32,
     pub speed: f32,
     pub owner_player_id: usize,
+    pub damage: f32,
+    pub shield_damage_pct: f32,
+    pub armor_damage_pct: f32,
+    pub piercing_damage_pct: f32,
+    pub health_damage_pct: f32,
     pub weapon_type: WeaponTypes,
 }
 
@@ -240,6 +246,11 @@ impl WeaponFire {
             spawn_angle: 0.0,
             speed: weapon_shot_speed,
             owner_player_id,
+            damage: 24.0,
+            shield_damage_pct: 1.00,
+            armor_damage_pct: 0.80,
+            piercing_damage_pct: 0.0,
+            health_damage_pct: 1.00,
             weapon_type,
         }
     }
@@ -253,6 +264,9 @@ pub struct Vehicle {
     pub dx: f32,
     pub dy: f32,
     pub collision_cooldown_timer: f32,
+    pub health: f32,
+    pub shield: f32,
+    pub armor: f32,
 }
 
 impl Component for Vehicle {
@@ -267,6 +281,9 @@ impl Vehicle {
             dx: 0.0,
             dy: 0.0,
             collision_cooldown_timer: -1.0,
+            health: 100.0,
+            shield: 100.0,
+            armor: 100.0,
         }
     }
 }

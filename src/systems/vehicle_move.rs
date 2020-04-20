@@ -1,6 +1,6 @@
 use amethyst::core::{Transform, Time};
 use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadExpect};
+use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadExpect, Entities};
 use amethyst::input::{InputHandler};
 
 use amethyst::{
@@ -29,6 +29,7 @@ pub struct VehicleMoveSystem;
 
 impl<'s> System<'s> for VehicleMoveSystem {
     type SystemData = (
+        Entities<'s>, 
         WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
@@ -39,9 +40,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
         Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (mut players, mut transforms, mut vehicles, 
+    fn run(&mut self, (entities, mut players, mut transforms, mut vehicles, 
             time, input, storage, sounds, audio_output): Self::SystemData) {
-        for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
+        for (entity, player, vehicle, transform) in (&*entities, &mut players, &mut vehicles, &mut transforms).join() {
             let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
             let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
 
