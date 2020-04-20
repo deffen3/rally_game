@@ -14,6 +14,7 @@ use std::ops::Deref;
 use crate::audio::{play_score_sound, Sounds};
 
 
+pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.25;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehicleWeaponFireSystem {
@@ -55,7 +56,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
     
                         if self.hit_sound_cooldown_timer < 0.0 {
                             play_score_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
-                            self.hit_sound_cooldown_timer = 0.5;
+                            self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
                         }
                     }
                 }

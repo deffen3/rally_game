@@ -55,11 +55,17 @@ impl SimpleState for Rally {
 
         let mut rng = rand::thread_rng();
 
-        let weapon1: WeaponTypes = weapon_type_from_u8(0);
+        let weapon1: WeaponTypes = weapon_type_from_u8(6);
+        let weapon2: WeaponTypes = weapon_type_from_u8(7);
+        let weapon3: WeaponTypes = weapon_type_from_u8(8);
+        let weapon4: WeaponTypes = weapon_type_from_u8(100);
+
+        /*
+        let weapon1: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon2: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon3: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon4: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
-
+        */
 
         intialize_player(
             world, 
@@ -156,8 +162,8 @@ impl Weapon {
             WeaponTypes::ProjectileBurstFire => 0.5,
             WeaponTypes::ProjectileRapidFire => 0.15,
             WeaponTypes::ProjectileCannonFire => 0.9,
-            WeaponTypes::Missile => 1.5,
-            WeaponTypes::Rockets => 1.5,
+            WeaponTypes::Missile => 2.5,
+            WeaponTypes::Rockets => 0.5,
             WeaponTypes::Mine => 2.5,
         };
 
