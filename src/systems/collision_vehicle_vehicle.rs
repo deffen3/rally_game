@@ -1,10 +1,19 @@
-use amethyst::core::{Transform, Time};
-use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, Entities, Write};
+use amethyst::{
+    core::{Transform, Time},
+    derive::SystemDesc,
+    ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities, Entity, Write},
+    assets::AssetStorage,
+    audio::{output::Output, Source},
+};
 
 use std::f32::consts::PI;
+use itertools::Itertools;
 
 use crate::rally::{Vehicle, Player};
+
+use std::ops::Deref;
+use crate::audio::{play_bounce_sound, Sounds};
+
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
@@ -13,14 +22,20 @@ pub struct CollisionVehToVehSystem;
 impl<'s> System<'s> for CollisionVehToVehSystem {
     type SystemData = (
         Entities<'s>,
-        ReadStorage<'s, Transform>,
+        WriteStorage<'s, Transform>,
         ReadStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         Read<'s, Time>,
+        Read<'s, AssetStorage<Source>>,
+        ReadExpect<'s, Sounds>,
+        Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (entities, transforms, players, mut vehicles, time): Self::SystemData) {
-        //let dt = time.delta_seconds();
+    fn run(&mut self, (entities, mut transforms, players, mut vehicles,
+            time, storage, sounds, audio_output): Self::SystemData) {
+        let dt = time.delta_seconds();
+
+        let mut collision_ids_vec = Vec::new();
 
         for (vehicle_1_entity, vehicle_1, player_1, vehicle_1_transform) in (&*entities, &vehicles, &players, &transforms).join() {
             let vehicle_1_x = vehicle_1_transform.translation().x;
@@ -47,9 +62,35 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         //vehicle_2.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_x_comp.abs();
                         //vehicle_2.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_y_comp.abs();
 
+                        collision_ids_vec.push(player_1.id);
+                        collision_ids_vec.push(player_2.id);
                     }
                 }
             }
         }
+
+        let collision_ids_vec: Vec<_> = collision_ids_vec.into_iter().unique().collect();
+
+        for (vehicle_entity, vehicle, player, vehicle_transform) in (&*entities, &mut vehicles, &players, &mut transforms).join() {
+            let vehicle_x = vehicle_transform.translation().x;
+            let vehicle_y = vehicle_transform.translation().y;
+
+            for col_id in &collision_ids_vec {
+                if player.id == *col_id {
+
+                    if vehicle.collision_cooldown_timer <= 0.0 {
+                        println!("Player {} has collided", player.id);
+
+                        play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        vehicle.collision_cooldown_timer = 1.0;
+                    }
+                    else {
+                        vehicle.collision_cooldown_timer -= dt;
+                    }
+                }
+            }
+        }
+
+        
     }
 }

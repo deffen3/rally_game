@@ -13,6 +13,8 @@ use serde::{Serialize, Deserialize};
 
 use amethyst::input::{BindingTypes};
 
+use crate::audio::initialise_audio;
+
 
 
 pub const ARENA_HEIGHT: f32 = 400.0;
@@ -37,6 +39,8 @@ impl SimpleState for Rally {
 
         initialise_camera(world);
         initialise_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
+
+        initialise_audio(world);
 
         // for player_index in 0..MAX_PLAYERS {
         //     intialize_player(
@@ -216,6 +220,7 @@ pub struct Vehicle {
     pub height: f32,
     pub dx: f32,
     pub dy: f32,
+    pub collision_cooldown_timer: f32,
 }
 
 impl Component for Vehicle {
@@ -229,6 +234,7 @@ impl Vehicle {
             height: VEHICLE_HEIGHT,
             dx: 0.0,
             dy: 0.0,
+            collision_cooldown_timer: -1.0,
         }
     }
 }
@@ -250,9 +256,6 @@ impl Player {
         }
     }
 }
-
-
-
 
 
 

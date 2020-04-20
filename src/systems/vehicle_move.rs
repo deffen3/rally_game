@@ -1,7 +1,12 @@
 use amethyst::core::{Transform, Time};
 use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage};
+use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadExpect};
 use amethyst::input::{InputHandler};
+
+use amethyst::{
+    assets::AssetStorage,
+    audio::{output::Output, Source},
+};
 
 use std::f32::consts::PI;
 
@@ -15,6 +20,9 @@ pub const VEHICLE_ACCEL_RATE: f32 = 0.9;
 pub const VEHICLE_DECEL_RATE: f32 = 0.6;
 pub const VEHICLE_FRICTION_DECEL_RATE: f32 = 0.3;
 
+use std::ops::Deref;
+use crate::audio::{play_bounce_sound, Sounds};
+
 
 #[derive(SystemDesc)]
 pub struct VehicleMoveSystem;
@@ -26,9 +34,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
         WriteStorage<'s, Vehicle>,
         Read<'s, Time>,
         Read<'s, InputHandler<MovementBindingTypes>>,
+        Read<'s, AssetStorage<Source>>,
+        ReadExpect<'s, Sounds>,
+        Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (mut players, mut transforms, mut vehicles, time, input): Self::SystemData) {
+    fn run(&mut self, (mut players, mut transforms, mut vehicles, 
+            time, input, storage, sounds, audio_output): Self::SystemData) {
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
             let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
             let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
@@ -108,23 +120,53 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 transform.set_translation_x(ARENA_WIDTH - yaw_width);
                 vehicle.dx *= WALL_HIT_BOUNCE_DECEL_PCT * velocity_x_comp.abs();
                 vehicle.dy *= WALL_HIT_NON_BOUNCE_DECEL_PCT * velocity_y_comp.abs();
+
+                if vehicle.collision_cooldown_timer <= 0.0 {
+                    println!("Player {} has collided", player.id);
+
+                    play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                    vehicle.collision_cooldown_timer = 1.0;
+                }
             }
             else if vehicle_x < (yaw_width) { //hit the left wall
                 transform.set_translation_x(yaw_width);
                 vehicle.dx *= WALL_HIT_BOUNCE_DECEL_PCT * velocity_x_comp.abs();
                 vehicle.dy *= WALL_HIT_NON_BOUNCE_DECEL_PCT * velocity_y_comp.abs();
+
+                if vehicle.collision_cooldown_timer <= 0.0 {
+                    println!("Player {} has collided", player.id);
+
+                    play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                    vehicle.collision_cooldown_timer = 1.0;
+                }
             }
 
             if vehicle_y > (ARENA_HEIGHT - yaw_height) { //hit the top wall
                 transform.set_translation_y(ARENA_HEIGHT - yaw_height);
                 vehicle.dx *= WALL_HIT_NON_BOUNCE_DECEL_PCT * velocity_x_comp.abs();
                 vehicle.dy *= WALL_HIT_BOUNCE_DECEL_PCT * velocity_y_comp.abs();
+
+                if vehicle.collision_cooldown_timer <= 0.0 {
+                    println!("Player {} has collided", player.id);
+
+                    play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                    vehicle.collision_cooldown_timer = 1.0;
+                }
             }
             else if vehicle_y < (yaw_height) { //hit the bottom wall
                 transform.set_translation_y(yaw_height);
                 vehicle.dx *= WALL_HIT_NON_BOUNCE_DECEL_PCT * velocity_x_comp.abs();
                 vehicle.dy *= WALL_HIT_BOUNCE_DECEL_PCT * velocity_y_comp.abs();
+                
+                if vehicle.collision_cooldown_timer <= 0.0 {
+                    println!("Player {} has collided", player.id);
+
+                    play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                    vehicle.collision_cooldown_timer = 1.0;
+                }
             }
+
+            vehicle.collision_cooldown_timer -= dt;
         }
     }
 }
