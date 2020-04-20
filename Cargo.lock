@@ -2393,6 +2393,7 @@ version = "0.1.0"
 dependencies = [
  "amethyst",
  "itertools 0.7.11",
+ "rand 0.7.3",
  "serde",
 ]
 

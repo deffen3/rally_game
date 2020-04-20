@@ -8,6 +8,7 @@ edition = "2018"
 amethyst = "0.15.0"
 serde = { version = "1", features = ["derive"] }
 itertools = "0.7.6"
+rand = "0.7.3"
 
 [features]
 default = ["vulkan"]

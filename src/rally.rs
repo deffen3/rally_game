@@ -15,6 +15,8 @@ use amethyst::input::{BindingTypes};
 
 use crate::audio::initialise_audio;
 
+use rand::Rng;
+
 
 
 pub const ARENA_HEIGHT: f32 = 400.0;
@@ -51,29 +53,37 @@ impl SimpleState for Rally {
         //     );
         // }
 
+        let mut rng = rand::thread_rng();
+
+        let weapon1: WeaponTypes = weapon_type_from_u8(0);
+        let weapon2: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
+        let weapon3: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
+        let weapon4: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
+
+
         intialize_player(
             world, 
             self.sprite_sheet_handle.clone().unwrap(),
             0 as usize,
-            WeaponTypes::LaserBeam,
+            weapon1,
         );
         intialize_player(
             world, 
             self.sprite_sheet_handle.clone().unwrap(),
             1 as usize,
-            WeaponTypes::ProjectileBurstFire,
+            weapon2,
         );
         intialize_player(
             world, 
             self.sprite_sheet_handle.clone().unwrap(),
             2 as usize,
-            WeaponTypes::ProjectileRapidFire,
+            weapon3,
         );
         intialize_player(
             world, 
             self.sprite_sheet_handle.clone().unwrap(),
             3 as usize,
-            WeaponTypes::Mine,
+            weapon4,
         );
 
 
@@ -86,6 +96,22 @@ impl SimpleState for Rally {
         data.world.maintain();
 
         Trans::None
+    }
+}
+
+
+fn weapon_type_from_u8(n: u8) -> WeaponTypes {
+    match n {
+        0 => WeaponTypes::LaserBeam,
+        1 => WeaponTypes::LaserPulse,
+        2 => WeaponTypes::LaserDouble,
+        3 => WeaponTypes::ProjectileRapidFire,
+        4 => WeaponTypes::ProjectileBurstFire,
+        5 => WeaponTypes::ProjectileCannonFire,
+        6 => WeaponTypes::Mine,
+        7 => WeaponTypes::Missile,
+        8 => WeaponTypes::Rockets,
+        _ => WeaponTypes::LaserBeam,
     }
 }
 
@@ -124,15 +150,15 @@ impl Component for Weapon {
 impl Weapon {
     fn new(weapon_type: WeaponTypes) -> Weapon {
         let weapon_cooldown = match weapon_type.clone() {
-            WeaponTypes::LaserDouble => 0.5,
+            WeaponTypes::LaserDouble => 0.4,
             WeaponTypes::LaserBeam => 0.0,
-            WeaponTypes::LaserPulse => 1.0,
+            WeaponTypes::LaserPulse => 0.75,
             WeaponTypes::ProjectileBurstFire => 0.5,
             WeaponTypes::ProjectileRapidFire => 0.15,
-            WeaponTypes::ProjectileCannonFire => 1.0,
-            WeaponTypes::Missile => 3.0,
-            WeaponTypes::Rockets => 3.0,
-            WeaponTypes::Mine => 3.0,
+            WeaponTypes::ProjectileCannonFire => 0.9,
+            WeaponTypes::Missile => 1.5,
+            WeaponTypes::Rockets => 1.5,
+            WeaponTypes::Mine => 2.5,
         };
 
         let mut burst_cooldown;
