@@ -249,10 +249,10 @@ impl WeaponFire {
             speed: weapon_shot_speed,
             owner_player_id,
             damage: 24.0,
-            shield_damage_pct: 1.00,
-            armor_damage_pct: 0.80,
+            shield_damage_pct: 100.0,
+            armor_damage_pct: 80.,
             piercing_damage_pct: 0.0,
-            health_damage_pct: 1.00,
+            health_damage_pct: 100.0,
             weapon_type,
         }
     }
@@ -260,15 +260,30 @@ impl WeaponFire {
 
 
 
+
+/*
+pub const WALL_HIT_BOUNCE_DECEL_PCT: f32 = -0.35;
+pub const WALL_HIT_NON_BOUNCE_DECEL_PCT: f32 = 0.35;
+
+pub const VEHICLE_ROTATE_ACCEL_RATE: f32 = 2.7;
+pub const VEHICLE_ACCEL_RATE: f32 = 0.9;
+pub const VEHICLE_DECEL_RATE: f32 = 0.6;
+pub const VEHICLE_FRICTION_DECEL_RATE: f32 = 0.3;
+*/
+
+
 pub struct Vehicle {
     pub width: f32,
     pub height: f32,
     pub dx: f32,
     pub dy: f32,
+    pub dr: f32,
     pub collision_cooldown_timer: f32,
     pub health: f32,
     pub shield: f32,
     pub armor: f32,
+    pub weight: f32,
+    pub engine_power: f32
 }
 
 impl Component for Vehicle {
@@ -282,10 +297,13 @@ impl Vehicle {
             height: VEHICLE_HEIGHT,
             dx: 0.0,
             dy: 0.0,
+            dr: 0.0,
             collision_cooldown_timer: -1.0,
             health: 100.0,
             shield: 100.0,
             armor: 100.0,
+            weight: 100.0,
+            engine_power: 100.0,
         }
     }
 }
@@ -509,14 +527,14 @@ pub fn fire_weapon(
     let mut piercing_damage:f32 = 0.0;
 
     if piercing_damage_pct > 0.0 {
-        piercing_damage = damage * piercing_damage_pct;
+        piercing_damage = damage * piercing_damage_pct/100.0;
         damage -= piercing_damage;
     }
 
     println!("H:{} A:{} S:{} P:{}, D:{}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
     if vehicle.shield > 0.0 {
-        vehicle.shield -= (damage * shield_damage_pct);
+        vehicle.shield -= (damage * shield_damage_pct/100.0);
         damage = 0.0;
 
         if vehicle.shield < 0.0 {
@@ -528,7 +546,7 @@ pub fn fire_weapon(
     println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
 
     if vehicle.armor > 0.0 {
-        vehicle.armor -= (damage * armor_damage_pct);
+        vehicle.armor -= (damage * armor_damage_pct/100.0);
         damage = 0.0;
 
         if vehicle.armor < 0.0 {
@@ -539,7 +557,7 @@ pub fn fire_weapon(
 
     println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
 
-    let mut health_damage:f32 = (damage + piercing_damage) * health_damage_pct;
+    let mut health_damage:f32 = (damage + piercing_damage) * health_damage_pct/100.0;
 
     let mut vehicle_destroyed = false;
 

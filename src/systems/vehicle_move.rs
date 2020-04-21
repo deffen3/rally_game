@@ -13,13 +13,6 @@ use std::f32::consts::PI;
 use crate::rally::{Vehicle, Player, ARENA_HEIGHT, ARENA_WIDTH, AxisBinding, MovementBindingTypes, 
     vehicle_damage_model, COLLISION_DAMAGE};
 
-pub const WALL_HIT_BOUNCE_DECEL_PCT: f32 = -0.35;
-pub const WALL_HIT_NON_BOUNCE_DECEL_PCT: f32 = 0.35;
-
-pub const VEHICLE_ROTATE_ACCEL_RATE: f32 = 2.7;
-pub const VEHICLE_ACCEL_RATE: f32 = 0.9;
-pub const VEHICLE_DECEL_RATE: f32 = 0.6;
-pub const VEHICLE_FRICTION_DECEL_RATE: f32 = 0.3;
 
 use std::ops::Deref;
 use crate::audio::{play_bounce_sound, Sounds};
@@ -47,6 +40,19 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
             let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
 
+
+            let wall_hit_non_bounce_decel_pct: f32 = 0.35;
+            let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
+            
+
+            let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power/100.0;
+            let rotate_friction_decel_rate: f32 = 0.99 * vehicle.engine_power/100.0;
+
+            let thrust_accel_rate: f32 = 0.9 * vehicle.engine_power/100.0;
+            let thrust_decel_rate: f32 = 0.6 * vehicle.engine_power/100.0;
+            let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_power/100.0;
+            
+
             //println!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
 
             let dt = time.delta_seconds();
@@ -66,10 +72,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
             if let Some(move_amount) = vehicle_accel {
 
                 let scaled_amount: f32 = if move_amount > 0.0 {
-                    VEHICLE_ACCEL_RATE * move_amount as f32
+                    thrust_accel_rate * move_amount as f32
                 }
                 else {
-                    VEHICLE_DECEL_RATE * move_amount as f32
+                    thrust_decel_rate * move_amount as f32
                 };
 
                 vehicle.dx += scaled_amount * yaw_x_comp * dt;
@@ -89,8 +95,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             //println!("vel_angle_sin:{0:>6.3}, vel_angle_cos:{1:>6.3}", velocity_x_comp, velocity_y_comp);
 
-            vehicle.dx -= VEHICLE_FRICTION_DECEL_RATE * velocity_x_comp * dt;
-            vehicle.dy -= VEHICLE_FRICTION_DECEL_RATE * velocity_y_comp * dt;
+            vehicle.dx -= thrust_friction_decel_rate * velocity_x_comp * dt;
+            vehicle.dy -= thrust_friction_decel_rate * velocity_y_comp * dt;
 
 
             //println!("vel_x:{0:>6.3}, vel_y:{1:>6.3}", vehicle.dx, vehicle.dy);
@@ -105,10 +111,34 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             //Apply vehicle rotation from turn input
             if let Some(turn_amount) = vehicle_turn {
-                let scaled_amount = VEHICLE_ROTATE_ACCEL_RATE * turn_amount as f32;
+                let mut scaled_amount = rotate_accel_rate * turn_amount as f32;
 
-                transform.set_rotation_2d(yaw + (scaled_amount * dt));
+                if scaled_amount > 0.1 || scaled_amount < -0.1 {
+                    if (vehicle.dr > 0.1) {
+                        vehicle.dr += (scaled_amount - rotate_friction_decel_rate) * dt;
+                    }
+                    else if (vehicle.dr < -0.1) {
+                        vehicle.dr += (scaled_amount + rotate_friction_decel_rate) * dt;
+                    }
+                    else {
+                        vehicle.dr += (scaled_amount) * dt;
+                    }   
+                }
+                else if (vehicle.dr > 0.1) {
+                    vehicle.dr += (-rotate_friction_decel_rate) * dt;
+                }
+                else if (vehicle.dr < -0.1) {
+                    vehicle.dr += (rotate_friction_decel_rate) * dt;
+                }
+                else {
+                    vehicle.dr = 0.0;
+                }  
+                
+                vehicle.dr = vehicle.dr.min(0.025).max(-0.025);
+
+                transform.set_rotation_2d(yaw + vehicle.dr);
             }
+
 
 
             //Wall-collision logic
@@ -120,8 +150,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             if vehicle_x > (ARENA_WIDTH - yaw_width) { //hit the right wall
                 transform.set_translation_x(ARENA_WIDTH - yaw_width);
-                vehicle.dx *= WALL_HIT_BOUNCE_DECEL_PCT * velocity_x_comp.abs();
-                vehicle.dy *= WALL_HIT_NON_BOUNCE_DECEL_PCT * velocity_y_comp.abs();
+                vehicle.dx *= wall_hit_bounce_decel_pct * velocity_x_comp.abs();
+                vehicle.dy *= wall_hit_non_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     println!("Player {} has collided", player.id);
@@ -140,8 +170,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
             else if vehicle_x < (yaw_width) { //hit the left wall
                 transform.set_translation_x(yaw_width);
-                vehicle.dx *= WALL_HIT_BOUNCE_DECEL_PCT * velocity_x_comp.abs();
-                vehicle.dy *= WALL_HIT_NON_BOUNCE_DECEL_PCT * velocity_y_comp.abs();
+                vehicle.dx *= wall_hit_bounce_decel_pct * velocity_x_comp.abs();
+                vehicle.dy *= wall_hit_non_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     println!("Player {} has collided", player.id);
@@ -161,8 +191,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             if vehicle_y > (ARENA_HEIGHT - yaw_height) { //hit the top wall
                 transform.set_translation_y(ARENA_HEIGHT - yaw_height);
-                vehicle.dx *= WALL_HIT_NON_BOUNCE_DECEL_PCT * velocity_x_comp.abs();
-                vehicle.dy *= WALL_HIT_BOUNCE_DECEL_PCT * velocity_y_comp.abs();
+                vehicle.dx *= wall_hit_non_bounce_decel_pct * velocity_x_comp.abs();
+                vehicle.dy *= wall_hit_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     println!("Player {} has collided", player.id);
@@ -181,8 +211,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
             else if vehicle_y < (yaw_height) { //hit the bottom wall
                 transform.set_translation_y(yaw_height);
-                vehicle.dx *= WALL_HIT_NON_BOUNCE_DECEL_PCT * velocity_x_comp.abs();
-                vehicle.dy *= WALL_HIT_BOUNCE_DECEL_PCT * velocity_y_comp.abs();
+                vehicle.dx *= wall_hit_non_bounce_decel_pct * velocity_x_comp.abs();
+                vehicle.dy *= wall_hit_bounce_decel_pct * velocity_y_comp.abs();
                 
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     println!("Player {} has collided", player.id);
