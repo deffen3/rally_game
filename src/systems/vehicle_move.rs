@@ -41,16 +41,18 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
 
 
-            let wall_hit_non_bounce_decel_pct: f32 = 0.35;
-            let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
-            
+            //let max_velocity: f32 = 0.5;
 
             let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power/100.0;
-            let rotate_friction_decel_rate: f32 = 0.99 * vehicle.engine_power/100.0;
+            let rotate_friction_decel_rate: f32 = 0.95 * vehicle.engine_power/100.0;
 
             let thrust_accel_rate: f32 = 0.9 * vehicle.engine_power/100.0;
             let thrust_decel_rate: f32 = 0.6 * vehicle.engine_power/100.0;
             let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_power/100.0;
+
+            let wall_hit_non_bounce_decel_pct: f32 = 0.35;
+            let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
+
             
 
             //println!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
@@ -102,6 +104,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
             //println!("vel_x:{0:>6.3}, vel_y:{1:>6.3}", vehicle.dx, vehicle.dy);
 
 
+            // let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+            // let abs_vel = sq_vel.sqrt();
+
+            // if abs_vel > max_velocity {
+            //     vehicle.dx = velocity_x_comp * max_velocity;
+            //     vehicle.dy = velocity_y_comp * max_velocity;
+            // }
+
+            // println!("{}",abs_vel);
+
+
             //Transform on vehicle velocity
             transform.prepend_translation_x(vehicle.dx);
 
@@ -114,20 +127,20 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let mut scaled_amount = rotate_accel_rate * turn_amount as f32;
 
                 if scaled_amount > 0.1 || scaled_amount < -0.1 {
-                    if (vehicle.dr > 0.1) {
+                    if (vehicle.dr > 0.01) {
                         vehicle.dr += (scaled_amount - rotate_friction_decel_rate) * dt;
                     }
-                    else if (vehicle.dr < -0.1) {
+                    else if (vehicle.dr < -0.01) {
                         vehicle.dr += (scaled_amount + rotate_friction_decel_rate) * dt;
                     }
                     else {
                         vehicle.dr += (scaled_amount) * dt;
                     }   
                 }
-                else if (vehicle.dr > 0.1) {
+                else if (vehicle.dr > 0.01) {
                     vehicle.dr += (-rotate_friction_decel_rate) * dt;
                 }
-                else if (vehicle.dr < -0.1) {
+                else if (vehicle.dr < -0.01) {
                     vehicle.dr += (rotate_friction_decel_rate) * dt;
                 }
                 else {

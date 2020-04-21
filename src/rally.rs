@@ -82,18 +82,18 @@ impl SimpleState for Rally {
             1 as usize,
             weapon2,
         );
-        intialize_player(
-            world, 
-            self.sprite_sheet_handle.clone().unwrap(),
-            2 as usize,
-            weapon3,
-        );
-        intialize_player(
-            world, 
-            self.sprite_sheet_handle.clone().unwrap(),
-            3 as usize,
-            weapon4,
-        );
+        // intialize_player(
+        //     world, 
+        //     self.sprite_sheet_handle.clone().unwrap(),
+        //     2 as usize,
+        //     weapon3,
+        // );
+        // intialize_player(
+        //     world, 
+        //     self.sprite_sheet_handle.clone().unwrap(),
+        //     3 as usize,
+        //     weapon4,
+        // );
 
 
         //world.register::<Vehicle>(); // <- add this line temporarily
