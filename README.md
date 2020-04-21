@@ -1,4 +1,6 @@
-# rally
+# Rally!
+
+This is my first attempt at using rust, my first attempt to use an Entity-Component-System, and my first attempt to make an actual 2D game.
 
 ## How to run
 

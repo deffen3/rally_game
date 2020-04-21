@@ -17,6 +17,7 @@ use crate::audio::initialise_audio;
 
 use rand::Rng;
 
+use std::f32::consts::PI;
 
 
 pub const ARENA_HEIGHT: f32 = 400.0;
@@ -82,18 +83,18 @@ impl SimpleState for Rally {
             1 as usize,
             weapon2,
         );
-        // intialize_player(
-        //     world, 
-        //     self.sprite_sheet_handle.clone().unwrap(),
-        //     2 as usize,
-        //     weapon3,
-        // );
-        // intialize_player(
-        //     world, 
-        //     self.sprite_sheet_handle.clone().unwrap(),
-        //     3 as usize,
-        //     weapon4,
-        // );
+        intialize_player(
+            world, 
+            self.sprite_sheet_handle.clone().unwrap(),
+            2 as usize,
+            weapon3,
+        );
+        intialize_player(
+            world, 
+            self.sprite_sheet_handle.clone().unwrap(),
+            3 as usize,
+            weapon4,
+        );
 
 
         //world.register::<Vehicle>(); // <- add this line temporarily
@@ -351,8 +352,17 @@ fn intialize_player(
     ) {
     let mut vehicle_transform = Transform::default();
 
-    vehicle_transform.set_rotation_2d(0.0 as f32);
-    vehicle_transform.set_translation_xyz(ARENA_WIDTH / 5.0 * ((player_index + 1) as f32), ARENA_HEIGHT /2.0, 0.0);
+    let (starting_rotation, starting_x, starting_y) = match player_index {
+        0 => (-PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT / 5.0),
+        1 => (PI + PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT - (ARENA_HEIGHT / 5.0)),
+        2 => (PI/2.0 - PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / 5.0), ARENA_HEIGHT / 5.0),
+        3 => (PI/2.0 + PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / 5.0), ARENA_HEIGHT - (ARENA_HEIGHT / 5.0)),
+        _ => (-PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT / 5.0),
+    };
+
+    vehicle_transform.set_rotation_2d(starting_rotation as f32);
+    vehicle_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+    //vehicle_transform.set_translation_xyz(ARENA_WIDTH / 5.0 * ((player_index + 1) as f32), ARENA_HEIGHT /2.0, 0.0);
 
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
