@@ -10,7 +10,8 @@ use amethyst::{
 
 use std::f32::consts::PI;
 
-use crate::rally::{Vehicle, Player, ARENA_HEIGHT, ARENA_WIDTH, AxisBinding, MovementBindingTypes};
+use crate::rally::{Vehicle, Player, ARENA_HEIGHT, ARENA_WIDTH, AxisBinding, MovementBindingTypes, 
+    vehicle_damage_model, COLLISION_DAMAGE};
 
 pub const WALL_HIT_BOUNCE_DECEL_PCT: f32 = -0.35;
 pub const WALL_HIT_NON_BOUNCE_DECEL_PCT: f32 = 0.35;
@@ -125,6 +126,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     println!("Player {} has collided", player.id);
 
+                    let mut damage:f32 = COLLISION_DAMAGE;
+
+                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
+
+                    if vehicle_destroyed {
+                        let _ = entities.delete(entity);
+                    }
+
                     play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                     vehicle.collision_cooldown_timer = 1.0;
                 }
@@ -136,6 +145,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     println!("Player {} has collided", player.id);
+
+                    let mut damage:f32 = COLLISION_DAMAGE;
+
+                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
+
+                    if vehicle_destroyed {
+                        let _ = entities.delete(entity);
+                    }
 
                     play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                     vehicle.collision_cooldown_timer = 1.0;
@@ -150,6 +167,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     println!("Player {} has collided", player.id);
 
+                    let mut damage:f32 = COLLISION_DAMAGE;
+
+                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
+    
+                    if vehicle_destroyed {
+                        let _ = entities.delete(entity);
+                    }
+
                     play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                     vehicle.collision_cooldown_timer = 1.0;
                 }
@@ -161,6 +186,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     println!("Player {} has collided", player.id);
+
+                    let mut damage:f32 = COLLISION_DAMAGE;
+
+                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
+    
+                    if vehicle_destroyed {
+                        let _ = entities.delete(entity);
+                    }
 
                     play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                     vehicle.collision_cooldown_timer = 1.0;

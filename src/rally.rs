@@ -25,6 +25,8 @@ pub const ARENA_WIDTH: f32 = 400.0;
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 6.0;
 
+pub const COLLISION_DAMAGE: f32 = 20.0;
+
 pub const MAX_PLAYERS: usize = 4;
 
 
@@ -349,6 +351,7 @@ fn intialize_player(
 
     let mut vehicle_transform = Transform::default();
 
+    vehicle_transform.set_rotation_2d(0.0 as f32);
     vehicle_transform.set_translation_xyz(ARENA_WIDTH / 5.0 * ((player_index + 1) as f32), ARENA_HEIGHT /2.0, 0.0);
 
     let vehicle_sprite_render = SpriteRender {
@@ -497,6 +500,68 @@ pub fn fire_weapon(
 
 
 
+
+    pub fn vehicle_damage_model(vehicle: &mut Vehicle, 
+        mut damage:f32, piercing_damage_pct:f32, 
+        shield_damage_pct:f32, armor_damage_pct:f32, health_damage_pct:f32
+    ) -> bool {
+
+    let mut piercing_damage:f32 = 0.0;
+
+    if piercing_damage_pct > 0.0 {
+        piercing_damage = damage * piercing_damage_pct;
+        damage -= piercing_damage;
+    }
+
+    println!("H:{} A:{} S:{} P:{}, D:{}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
+
+    if vehicle.shield > 0.0 {
+        vehicle.shield -= (damage * shield_damage_pct);
+        damage = 0.0;
+
+        if vehicle.shield < 0.0 {
+            damage -= vehicle.shield; //over damage on shields, needs taken from armor
+            vehicle.shield = 0.0;
+        }
+    }
+
+    println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
+
+    if vehicle.armor > 0.0 {
+        vehicle.armor -= (damage * armor_damage_pct);
+        damage = 0.0;
+
+        if vehicle.armor < 0.0 {
+            damage -= vehicle.armor; //over damage on armor, needs taken from health
+            vehicle.armor = 0.0;
+        }
+    }
+
+    println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
+
+    let mut health_damage:f32 = (damage + piercing_damage) * health_damage_pct;
+
+    let mut vehicle_destroyed = false;
+
+    if vehicle.health <= health_damage {
+        vehicle_destroyed = true;
+        vehicle.health = 0.0;
+    }
+    else {
+        vehicle.health -= health_damage;
+        health_damage = 0.0;
+    }
+
+    println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, health_damage);
+
+    vehicle_destroyed
+}
+
+
+
+
+
+
 fn initialise_camera(world: &mut World) {
     // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left. 
     let mut transform = Transform::default();
@@ -508,7 +573,6 @@ fn initialise_camera(world: &mut World) {
         .with(transform)
         .build();
 }
-
 
 
 

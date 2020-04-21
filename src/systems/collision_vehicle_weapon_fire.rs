@@ -8,7 +8,7 @@ use amethyst::{
 
 use std::f32::consts::PI;
 
-use crate::rally::{WeaponFire, Vehicle, Player};
+use crate::rally::{WeaponFire, Vehicle, Player, vehicle_damage_model};
 
 use std::ops::Deref;
 use crate::audio::{play_score_sound, Sounds};
@@ -55,61 +55,18 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         let _ = entities.delete(weapon_fire_entity);
 
                         let mut damage:f32 = weapon_fire.damage.clone();
-                        let mut piercing_damage:f32 = 0.0;
-                        
-                        let mut shield_damage_pct:f32 = weapon_fire.shield_damage_pct.clone();
-                        let mut armor_damage_pct:f32 = weapon_fire.armor_damage_pct.clone();
-                        let mut health_damage_pct:f32 = weapon_fire.health_damage_pct.clone();
 
-                        println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
+                        let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
+                            weapon_fire.piercing_damage_pct, 
+                            weapon_fire.shield_damage_pct,
+                            weapon_fire.armor_damage_pct,
+                            weapon_fire.health_damage_pct
+                        );
 
-                        let mut piercing_damage_pct:f32 = weapon_fire.piercing_damage_pct.clone();
-                        if piercing_damage_pct > 0.0 {
-                            piercing_damage = damage * piercing_damage_pct;
-                            damage -= piercing_damage;
-                        }
-
-                        println!("H:{} A:{} S:{} P:{}, D:{}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
-
-                        if vehicle.shield > 0.0 {
-                            vehicle.shield -= (damage * shield_damage_pct);
-                            damage = 0.0;
-
-                            if vehicle.shield < 0.0 {
-                                damage -= vehicle.shield; //over damage on shields, needs taken from armor
-                                vehicle.shield = 0.0;
-                            }
-                        }
-
-                        println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
-
-                        if vehicle.armor > 0.0 {
-                            vehicle.armor -= (damage * armor_damage_pct);
-                            damage = 0.0;
-
-                            if vehicle.armor < 0.0 {
-                                damage -= vehicle.armor; //over damage on armor, needs taken from health
-                                vehicle.armor = 0.0;
-                            }
-                        }
-
-                        println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
-
-                        let mut health_damage:f32 = (damage + piercing_damage) * health_damage_pct;
-
-                        if vehicle.health <= health_damage {
-                            //vehicle destroyed
-                            vehicle.health = 0.0;
+                        if vehicle_destroyed {
                             let _ = entities.delete(vehicle_entity);
                         }
-                        else {
-                            vehicle.health -= health_damage;
-                            health_damage = 0.0;
-                        }
 
-                        println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, health_damage);
-
-    
                         if self.hit_sound_cooldown_timer < 0.0 {
                             play_score_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                             self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
@@ -122,7 +79,3 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         self.hit_sound_cooldown_timer -= dt;
     }
 }
-
-// fn vehicle_damage_model(&mut vehicle, damage, piercing_damage_pct, shield_damage_pct, armor_damage_pct, health_damage_pct) {
-//     println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
-// }
