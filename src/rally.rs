@@ -140,6 +140,7 @@ pub enum WeaponTypes {
 }
 
 
+#[derive(Clone)]
 pub struct Weapon {
     pub x: f32,
     pub y: f32,
@@ -150,6 +151,12 @@ pub struct Weapon {
     pub burst_shots: u32,
     pub burst_shot_limit: u32,
     pub burst_cooldown_reset: f32,
+    pub damage: f32,
+    pub weapon_shot_speed: f32,
+    pub shield_damage_pct: f32,
+    pub armor_damage_pct: f32,
+    pub piercing_damage_pct: f32,
+    pub health_damage_pct: f32,
 }
 
 impl Component for Weapon {
@@ -157,33 +164,17 @@ impl Component for Weapon {
 }
 
 impl Weapon {
-    fn new(weapon_type: WeaponTypes) -> Weapon {
-        let weapon_cooldown = match weapon_type.clone() {
-            WeaponTypes::LaserDouble => 0.4,
-            WeaponTypes::LaserBeam => 0.0,
-            WeaponTypes::LaserPulse => 0.75,
-            WeaponTypes::ProjectileBurstFire => 0.5,
-            WeaponTypes::ProjectileRapidFire => 0.15,
-            WeaponTypes::ProjectileCannonFire => 0.9,
-            WeaponTypes::Missile => 2.5,
-            WeaponTypes::Rockets => 0.5,
-            WeaponTypes::Mine => 2.5,
-        };
-
-        let mut burst_cooldown;
-        let mut burst_shot_limit; 
-        if weapon_type.clone() == WeaponTypes::LaserPulse {
-            burst_cooldown = 0.1 as f32;
-            burst_shot_limit = 2 as u32;
-        }
-        else if weapon_type.clone() == WeaponTypes::ProjectileBurstFire{
-            burst_cooldown = 0.1 as f32;
-            burst_shot_limit = 2 as u32;
-        }
-        else {
-            burst_cooldown = weapon_cooldown.clone();
-            burst_shot_limit = 1 as u32;
-        };
+    fn new(weapon_type: WeaponTypes, 
+        weapon_cooldown: f32, 
+        burst_shot_limit: u32, 
+        burst_cooldown: f32,
+        weapon_shot_speed: f32,
+        damage: f32,
+        shield_damage_pct: f32,
+        armor_damage_pct: f32,
+        piercing_damage_pct: f32,
+        health_damage_pct: f32,
+    ) -> Weapon {
 
         Weapon {
             x: 0.0,
@@ -195,6 +186,12 @@ impl Weapon {
             burst_shots: 0,
             burst_shot_limit: burst_shot_limit,
             burst_cooldown_reset: burst_cooldown,
+            damage: damage,
+            weapon_shot_speed: weapon_shot_speed,
+            shield_damage_pct: shield_damage_pct,
+            armor_damage_pct: armor_damage_pct,
+            piercing_damage_pct: piercing_damage_pct,
+            health_damage_pct: health_damage_pct,
         }
     }
 }
@@ -209,7 +206,7 @@ pub struct WeaponFire {
     pub spawn_x: f32,
     pub spawn_y: f32,
     pub spawn_angle: f32,
-    pub speed: f32,
+    pub weapon_shot_speed: f32,
     pub owner_player_id: usize,
     pub damage: f32,
     pub shield_damage_pct: f32,
@@ -225,34 +222,31 @@ impl Component for WeaponFire {
 
 
 impl WeaponFire {
-    fn new(weapon_type: WeaponTypes, owner_player_id: usize) -> WeaponFire {
-        let weapon_shot_speed = match weapon_type.clone() {
-            WeaponTypes::LaserDouble => 400.0,
-            WeaponTypes::LaserBeam => 2800.0,
-            WeaponTypes::LaserPulse => 400.0,
-            WeaponTypes::ProjectileBurstFire => 250.0,
-            WeaponTypes::ProjectileRapidFire => 250.0,
-            WeaponTypes::ProjectileCannonFire => 700.0,
-            WeaponTypes::Missile => 100.0,
-            WeaponTypes::Rockets => 250.0,
-            WeaponTypes::Mine => 0.0,
-        };
+    fn new(weapon_type: WeaponTypes, 
+        owner_player_id: usize,
+        weapon_shot_speed: f32,
+        damage: f32,
+        shield_damage_pct: f32,
+        armor_damage_pct: f32,
+        piercing_damage_pct: f32,
+        health_damage_pct: f32,
+    ) -> WeaponFire {
 
         WeaponFire {
             width: 1.0,
-            height: 6.0,
+            height: 1.0,
             dx: 0.0,
             dy: 0.0,
             spawn_x: 0.0,
             spawn_y: 0.0,
             spawn_angle: 0.0,
-            speed: weapon_shot_speed,
             owner_player_id,
-            damage: 24.0,
-            shield_damage_pct: 100.0,
-            armor_damage_pct: 80.,
-            piercing_damage_pct: 0.0,
-            health_damage_pct: 100.0,
+            damage: damage,
+            weapon_shot_speed: weapon_shot_speed,
+            shield_damage_pct: shield_damage_pct,
+            armor_damage_pct: armor_damage_pct,
+            piercing_damage_pct: piercing_damage_pct,
+            health_damage_pct: health_damage_pct,
             weapon_type,
         }
     }
@@ -260,16 +254,6 @@ impl WeaponFire {
 
 
 
-
-/*
-pub const WALL_HIT_BOUNCE_DECEL_PCT: f32 = -0.35;
-pub const WALL_HIT_NON_BOUNCE_DECEL_PCT: f32 = 0.35;
-
-pub const VEHICLE_ROTATE_ACCEL_RATE: f32 = 2.7;
-pub const VEHICLE_ACCEL_RATE: f32 = 0.9;
-pub const VEHICLE_DECEL_RATE: f32 = 0.6;
-pub const VEHICLE_FRICTION_DECEL_RATE: f32 = 0.3;
-*/
 
 
 pub struct Vehicle {
@@ -365,8 +349,6 @@ fn intialize_player(
         player_index: usize,
         weapon_type: WeaponTypes,
     ) {
-        
-
     let mut vehicle_transform = Transform::default();
 
     vehicle_transform.set_rotation_2d(0.0 as f32);
@@ -377,12 +359,32 @@ fn intialize_player(
         sprite_number: player_index,
     };
 
+    let (weapon_type,
+        weapon_cooldown, 
+        burst_shot_limit,
+        burst_cooldown,
+        weapon_shot_speed,
+        damage,
+        shield_damage_pct,
+        armor_damage_pct,
+        piercing_damage_pct,
+        health_damage_pct,) = build_standard_weapon(weapon_type);
+
     world
         .create_entity()
         .with(vehicle_transform)
         .with(vehicle_sprite_render)
         .with(Vehicle::new())
-        .with(Weapon::new(weapon_type))
+        .with(Weapon::new(weapon_type,
+            weapon_cooldown, 
+            burst_shot_limit,
+            burst_cooldown,
+            weapon_shot_speed,
+            damage,
+            shield_damage_pct,
+            armor_damage_pct,
+            piercing_damage_pct,
+            health_damage_pct))
         .with(Player::new(player_index))
         .build();
 
@@ -392,6 +394,61 @@ fn intialize_player(
     //  is no relationship between these entities. Do I need to apply parent child relationships?
     //  Isn't this going against the purpose/elegance of ECS?
 }
+
+
+
+
+fn build_standard_weapon(weapon_type: WeaponTypes) -> (
+    WeaponTypes, f32, u32, f32, f32, f32, f32, f32, f32, f32
+) {
+    let (weapon_shot_speed, damage, weapon_cooldown, 
+            piercing_damage_pct, 
+            shield_damage_pct, armor_damage_pct, 
+            health_damage_pct,
+        ) = match weapon_type.clone()
+    {                                      //speed      dmg     cool    pierce% shield%   armor%    health%
+        WeaponTypes::LaserDouble =>         (400.0,     25.0,   0.4,    0.0,    125.0,    80.0,     100.0),
+        WeaponTypes::LaserBeam =>           (2800.0,    0.3,    0.0,    0.0,    125.0,    80.0,     100.0),
+        WeaponTypes::LaserPulse =>          (400.0,     12.0,   0.75,   0.0,    125.0,    80.0,     100.0),
+        WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.15,   0.0,    100.0,    100.0,    100.0),
+        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.9,    0.0,    100.0,    100.0,    100.0),
+        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.0,    0.0,    100.0,    100.0,    100.0),
+        WeaponTypes::Missile =>             (100.0,     50.0,   2.5,    50.0,   100.0,    100.0,    100.0),
+        WeaponTypes::Rockets =>             (250.0,     50.0,   0.5,    50.0,   100.0,    100.0,    100.0),
+        WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    50.0,   100.0,    100.0,    100.0),
+    };
+
+    let mut burst_cooldown;
+    let mut burst_shot_limit; 
+    if weapon_type.clone() == WeaponTypes::LaserPulse {
+        burst_cooldown = 0.1 as f32;
+        burst_shot_limit = 2 as u32;
+    }
+    else if weapon_type.clone() == WeaponTypes::ProjectileBurstFire{
+        burst_cooldown = 0.1 as f32;
+        burst_shot_limit = 2 as u32;
+    }
+    else {
+        burst_cooldown = weapon_cooldown.clone();
+        burst_shot_limit = 1 as u32;
+    };
+
+    (weapon_type,
+        weapon_cooldown, 
+        burst_shot_limit,
+        burst_cooldown,
+        weapon_shot_speed,
+        damage,
+        shield_damage_pct,
+        armor_damage_pct,
+        piercing_damage_pct,
+        health_damage_pct,)
+}
+
+
+
+
+
 
 
 
@@ -462,14 +519,24 @@ pub fn initialise_weapon_fire_resource(
 pub fn fire_weapon(
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
-    weapon_type: WeaponTypes,
+    weapon: Weapon,
     fire_position: Vector3<f32>,
     fire_angle: f32,
     player_id: usize,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
     let fire_entity: Entity = entities.create();
-    let mut weapon_fire = WeaponFire::new(weapon_type.clone(), player_id);
+
+    let mut weapon_fire = WeaponFire::new(
+        weapon.weapon_type.clone(),
+        player_id,
+        weapon.weapon_shot_speed,
+        weapon.damage,
+        weapon.shield_damage_pct,
+        weapon.armor_damage_pct,
+        weapon.piercing_damage_pct,
+        weapon.health_damage_pct,
+    );
 
     let local_transform = {
         let mut local_transform = Transform::default();
@@ -480,8 +547,8 @@ pub fn fire_weapon(
 
         local_transform.set_rotation_2d(fire_angle);
 
-        weapon_fire.dx = weapon_fire.speed * angle_x_comp;
-        weapon_fire.dy = weapon_fire.speed * angle_y_comp;
+        weapon_fire.dx = weapon_fire.weapon_shot_speed * angle_x_comp;
+        weapon_fire.dy = weapon_fire.weapon_shot_speed * angle_y_comp;
         
         //adjust the first postion
         let x = local_transform.translation().x;
@@ -499,7 +566,7 @@ pub fn fire_weapon(
     };
     lazy_update.insert(fire_entity, weapon_fire);
 
-    let sprite = match weapon_type {
+    let sprite = match weapon.weapon_type {
         WeaponTypes::LaserDouble => weapon_fire_resource.laser_double_sprite_render.clone(),
         WeaponTypes::LaserBeam => weapon_fire_resource.laser_beam_sprite_render.clone(),
         WeaponTypes::LaserPulse => weapon_fire_resource.laser_burst_sprite_render.clone(),
@@ -519,7 +586,7 @@ pub fn fire_weapon(
 
 
 
-    pub fn vehicle_damage_model(vehicle: &mut Vehicle, 
+pub fn vehicle_damage_model(vehicle: &mut Vehicle, 
         mut damage:f32, piercing_damage_pct:f32, 
         shield_damage_pct:f32, armor_damage_pct:f32, health_damage_pct:f32
     ) -> bool {

@@ -45,7 +45,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                     let vehicle_rotation = transform.rotation();
                     let (_, _, fire_angle) = vehicle_rotation.euler_angles();
 
-                    fire_weapon(&entities, &weapon_fire_resource, weapon.weapon_type.clone(),
+                    fire_weapon(&entities, &weapon_fire_resource, weapon.clone(),
                         fire_position, fire_angle, player.id, &lazy_update);
 
                     if fire && weapon.burst_shots < weapon.burst_shot_limit {
