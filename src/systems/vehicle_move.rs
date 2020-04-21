@@ -167,9 +167,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 vehicle.dy *= wall_hit_non_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
-                    println!("Player {} has collided", player.id);
-
-                    let mut damage:f32 = COLLISION_DAMAGE;
+                    let mut damage:f32 = COLLISION_DAMAGE * velocity_x_comp.abs();
+                    println!("Player {} has collided with {} damage", player.id, damage);
 
                     let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
 
@@ -187,9 +186,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 vehicle.dy *= wall_hit_non_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
-                    println!("Player {} has collided", player.id);
-
-                    let mut damage:f32 = COLLISION_DAMAGE;
+                    let mut damage:f32 = COLLISION_DAMAGE * velocity_x_comp.abs();
+                    println!("Player {} has collided with {} damage", player.id, damage);
 
                     let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
 
@@ -208,9 +206,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 vehicle.dy *= wall_hit_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
-                    println!("Player {} has collided", player.id);
-
-                    let mut damage:f32 = COLLISION_DAMAGE;
+                    let mut damage:f32 = COLLISION_DAMAGE * velocity_y_comp.abs();
+                    println!("Player {} has collided with {} damage", player.id, damage);
 
                     let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
     
@@ -228,9 +225,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 vehicle.dy *= wall_hit_bounce_decel_pct * velocity_y_comp.abs();
                 
                 if vehicle.collision_cooldown_timer <= 0.0 {
-                    println!("Player {} has collided", player.id);
-
-                    let mut damage:f32 = COLLISION_DAMAGE;
+                    let mut damage:f32 = COLLISION_DAMAGE * velocity_y_comp.abs();
+                    println!("Player {} has collided with {} damage", player.id, damage);
 
                     let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
     

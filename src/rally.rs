@@ -447,12 +447,6 @@ fn build_standard_weapon(weapon_type: WeaponTypes) -> (
 
 
 
-
-
-
-
-
-
 #[derive(Clone)]
 pub struct WeaponFireResource {
     /// The render that locates the sprite in a sprite sheet resource
