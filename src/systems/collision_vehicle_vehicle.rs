@@ -35,7 +35,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
-        let mut collision_ids_vec = Vec::new();
+        let mut collision_ids_vec: Vec<(usize, f32, f32)> = Vec::new();
 
         for (vehicle_1_entity, vehicle_1, player_1, vehicle_1_transform) in (&*entities, &vehicles, &players, &transforms).join() {
             let vehicle_1_x = vehicle_1_transform.translation().x;
@@ -62,20 +62,20 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         //vehicle_2.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_x_comp.abs();
                         //vehicle_2.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_y_comp.abs();
 
-                        collision_ids_vec.push(player_1.id);
-                        collision_ids_vec.push(player_2.id);
+                        collision_ids_vec.push((player_1.id, 0.0, 0.0));
+                        collision_ids_vec.push((player_2.id, 0.0, 0.0));
                     }
                 }
             }
         }
 
-        let collision_ids_vec: Vec<_> = collision_ids_vec.into_iter().unique().collect();
+        //let collision_ids_vec: Vec<_> = collision_ids_vec.into_iter().unique().collect();
 
         for (vehicle_entity, vehicle, player, vehicle_transform) in (&*entities, &mut vehicles, &players, &mut transforms).join() {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
-            for col_id in &collision_ids_vec {
+            for (col_id, v1, v2) in &collision_ids_vec {
                 if player.id == *col_id {
 
                     if vehicle.collision_cooldown_timer <= 0.0 {
