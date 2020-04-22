@@ -420,16 +420,16 @@ fn build_standard_weapon(weapon_type: WeaponTypes) -> (
             shield_damage_pct, armor_damage_pct, 
             health_damage_pct,
         ) = match weapon_type.clone()
-    {                                      //speed      dmg     cool    pierce% shield%   armor%    health%
-        WeaponTypes::LaserDouble =>         (400.0,     25.0,   0.4,    0.0,    125.0,    80.0,     100.0),
-        WeaponTypes::LaserBeam =>           (2800.0,    0.3,    0.0,    0.0,    125.0,    80.0,     100.0),
-        WeaponTypes::LaserPulse =>          (400.0,     12.0,   0.75,   0.0,    125.0,    80.0,     100.0),
-        WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.15,   0.0,    100.0,    100.0,    100.0),
-        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.9,    0.0,    100.0,    100.0,    100.0),
-        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.0,    0.0,    100.0,    100.0,    100.0),
-        WeaponTypes::Missile =>             (100.0,     50.0,   2.5,    50.0,   100.0,    100.0,    100.0),
-        WeaponTypes::Rockets =>             (250.0,     50.0,   0.5,    50.0,   100.0,    100.0,    100.0),
-        WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    50.0,   100.0,    100.0,    100.0),
+    {                                      //speed      dmg     cooldwn pierce% shield%   armor%    health%
+        WeaponTypes::LaserDouble =>         (400.0,     25.0,   0.4,    0.0,    80.0,    125.0,     100.0),
+        WeaponTypes::LaserBeam =>           (2800.0,    0.3,    0.0,    0.0,    80.0,    125.0,     100.0),
+        WeaponTypes::LaserPulse =>          (400.0,     12.0,   0.75,   0.0,    80.0,    125.0,     100.0),
+        WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.15,   0.0,   125.0,     80.0,     100.0),
+        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.9,    0.0,   125.0,     80.0,     100.0),
+        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.0,    0.0,   125.0,     80.0,     100.0),
+        WeaponTypes::Missile =>             (100.0,     50.0,   2.5,    50.0,   75.0,     75.0,     100.0),
+        WeaponTypes::Rockets =>             (250.0,     50.0,   0.5,    50.0,   75.0,     75.0,     100.0),
+        WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    50.0,   75.0,     75.0,     100.0),
     };
 
     let mut burst_cooldown;
