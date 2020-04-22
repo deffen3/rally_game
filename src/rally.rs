@@ -27,7 +27,7 @@ pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 50.0;
 pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
-pub const MAX_PLAYERS: usize = 4;
+//pub const MAX_PLAYERS: usize = 4;
 
 
 #[derive(Default)]
@@ -270,6 +270,7 @@ pub struct Vehicle {
     pub collision_cooldown_timer: f32,
     pub health: f32,
     pub shield: f32,
+    pub shield_max: f32,
     pub shield_recharge_rate: f32,
     pub shield_cooldown_timer: f32,
     pub shield_cooldown_reset: f32,
@@ -293,6 +294,7 @@ impl Vehicle {
             collision_cooldown_timer: -1.0,
             health: 100.0,
             shield: 100.0,
+            shield_max: 100.0,
             shield_recharge_rate: 5.0,
             shield_cooldown_timer: -1.0,
             shield_cooldown_reset: 10.0,
@@ -431,8 +433,8 @@ fn build_standard_weapon(weapon_type: WeaponTypes) -> (
         WeaponTypes::LaserBeam =>           (2800.0,    0.3,    0.0,    0.0,   120.0,     75.0,     100.0),
         WeaponTypes::LaserPulse =>          (400.0,     12.0,   0.75,   0.0,   120.0,     75.0,     100.0),
         WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.15,   0.0,    80.0,     90.0,     100.0),
-        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.9,    0.0,    80.0,     90.0,     100.0),
-        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.0,    0.0,    80.0,     90.0,     100.0),
+        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.10,   0.0,    80.0,     90.0,     100.0),
+        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.9,    0.0,    80.0,     90.0,     100.0),
         WeaponTypes::Missile =>             (100.0,     50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
         WeaponTypes::Rockets =>             (250.0,     50.0,   0.5,    10.0,   75.0,     75.0,     100.0),
         WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
@@ -605,10 +607,6 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         shield_damage_pct:f32, armor_damage_pct:f32, health_damage_pct:f32
     ) -> bool {
 
-    //shield_recharge_rate: 5.0,
-    //shield_cooldown_timer: -1.0,
-    //shield_cooldown_reset: 10.0,
-
     let mut piercing_damage:f32 = 0.0;
 
     if piercing_damage_pct > 0.0 {
@@ -669,6 +667,58 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
 
 
 
+/// ScoreBoard contains the actual score data
+#[derive(Default)]
+pub struct ScoreBoard {
+    pub score_left: i32,
+    pub score_right: i32,
+}
+
+/// ScoreText contains the ui text components that display the score
+pub struct ScoreText {
+    pub p1_score: Entity,
+    pub p2_score: Entity,
+}
+
+
+/// Initialises the UI
+fn initialise_ui(world: &mut World) {
+    let font = world.read_resource::<Loader>().load(
+        "font/square.ttf",
+        TtfFormat,
+        (),
+        &world.read_resource(),
+    );
+    let p1_transform = UiTransform::new(
+        "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
+        -50., -50., 1., 200., 50.,
+    );
+    let p2_transform = UiTransform::new(
+        "P2".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
+        50., -50., 1., 200., 50.,
+    );
+
+    let p1_score = world
+        .create_entity()
+        .with(p1_transform)
+        .with(UiText::new(font.clone(), "0".to_string(), [1., 1., 1., 1.], 50.))
+        .build();
+
+    let p2_score = world
+        .create_entity()
+        .with(p2_transform)
+        .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
+        .build();
+
+    world.insert(ScoreText { p1_score, p2_score });
+}
+
+
+
+
+
+
+
 fn initialise_camera(world: &mut World) {
     // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left. 
     let mut transform = Transform::default();
@@ -715,51 +765,3 @@ impl BindingTypes for MovementBindingTypes {
     type Action = ActionBinding;
 }
 */
-
-
-
-/// ScoreBoard contains the actual score data
-#[derive(Default)]
-pub struct ScoreBoard {
-    pub score_left: i32,
-    pub score_right: i32,
-}
-
-/// ScoreText contains the ui text components that display the score
-pub struct ScoreText {
-    pub p1_score: Entity,
-    pub p2_score: Entity,
-}
-
-
-/// Initialises the UI
-fn initialise_ui(world: &mut World) {
-    let font = world.read_resource::<Loader>().load(
-        "font/square.ttf",
-        TtfFormat,
-        (),
-        &world.read_resource(),
-    );
-    let p1_transform = UiTransform::new(
-        "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
-        -50., -50., 1., 200., 50.,
-    );
-    let p2_transform = UiTransform::new(
-        "P2".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
-        50., -50., 1., 200., 50.,
-    );
-
-    let p1_score = world
-        .create_entity()
-        .with(p1_transform)
-        .with(UiText::new(font.clone(), "0".to_string(), [1., 1., 1., 1.], 50.))
-        .build();
-
-    let p2_score = world
-        .create_entity()
-        .with(p2_transform)
-        .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
-        .build();
-
-    world.insert(ScoreText { p1_score, p2_score });
-}

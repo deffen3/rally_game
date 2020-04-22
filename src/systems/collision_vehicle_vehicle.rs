@@ -6,7 +6,7 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
-use std::f32::consts::PI;
+//use std::f32::consts::PI;
 
 use crate::rally::{Vehicle, Player, vehicle_damage_model, BASE_COLLISION_DAMAGE, 
     COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
@@ -32,7 +32,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
         Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (entities, mut transforms, players, mut vehicles,
+    fn run(&mut self, (entities, transforms, players, mut vehicles,
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
@@ -49,16 +49,16 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                 if player_1.id != player_2.id {
                     if (vehicle_1_x - vehicle_2_x).powi(2) + (vehicle_1_y - vehicle_2_y).powi(2) < vehicle_1.width.powi(2) {
 
-                        let velocity_1_angle = vehicle_1.dy.atan2(vehicle_1.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
-                        let velocity_1_x_comp = -velocity_1_angle.sin(); //left is -, right is +
-                        let velocity_1_y_comp = velocity_1_angle.cos(); //up is +, down is -
+                        //let velocity_1_angle = vehicle_1.dy.atan2(vehicle_1.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
+                        //let velocity_1_x_comp = -velocity_1_angle.sin(); //left is -, right is +
+                        //let velocity_1_y_comp = velocity_1_angle.cos(); //up is +, down is -
 
                         //vehicle_1.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_1_x_comp.abs();
                         //vehicle_1.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_1_y_comp.abs();
 
-                        let velocity_2_angle = vehicle_2.dy.atan2(vehicle_2.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
-                        let velocity_2_x_comp = -velocity_2_angle.sin(); //left is -, right is +
-                        let velocity_2_y_comp = velocity_2_angle.cos(); //up is +, down is -
+                        //let velocity_2_angle = vehicle_2.dy.atan2(vehicle_2.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
+                        //let velocity_2_x_comp = -velocity_2_angle.sin(); //left is -, right is +
+                        //let velocity_2_y_comp = velocity_2_angle.cos(); //up is +, down is -
 
                         //vehicle_2.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_x_comp.abs();
                         //vehicle_2.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_y_comp.abs();
