@@ -2,14 +2,14 @@ use amethyst::{
     core::transform::Transform,
     assets::{Handle},
     renderer::{SpriteRender, SpriteSheet},
-    ecs::prelude::{World, Entity, Entities},
+    ecs::prelude::{World},
     prelude::*,
 };
 
 use std::f32::consts::PI;
 
 use crate::components::{
-    Player, Vehicle, Weapon, WeaponFire, WeaponTypes,
+    Player, Vehicle, Weapon, WeaponTypes,
 };
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};

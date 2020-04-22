@@ -1,7 +1,7 @@
 use amethyst::{
     core::transform::Transform,
     renderer::{Camera},
-    ecs::prelude::{World, Entity, Entities},
+    ecs::prelude::{World},
     prelude::*,
 };
 

@@ -3,7 +3,7 @@ use amethyst::{
     core::transform::Transform,
     ecs::prelude::{Entity, Entities, ReadExpect, LazyUpdate},
     prelude::*,
-    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
     ui::{Anchor, TtfFormat, UiText, UiTransform},
 };
 use amethyst::core::math::Vector3;
@@ -12,11 +12,9 @@ use crate::audio::initialise_audio;
 
 use rand::Rng;
 
-use std::f32::consts::PI;
-
 
 use crate::components::{
-    Player, Vehicle, Weapon, WeaponFire, WeaponTypes, weapon_type_from_u8,
+    Vehicle, Weapon, WeaponFire, WeaponTypes, weapon_type_from_u8,
 };
 
 use crate::entities::{
