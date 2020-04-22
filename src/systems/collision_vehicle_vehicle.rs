@@ -7,7 +7,6 @@ use amethyst::{
 };
 
 use std::f32::consts::PI;
-use itertools::Itertools;
 
 use crate::rally::{Vehicle, Player, vehicle_damage_model, BASE_COLLISION_DAMAGE, 
     COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
@@ -73,8 +72,6 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                 }
             }
         }
-
-        //let collision_ids_vec: Vec<_> = collision_ids_vec.into_iter().unique().collect();
 
         for (vehicle_entity, vehicle, player, vehicle_transform) in (&*entities, &mut vehicles, &players, &mut transforms).join() {
             let vehicle_x = vehicle_transform.translation().x;

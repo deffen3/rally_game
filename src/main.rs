@@ -9,8 +9,8 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-use amethyst::input::{InputBundle};
-
+use amethyst::input::{InputBundle, StringBindings};
+use amethyst::ui::{RenderUi, UiBundle};
 use amethyst::audio::AudioBundle;
 
 mod systems;
@@ -44,16 +44,18 @@ fn main() -> amethyst::Result<()> {
                     RenderToWindow::from_config_path(display_config_path)?
                         .with_clear([0.34, 0.36, 0.44, 1.0]), //background color R,G,B
                 )
-                .with_plugin(RenderFlat2D::default()),
+                .with_plugin(RenderFlat2D::default())
+                .with_plugin(RenderUi::default()),
         )?
+        .with_bundle(UiBundle::<StringBindings>::new())?
+        .with_bundle(AudioBundle::default())?
         .with_bundle(input_bundle)?
-        //depends on input bundle system
         .with(systems::VehicleMoveSystem, "vehicle_move_system", &["input_system"])
         .with(systems::VehicleWeaponsSystem, "vehicle_weapons_system", &["input_system"])
         .with(systems::MoveWeaponFireSystem, "move_weapon_fire_system", &["vehicle_weapons_system"])
         .with(systems::CollisionVehToVehSystem, "collision_vehicle_vehicle_system", &["vehicle_move_system"])
         .with(systems::CollisionVehicleWeaponFireSystem::default(), "collision_vehicle_weapon_fire_system", &["vehicle_move_system"])
-        .with_bundle(AudioBundle::default())?
+        .with(systems::VehicleStatusSystem, "vehicle_status_system", &[""])
         .with_bundle(TransformBundle::new())?;
 
     let mut game = Application::new(assets_dir, Rally::default(), game_data)?;
