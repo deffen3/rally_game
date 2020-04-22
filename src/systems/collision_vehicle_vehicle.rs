@@ -1,7 +1,7 @@
 use amethyst::{
     core::{Transform, Time},
     derive::SystemDesc,
-    ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities, Entity, Write},
+    ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities},
     assets::AssetStorage,
     audio::{output::Output, Source},
 };
@@ -38,11 +38,11 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
 
         let mut collision_ids_vec: Vec<(usize, f32)> = Vec::new();
 
-        for (vehicle_1_entity, vehicle_1, player_1, vehicle_1_transform) in (&*entities, &vehicles, &players, &transforms).join() {
+        for (vehicle_1, player_1, vehicle_1_transform) in (&vehicles, &players, &transforms).join() {
             let vehicle_1_x = vehicle_1_transform.translation().x;
             let vehicle_1_y = vehicle_1_transform.translation().y;
 
-            for (vehicle_2_entity, vehicle_2, player_2, vehicle_2_transform) in (&*entities, &vehicles, &players, &transforms).join() {
+            for (vehicle_2, player_2, vehicle_2_transform) in (&vehicles, &players, &transforms).join() {
                 let vehicle_2_x = vehicle_2_transform.translation().x;
                 let vehicle_2_y = vehicle_2_transform.translation().y;
 
@@ -73,9 +73,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             }
         }
 
-        for (vehicle_entity, vehicle, player, vehicle_transform) in (&*entities, &mut vehicles, &players, &mut transforms).join() {
-            let vehicle_x = vehicle_transform.translation().x;
-            let vehicle_y = vehicle_transform.translation().y;
+        for (vehicle_entity, vehicle, player) in (&*entities, &mut vehicles, &players).join() {
 
             for (col_id, v_diff) in &collision_ids_vec {
                 if player.id == *col_id {
@@ -86,7 +84,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         vehicle.collision_cooldown_timer = 1.0;
 
-                        let mut damage:f32 = BASE_COLLISION_DAMAGE * v_diff;
+                        let damage:f32 = BASE_COLLISION_DAMAGE * v_diff;
 
                         let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
                             COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,

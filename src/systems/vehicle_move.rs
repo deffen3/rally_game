@@ -1,7 +1,7 @@
 use amethyst::core::{Transform, Time};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadExpect, Entities};
-use amethyst::input::{InputHandler};
+use amethyst::input::{InputHandler, StringBindings};
 
 use amethyst::{
     assets::AssetStorage,
@@ -10,7 +10,7 @@ use amethyst::{
 
 use std::f32::consts::PI;
 
-use crate::rally::{Vehicle, Player, ARENA_HEIGHT, ARENA_WIDTH, AxisBinding, MovementBindingTypes, 
+use crate::rally::{Vehicle, Player, ARENA_HEIGHT, ARENA_WIDTH, //AxisBinding, MovementBindingTypes
     vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT};
 
@@ -29,7 +29,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
         Read<'s, Time>,
-        Read<'s, InputHandler<MovementBindingTypes>>,
+        Read<'s, InputHandler<StringBindings>>,  //<MovementBindingTypes>>,
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
@@ -38,9 +38,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
     fn run(&mut self, (entities, mut players, mut transforms, mut vehicles, 
             time, input, storage, sounds, audio_output): Self::SystemData) {
         for (entity, player, vehicle, transform) in (&*entities, &mut players, &mut vehicles, &mut transforms).join() {
-            let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
-            let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
+            //let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
+            //let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
 
+            let (vehicle_accel, vehicle_turn) = match player.id {
+                0 => (input.axis_value("p1_accel"), input.axis_value("p1_turn")),
+                1 => (input.axis_value("p2_accel"), input.axis_value("p2_turn")),
+                2 => (input.axis_value("p3_accel"), input.axis_value("p3_turn")),
+                3 => (input.axis_value("p4_accel"), input.axis_value("p4_turn")),
+                _ => (None, None)
+            };
 
             //let max_velocity: f32 = 0.5;
 
@@ -125,23 +132,23 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             //Apply vehicle rotation from turn input
             if let Some(turn_amount) = vehicle_turn {
-                let mut scaled_amount = rotate_accel_rate * turn_amount as f32;
+                let scaled_amount = rotate_accel_rate * turn_amount as f32;
 
                 if scaled_amount > 0.1 || scaled_amount < -0.1 {
-                    if (vehicle.dr > 0.01) {
+                    if vehicle.dr > 0.01 {
                         vehicle.dr += (scaled_amount - rotate_friction_decel_rate) * dt;
                     }
-                    else if (vehicle.dr < -0.01) {
+                    else if vehicle.dr < -0.01 {
                         vehicle.dr += (scaled_amount + rotate_friction_decel_rate) * dt;
                     }
                     else {
                         vehicle.dr += (scaled_amount) * dt;
                     }   
                 }
-                else if (vehicle.dr > 0.01) {
+                else if vehicle.dr > 0.01 {
                     vehicle.dr += (-rotate_friction_decel_rate) * dt;
                 }
-                else if (vehicle.dr < -0.01) {
+                else if vehicle.dr < -0.01 {
                     vehicle.dr += (rotate_friction_decel_rate) * dt;
                 }
                 else {
@@ -188,7 +195,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 vehicle.dy *= wall_hit_non_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
-                    let mut damage:f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_x_comp.abs();
+                    let damage:f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_x_comp.abs();
                     //println!("Player {} has collided with {} damage", player.id, damage);
 
                     let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
@@ -208,7 +215,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 vehicle.dy *= wall_hit_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
-                    let mut damage:f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_y_comp.abs();
+                    let damage:f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_y_comp.abs();
                     //println!("Player {} has collided with {} damage", player.id, damage);
 
                     let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 

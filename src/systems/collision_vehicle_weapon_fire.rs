@@ -1,12 +1,10 @@
 use amethyst::{
     core::{Transform, Time},
     derive::SystemDesc,
-    ecs::{World, Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities, Entity, Write},
+    ecs::{World, Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities},
     assets::AssetStorage,
     audio::{output::Output, Source},
 };
-
-use std::f32::consts::PI;
 
 use crate::rally::{WeaponFire, Vehicle, Player, vehicle_damage_model};
 
@@ -34,7 +32,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         Option<Read<'s, Output>>,
     );
 
-    fn setup(&mut self, world: &mut World) {
+    fn setup(&mut self, _world: &mut World) {
         self.hit_sound_cooldown_timer = -1.0;
     }
 
@@ -54,7 +52,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2) < vehicle.width.powi(2) {
                         let _ = entities.delete(weapon_fire_entity);
 
-                        let mut damage:f32 = weapon_fire.damage.clone();
+                        let damage:f32 = weapon_fire.damage.clone();
 
                         let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
                             weapon_fire.piercing_damage_pct, 

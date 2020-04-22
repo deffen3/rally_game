@@ -1,0 +1,18 @@
+(
+  axes: {
+    VehicleAccel(0): Emulated(pos: Key(W), neg: Key(S)),
+    VehicleTurn(0): Emulated(pos: Key(A), neg: Key(D)),
+    VehicleAccel(1): Emulated(pos: Key(Up), neg: Key(Down)),
+    VehicleTurn(1): Emulated(pos: Key(Left), neg: Key(Right)),
+    VehicleAccel(2): Emulated(pos: Key(Numpad8), neg: Key(Numpad5)),
+    VehicleTurn(2): Emulated(pos: Key(Numpad4), neg: Key(Numpad6)),
+    VehicleAccel(3): Emulated(pos: Key(I), neg: Key(K)),
+    VehicleTurn(3): Emulated(pos: Key(J), neg: Key(L)),
+  },
+  actions: {
+    VehicleShoot(0): [[Key(Space)]],
+    VehicleShoot(1): [[Key(RControl)]],
+    VehicleShoot(2): [[Key(Numpad0)]],
+    VehicleShoot(3): [[Key(RAlt)]],
+  },
+)

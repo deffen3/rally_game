@@ -8,12 +8,6 @@ use amethyst::{
 };
 use amethyst::core::math::Vector3;
 
-use std::fmt::{self, Display};
-
-use serde::{Serialize, Deserialize};
-
-use amethyst::input::{BindingTypes};
-
 use crate::audio::initialise_audio;
 
 use rand::Rng;
@@ -52,9 +46,9 @@ impl SimpleState for Rally {
 
         initialise_audio(world);
 
-        initialise_ui(world);
-        world.register::<UiText>(); // <- add this line temporarily
-        world.register::<UiTransform>();
+        //initialise_ui(world);
+        //world.register::<UiText>(); // <- add this line temporarily
+        //world.register::<UiTransform>();
         
 
         // for player_index in 0..MAX_PLAYERS {
@@ -438,8 +432,8 @@ fn build_standard_weapon(weapon_type: WeaponTypes) -> (
         WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    50.0,   75.0,     75.0,     100.0),
     };
 
-    let mut burst_cooldown;
-    let mut burst_shot_limit; 
+    let burst_cooldown;
+    let burst_shot_limit; 
     if weapon_type.clone() == WeaponTypes::LaserPulse {
         burst_cooldown = 0.1 as f32;
         burst_shot_limit = 2 as u32;
@@ -615,7 +609,7 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
     println!("H:{} A:{} S:{} P:{}, D:{}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
     if vehicle.shield > 0.0 {
-        vehicle.shield -= (damage * shield_damage_pct/100.0);
+        vehicle.shield -= damage * shield_damage_pct/100.0;
         damage = 0.0;
 
         if vehicle.shield < 0.0 {
@@ -627,7 +621,7 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
     println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
 
     if vehicle.armor > 0.0 {
-        vehicle.armor -= (damage * armor_damage_pct/100.0);
+        vehicle.armor -= damage * armor_damage_pct/100.0;
         damage = 0.0;
 
         if vehicle.armor < 0.0 {
@@ -675,6 +669,7 @@ fn initialise_camera(world: &mut World) {
 
 
 
+/*
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AxisBinding {
     VehicleAccel(usize),
@@ -705,7 +700,7 @@ impl BindingTypes for MovementBindingTypes {
     type Axis = AxisBinding;
     type Action = ActionBinding;
 }
-
+*/
 
 
 
@@ -743,12 +738,7 @@ fn initialise_ui(world: &mut World) {
     let p1_score = world
         .create_entity()
         .with(p1_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 1., 1., 1.],
-            50.,
-        ))
+        .with(UiText::new(font.clone(), "0".to_string(), [1., 1., 1., 1.], 50.))
         .build();
 
     let p2_score = world
