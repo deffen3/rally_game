@@ -3,7 +3,8 @@ use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage};
 use amethyst::input::{InputHandler, StringBindings};
 
-use crate::rally::{Vehicle};
+
+use crate::components::{Vehicle};
 
 #[derive(SystemDesc)]
 pub struct VehicleShieldsSystem;

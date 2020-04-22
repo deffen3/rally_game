@@ -14,10 +14,11 @@ use amethyst::ui::{RenderUi, UiBundle};
 use amethyst::audio::AudioBundle;
 
 mod systems;
-
+mod components;
+mod entities;
+mod resources;
 mod rally;
 
-//use crate::rally::{Rally, MovementBindingTypes};
 use crate::rally::{Rally};
 
 mod audio;

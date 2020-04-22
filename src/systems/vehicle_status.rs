@@ -5,8 +5,8 @@ use amethyst::{
     ui::UiText,
 };
 
-use crate::rally::{ScoreBoard, ScoreText, Vehicle};
-
+use crate::components::{Vehicle};
+use crate::entities::{ScoreBoard, ScoreText};
 
 #[derive(SystemDesc)]
 pub struct VehicleStatusSystem;

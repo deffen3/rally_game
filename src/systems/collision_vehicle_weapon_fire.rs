@@ -6,10 +6,12 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
-use crate::rally::{WeaponFire, Vehicle, Player, vehicle_damage_model};
+use crate::components::{WeaponFire, Vehicle, Player};
+use crate::rally::{vehicle_damage_model};
+
 
 use std::ops::Deref;
-use crate::audio::{play_score_sound, Sounds};
+use crate::audio::{play_score_sound, play_bounce_sound, Sounds};
 
 
 pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.25;
@@ -63,6 +65,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                         if vehicle_destroyed {
                             let _ = entities.delete(vehicle_entity);
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         }
 
                         if self.hit_sound_cooldown_timer < 0.0 {

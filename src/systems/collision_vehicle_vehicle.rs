@@ -6,9 +6,8 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
-//use std::f32::consts::PI;
-
-use crate::rally::{Vehicle, Player, vehicle_damage_model, BASE_COLLISION_DAMAGE, 
+use crate::components::{Vehicle, Player};
+use crate::rally::{vehicle_damage_model, BASE_COLLISION_DAMAGE, 
     COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT};
 

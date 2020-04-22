@@ -4,8 +4,6 @@ use amethyst::{
     ecs::{World, WorldExt},
 };
 
-//use std::{iter::Cycle, vec::IntoIter};
-
 
 const BOUNCE_SOUND: &str = "audio/vehicle_bounce.ogg";
 const SCORE_SOUND: &str = "audio/weapon_hit.ogg";

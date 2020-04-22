@@ -2,8 +2,9 @@ use amethyst::core::{Transform, Time};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, Entities};
 
+use crate::components::{WeaponFire};
+use crate::rally::{ARENA_WIDTH, ARENA_HEIGHT};
 
-use crate::rally::{WeaponFire, ARENA_WIDTH, ARENA_HEIGHT};
 
 #[derive(SystemDesc)]
 pub struct MoveWeaponFireSystem;

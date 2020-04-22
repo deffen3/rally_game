@@ -4,8 +4,10 @@ use amethyst::ecs::{Join, Read, ReadExpect, System, SystemData, WriteStorage, En
 use amethyst::input::{InputHandler, StringBindings};
 use amethyst::core::math::Vector3;
 
-use crate::rally::{Vehicle, Player, //ActionBinding, MovementBindingTypes, 
-    Weapon, WeaponFireResource, fire_weapon};
+
+use crate::components::{Vehicle, Player, Weapon};
+use crate::resources::{WeaponFireResource};
+use crate::rally::{fire_weapon};
 
 #[derive(SystemDesc)]
 pub struct VehicleWeaponsSystem;
