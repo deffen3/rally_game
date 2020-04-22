@@ -270,6 +270,9 @@ pub struct Vehicle {
     pub collision_cooldown_timer: f32,
     pub health: f32,
     pub shield: f32,
+    pub shield_recharge_rate: f32,
+    pub shield_cooldown_timer: f32,
+    pub shield_cooldown_reset: f32,
     pub armor: f32,
     pub weight: f32,
     pub engine_power: f32
@@ -290,7 +293,10 @@ impl Vehicle {
             collision_cooldown_timer: -1.0,
             health: 100.0,
             shield: 100.0,
-            armor: 100.0,
+            shield_recharge_rate: 5.0,
+            shield_cooldown_timer: -1.0,
+            shield_cooldown_reset: 10.0,
+            armor: 200.0,
             weight: 100.0,
             engine_power: 100.0,
         }
@@ -421,15 +427,15 @@ fn build_standard_weapon(weapon_type: WeaponTypes) -> (
             health_damage_pct,
         ) = match weapon_type.clone()
     {                                      //speed      dmg     cooldwn pierce% shield%   armor%    health%
-        WeaponTypes::LaserDouble =>         (400.0,     25.0,   0.4,    0.0,    80.0,    125.0,     100.0),
-        WeaponTypes::LaserBeam =>           (2800.0,    0.3,    0.0,    0.0,    80.0,    125.0,     100.0),
-        WeaponTypes::LaserPulse =>          (400.0,     12.0,   0.75,   0.0,    80.0,    125.0,     100.0),
-        WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.15,   0.0,   125.0,     80.0,     100.0),
-        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.9,    0.0,   125.0,     80.0,     100.0),
-        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.0,    0.0,   125.0,     80.0,     100.0),
-        WeaponTypes::Missile =>             (100.0,     50.0,   2.5,    50.0,   75.0,     75.0,     100.0),
-        WeaponTypes::Rockets =>             (250.0,     50.0,   0.5,    50.0,   75.0,     75.0,     100.0),
-        WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    50.0,   75.0,     75.0,     100.0),
+        WeaponTypes::LaserDouble =>         (400.0,     25.0,   0.4,    0.0,   120.0,     75.0,     100.0),
+        WeaponTypes::LaserBeam =>           (2800.0,    0.3,    0.0,    0.0,   120.0,     75.0,     100.0),
+        WeaponTypes::LaserPulse =>          (400.0,     12.0,   0.75,   0.0,   120.0,     75.0,     100.0),
+        WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.15,   0.0,    80.0,     90.0,     100.0),
+        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.9,    0.0,    80.0,     90.0,     100.0),
+        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.0,    0.0,    80.0,     90.0,     100.0),
+        WeaponTypes::Missile =>             (100.0,     50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
+        WeaponTypes::Rockets =>             (250.0,     50.0,   0.5,    10.0,   75.0,     75.0,     100.0),
+        WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
     };
 
     let burst_cooldown;
@@ -599,6 +605,10 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         shield_damage_pct:f32, armor_damage_pct:f32, health_damage_pct:f32
     ) -> bool {
 
+    //shield_recharge_rate: 5.0,
+    //shield_cooldown_timer: -1.0,
+    //shield_cooldown_reset: 10.0,
+
     let mut piercing_damage:f32 = 0.0;
 
     if piercing_damage_pct > 0.0 {
@@ -615,6 +625,10 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         if vehicle.shield < 0.0 {
             damage -= vehicle.shield; //over damage on shields, needs taken from armor
             vehicle.shield = 0.0;
+        }
+        else {
+            //take damage to shields, but shields are still alive, reset shield recharge cooldown
+            vehicle.shield_cooldown_timer = vehicle.shield_cooldown_reset;
         }
     }
 
