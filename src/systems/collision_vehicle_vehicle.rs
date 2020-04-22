@@ -9,7 +9,9 @@ use amethyst::{
 use std::f32::consts::PI;
 use itertools::Itertools;
 
-use crate::rally::{Vehicle, Player, vehicle_damage_model, COLLISION_DAMAGE};
+use crate::rally::{Vehicle, Player, vehicle_damage_model, BASE_COLLISION_DAMAGE, 
+    COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+    COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT};
 
 use std::ops::Deref;
 use crate::audio::{play_bounce_sound, Sounds};
@@ -35,7 +37,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
-        let mut collision_ids_vec: Vec<(usize, f32, f32)> = Vec::new();
+        let mut collision_ids_vec: Vec<(usize, f32)> = Vec::new();
 
         for (vehicle_1_entity, vehicle_1, player_1, vehicle_1_transform) in (&*entities, &vehicles, &players, &transforms).join() {
             let vehicle_1_x = vehicle_1_transform.translation().x;
@@ -62,8 +64,11 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         //vehicle_2.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_x_comp.abs();
                         //vehicle_2.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_y_comp.abs();
 
-                        collision_ids_vec.push((player_1.id, 0.0, 0.0));
-                        collision_ids_vec.push((player_2.id, 0.0, 0.0));
+                        let sq_vel_diff = (vehicle_1.dx - vehicle_2.dx).powi(2) + (vehicle_1.dy - vehicle_2.dy).powi(2);
+                        let abs_vel_diff = sq_vel_diff.sqrt();
+
+                        collision_ids_vec.push((player_1.id, abs_vel_diff));
+                        collision_ids_vec.push((player_2.id, abs_vel_diff));
                     }
                 }
             }
@@ -75,18 +80,20 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
-            for (col_id, v1, v2) in &collision_ids_vec {
+            for (col_id, v_diff) in &collision_ids_vec {
                 if player.id == *col_id {
 
                     if vehicle.collision_cooldown_timer <= 0.0 {
-                        println!("Player {} has collided", player.id);
+                        //println!("Player {} has collided", player.id);
 
                         play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         vehicle.collision_cooldown_timer = 1.0;
 
-                        let mut damage:f32 = COLLISION_DAMAGE;
+                        let mut damage:f32 = BASE_COLLISION_DAMAGE * v_diff;
 
-                        let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
+                        let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
+                            COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+                            COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT);
 
                         if vehicle_destroyed {
                             let _ = entities.delete(vehicle_entity);

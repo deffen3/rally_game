@@ -26,7 +26,11 @@ pub const ARENA_WIDTH: f32 = 400.0;
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 6.0;
 
-pub const COLLISION_DAMAGE: f32 = 20.0;
+pub const BASE_COLLISION_DAMAGE: f32 = 20.0;
+pub const COLLISION_PIERCING_DAMAGE_PCT: f32 = 0.0;
+pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 50.0;
+pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
+pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
 pub const MAX_PLAYERS: usize = 4;
 

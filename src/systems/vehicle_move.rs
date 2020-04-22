@@ -11,7 +11,8 @@ use amethyst::{
 use std::f32::consts::PI;
 
 use crate::rally::{Vehicle, Player, ARENA_HEIGHT, ARENA_WIDTH, AxisBinding, MovementBindingTypes, 
-    vehicle_damage_model, COLLISION_DAMAGE};
+    vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+    COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT};
 
 
 use std::ops::Deref;
@@ -44,7 +45,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             //let max_velocity: f32 = 0.5;
 
             let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power/100.0;
-            let rotate_friction_decel_rate: f32 = 0.95 * vehicle.engine_power/100.0;
+            let rotate_friction_decel_rate: f32 = 0.97 * vehicle.engine_power/100.0;
 
             let thrust_accel_rate: f32 = 0.9 * vehicle.engine_power/100.0;
             let thrust_decel_rate: f32 = 0.6 * vehicle.engine_power/100.0;
@@ -104,8 +105,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
             //println!("vel_x:{0:>6.3}, vel_y:{1:>6.3}", vehicle.dx, vehicle.dy);
 
 
-            // let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
-            // let abs_vel = sq_vel.sqrt();
+            let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+            let abs_vel = sq_vel.sqrt();
 
             // if abs_vel > max_velocity {
             //     vehicle.dx = velocity_x_comp * max_velocity;
@@ -161,56 +162,39 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let yaw_width = vehicle.height*0.5 * yaw_x_comp.abs() + vehicle.width*0.5 * (1.0-yaw_x_comp.abs());
             let yaw_height = vehicle.height*0.5 * yaw_y_comp.abs() + vehicle.width*0.5 * (1.0-yaw_y_comp.abs());
 
+            let mut x_collision = false;
+            let mut y_collision = false;
+            
             if vehicle_x > (ARENA_WIDTH - yaw_width) { //hit the right wall
                 transform.set_translation_x(ARENA_WIDTH - yaw_width);
-                vehicle.dx *= wall_hit_bounce_decel_pct * velocity_x_comp.abs();
-                vehicle.dy *= wall_hit_non_bounce_decel_pct * velocity_y_comp.abs();
-
-                if vehicle.collision_cooldown_timer <= 0.0 {
-                    let mut damage:f32 = COLLISION_DAMAGE * velocity_x_comp.abs();
-                    println!("Player {} has collided with {} damage", player.id, damage);
-
-                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
-
-                    if vehicle_destroyed {
-                        let _ = entities.delete(entity);
-                    }
-
-                    play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
-                    vehicle.collision_cooldown_timer = 1.0;
-                }
+                x_collision = true;
             }
             else if vehicle_x < (yaw_width) { //hit the left wall
                 transform.set_translation_x(yaw_width);
-                vehicle.dx *= wall_hit_bounce_decel_pct * velocity_x_comp.abs();
-                vehicle.dy *= wall_hit_non_bounce_decel_pct * velocity_y_comp.abs();
-
-                if vehicle.collision_cooldown_timer <= 0.0 {
-                    let mut damage:f32 = COLLISION_DAMAGE * velocity_x_comp.abs();
-                    println!("Player {} has collided with {} damage", player.id, damage);
-
-                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
-
-                    if vehicle_destroyed {
-                        let _ = entities.delete(entity);
-                    }
-
-                    play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
-                    vehicle.collision_cooldown_timer = 1.0;
-                }
+                x_collision = true;
             }
 
             if vehicle_y > (ARENA_HEIGHT - yaw_height) { //hit the top wall
                 transform.set_translation_y(ARENA_HEIGHT - yaw_height);
-                vehicle.dx *= wall_hit_non_bounce_decel_pct * velocity_x_comp.abs();
-                vehicle.dy *= wall_hit_bounce_decel_pct * velocity_y_comp.abs();
+                y_collision = true;
+            }
+            else if vehicle_y < (yaw_height) { //hit the bottom wall
+                transform.set_translation_y(yaw_height);
+                y_collision = true;
+            }
+
+            if x_collision {
+                vehicle.dx *= wall_hit_bounce_decel_pct * velocity_x_comp.abs();
+                vehicle.dy *= wall_hit_non_bounce_decel_pct * velocity_y_comp.abs();
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
-                    let mut damage:f32 = COLLISION_DAMAGE * velocity_y_comp.abs();
-                    println!("Player {} has collided with {} damage", player.id, damage);
+                    let mut damage:f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_x_comp.abs();
+                    //println!("Player {} has collided with {} damage", player.id, damage);
 
-                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
-    
+                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
+                        COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+                        COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT);
+
                     if vehicle_destroyed {
                         let _ = entities.delete(entity);
                     }
@@ -219,16 +203,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     vehicle.collision_cooldown_timer = 1.0;
                 }
             }
-            else if vehicle_y < (yaw_height) { //hit the bottom wall
-                transform.set_translation_y(yaw_height);
+            if y_collision {
                 vehicle.dx *= wall_hit_non_bounce_decel_pct * velocity_x_comp.abs();
                 vehicle.dy *= wall_hit_bounce_decel_pct * velocity_y_comp.abs();
-                
-                if vehicle.collision_cooldown_timer <= 0.0 {
-                    let mut damage:f32 = COLLISION_DAMAGE * velocity_y_comp.abs();
-                    println!("Player {} has collided with {} damage", player.id, damage);
 
-                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 0.0, 1.0, 1.0, 1.0);
+                if vehicle.collision_cooldown_timer <= 0.0 {
+                    let mut damage:f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_y_comp.abs();
+                    //println!("Player {} has collided with {} damage", player.id, damage);
+
+                    let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
+                        COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+                        COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT);
     
                     if vehicle_destroyed {
                         let _ = entities.delete(entity);
