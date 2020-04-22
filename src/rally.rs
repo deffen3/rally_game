@@ -54,7 +54,8 @@ impl SimpleState for Rally {
 
         initialise_ui(world);
         world.register::<UiText>(); // <- add this line temporarily
-
+        world.register::<UiTransform>();
+        
 
         // for player_index in 0..MAX_PLAYERS {
         //     intialize_player(
@@ -739,22 +740,22 @@ fn initialise_ui(world: &mut World) {
         50., -50., 1., 200., 50.,
     );
 
-    // let p1_score = world
-    //     .create_entity()
-    //     .with(p1_transform)
-    //     .with(UiText::new(
-    //         font.clone(),
-    //         "0".to_string(),
-    //         [1., 1., 1., 1.],
-    //         50.,
-    //     ))
-    //     .build();
+    let p1_score = world
+        .create_entity()
+        .with(p1_transform)
+        .with(UiText::new(
+            font.clone(),
+            "0".to_string(),
+            [1., 1., 1., 1.],
+            50.,
+        ))
+        .build();
 
-    // let p2_score = world
-    //     .create_entity()
-    //     .with(p2_transform)
-    //     .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
-    //     .build();
+    let p2_score = world
+        .create_entity()
+        .with(p2_transform)
+        .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
+        .build();
 
-    // world.insert(ScoreText { p1_score, p2_score });
+    world.insert(ScoreText { p1_score, p2_score });
 }

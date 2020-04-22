@@ -20,6 +20,7 @@ pub struct VehicleStatusSystem;
 impl<'s> System<'s> for VehicleStatusSystem {
     type SystemData = (
         ReadStorage<'s, Vehicle>,
+        WriteStorage<'s, Transform>,
         WriteStorage<'s, UiText>,
         Write<'s, ScoreBoard>,
         ReadExpect<'s, ScoreText>,
@@ -27,6 +28,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
     fn run(&mut self, (
         vehicles,
+        mut locals,
         mut ui_text,
         mut scores,
         score_text,
