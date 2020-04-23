@@ -42,6 +42,8 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
+        
+
         for (vehicle_entity, player, vehicle, vehicle_transform) in (&*entities, &players, &mut vehicles, &transforms).join() {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
@@ -66,6 +68,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         if vehicle_destroyed {
                             let _ = entities.delete(vehicle_entity);
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+
+                            //gun-game rules: upgrade weapon type for player who got the kill
+
                         }
 
                         if self.hit_sound_cooldown_timer < 0.0 {

@@ -40,7 +40,7 @@ impl Vehicle {
             shield_recharge_rate: 5.0,
             shield_cooldown_timer: -1.0,
             shield_cooldown_reset: 10.0,
-            armor: 200.0,
+            armor: 100.0,
             weight: 100.0,
             engine_power: 100.0,
         }

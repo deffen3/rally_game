@@ -38,62 +38,64 @@ pub fn initialise_ui(world: &mut World) {
 
     let mut x = -450.;
     let y = -950.;
+    let dx = 80.;
+    let dx2 = 10.;
 
     let p1_shield_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx;
     let p1_armor_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx;
     let p1_health_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx + dx2;
     let p2_shield_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx;
     let p2_armor_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx;
     let p2_health_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx + dx2;
     let p3_shield_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx;
     let p3_armor_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx;
     let p3_health_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx + dx2;
     let p4_shield_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx;
     let p4_armor_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
     );
-    x += 80.;
+    x += dx;
     let p4_health_transform = UiTransform::new(
         "P1".to_string(), Anchor::TopMiddle, Anchor::TopMiddle,
         x, y, 1., 200., 50.,
