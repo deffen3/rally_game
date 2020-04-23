@@ -54,9 +54,9 @@ impl SimpleState for Rally {
 
         initialise_audio(world);
 
-        //initialise_ui(world);
-        //world.register::<UiText>(); // <- add this line temporarily
-        //world.register::<UiTransform>();
+        initialise_ui(world);
+        world.register::<UiText>(); // <- add this line temporarily
+        world.register::<UiTransform>();
         
 
         // for player_index in 0..MAX_PLAYERS {
@@ -233,7 +233,7 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         damage -= piercing_damage;
     }
 
-    println!("H:{} A:{} S:{} P:{}, D:{}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
+    println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
     if vehicle.shield > 0.0 {
         vehicle.shield -= damage * shield_damage_pct/100.0;
@@ -249,8 +249,6 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         }
     }
 
-    println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
-
     if vehicle.armor > 0.0 {
         vehicle.armor -= damage * armor_damage_pct/100.0;
         damage = 0.0;
@@ -260,8 +258,6 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
             vehicle.armor = 0.0;
         }
     }
-
-    println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, damage);
 
     let mut health_damage:f32 = (damage + piercing_damage) * health_damage_pct/100.0;
 
@@ -276,7 +272,7 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         health_damage = 0.0;
     }
 
-    println!("H:{} A:{} S:{} D:{}",vehicle.health, vehicle.armor, vehicle.shield, health_damage);
+    println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
 
     vehicle_destroyed
 }

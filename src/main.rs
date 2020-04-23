@@ -45,17 +45,17 @@ fn main() -> amethyst::Result<()> {
 
 
     let game_data = GameDataBuilder::default()
+        .with_bundle(TransformBundle::new())?
         .with_bundle(AudioBundle::default())?
         .with_bundle(input_bundle)?
-        //.with_bundle(UiBundle::<StringBindings>::new())?
+        .with_bundle(UiBundle::<StringBindings>::new())?
         .with(systems::VehicleMoveSystem, "vehicle_move_system", &["input_system"])
         .with(systems::VehicleWeaponsSystem, "vehicle_weapons_system", &["input_system"])
         .with(systems::MoveWeaponFireSystem, "move_weapon_fire_system", &["vehicle_weapons_system"])
         .with(systems::CollisionVehToVehSystem, "collision_vehicle_vehicle_system", &["vehicle_move_system"])
         .with(systems::CollisionVehicleWeaponFireSystem::default(), "collision_vehicle_weapon_fire_system", &["vehicle_move_system"])
         .with(systems::VehicleShieldsSystem, "vehicle_shields_system", &["input_system"])
-        //.with(systems::VehicleStatusSystem, "vehicle_status_system", &["input_system"])
-        .with_bundle(TransformBundle::new())?
+        .with(systems::VehicleStatusSystem, "vehicle_status_system", &["input_system"])
         .with_bundle(RenderingBundle::<DefaultBackend>::new()
             // The RenderToWindow plugin provides all the scaffolding for opening a window and drawing on it
             .with_plugin(
@@ -64,7 +64,7 @@ fn main() -> amethyst::Result<()> {
             )
             // RenderFlat2D plugin is used to render entities with a `SpriteRender` component.
             .with_plugin(RenderFlat2D::default())
-            //.with_plugin(RenderUi::default())
+            .with_plugin(RenderUi::default())
         )?;
 
     let mut game = Application::new(assets_dir, Rally::default(), game_data)?;

@@ -1,5 +1,6 @@
 use amethyst::{
     core::transform::Transform,
+    core::SystemDesc,                
     derive::SystemDesc,
     ecs::prelude::{Join, ReadExpect, System, SystemData, Write, WriteStorage, ReadStorage},
     ui::UiText,
@@ -29,19 +30,19 @@ impl<'s> System<'s> for VehicleStatusSystem {
     ): Self::SystemData)  {
         for _vehicle in vehicles.join() {
             
-            // scores.score_right = (scores.score_right + 1)
-            //     .min(10);
+            scores.score_right = (scores.score_right + 1)
+                .min(10);
 
-            // if let Some(text) = ui_text.get_mut(score_text.p2_score) {
-            //     text.text = scores.score_right.to_string();
-            // }
+            if let Some(text) = ui_text.get_mut(score_text.p2_score) {
+                text.text = scores.score_right.to_string();
+            }
 
-            // scores.score_left = (scores.score_left + 1)
-            //     .min(10);
+            scores.score_left = (scores.score_left + 1)
+                .min(10);
 
-            // if let Some(text) = ui_text.get_mut(score_text.p1_score) {
-            //     text.text = scores.score_left.to_string();
-            // }
+            if let Some(text) = ui_text.get_mut(score_text.p1_score) {
+                text.text = scores.score_left.to_string();
+            }
         }
     }
 }
