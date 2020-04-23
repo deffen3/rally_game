@@ -4,7 +4,7 @@ use amethyst::{
     ecs::prelude::{Entity, Entities, ReadExpect, LazyUpdate},
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
-    ui::{Anchor, TtfFormat, UiText, UiTransform},
+    ui::{UiText, UiTransform},
 };
 use amethyst::core::math::Vector3;
 
@@ -70,18 +70,18 @@ impl SimpleState for Rally {
 
         let mut rng = rand::thread_rng();
 
-        /*
-        let weapon1: WeaponTypes = weapon_type_from_u8(6);
-        let weapon2: WeaponTypes = weapon_type_from_u8(7);
-        let weapon3: WeaponTypes = weapon_type_from_u8(8);
-        let weapon4: WeaponTypes = weapon_type_from_u8(100);
-        */
         
-        let weapon1: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
+        let weapon1: WeaponTypes = weapon_type_from_u8(0);
+        let weapon2: WeaponTypes = weapon_type_from_u8(0);
+        let weapon3: WeaponTypes = weapon_type_from_u8(0);
+        let weapon4: WeaponTypes = weapon_type_from_u8(0);
+        
+        /*
+        let weapon1: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 1) as u8);
         let weapon2: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon3: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon4: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
-        
+        */
 
         intialize_player(
             world, 
@@ -233,7 +233,7 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         damage -= piercing_damage;
     }
 
-    println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
+    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
     if vehicle.shield > 0.0 {
         vehicle.shield -= damage * shield_damage_pct/100.0;
@@ -272,7 +272,7 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         health_damage = 0.0;
     }
 
-    println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
+    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
 
     vehicle_destroyed
 }

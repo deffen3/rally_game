@@ -1,47 +1,98 @@
 use amethyst::{
-    core::transform::Transform,
-    core::SystemDesc,                
+    core::transform::Transform,           
     derive::SystemDesc,
-    ecs::prelude::{Join, ReadExpect, System, SystemData, Write, WriteStorage, ReadStorage},
     ui::UiText,
 };
+use amethyst::ecs::{Join, System, SystemData, WriteStorage, ReadExpect};
 
-use crate::components::{Vehicle};
-use crate::entities::{ScoreBoard, ScoreText};
+use crate::components::{Vehicle, Player};
+use crate::entities::{ScoreText};
 
 #[derive(SystemDesc)]
 pub struct VehicleStatusSystem;
 
 impl<'s> System<'s> for VehicleStatusSystem {
     type SystemData = (
-        ReadStorage<'s, Vehicle>,
+        WriteStorage<'s, Player>,
+        WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, UiText>,
-        Write<'s, ScoreBoard>,
         ReadExpect<'s, ScoreText>,
     );
 
     fn run(&mut self, (
-        vehicles,
-        _transforms,
+        mut players,
+        mut vehicles,
+        transforms,
         mut ui_text,
-        mut scores,
         score_text,
     ): Self::SystemData)  {
-        for _vehicle in vehicles.join() {
+        //for (player, vehicle) in (players, vehicles).join() {
+        for (player, vehicle) in (&mut players, &mut vehicles).join() {
             
-            scores.score_right = (scores.score_right + 1)
-                .min(10);
+            if player.id == 0 {
+                let shield: i32 = vehicle.shield.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p1_shield) {
+                    text.text = shield.to_string();
+                }
 
-            if let Some(text) = ui_text.get_mut(score_text.p2_score) {
-                text.text = scores.score_right.to_string();
+                let armor: i32 = vehicle.armor.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p1_armor) {
+                    text.text = armor.to_string();
+                }
+
+                let health: i32 = vehicle.health.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p1_health) {
+                    text.text = health.to_string();
+                }
             }
+            if player.id == 1 {
+                let shield: i32 = vehicle.shield.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p2_shield) {
+                    text.text = shield.to_string();
+                }
 
-            scores.score_left = (scores.score_left + 1)
-                .min(10);
+                let armor: i32 = vehicle.armor.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p2_armor) {
+                    text.text = armor.to_string();
+                }
 
-            if let Some(text) = ui_text.get_mut(score_text.p1_score) {
-                text.text = scores.score_left.to_string();
+                let health: i32 = vehicle.health.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p2_health) {
+                    text.text = health.to_string();
+                }
+            }
+            if player.id == 2 {
+                let shield: i32 = vehicle.shield.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p3_shield) {
+                    text.text = shield.to_string();
+                }
+
+                let armor: i32 = vehicle.armor.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p3_armor) {
+                    text.text = armor.to_string();
+                }
+
+                let health: i32 = vehicle.health.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p3_health) {
+                    text.text = health.to_string();
+                }
+            }
+            if player.id == 3 {
+                let shield: i32 = vehicle.shield.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p4_shield) {
+                    text.text = shield.to_string();
+                }
+
+                let armor: i32 = vehicle.armor.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p4_armor) {
+                    text.text = armor.to_string();
+                }
+
+                let health: i32 = vehicle.health.ceil() as i32;
+                if let Some(text) = ui_text.get_mut(score_text.p4_health) {
+                    text.text = health.to_string();
+                }
             }
         }
     }
