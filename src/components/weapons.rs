@@ -2,15 +2,15 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
 pub fn weapon_type_from_u8(n: u8) -> WeaponTypes {
     match n {
-        0 => WeaponTypes::LaserBeam,
-        1 => WeaponTypes::LaserPulse,
-        2 => WeaponTypes::LaserDouble,
-        3 => WeaponTypes::ProjectileRapidFire,
-        4 => WeaponTypes::ProjectileBurstFire,
-        5 => WeaponTypes::ProjectileCannonFire,
-        6 => WeaponTypes::Mine,
-        7 => WeaponTypes::Missile,
-        8 => WeaponTypes::Rockets,
+        0 => WeaponTypes::LaserDouble,
+        1 => WeaponTypes::ProjectileBurstFire,
+        2 => WeaponTypes::Mine,
+        3 => WeaponTypes::LaserPulse,
+        4 => WeaponTypes::ProjectileRapidFire,
+        5 => WeaponTypes::Rockets,
+        6 => WeaponTypes::LaserBeam,
+        7 => WeaponTypes::ProjectileCannonFire,
+        8 => WeaponTypes::Missile,
         _ => WeaponTypes::LaserBeam,
     }
 }
@@ -37,6 +37,7 @@ pub struct Weapon {
     pub y: f32,
     pub aim_angle: f32,
     pub weapon_type: WeaponTypes,
+    pub heat_seeking: bool,
     pub weapon_cooldown_timer: f32,
     pub weapon_cooldown_reset: f32,
     pub burst_shots: u32,
@@ -56,6 +57,7 @@ impl Component for Weapon {
 
 impl Weapon {
     pub fn new(weapon_type: WeaponTypes, 
+        heat_seeking: bool,
         weapon_cooldown: f32, 
         burst_shot_limit: u32, 
         burst_cooldown: f32,
@@ -72,6 +74,7 @@ impl Weapon {
             y: 0.0,
             aim_angle: 0.0,
             weapon_type,
+            heat_seeking,
             weapon_cooldown_timer: -1.0,
             weapon_cooldown_reset: weapon_cooldown,
             burst_shots: 0,
@@ -104,6 +107,7 @@ pub struct WeaponFire {
     pub armor_damage_pct: f32,
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
+    pub heat_seeking: bool,
     pub weapon_type: WeaponTypes,
 }
 
@@ -115,6 +119,7 @@ impl Component for WeaponFire {
 impl WeaponFire {
     pub fn new(weapon_type: WeaponTypes, 
         owner_player_id: usize,
+        heat_seeking: bool,
         weapon_shot_speed: f32,
         damage: f32,
         shield_damage_pct: f32,
@@ -123,9 +128,22 @@ impl WeaponFire {
         health_damage_pct: f32,
     ) -> WeaponFire {
 
+        let (width, height) = match weapon_type.clone()
+        {                                      
+            WeaponTypes::LaserDouble =>         (3.0, 6.0),
+            WeaponTypes::LaserBeam =>           (1.0, 20.0),
+            WeaponTypes::LaserPulse =>          (1.0, 3.0),
+            WeaponTypes::ProjectileBurstFire => (1.0, 4.0),
+            WeaponTypes::ProjectileRapidFire => (1.0, 2.0),
+            WeaponTypes::ProjectileCannonFire =>(2.0, 3.0),
+            WeaponTypes::Missile =>             (3.0, 5.0),
+            WeaponTypes::Rockets =>             (5.0, 3.0),
+            WeaponTypes::Mine =>                (3.0, 3.0),
+        };
+
         WeaponFire {
-            width: 1.0,
-            height: 1.0,
+            width,
+            height,
             dx: 0.0,
             dy: 0.0,
             spawn_x: 0.0,
@@ -138,6 +156,7 @@ impl WeaponFire {
             armor_damage_pct: armor_damage_pct,
             piercing_damage_pct: piercing_damage_pct,
             health_damage_pct: health_damage_pct,
+            heat_seeking,
             weapon_type,
         }
     }

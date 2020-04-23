@@ -68,15 +68,15 @@ impl SimpleState for Rally {
         //     );
         // }
 
-        let mut rng = rand::thread_rng();
-
         
-        let weapon1: WeaponTypes = weapon_type_from_u8(0);
-        let weapon2: WeaponTypes = weapon_type_from_u8(0);
-        let weapon3: WeaponTypes = weapon_type_from_u8(0);
-        let weapon4: WeaponTypes = weapon_type_from_u8(0);
+        let weapon1: WeaponTypes = weapon_type_from_u8(10);
+        let weapon2: WeaponTypes = weapon_type_from_u8(10);
+        let weapon3: WeaponTypes = weapon_type_from_u8(10);
+        let weapon4: WeaponTypes = weapon_type_from_u8(10);
         
         /*
+        let mut rng = rand::thread_rng();
+
         let weapon1: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 1) as u8);
         let weapon2: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
         let weapon3: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
@@ -168,6 +168,7 @@ pub fn fire_weapon(
     let mut weapon_fire = WeaponFire::new(
         weapon.weapon_type.clone(),
         player_id,
+        weapon.heat_seeking,
         weapon.weapon_shot_speed,
         weapon.damage,
         weapon.shield_damage_pct,

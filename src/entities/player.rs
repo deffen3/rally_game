@@ -39,6 +39,7 @@ pub fn intialize_player(
     };
 
     let (weapon_type,
+        heat_seeking,
         weapon_cooldown, 
         burst_shot_limit,
         burst_cooldown,
@@ -55,6 +56,7 @@ pub fn intialize_player(
         .with(vehicle_sprite_render)
         .with(Vehicle::new())
         .with(Weapon::new(weapon_type,
+            heat_seeking,
             weapon_cooldown, 
             burst_shot_limit,
             burst_cooldown,
@@ -78,7 +80,7 @@ pub fn intialize_player(
 
 
 fn build_standard_weapon(weapon_type: WeaponTypes) -> (
-WeaponTypes, f32, u32, f32, f32, f32, f32, f32, f32, f32
+WeaponTypes, bool, f32, u32, f32, f32, f32, f32, f32, f32, f32
 ) {
 let (weapon_shot_speed, damage, weapon_cooldown, 
         piercing_damage_pct, 
@@ -112,7 +114,16 @@ else {
     burst_shot_limit = 1 as u32;
 };
 
+let heat_seeking;
+if weapon_type.clone() == WeaponTypes::Missile {
+    heat_seeking = true;
+}
+else {
+    heat_seeking = false;
+}
+
 (weapon_type,
+    heat_seeking,
     weapon_cooldown, 
     burst_shot_limit,
     burst_cooldown,

@@ -42,7 +42,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
-        
+
 
         for (vehicle_entity, player, vehicle, vehicle_transform) in (&*entities, &players, &mut vehicles, &transforms).join() {
             let vehicle_x = vehicle_transform.translation().x;
@@ -53,7 +53,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 let fire_y = weapon_fire_transform.translation().y;
 
                 if weapon_fire.owner_player_id != player.id {
+
                     if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2) < vehicle.width.powi(2) {
+                        
                         let _ = entities.delete(weapon_fire_entity);
 
                         let damage:f32 = weapon_fire.damage.clone();
