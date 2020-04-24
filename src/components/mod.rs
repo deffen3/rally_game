@@ -1,6 +1,10 @@
 pub use self::players::Player;
 pub use self::vehicles::Vehicle;
-pub use self::weapons::{Weapon, WeaponFire, WeaponTypes, weapon_type_from_u8};
+pub use self::weapons::{
+    Weapon, WeaponFire, WeaponTypes, 
+    weapon_type_from_u8, get_next_weapon_type, 
+    update_weapon_properties, build_standard_weapon
+};
 
 mod players;
 mod weapons;

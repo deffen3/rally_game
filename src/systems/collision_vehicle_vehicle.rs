@@ -14,9 +14,13 @@ use crate::rally::{vehicle_damage_model, BASE_COLLISION_DAMAGE,
 use std::ops::Deref;
 use crate::audio::{play_bounce_sound, Sounds};
 
+use std::f32::consts::PI;
+
+
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
+
 
 
 impl<'s> System<'s> for CollisionVehToVehSystem {
@@ -48,25 +52,27 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                 if player_1.id != player_2.id {
                     if (vehicle_1_x - vehicle_2_x).powi(2) + (vehicle_1_y - vehicle_2_y).powi(2) < vehicle_1.width.powi(2) {
 
-                        //let velocity_1_angle = vehicle_1.dy.atan2(vehicle_1.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
-                        //let velocity_1_x_comp = -velocity_1_angle.sin(); //left is -, right is +
-                        //let velocity_1_y_comp = velocity_1_angle.cos(); //up is +, down is -
+                        let veh_hit_non_bounce_decel_pct: f32 = 0.35;
+                        let veh_hit_bounce_decel_pct: f32 = -veh_hit_non_bounce_decel_pct;
 
-                        //vehicle_1.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_1_x_comp.abs();
-                        //vehicle_1.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_1_y_comp.abs();
-
-                        //let velocity_2_angle = vehicle_2.dy.atan2(vehicle_2.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
-                        //let velocity_2_x_comp = -velocity_2_angle.sin(); //left is -, right is +
-                        //let velocity_2_y_comp = velocity_2_angle.cos(); //up is +, down is -
-
-                        //vehicle_2.dx *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_x_comp.abs();
-                        //vehicle_2.dy *= VEHICLE_HIT_BOUNCE_DECEL_PCT * velocity_2_y_comp.abs();
+                    
 
                         let sq_vel_diff = (vehicle_1.dx - vehicle_2.dx).powi(2) + (vehicle_1.dy - vehicle_2.dy).powi(2);
                         let abs_vel_diff = sq_vel_diff.sqrt();
 
                         collision_ids_vec.push((player_1.id, abs_vel_diff));
                         collision_ids_vec.push((player_2.id, abs_vel_diff));
+
+                        /*
+                        let velocity_1_angle = vehicle_1.dy.atan2(vehicle_1.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
+                        let velocity_1_x_comp = -velocity_1_angle.sin(); //left is -, right is +
+                        let velocity_1_y_comp = velocity_1_angle.cos(); //up is +, down is -
+
+
+                        let velocity_2_angle = vehicle_2.dy.atan2(vehicle_2.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
+                        let velocity_2_x_comp = -velocity_2_angle.sin(); //left is -, right is +
+                        let velocity_2_y_comp = velocity_2_angle.cos(); //up is +, down is -
+                        */
                     }
                 }
             }
@@ -92,6 +98,15 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         if vehicle_destroyed {
                             let _ = entities.delete(vehicle_entity);
                         }
+
+
+                        //vehicle_1.dx *= veh_hit_bounce_decel_pct * velocity_1_x_comp.abs();
+                        //vehicle_1.dy *= veh_hit_bounce_decel_pct * velocity_1_y_comp.abs();
+
+                        //vehicle_2.dx *= veh_hit_bounce_decel_pct * velocity_2_x_comp.abs();
+                        //vehicle_2.dy *= veh_hit_bounce_decel_pct * velocity_2_y_comp.abs(); 
+
+
                     }
                     else {
                         vehicle.collision_cooldown_timer -= dt;

@@ -3,21 +3,99 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 pub fn weapon_type_from_u8(n: u8) -> WeaponTypes {
     match n {
         0 => WeaponTypes::LaserDouble,
-        1 => WeaponTypes::ProjectileBurstFire,
-        2 => WeaponTypes::Mine,
-        3 => WeaponTypes::LaserPulse,
+        1 => WeaponTypes::LaserBeam,
+        2 => WeaponTypes::LaserPulse,
+        3 => WeaponTypes::ProjectileBurstFire,
         4 => WeaponTypes::ProjectileRapidFire,
-        5 => WeaponTypes::Rockets,
-        6 => WeaponTypes::LaserBeam,
-        7 => WeaponTypes::ProjectileCannonFire,
-        8 => WeaponTypes::Missile,
-        _ => WeaponTypes::LaserBeam,
+        5 => WeaponTypes::ProjectileCannonFire,
+        6 => WeaponTypes::Missile,
+        7 => WeaponTypes::Rockets,
+        8 => WeaponTypes::Mine,
+        _ => WeaponTypes::LaserDouble,
+    }
+}
+
+pub fn get_next_weapon_type(weapon_type: WeaponTypes) -> WeaponTypes {
+    match weapon_type {
+        WeaponTypes::LaserDouble => WeaponTypes::ProjectileRapidFire,
+        WeaponTypes::ProjectileRapidFire => WeaponTypes::Mine,
+        WeaponTypes::Mine => WeaponTypes::LaserBeam,
+        WeaponTypes::LaserBeam => WeaponTypes::ProjectileCannonFire,
+        WeaponTypes::ProjectileCannonFire => WeaponTypes::Rockets,
+        WeaponTypes::Rockets => WeaponTypes::LaserPulse,
+        WeaponTypes::LaserPulse => WeaponTypes::ProjectileBurstFire,
+        WeaponTypes::ProjectileBurstFire => WeaponTypes::Missile,
+        WeaponTypes::Missile => WeaponTypes::LaserDouble,
     }
 }
 
 
-#[derive(PartialEq)]
-#[derive(Clone)]
+pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
+    weapon.weapon_type = weapon_type;
+}
+
+
+
+pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
+    WeaponTypes, bool, f32, u32, f32, f32, f32, f32, f32, f32, f32
+    ) {
+    let (weapon_shot_speed, damage, weapon_cooldown, 
+            piercing_damage_pct, 
+            shield_damage_pct, armor_damage_pct, 
+            health_damage_pct,
+        ) = match weapon_type.clone()
+    {                                      //speed      dmg     cooldwn pierce% shield%   armor%    health%
+        WeaponTypes::LaserDouble =>         (400.0,     25.0,   0.4,    0.0,   120.0,     75.0,     100.0),
+        WeaponTypes::LaserBeam =>           (2800.0,    0.3,    0.005,  0.0,   120.0,     75.0,     100.0),
+        WeaponTypes::LaserPulse =>          (400.0,     12.0,   0.75,   0.0,   120.0,     75.0,     100.0),
+        WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.15,   0.0,    80.0,     90.0,     100.0),
+        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.10,   0.0,    80.0,     90.0,     100.0),
+        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.9,    0.0,    80.0,     90.0,     100.0),
+        WeaponTypes::Missile =>             (100.0,     50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
+        WeaponTypes::Rockets =>             (250.0,     50.0,   0.5,    10.0,   75.0,     75.0,     100.0),
+        WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
+    };
+    
+    let burst_cooldown;
+    let burst_shot_limit; 
+    if weapon_type.clone() == WeaponTypes::LaserPulse {
+        burst_cooldown = 0.1 as f32;
+        burst_shot_limit = 2 as u32;
+    }
+    else if weapon_type.clone() == WeaponTypes::ProjectileBurstFire{
+        burst_cooldown = 0.1 as f32;
+        burst_shot_limit = 2 as u32;
+    }
+    else {
+        burst_cooldown = weapon_cooldown.clone();
+        burst_shot_limit = 1 as u32;
+    };
+    
+    let heat_seeking;
+    if weapon_type.clone() == WeaponTypes::Missile {
+        heat_seeking = true;
+    }
+    else {
+        heat_seeking = false;
+    }
+    
+    (weapon_type,
+        heat_seeking,
+        weapon_cooldown, 
+        burst_shot_limit,
+        burst_cooldown,
+        weapon_shot_speed,
+        damage,
+        shield_damage_pct,
+        armor_damage_pct,
+        piercing_damage_pct,
+        health_damage_pct,)
+    }
+
+
+
+
+#[derive(Clone, Debug, PartialEq)]
 pub enum WeaponTypes {
     LaserBeam,
     LaserPulse,
