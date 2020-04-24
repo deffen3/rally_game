@@ -7,7 +7,7 @@ use amethyst::{
 };
 
 use crate::components::{
-    WeaponFire, Weapon, Vehicle, Player, 
+    WeaponFire, Weapon, WeaponTypes, Vehicle, Player, 
     get_next_weapon_type, update_weapon_properties,
 };
 
@@ -47,7 +47,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
-
+        let mut player_makes_kill: Vec<(usize, WeaponTypes)> = Vec::new();
 
         for (vehicle_entity, player, vehicle, weapon, vehicle_transform) in (&*entities, &players, &mut vehicles, &mut weapons, &transforms).join() {
             let vehicle_x = vehicle_transform.translation().x;
@@ -71,8 +71,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                     
 
-
-
                     if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2) < vehicle.width.powi(2) {
 
                         let _ = entities.delete(weapon_fire_entity);
@@ -90,10 +88,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             let _ = entities.delete(vehicle_entity);
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
 
-                            //gun-game rules: upgrade weapon type for player who got the kill
-                            let new_weapon_type = get_next_weapon_type(weapon_fire.weapon_type.clone());
-                            println!("{:?} {:?}",weapon_fire.weapon_type.clone(), new_weapon_type);
-                            update_weapon_properties(weapon, new_weapon_type);
+                            player_makes_kill.push((weapon_fire.owner_player_id.clone(), weapon_fire.weapon_type.clone()));
                         }
 
                         if self.hit_sound_cooldown_timer < 0.0 {
@@ -101,6 +96,18 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
                         }
                     }
+                }
+            }
+        }
+
+        for (player, weapon) in (&players, &mut weapons).join() {
+
+            for (killer_id, weapon_type) in &player_makes_kill {
+                if *killer_id == player.id {
+                    //classic gun-game rules: upgrade weapon type for player who got the kill
+                    let new_weapon_type = get_next_weapon_type(weapon_type.clone());
+                    println!("{:?} {:?}",weapon_type.clone(), new_weapon_type);
+                    update_weapon_properties(weapon, new_weapon_type);
                 }
             }
         }

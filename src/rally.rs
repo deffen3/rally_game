@@ -270,7 +270,6 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
     }
     else {
         vehicle.health -= health_damage;
-        health_damage = 0.0;
     }
 
     //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);

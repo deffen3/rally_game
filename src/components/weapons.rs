@@ -18,20 +18,45 @@ pub fn weapon_type_from_u8(n: u8) -> WeaponTypes {
 pub fn get_next_weapon_type(weapon_type: WeaponTypes) -> WeaponTypes {
     match weapon_type {
         WeaponTypes::LaserDouble => WeaponTypes::ProjectileRapidFire,
-        WeaponTypes::ProjectileRapidFire => WeaponTypes::Mine,
-        WeaponTypes::Mine => WeaponTypes::LaserBeam,
+        WeaponTypes::ProjectileRapidFire => WeaponTypes::Missile,
+        WeaponTypes::Missile => WeaponTypes::LaserBeam,
         WeaponTypes::LaserBeam => WeaponTypes::ProjectileCannonFire,
         WeaponTypes::ProjectileCannonFire => WeaponTypes::Rockets,
         WeaponTypes::Rockets => WeaponTypes::LaserPulse,
         WeaponTypes::LaserPulse => WeaponTypes::ProjectileBurstFire,
-        WeaponTypes::ProjectileBurstFire => WeaponTypes::Missile,
-        WeaponTypes::Missile => WeaponTypes::LaserDouble,
+        WeaponTypes::ProjectileBurstFire => WeaponTypes::Mine,
+        WeaponTypes::Mine => WeaponTypes::LaserDouble,
     }
 }
 
 
 pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
+    
+
+    let (weapon_type,
+        heat_seeking,
+        weapon_cooldown, 
+        burst_shot_limit,
+        burst_cooldown,
+        weapon_shot_speed,
+        damage,
+        shield_damage_pct,
+        armor_damage_pct,
+        piercing_damage_pct,
+        health_damage_pct) = build_standard_weapon(weapon_type.clone());
+
     weapon.weapon_type = weapon_type;
+    weapon.heat_seeking = heat_seeking;
+    weapon.weapon_cooldown_reset = weapon_cooldown;
+    weapon.burst_shot_limit = burst_shot_limit;
+    weapon.burst_cooldown_reset = burst_cooldown;
+    weapon.weapon_shot_speed = weapon_shot_speed;
+    weapon.damage = damage;
+    weapon.shield_damage_pct = shield_damage_pct;
+    weapon.armor_damage_pct = armor_damage_pct;
+    weapon.piercing_damage_pct = piercing_damage_pct;
+    weapon.piercing_damage_pct = piercing_damage_pct;
+    weapon.health_damage_pct = health_damage_pct;
 }
 
 

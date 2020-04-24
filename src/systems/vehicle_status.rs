@@ -1,5 +1,4 @@
-use amethyst::{
-    core::transform::Transform,           
+use amethyst::{         
     derive::SystemDesc,
     ui::UiText,
 };
@@ -15,7 +14,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
     type SystemData = (
         WriteStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
-        WriteStorage<'s, Transform>,
         WriteStorage<'s, UiText>,
         ReadExpect<'s, ScoreText>,
     );
@@ -23,7 +21,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
     fn run(&mut self, (
         mut players,
         mut vehicles,
-        transforms,
         mut ui_text,
         score_text,
     ): Self::SystemData)  {
