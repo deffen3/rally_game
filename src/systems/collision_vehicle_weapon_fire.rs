@@ -99,14 +99,21 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
-        for (player, weapon, vehicle, transform) in (&players, &mut weapons, &mut vehicles, &mut transforms).join() {
+        for (entity, player, weapon, vehicle, transform) in (&*entities, &players, &mut weapons, &mut vehicles, &mut transforms).join() {
 
             for (killer_id, killed_id, weapon_type) in &player_makes_kill {
                 if *killer_id == player.id {
                     //classic gun-game rules: upgrade weapon type for player who got the kill
                     let new_weapon_type = get_next_weapon_type(weapon_type.clone());
-                    println!("{:?} {:?}",weapon_type.clone(), new_weapon_type);
-                    update_weapon_properties(weapon, new_weapon_type);
+
+                    if let Some(some_weapon_type) = new_weapon_type {
+                        println!("{:?} {:?}",weapon_type.clone(), some_weapon_type);
+                        update_weapon_properties(weapon, some_weapon_type);
+                    }
+                    else {
+                        println!("Player {} wins!", player.id);
+                    }
+
                 }
 
                 if *killed_id == player.id {

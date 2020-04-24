@@ -27,6 +27,7 @@ use crate::resources::{
 
 
 pub const ARENA_HEIGHT: f32 = 400.0;
+pub const UI_HEIGHT: f32 = 30.0;
 pub const ARENA_WIDTH: f32 = 400.0;
 
 pub const BASE_COLLISION_DAMAGE: f32 = 20.0;

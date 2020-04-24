@@ -15,17 +15,17 @@ pub fn weapon_type_from_u8(n: u8) -> WeaponTypes {
     }
 }
 
-pub fn get_next_weapon_type(weapon_type: WeaponTypes) -> WeaponTypes {
+pub fn get_next_weapon_type(weapon_type: WeaponTypes) -> Option<WeaponTypes> {
     match weapon_type {
-        WeaponTypes::LaserDouble => WeaponTypes::ProjectileRapidFire,
-        WeaponTypes::ProjectileRapidFire => WeaponTypes::Missile,
-        WeaponTypes::Missile => WeaponTypes::LaserBeam,
-        WeaponTypes::LaserBeam => WeaponTypes::ProjectileCannonFire,
-        WeaponTypes::ProjectileCannonFire => WeaponTypes::Rockets,
-        WeaponTypes::Rockets => WeaponTypes::LaserPulse,
-        WeaponTypes::LaserPulse => WeaponTypes::ProjectileBurstFire,
-        WeaponTypes::ProjectileBurstFire => WeaponTypes::Mine,
-        WeaponTypes::Mine => WeaponTypes::LaserDouble,
+        WeaponTypes::LaserDouble => Some(WeaponTypes::ProjectileRapidFire),
+        WeaponTypes::ProjectileRapidFire => Some(WeaponTypes::Missile),
+        WeaponTypes::Missile => Some(WeaponTypes::LaserBeam),
+        WeaponTypes::LaserBeam => Some(WeaponTypes::ProjectileCannonFire),
+        WeaponTypes::ProjectileCannonFire => Some(WeaponTypes::Rockets),
+        WeaponTypes::Rockets => Some(WeaponTypes::LaserPulse),
+        WeaponTypes::LaserPulse => Some(WeaponTypes::ProjectileBurstFire),
+        WeaponTypes::ProjectileBurstFire => Some(WeaponTypes::Mine),
+        WeaponTypes::Mine => None
     }
 }
 

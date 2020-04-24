@@ -12,7 +12,7 @@ use std::f32::consts::PI;
 
 use crate::components::{Vehicle, Player, kill_restart_vehicle, check_respawn_vehicle};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH,
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT,
     vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT};
 
@@ -191,8 +191,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     transform.set_translation_y(ARENA_HEIGHT - yaw_height);
                     y_collision = true;
                 }
-                else if vehicle_y < (yaw_height) { //hit the bottom wall
-                    transform.set_translation_y(yaw_height);
+                else if vehicle_y < (UI_HEIGHT - yaw_height) { //hit the bottom wall
+                    transform.set_translation_y(UI_HEIGHT - yaw_height);
                     y_collision = true;
                 }
 
