@@ -6,7 +6,7 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
-use crate::components::{Vehicle, Player};
+use crate::components::{Vehicle, Player, kill_restart_vehicle};
 use crate::rally::{vehicle_damage_model, BASE_COLLISION_DAMAGE, 
     COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT};
@@ -35,7 +35,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
         Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (entities, transforms, players, mut vehicles,
+    fn run(&mut self, (entities, mut transforms, players, mut vehicles,
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
@@ -78,7 +78,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             }
         }
 
-        for (vehicle_entity, vehicle, player) in (&*entities, &mut vehicles, &players).join() {
+        for (vehicle_entity, vehicle, player, transform) in (&*entities, &mut vehicles, &players, &mut transforms).join() {
 
             for (col_id, v_diff) in &collision_ids_vec {
                 if player.id == *col_id {
@@ -96,7 +96,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                             COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT);
 
                         if vehicle_destroyed {
-                            let _ = entities.delete(vehicle_entity);
+                            kill_restart_vehicle(vehicle, transform);
                         }
 
 

@@ -7,7 +7,7 @@ use amethyst::{
 };
 
 use crate::components::{
-    WeaponFire, Weapon, WeaponTypes, Vehicle, Player, 
+    WeaponFire, Weapon, WeaponTypes, Vehicle, Player, kill_restart_vehicle,
     get_next_weapon_type, update_weapon_properties,
 };
 
@@ -28,7 +28,7 @@ pub struct CollisionVehicleWeaponFireSystem {
 impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
     type SystemData = (
         Entities<'s>,
-        ReadStorage<'s, Transform>,
+        WriteStorage<'s, Transform>,
         ReadStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Weapon>,
@@ -43,11 +43,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         self.hit_sound_cooldown_timer = -1.0;
     }
 
-    fn run(&mut self, (entities, transforms, players, mut vehicles, mut weapons, weapon_fires,
+    fn run(&mut self, (entities, mut transforms, players, mut vehicles, mut weapons, weapon_fires,
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
-        let mut player_makes_kill: Vec<(usize, WeaponTypes)> = Vec::new();
+        let mut player_makes_kill: Vec<(usize, usize, WeaponTypes)> = Vec::new();
 
         for (vehicle_entity, player, vehicle, weapon, vehicle_transform) in (&*entities, &players, &mut vehicles, &mut weapons, &transforms).join() {
             let vehicle_x = vehicle_transform.translation().x;
@@ -85,10 +85,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         );
 
                         if vehicle_destroyed {
-                            let _ = entities.delete(vehicle_entity);
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
 
-                            player_makes_kill.push((weapon_fire.owner_player_id.clone(), weapon_fire.weapon_type.clone()));
+                            player_makes_kill.push((weapon_fire.owner_player_id.clone(), player.id.clone(), weapon_fire.weapon_type.clone()));
                         }
 
                         if self.hit_sound_cooldown_timer < 0.0 {
@@ -100,15 +99,20 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
-        for (player, weapon) in (&players, &mut weapons).join() {
+        for (player, weapon, vehicle, transform) in (&players, &mut weapons, &mut vehicles, &mut transforms).join() {
 
-            for (killer_id, weapon_type) in &player_makes_kill {
+            for (killer_id, killed_id, weapon_type) in &player_makes_kill {
                 if *killer_id == player.id {
                     //classic gun-game rules: upgrade weapon type for player who got the kill
                     let new_weapon_type = get_next_weapon_type(weapon_type.clone());
                     println!("{:?} {:?}",weapon_type.clone(), new_weapon_type);
                     update_weapon_properties(weapon, new_weapon_type);
                 }
+
+                if *killed_id == player.id {
+                    kill_restart_vehicle(vehicle, transform);
+                }
+                
             }
         }
 
