@@ -346,7 +346,7 @@ pub fn update_weapon_icon(entities: &Entities,
 
     let weapon_icon_dx = 70.0;
 
-    let (icon_scale, weapon_sprite) = match weapon_type.clone() {
+    let (icon_scale, mut weapon_sprite) = match weapon_type.clone() {
         WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
         WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
@@ -355,9 +355,19 @@ pub fn update_weapon_icon(entities: &Entities,
         WeaponTypes::ProjectileCannonFire => (3.0, weapon_fire_resource.projectile_cannon_sprite_render.clone()),
         WeaponTypes::Missile => (2.0, weapon_fire_resource.missile_sprite_render.clone()),
         WeaponTypes::Rockets => (2.0, weapon_fire_resource.rockets_sprite_render.clone()),
-        WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_sprite_render.clone()),
+        WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
         WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
     };
+
+    if weapon_type.clone() == WeaponTypes::Mine {
+        weapon_sprite = match player_id {
+            0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
+            1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
+            2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
+            3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
+            _ => weapon_fire_resource.mine_p1_sprite_render.clone(),
+        }
+    }
 
     let mut icon_weapon_transform = Transform::default();
 

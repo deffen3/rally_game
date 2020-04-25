@@ -75,7 +75,7 @@ impl SimpleState for Rally {
                 world, 
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index as usize,
-                weapon_type_from_u8(0),
+                weapon_type_from_u8(8),
             );
         }
 
@@ -220,8 +220,9 @@ pub fn fire_weapon(
         local_transform
     };
     lazy_update.insert(fire_entity, weapon_fire);
+   
 
-    let sprite = match weapon.weapon_type {
+    let mut sprite = match weapon.weapon_type.clone() {
         WeaponTypes::LaserDouble => weapon_fire_resource.laser_double_sprite_render.clone(),
         WeaponTypes::LaserBeam => weapon_fire_resource.laser_beam_sprite_render.clone(),
         WeaponTypes::LaserPulse => weapon_fire_resource.laser_burst_sprite_render.clone(),
@@ -230,9 +231,20 @@ pub fn fire_weapon(
         WeaponTypes::ProjectileCannonFire => weapon_fire_resource.projectile_cannon_sprite_render.clone(),
         WeaponTypes::Missile => weapon_fire_resource.missile_sprite_render.clone(),
         WeaponTypes::Rockets => weapon_fire_resource.rockets_sprite_render.clone(),
-        WeaponTypes::Mine => weapon_fire_resource.mine_sprite_render.clone(),
+        WeaponTypes::Mine => weapon_fire_resource.mine_p1_sprite_render.clone(),
         WeaponTypes::LaserSword => weapon_fire_resource.laser_sword_sprite_render.clone(),
     };
+
+    if weapon.weapon_type.clone() == WeaponTypes::Mine {
+        sprite = match player_id {
+            0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
+            1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
+            2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
+            3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
+            _ => weapon_fire_resource.mine_p1_sprite_render.clone(),
+        }
+    }
+
     lazy_update.insert(fire_entity, sprite);
     lazy_update.insert(fire_entity, local_transform);
 }

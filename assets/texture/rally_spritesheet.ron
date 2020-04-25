@@ -62,11 +62,11 @@ List((
             width: 1,
             height: 2,
         ),
-        ( //mine #10
-            x: 18,
-            y: 14,
-            width: 3,
-            height: 3,
+        ( //mine p1 #10
+            x: 21,
+            y: 24,
+            width: 4,
+            height: 4,
         ),
         ( //missile #11
             x: 22,
@@ -97,6 +97,24 @@ List((
             y: 14,
             width: 3,
             height: 14,
+        ),
+        ( //mine p2 #16
+            x: 21,
+            y: 29,
+            width: 4,
+            height: 4,
+        ),
+        ( //mine p3 #17
+            x: 21,
+            y: 34,
+            width: 4,
+            height: 4,
+        ),
+        ( //mine p4 #18
+            x: 21,
+            y: 39,
+            width: 4,
+            height: 4,
         ),
     ],
 ))
