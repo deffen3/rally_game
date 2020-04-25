@@ -4,6 +4,7 @@ use amethyst::ecs::{Join, Read, ReadExpect, System, SystemData, WriteStorage, En
 use amethyst::input::{InputHandler, StringBindings};
 use amethyst::core::math::Vector3;
 
+use rand::Rng;
 
 use crate::components::{Vehicle, Player, Weapon};
 use crate::resources::{WeaponFireResource};
@@ -30,18 +31,23 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             mut vehicles, mut weapons, weapon_fire_resource, lazy_update, time, input):
             Self::SystemData) {
 
+        let mut rng = rand::thread_rng();
         let dt = time.delta_seconds();
 
         for (player, _vehicle, weapon, transform) in (&mut players, &mut vehicles, &mut weapons, &mut transforms).join() {
             //let vehicle_weapon_fire = input.action_is_down(&ActionBinding::VehicleShoot(player.id));
 
-            let vehicle_weapon_fire = match player.id {
+            let mut vehicle_weapon_fire = match player.id {
                 0 => input.action_is_down("p1_shoot"),
                 1 => input.action_is_down("p2_shoot"),
                 2 => input.action_is_down("p3_shoot"),
                 3 => input.action_is_down("p4_shoot"),
                 _ => None
             };
+
+            if player.is_bot {
+                vehicle_weapon_fire = Some(rng.gen::<bool>());
+            }
 
 
             if let Some(fire) = vehicle_weapon_fire {

@@ -65,8 +65,8 @@ impl Vehicle {
 
 
 pub fn kill_restart_vehicle(vehicle: &mut Vehicle, transform: &mut Transform) {
-    transform.set_translation_x(2.0*ARENA_WIDTH);
-    transform.set_translation_y(2.0*ARENA_HEIGHT);
+    transform.set_translation_x(10.0*ARENA_WIDTH);
+    transform.set_translation_y(10.0*ARENA_HEIGHT);
 
     vehicle.in_respawn = true;
 }

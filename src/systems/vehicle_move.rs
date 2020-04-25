@@ -9,6 +9,7 @@ use amethyst::{
 };
 
 use std::f32::consts::PI;
+use rand::Rng;
 
 use crate::components::{Vehicle, Player, Hitbox, kill_restart_vehicle, check_respawn_vehicle};
 
@@ -40,24 +41,45 @@ impl<'s> System<'s> for VehicleMoveSystem {
     fn run(&mut self, (hitboxes, mut players, mut transforms, mut vehicles, 
             time, input, storage, sounds, audio_output): Self::SystemData) {
 
+        let mut rng = rand::thread_rng();
         let dt = time.delta_seconds();
+
+        let mut closest_target_angles: Vec<(usize, f32)> = Vec::new();
+
+        for (player1, vehicle1, vehicle1_transform) in (&players, &vehicles, &transforms).join() {
+            let mut closest_vehicle_x_diff = 0.0;
+            let mut closest_vehicle_y_diff = 0.0;
+            let mut closest_vehicle_dist = 1000000000.0;
+
+            let vehicle1_x = vehicle1_transform.translation().x;
+            let vehicle1_y = vehicle1_transform.translation().y;
+
+            for (player2, vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join() {
+                if player1.id != player2.id {
+                    let vehicle2_x = vehicle2_transform.translation().x;
+                    let vehicle2_y = vehicle2_transform.translation().y;
+
+                    let dist = ((vehicle2_x - vehicle1_x).powi(2) + (vehicle2_y - vehicle1_y).powi(2)).sqrt();
+
+                    if dist < closest_vehicle_dist {
+                        closest_vehicle_dist = dist.clone();
+                        closest_vehicle_x_diff = vehicle2_x - vehicle1_x;
+                        closest_vehicle_y_diff = vehicle2_y - vehicle1_y;
+                    }
+                }
+            }
+
+            let target_angle = closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI/2.0); //rotate by PI/2 to line up with yaw angle
+
+            closest_target_angles.push((player1.id, target_angle));
+        }
+
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
             if vehicle.in_respawn == true {
                 check_respawn_vehicle(vehicle, transform, dt);
             }
             else {
-                //let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
-                //let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
-
-                let (vehicle_accel, vehicle_turn) = match player.id {
-                    0 => (input.axis_value("p1_accel"), input.axis_value("p1_turn")),
-                    1 => (input.axis_value("p2_accel"), input.axis_value("p2_turn")),
-                    2 => (input.axis_value("p3_accel"), input.axis_value("p3_turn")),
-                    3 => (input.axis_value("p4_accel"), input.axis_value("p4_turn")),
-                    _ => (None, None)
-                };
-
                 //let max_velocity: f32 = 0.5;
 
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power/100.0;
@@ -70,14 +92,48 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let wall_hit_non_bounce_decel_pct: f32 = 0.35;
                 let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
 
+
+
+
+                //let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
+                //let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
+
+                let (mut vehicle_accel, mut vehicle_turn) = match player.id {
+                    0 => (input.axis_value("p1_accel"), input.axis_value("p1_turn")),
+                    1 => (input.axis_value("p2_accel"), input.axis_value("p2_turn")),
+                    2 => (input.axis_value("p3_accel"), input.axis_value("p3_turn")),
+                    3 => (input.axis_value("p4_accel"), input.axis_value("p4_turn")),
+                    _ => (None, None)
+                };
+
+
+                let vehicle_rotation = transform.rotation();
+                let (_, _, yaw) = vehicle_rotation.euler_angles();
+
+
+
+                if player.is_bot {
+                    //vehicle_accel = Some(rng.gen_range(-0.5, 1.0) as f32);
+
+                    
+                    for (player_with_target, target_angle) in &closest_target_angles {
+                        if player.id == *player_with_target {
+                            if (*target_angle - yaw) > 0.1 {
+                                vehicle_turn = Some(1.0);
+                            }
+                            // else {
+                            //     vehicle_turn = Some(-1.0);
+                            // }
+                        }
+                    }
+                    
+                    //vehicle_turn = Some(rng.gen_range(-1.0, 1.0) as f32);
+                }
                 
 
                 //println!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
 
-                let vehicle_rotation = transform.rotation();
-
-                let (_, _, yaw) = vehicle_rotation.euler_angles();
-
+            
                 //println!("yaw:{}", yaw);
 
                 let yaw_x_comp = -yaw.sin(); //left is -, right is +

@@ -22,6 +22,7 @@ pub fn intialize_player(
     player_index: usize,
     weapon_type: WeaponTypes,
     weapon_fire_resource: WeaponFireResource,
+    is_bot: bool,
 ) {
     let mut vehicle_transform = Transform::default();
 
@@ -79,7 +80,7 @@ pub fn intialize_player(
             armor_damage_pct,
             piercing_damage_pct,
             health_damage_pct))
-        .with(Player::new(player_index))
+        .with(Player::new(player_index, is_bot))
         .build();
 
 

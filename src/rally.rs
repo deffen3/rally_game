@@ -37,6 +37,7 @@ pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
 pub const MAX_PLAYERS: usize = 4;
+pub const BOT_PLAYERS: usize = 3;
 
 pub const KILLS_TO_WIN: i32 = 10;
 
@@ -71,12 +72,15 @@ impl SimpleState for Rally {
         world.register::<PlayerWeaponIcon>();
 
         for player_index in 0..MAX_PLAYERS {
+            let is_bot = player_index >= MAX_PLAYERS - BOT_PLAYERS;
+
             intialize_player(
                 world, 
                 self.sprite_sheet_handle.clone().unwrap(),
-                player_index as usize,
+                player_index,
                 weapon_type_from_u8(0),
                 weapon_fire_resource.clone(),
+                is_bot,
             );
         }
 

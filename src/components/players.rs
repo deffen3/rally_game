@@ -4,6 +4,7 @@ use crate::components::{WeaponTypes};
 pub struct Player {
     pub id: usize,
     pub kills: i32,
+    pub is_bot: bool,
 }
 
 impl Component for Player {
@@ -11,10 +12,11 @@ impl Component for Player {
 }
 
 impl Player {
-    pub fn new(id: usize) -> Player {
+    pub fn new(id: usize, is_bot: bool) -> Player {
         Player {
             id,
             kills: 0,
+            is_bot,
         }
     }
 }
