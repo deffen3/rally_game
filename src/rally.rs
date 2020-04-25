@@ -75,7 +75,7 @@ impl SimpleState for Rally {
                 world, 
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index as usize,
-                weapon_type_from_u8(6),
+                weapon_type_from_u8(0),
                 weapon_fire_resource.clone(),
             );
         }
