@@ -4,7 +4,7 @@ use amethyst::core::{Transform};
 use std::f32::consts::PI;
 use rand::Rng;
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 6.0;
@@ -92,12 +92,15 @@ pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, d
 
         let spawn_index = rng.gen_range(0, 4);
 
+        let spacing_factor = 5.0;
+        let height = ARENA_HEIGHT + UI_HEIGHT;
+
         let (starting_rotation, starting_x, starting_y) = match spawn_index {
-            0 => (-PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT / 5.0),
-            1 => (PI + PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT - (ARENA_HEIGHT / 5.0)),
-            2 => (PI/2.0 - PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / 5.0), ARENA_HEIGHT / 5.0),
-            3 => (PI/2.0 + PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / 5.0), ARENA_HEIGHT - (ARENA_HEIGHT / 5.0)),
-            _ => (-PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT / 5.0),
+            0 => (-PI/4.0, ARENA_WIDTH / spacing_factor, height / spacing_factor),
+            1 => (PI + PI/4.0, ARENA_WIDTH / spacing_factor, height - (height / spacing_factor)),
+            2 => (PI/2.0 - PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height / spacing_factor),
+            3 => (PI/2.0 + PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height - (height / spacing_factor)),
+            _ => (-PI/4.0, ARENA_WIDTH / spacing_factor, height / spacing_factor),
         };
     
         transform.set_rotation_2d(starting_rotation as f32);

@@ -78,10 +78,10 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                 if weapon_fire.owner_player_id != player.id {
 
-                    // let fire_rotation = weapon_fire_transform.rotation();
-                    // let (_, _, fire_angle) = fire_rotation.euler_angles();
-                    // let fire_x_comp = -fire_angle.sin(); //left is -, right is +
-                    // let fire_y_comp = fire_angle.cos(); //up is +, down is -
+                    let fire_rotation = weapon_fire_transform.rotation();
+                    let (_, _, fire_angle) = fire_rotation.euler_angles();
+                    let fire_x_comp = -fire_angle.sin(); //left is -, right is +
+                    let fire_y_comp = fire_angle.cos(); //up is +, down is -
 
                     // let vehicle_rotation = vehicle_transform.rotation();
                     // let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
@@ -90,7 +90,12 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                     
 
-                    if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2) < vehicle.width.powi(2) {
+                    if ((fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2) < vehicle.width.powi(2)) || 
+                        ((fire_x + fire_x_comp*weapon_fire.height/2.0 - vehicle_x).powi(2) + 
+                            (fire_y + fire_y_comp*weapon_fire.height/2.0 - vehicle_y).powi(2) < vehicle.width.powi(2)) ||
+                        ((fire_x - fire_x_comp*weapon_fire.height/2.0 - vehicle_x).powi(2) + 
+                            (fire_y - fire_y_comp*weapon_fire.height/2.0 - vehicle_y).powi(2) < vehicle.width.powi(2))
+                    {
 
                         let _ = entities.delete(weapon_fire_entity);
 
