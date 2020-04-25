@@ -131,7 +131,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
         let mut weapon_icons_old: Vec<(usize, WeaponTypes)> = Vec::new();
 
-        for (entity, player, weapon, vehicle, transform) in (&*entities, &mut players, &mut weapons, &mut vehicles, &mut transforms).join() {
+        for (player, weapon, vehicle, transform) in (&mut players, &mut weapons, &mut vehicles, &mut transforms).join() {
 
             for (killer_id, killed_id, weapon_type) in &player_makes_kill {
                 if *killer_id == player.id {

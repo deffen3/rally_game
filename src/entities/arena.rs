@@ -7,12 +7,15 @@ use amethyst::{
 };
 use amethyst::core::math::Vector3;
 
-use crate::rally::{ARENA_WIDTH, ARENA_HEIGHT, UI_HEIGHT};
+use std::f32::consts::PI;
 
+use crate::rally::{ARENA_WIDTH, ARENA_HEIGHT, UI_HEIGHT};
 use crate::components::{Hitbox, HitboxShape};
 
 
 pub fn initialise_arena_walls(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>,) {
+
+    //bottom UI wall
     let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
 
     let mut wall_transform = Transform::default();
@@ -30,6 +33,30 @@ pub fn initialise_arena_walls(world: &mut World, sprite_sheet_handle: Handle<Spr
         .with(wall_transform)
         .with(wall_sprite_render)
         .build();
+
+    
+    //UI divider walls
+
+    let dx = 32.;
+    let dx2 = 4.;
+
+    for idx in 0..3 {
+        let mut ui_div_wall_transform = Transform::default();
+        ui_div_wall_transform.set_translation_xyz(100. + (idx as f32) * (3.0*dx + dx2), UI_HEIGHT-18.0, 0.0);
+        ui_div_wall_transform.set_scale(Vector3::new(1.7, 1.0, 0.0));
+        ui_div_wall_transform.set_rotation_2d(PI/2.0);
+
+        let wall_sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 13,
+        };
+
+        world
+            .create_entity()
+            .with(ui_div_wall_transform)
+            .with(wall_sprite_render)
+            .build();
+    }
 
 
     //central circle

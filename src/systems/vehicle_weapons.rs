@@ -32,7 +32,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
 
         let dt = time.delta_seconds();
 
-        for (player, vehicle, weapon, transform) in (&mut players, &mut vehicles, &mut weapons, &mut transforms).join() {
+        for (player, _vehicle, weapon, transform) in (&mut players, &mut vehicles, &mut weapons, &mut transforms).join() {
             //let vehicle_weapon_fire = input.action_is_down(&ActionBinding::VehicleShoot(player.id));
 
             let vehicle_weapon_fire = match player.id {
@@ -54,7 +54,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                     let yaw_y_comp = yaw.cos(); //up is +, down is -
 
                     let fire_position = Vector3::new(
-                        transform.translation().x + yaw_x_comp*5.0 ,
+                        transform.translation().x + yaw_x_comp*5.0,
                         transform.translation().y + yaw_y_comp*5.0,
                         0.0,
                     );

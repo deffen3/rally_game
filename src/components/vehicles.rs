@@ -79,6 +79,7 @@ pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, d
 
     if vehicle.respawn_timer < 0.0 {
         vehicle.in_respawn = false;
+        vehicle.respawn_timer = 5.0;
 
         vehicle.dx = 0.0;
         vehicle.dy = 0.0;

@@ -38,13 +38,13 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                 let mut closest_vehicle_y_diff = 0.0;
                 let mut closest_vehicle_dist = 1000000000.0;
 
-                for (vehicle, vehicle_transform, player) in (&vehicles, &transforms, &players).join() {
+                for (_vehicle, vehicle_transform, player) in (&vehicles, &transforms, &players).join() {
                     if weapon_fire.owner_player_id != player.id {
                         let vehicle_x = vehicle_transform.translation().x;
                         let vehicle_y = vehicle_transform.translation().y;
 
-                        let weapon_rotation = transform.rotation();
-                        let (_, _, weapon_angle) = weapon_rotation.euler_angles();
+                        // let weapon_rotation = transform.rotation();
+                        // let (_, _, weapon_angle) = weapon_rotation.euler_angles();
 
                         let dist = ((vehicle_x - fire_x).powi(2) + (vehicle_y - fire_y).powi(2)).sqrt();
 
@@ -62,7 +62,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
             }
             
             if weapon_fire.attached {
-                for (vehicle, vehicle_transform, player) in (&vehicles, &transforms, &players).join() {
+                for (_vehicle, vehicle_transform, player) in (&vehicles, &transforms, &players).join() {
                     if weapon_fire.owner_player_id == player.id {
                         vehicle_owner_x = vehicle_transform.translation().x;
                         vehicle_owner_y = vehicle_transform.translation().y;
@@ -89,10 +89,10 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                 let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                 let abs_vel = sq_vel.sqrt();
 
-                weapon_fire.dx += (weapon_fire.heat_seeking_agility * velocity_x_comp * dt);
+                weapon_fire.dx += weapon_fire.heat_seeking_agility * velocity_x_comp * dt;
                 weapon_fire.dx *= weapon_fire.weapon_shot_speed / abs_vel;
 
-                weapon_fire.dy += (weapon_fire.heat_seeking_agility * velocity_y_comp * dt);
+                weapon_fire.dy += weapon_fire.heat_seeking_agility * velocity_y_comp * dt;
                 weapon_fire.dy *= weapon_fire.weapon_shot_speed / abs_vel;
 
                 let sq_vel2 = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
