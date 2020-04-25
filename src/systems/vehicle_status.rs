@@ -45,7 +45,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 }
 
                 let kills: i32 = player.kills as i32;
-                if kills == KILLS_TO_WIN {
+                if kills >= KILLS_TO_WIN {
                     if let Some(text) = ui_text.get_mut(score_text.p1_kills) {
                         text.text = "WIN!".to_string();
                     }
@@ -73,6 +73,18 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 if let Some(text) = ui_text.get_mut(score_text.p2_health) {
                     text.text = health.to_string();
                 }
+
+                let kills: i32 = player.kills as i32;
+                if kills >= KILLS_TO_WIN {
+                    if let Some(text) = ui_text.get_mut(score_text.p2_kills) {
+                        text.text = "WIN!".to_string();
+                    }
+                }
+                else {
+                    if let Some(text) = ui_text.get_mut(score_text.p2_kills) {
+                        text.text = kills.to_string();
+                    }
+                }
             }
             if player.id == 2 {
                 let shield: i32 = vehicle.shield.ceil() as i32;
@@ -89,6 +101,18 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 if let Some(text) = ui_text.get_mut(score_text.p3_health) {
                     text.text = health.to_string();
                 }
+
+                let kills: i32 = player.kills as i32;
+                if kills >= KILLS_TO_WIN {
+                    if let Some(text) = ui_text.get_mut(score_text.p3_kills) {
+                        text.text = "WIN!".to_string();
+                    }
+                }
+                else {
+                    if let Some(text) = ui_text.get_mut(score_text.p3_kills) {
+                        text.text = kills.to_string();
+                    }
+                }
             }
             if player.id == 3 {
                 let shield: i32 = vehicle.shield.ceil() as i32;
@@ -104,6 +128,18 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 let health: i32 = vehicle.health.ceil() as i32;
                 if let Some(text) = ui_text.get_mut(score_text.p4_health) {
                     text.text = health.to_string();
+                }
+
+                let kills: i32 = player.kills as i32;
+                if kills >= KILLS_TO_WIN {
+                    if let Some(text) = ui_text.get_mut(score_text.p4_kills) {
+                        text.text = "WIN!".to_string();
+                    }
+                }
+                else {
+                    if let Some(text) = ui_text.get_mut(score_text.p4_kills) {
+                        text.text = kills.to_string();
+                    }
                 }
             }
         }

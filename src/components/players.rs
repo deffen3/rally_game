@@ -2,7 +2,7 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
 pub struct Player {
     pub id: usize,
-    pub kills: u32,
+    pub kills: i32,
 }
 
 impl Component for Player {

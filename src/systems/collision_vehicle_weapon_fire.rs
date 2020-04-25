@@ -55,7 +55,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             let hitbox_x = transform.translation().x;
             let hitbox_y = transform.translation().y;
 
-            for (weapon_fire_entity, _weapon_fire, weapon_fire_transform) in (&*entities, &weapon_fires, &transforms).join() {
+            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in (&*entities, &weapon_fires, &transforms).join() {
                 let fire_x = weapon_fire_transform.translation().x;
                 let fire_y = weapon_fire_transform.translation().y;
 
