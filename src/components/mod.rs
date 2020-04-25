@@ -1,3 +1,4 @@
+pub use self::hitbox::{Hitbox, HitboxShape};
 pub use self::players::Player;
 pub use self::vehicles::{Vehicle, kill_restart_vehicle, check_respawn_vehicle};
 pub use self::weapons::{
@@ -6,6 +7,7 @@ pub use self::weapons::{
     update_weapon_properties, build_standard_weapon
 };
 
+mod hitbox;
 mod players;
 mod weapons;
 mod vehicles;

@@ -12,7 +12,7 @@ use crate::components::{
     Player, Vehicle, Weapon, WeaponTypes, build_standard_weapon,
 };
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 pub fn intialize_player(
     world: &mut World, 
@@ -22,12 +22,16 @@ pub fn intialize_player(
 ) {
     let mut vehicle_transform = Transform::default();
 
+    let spacing_factor = 5.0;
+
+    let height = ARENA_HEIGHT + UI_HEIGHT;
+
     let (starting_rotation, starting_x, starting_y) = match player_index {
-        0 => (-PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT / 5.0),
-        1 => (PI + PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT - (ARENA_HEIGHT / 5.0)),
-        2 => (PI/2.0 - PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / 5.0), ARENA_HEIGHT / 5.0),
-        3 => (PI/2.0 + PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / 5.0), ARENA_HEIGHT - (ARENA_HEIGHT / 5.0)),
-        _ => (-PI/4.0, ARENA_WIDTH / 5.0, ARENA_HEIGHT / 5.0),
+        0 => (-PI/4.0, ARENA_WIDTH / spacing_factor, height / spacing_factor),
+        1 => (PI + PI/4.0, ARENA_WIDTH / spacing_factor, height - (height / spacing_factor)),
+        2 => (PI/2.0 - PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height / spacing_factor),
+        3 => (PI/2.0 + PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height - (height / spacing_factor)),
+        _ => (-PI/4.0, ARENA_WIDTH / spacing_factor, height / spacing_factor),
     };
 
     vehicle_transform.set_rotation_2d(starting_rotation as f32);

@@ -7,7 +7,9 @@ use amethyst::{
 };
 
 use crate::components::{
-    WeaponFire, Weapon, WeaponTypes, Vehicle, Player, kill_restart_vehicle,
+    WeaponFire, Weapon, WeaponTypes, Vehicle, Player, 
+    Hitbox, HitboxShape,
+    kill_restart_vehicle,
     get_next_weapon_type, update_weapon_properties,
 };
 
@@ -28,6 +30,7 @@ pub struct CollisionVehicleWeaponFireSystem {
 impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
     type SystemData = (
         Entities<'s>,
+        ReadStorage<'s, Hitbox>,
         WriteStorage<'s, Transform>,
         ReadStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
@@ -43,9 +46,25 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         self.hit_sound_cooldown_timer = -1.0;
     }
 
-    fn run(&mut self, (entities, mut transforms, players, mut vehicles, mut weapons, weapon_fires,
+    fn run(&mut self, (entities, hitboxes, mut transforms, players, mut vehicles, mut weapons, weapon_fires,
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
+
+
+        for (hitbox, transform) in (&hitboxes, &transforms).join() {
+            let hitbox_x = transform.translation().x;
+            let hitbox_y = transform.translation().y;
+
+            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in (&*entities, &weapon_fires, &transforms).join() {
+                let fire_x = weapon_fire_transform.translation().x;
+                let fire_y = weapon_fire_transform.translation().y;
+
+                if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2) < hitbox.width.powi(2) {
+                    let _ = entities.delete(weapon_fire_entity);
+                }
+            }
+        }
+
 
         let mut player_makes_kill: Vec<(usize, usize, WeaponTypes)> = Vec::new();
 

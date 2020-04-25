@@ -1,6 +1,6 @@
 List((
-    texture_width: 30,
-    texture_height: 20,
+    texture_width: 64,
+    texture_height: 64,
     sprites: [
         ( //ship 0
             x: 0,
@@ -9,19 +9,19 @@ List((
             height: 12,
         ),
         ( //ship 1
-            x: 7,
+            x: 9,
             y: 0,
             width: 7,
             height: 12,
         ),
         ( //ship 2
-            x: 15,
+            x: 17,
             y: 0,
             width: 6,
             height: 12,
         ),
         ( //ship 3
-            x: 22,
+            x: 24,
             y: 0,
             width: 7,
             height: 12,
@@ -33,53 +33,64 @@ List((
             height: 6,
         ),
         ( //laser beam #5
-            x: 6,
+            x: 7,
             y: 0,
             width: 1,
             height: 20,
         ),
         ( //laser burst #6
-            x: 8,
+            x: 9,
             y: 14,
             width: 1,
             height: 3,
         ),
         ( //projectile snipe #7
-            x: 10,
+            x: 11,
             y: 14,
             width: 2,
             height: 3,
         ),
         ( //projectile burst #8
-            x: 13,
+            x: 14,
             y: 14,
             width: 1,
             height: 4,
         ),
         ( //projectile rapid #9
-            x: 15,
+            x: 16,
             y: 14,
             width: 1,
             height: 2,
         ),
         ( //mine #10
-            x: 17,
+            x: 18,
             y: 14,
             width: 3,
             height: 3,
         ),
         ( //missile #11
-            x: 21,
+            x: 22,
             y: 14,
             width: 3,
             height: 5,
         ),
         ( //rockets #12
-            x: 25,
+            x: 26,
             y: 14,
             width: 5,
             height: 3,
         ),
-        
+        ( //arena wall #13
+            x: 0,
+            y: 21,
+            width: 20,
+            height: 2,
+        ),
+        ( //arena circle #14
+            x: 0,
+            y: 24,
+            width: 20,
+            height: 20,
+        ),
     ],
 ))

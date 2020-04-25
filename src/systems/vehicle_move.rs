@@ -191,8 +191,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     transform.set_translation_y(ARENA_HEIGHT - yaw_height);
                     y_collision = true;
                 }
-                else if vehicle_y < (UI_HEIGHT - yaw_height) { //hit the bottom wall
-                    transform.set_translation_y(UI_HEIGHT - yaw_height);
+                else if vehicle_y < (UI_HEIGHT + yaw_height) { //hit the bottom wall
+                    transform.set_translation_y(UI_HEIGHT + yaw_height);
                     y_collision = true;
                 }
 

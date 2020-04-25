@@ -14,11 +14,11 @@ use rand::Rng;
 
 
 use crate::components::{
-    Vehicle, Weapon, WeaponFire, WeaponTypes, weapon_type_from_u8,
+    Hitbox, Vehicle, Weapon, WeaponFire, WeaponTypes, weapon_type_from_u8,
 };
 
 use crate::entities::{
-    initialise_camera, intialize_player, initialise_ui,
+    initialise_camera, intialize_player, initialise_ui, initialise_arena_walls,
 };
 
 use crate::resources::{
@@ -51,6 +51,9 @@ impl SimpleState for Rally {
         self.sprite_sheet_handle.replace(load_sprite_sheet(world));
 
         initialise_camera(world);
+
+
+
         initialise_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
         initialise_audio(world);
@@ -59,6 +62,10 @@ impl SimpleState for Rally {
         world.register::<UiText>(); // <- add this line temporarily
         world.register::<UiTransform>();
         
+
+        initialise_arena_walls(world, self.sprite_sheet_handle.clone().unwrap());
+        world.register::<Hitbox>();
+
 
         // for player_index in 0..MAX_PLAYERS {
         //     intialize_player(
