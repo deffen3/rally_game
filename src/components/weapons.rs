@@ -94,7 +94,7 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
         WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.50,   0.0,    80.0,     90.0,     100.0),
         WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.10,   0.0,    80.0,     90.0,     100.0),
         WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.9,    0.0,    80.0,     90.0,     100.0),
-        WeaponTypes::Missile =>             (60.0,      50.0,   2.5,    15.0,   75.0,     75.0,     100.0),
+        WeaponTypes::Missile =>             (70.0,      50.0,   2.5,    15.0,   75.0,     75.0,     100.0),
         WeaponTypes::Rockets =>             (250.0,     25.0,   0.8,    10.0,   75.0,     75.0,     100.0),
         WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    15.0,   75.0,     75.0,     100.0),
         WeaponTypes::LaserSword =>          (0.0,       1.5,    0.0,    50.0,   75.0,     75.0,     100.0),
@@ -129,7 +129,7 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
 
     if weapon_type.clone() == WeaponTypes::Missile {
         heat_seeking = true;
-        heat_seeking_agility = 200.0;
+        heat_seeking_agility = 150.0;
     }
     else {
         heat_seeking = false;
