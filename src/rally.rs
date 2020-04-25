@@ -56,7 +56,7 @@ impl SimpleState for Rally {
 
 
 
-        initialise_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
+        let weapon_fire_resource: WeaponFireResource = initialise_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
         initialise_audio(world);
 
@@ -75,7 +75,8 @@ impl SimpleState for Rally {
                 world, 
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index as usize,
-                weapon_type_from_u8(8),
+                weapon_type_from_u8(0),
+                weapon_fire_resource.clone(),
             );
         }
 

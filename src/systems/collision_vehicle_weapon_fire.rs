@@ -141,7 +141,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     player.kills += 1;
 
                     if let Some(some_weapon_type) = new_weapon_type.clone() {
-                        println!("{:?} {:?}",weapon_type.clone(), some_weapon_type);
                         update_weapon_properties(weapon, some_weapon_type);
 
                         weapon_icons_old.push((player.id.clone(), weapon_type.clone()));
@@ -150,7 +149,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             &weapon_fire_resource,
                             new_weapon_type.unwrap(),
                             player.id.clone(),
-                            &lazy_update)
+                            &lazy_update);
                     }
                 }
 

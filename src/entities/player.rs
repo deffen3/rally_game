@@ -6,12 +6,13 @@ use amethyst::{
     prelude::*,
 };
 
-
+use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
 use crate::components::{
-    Player, Vehicle, Weapon, WeaponTypes, build_standard_weapon,
+    Player, Vehicle, Weapon, WeaponTypes, build_standard_weapon, PlayerWeaponIcon,
 };
+use crate::resources::{WeaponFireResource};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
@@ -20,6 +21,7 @@ pub fn intialize_player(
     sprite_sheet_handle: Handle<SpriteSheet>,
     player_index: usize,
     weapon_type: WeaponTypes,
+    weapon_fire_resource: WeaponFireResource,
 ) {
     let mut vehicle_transform = Transform::default();
 
@@ -88,8 +90,8 @@ pub fn intialize_player(
 
 
 
-    //UI icons
-    let x = 15.;
+    //UI vehicle icons
+    let x = 20.;
     let y = UI_HEIGHT - 10.;
     let dx = 32.;
     let dx2 = 4.;
@@ -113,4 +115,56 @@ pub fn intialize_player(
             .with(vehicle_sprite_render)
             .build();
     }
+
+    //UI initial weapon icon
+    let x = 15.;
+    let y = UI_HEIGHT - 10.;
+    let dx = 32.;
+    let dx2 = 4.;
+
+    let weapon_icon_dx = 70.0;
+
+    let (icon_scale, mut weapon_sprite) = match weapon_type.clone() {
+        WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
+        WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
+        WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
+        WeaponTypes::ProjectileBurstFire => (3.0, weapon_fire_resource.projectile_burst_render.clone()),
+        WeaponTypes::ProjectileRapidFire => (3.0, weapon_fire_resource.projectile_rapid_render.clone()),
+        WeaponTypes::ProjectileCannonFire => (3.0, weapon_fire_resource.projectile_cannon_sprite_render.clone()),
+        WeaponTypes::Missile => (2.0, weapon_fire_resource.missile_sprite_render.clone()),
+        WeaponTypes::Rockets => (2.0, weapon_fire_resource.rockets_sprite_render.clone()),
+        WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
+        WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
+    };
+
+    if weapon_type.clone() == WeaponTypes::Mine {
+        weapon_sprite = match player_index {
+            0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
+            1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
+            2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
+            3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
+            _ => weapon_fire_resource.mine_p1_sprite_render.clone(),
+        }
+    }
+
+    let mut icon_weapon_transform = Transform::default();
+
+    let starting_x = match player_index {
+        0 => (x),
+        1 => (x + 3.0*dx + dx2),
+        2 => (x + 6.0*dx + 2.0*dx2),
+        3 => (x + 9.0*dx + 3.0*dx2),
+        _ => (0.0),
+    };
+
+    icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.0);
+    icon_weapon_transform.set_rotation_2d(-PI/2.0);
+    icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
+
+    world
+        .create_entity()
+        .with(PlayerWeaponIcon::new(player_index, weapon_type))
+        .with(weapon_sprite)
+        .with(icon_weapon_transform)
+        .build();
 }

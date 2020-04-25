@@ -82,5 +82,6 @@ pub fn initialise_weapon_fire_resource(
         },
     };
     world.insert(weapon_fire_resource.clone());
+    
     weapon_fire_resource
 }

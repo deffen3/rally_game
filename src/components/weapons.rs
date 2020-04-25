@@ -115,6 +115,10 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
         burst_cooldown = 0.25 as f32;
         burst_shot_limit = 4 as u32;
     }
+    else if weapon_type.clone() == WeaponTypes::Mine{
+        burst_cooldown = 0.25 as f32;
+        burst_shot_limit = 3 as u32;
+    }
     else {
         burst_cooldown = weapon_cooldown.clone();
         burst_shot_limit = 1 as u32;
