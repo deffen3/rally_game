@@ -11,6 +11,7 @@ pub fn weapon_type_from_u8(n: u8) -> WeaponTypes {
         6 => WeaponTypes::Missile,
         7 => WeaponTypes::Rockets,
         8 => WeaponTypes::Mine,
+        9 => WeaponTypes::LaserSword,
         _ => WeaponTypes::LaserDouble,
     }
 }
@@ -25,16 +26,16 @@ pub fn get_next_weapon_type(weapon_type: WeaponTypes) -> Option<WeaponTypes> {
         WeaponTypes::Rockets => Some(WeaponTypes::LaserPulse),
         WeaponTypes::LaserPulse => Some(WeaponTypes::ProjectileBurstFire),
         WeaponTypes::ProjectileBurstFire => Some(WeaponTypes::Mine),
-        WeaponTypes::Mine => None
+        WeaponTypes::Mine => Some(WeaponTypes::LaserSword),
+        WeaponTypes::LaserSword => None
     }
 }
 
 
 pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
-    
-
     let (weapon_type,
         heat_seeking,
+        heat_seeking_agility,
         weapon_cooldown, 
         burst_shot_limit,
         burst_cooldown,
@@ -47,6 +48,7 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
 
     weapon.weapon_type = weapon_type;
     weapon.heat_seeking = heat_seeking;
+    weapon.heat_seeking_agility = heat_seeking_agility;
     weapon.weapon_cooldown_reset = weapon_cooldown;
     weapon.burst_shot_limit = burst_shot_limit;
     weapon.burst_cooldown_reset = burst_cooldown;
@@ -62,7 +64,7 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
 
 
 pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
-    WeaponTypes, bool, f32, u32, f32, f32, f32, f32, f32, f32, f32
+    WeaponTypes, bool, f32, f32, u32, f32, f32, f32, f32, f32, f32, f32
     ) {
     let (weapon_shot_speed, damage, weapon_cooldown, 
             piercing_damage_pct, 
@@ -77,12 +79,15 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
         WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.10,   0.0,    80.0,     90.0,     100.0),
         WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.9,    0.0,    80.0,     90.0,     100.0),
         WeaponTypes::Missile =>             (100.0,     50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
-        WeaponTypes::Rockets =>             (250.0,     50.0,   0.5,    10.0,   75.0,     75.0,     100.0),
+        WeaponTypes::Rockets =>             (250.0,     50.0,   0.8,    10.0,   75.0,     75.0,     100.0),
         WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
+        WeaponTypes::LaserSword =>          (0.0,       1.0,    1000.0,    50.0,    75.0,     75.0,      100.0),
     };
     
     let burst_cooldown;
     let burst_shot_limit; 
+    let heat_seeking_agility;
+
     if weapon_type.clone() == WeaponTypes::LaserPulse {
         burst_cooldown = 0.1 as f32;
         burst_shot_limit = 2 as u32;
@@ -90,6 +95,10 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
     else if weapon_type.clone() == WeaponTypes::ProjectileBurstFire{
         burst_cooldown = 0.1 as f32;
         burst_shot_limit = 2 as u32;
+    }
+    else if weapon_type.clone() == WeaponTypes::Rockets{
+        burst_cooldown = 0.25 as f32;
+        burst_shot_limit = 4 as u32;
     }
     else {
         burst_cooldown = weapon_cooldown.clone();
@@ -99,13 +108,16 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
     let heat_seeking;
     if weapon_type.clone() == WeaponTypes::Missile {
         heat_seeking = true;
+        heat_seeking_agility = 1.0;
     }
     else {
         heat_seeking = false;
+        heat_seeking_agility = 0.0;
     }
     
     (weapon_type,
         heat_seeking,
+        heat_seeking_agility,
         weapon_cooldown, 
         burst_shot_limit,
         burst_cooldown,
@@ -131,6 +143,7 @@ pub enum WeaponTypes {
     Mine,
     Missile,
     Rockets,
+    LaserSword,
 }
 
 
@@ -141,6 +154,7 @@ pub struct Weapon {
     pub aim_angle: f32,
     pub weapon_type: WeaponTypes,
     pub heat_seeking: bool,
+    pub heat_seeking_agility: f32,
     pub weapon_cooldown_timer: f32,
     pub weapon_cooldown_reset: f32,
     pub burst_shots: u32,
@@ -161,6 +175,7 @@ impl Component for Weapon {
 impl Weapon {
     pub fn new(weapon_type: WeaponTypes, 
         heat_seeking: bool,
+        heat_seeking_agility: f32,
         weapon_cooldown: f32, 
         burst_shot_limit: u32, 
         burst_cooldown: f32,
@@ -178,6 +193,7 @@ impl Weapon {
             aim_angle: 0.0,
             weapon_type,
             heat_seeking,
+            heat_seeking_agility,
             weapon_cooldown_timer: -1.0,
             weapon_cooldown_reset: weapon_cooldown,
             burst_shots: 0,
@@ -211,6 +227,7 @@ pub struct WeaponFire {
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
     pub heat_seeking: bool,
+    pub heat_seeking_agility: f32,
     pub weapon_type: WeaponTypes,
 }
 
@@ -223,6 +240,7 @@ impl WeaponFire {
     pub fn new(weapon_type: WeaponTypes, 
         owner_player_id: usize,
         heat_seeking: bool,
+        heat_seeking_agility: f32,
         weapon_shot_speed: f32,
         damage: f32,
         shield_damage_pct: f32,
@@ -242,6 +260,7 @@ impl WeaponFire {
             WeaponTypes::Missile =>             (3.0, 5.0),
             WeaponTypes::Rockets =>             (5.0, 3.0),
             WeaponTypes::Mine =>                (3.0, 3.0),
+            WeaponTypes::LaserSword =>          (3.0, 4.0),
         };
 
         WeaponFire {
@@ -260,6 +279,7 @@ impl WeaponFire {
             piercing_damage_pct: piercing_damage_pct,
             health_damage_pct: health_damage_pct,
             heat_seeking,
+            heat_seeking_agility,
             weapon_type,
         }
     }

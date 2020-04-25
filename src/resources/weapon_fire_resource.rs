@@ -16,6 +16,7 @@ pub struct WeaponFireResource {
     pub mine_sprite_render: SpriteRender,
     pub missile_sprite_render: SpriteRender,
     pub rockets_sprite_render: SpriteRender,
+    pub laser_sword_sprite_render: SpriteRender,
 }
 
 
@@ -59,6 +60,10 @@ pub fn initialise_weapon_fire_resource(
         rockets_sprite_render: SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 12,
+        },
+        laser_sword_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 15,
         },
     };
     world.insert(weapon_fire_resource.clone());

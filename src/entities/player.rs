@@ -44,6 +44,7 @@ pub fn intialize_player(
 
     let (weapon_type,
         heat_seeking,
+        heat_seeking_agility,
         weapon_cooldown, 
         burst_shot_limit,
         burst_cooldown,
@@ -61,6 +62,7 @@ pub fn intialize_player(
         .with(Vehicle::new())
         .with(Weapon::new(weapon_type,
             heat_seeking,
+            heat_seeking_agility,
             weapon_cooldown, 
             burst_shot_limit,
             burst_cooldown,

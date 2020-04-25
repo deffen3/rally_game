@@ -92,5 +92,11 @@ List((
             width: 20,
             height: 20,
         ),
+        ( //missile #15
+            x: 32,
+            y: 14,
+            width: 3,
+            height: 4,
+        ),
     ],
 ))

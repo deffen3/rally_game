@@ -177,6 +177,7 @@ pub fn fire_weapon(
         weapon.weapon_type.clone(),
         player_id,
         weapon.heat_seeking,
+        weapon.heat_seeking_agility,
         weapon.weapon_shot_speed,
         weapon.damage,
         weapon.shield_damage_pct,
@@ -223,6 +224,7 @@ pub fn fire_weapon(
         WeaponTypes::Missile => weapon_fire_resource.missile_sprite_render.clone(),
         WeaponTypes::Rockets => weapon_fire_resource.rockets_sprite_render.clone(),
         WeaponTypes::Mine => weapon_fire_resource.mine_sprite_render.clone(),
+        WeaponTypes::LaserSword => weapon_fire_resource.laser_sword_sprite_render.clone(),
     };
     lazy_update.insert(fire_entity, sprite);
     lazy_update.insert(fire_entity, local_transform);
