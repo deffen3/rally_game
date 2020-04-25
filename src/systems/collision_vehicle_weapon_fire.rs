@@ -88,7 +88,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     // let vehicle_x_comp = -vehicle_angle.sin(); //left is -, right is +
                     // let vehicle_y_comp = vehicle_angle.cos(); //up is +, down is -
 
-                    
 
                     if ((fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2) < vehicle.width.powi(2)) || 
                         ((fire_x + fire_x_comp*weapon_fire.height/2.0 - vehicle_x).powi(2) + 
@@ -97,7 +96,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             (fire_y - fire_y_comp*weapon_fire.height/2.0 - vehicle_y).powi(2) < vehicle.width.powi(2))
                     {
 
-                        let _ = entities.delete(weapon_fire_entity);
+                        if weapon_fire.attached == false {
+                            let _ = entities.delete(weapon_fire_entity);
+                        }
 
                         let damage:f32 = weapon_fire.damage.clone();
 

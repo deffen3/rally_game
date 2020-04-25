@@ -56,8 +56,13 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                     let vehicle_rotation = transform.rotation();
                     let (_, _, fire_angle) = vehicle_rotation.euler_angles();
 
-                    fire_weapon(&entities, &weapon_fire_resource, weapon.clone(),
-                        fire_position, fire_angle, player.id, &lazy_update);
+                    if weapon.attached == false || (weapon.attached == true && weapon.deployed == false) {
+                        if weapon.deployed == false {
+                            weapon.deployed = true;
+                        }
+                        fire_weapon(&entities, &weapon_fire_resource, weapon.clone(),
+                            fire_position, fire_angle, player.id, &lazy_update);
+                    }
 
                     if fire && weapon.burst_shots < weapon.burst_shot_limit {
                         weapon.weapon_cooldown_timer = weapon.burst_cooldown_reset;

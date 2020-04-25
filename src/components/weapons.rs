@@ -36,6 +36,8 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
     let (weapon_type,
         heat_seeking,
         heat_seeking_agility,
+        attached,
+        deployed,
         weapon_cooldown, 
         burst_shot_limit,
         burst_cooldown,
@@ -48,6 +50,8 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
 
     weapon.weapon_type = weapon_type;
     weapon.heat_seeking = heat_seeking;
+    weapon.attached = attached;
+    weapon.deployed = deployed;
     weapon.heat_seeking_agility = heat_seeking_agility;
     weapon.weapon_cooldown_reset = weapon_cooldown;
     weapon.burst_shot_limit = burst_shot_limit;
@@ -60,11 +64,48 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
     weapon.piercing_damage_pct = piercing_damage_pct;
     weapon.health_damage_pct = health_damage_pct;
 }
+/*
+let (weapon_type,
+    heat_seeking,
+    heat_seeking_agility,
+    attached,
+    deployed,
+    weapon_cooldown, 
+    burst_shot_limit,
+    burst_cooldown,
+    weapon_shot_speed,
+    damage,
+    shield_damage_pct,
+    armor_damage_pct,
+    piercing_damage_pct,
+    health_damage_pct,) = build_standard_weapon(weapon_type);
 
+world
+    .create_entity()
+    .with(vehicle_transform)
+    .with(vehicle_sprite_render)
+    .with(Vehicle::new())
+    .with(Weapon::new(weapon_type,
+        heat_seeking,
+        heat_seeking_agility,
+        attached,
+        deployed,
+        weapon_cooldown, 
+        burst_shot_limit,
+        burst_cooldown,
+        weapon_shot_speed,
+        damage,
+        shield_damage_pct,
+        armor_damage_pct,
+        piercing_damage_pct,
+        health_damage_pct))
+    .with(Player::new(player_index))
+    .build();
+*/
 
 
 pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
-    WeaponTypes, bool, f32, f32, u32, f32, f32, f32, f32, f32, f32, f32
+    WeaponTypes, bool, f32, bool, bool, f32, u32, f32, f32, f32, f32, f32, f32, f32
     ) {
     let (weapon_shot_speed, damage, weapon_cooldown, 
             piercing_damage_pct, 
@@ -81,12 +122,11 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
         WeaponTypes::Missile =>             (10.0,      50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
         WeaponTypes::Rockets =>             (250.0,     50.0,   0.8,    10.0,   75.0,     75.0,     100.0),
         WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    10.0,   75.0,     75.0,     100.0),
-        WeaponTypes::LaserSword =>          (0.0,       1.0,    1000.0,    50.0,    75.0,     75.0,      100.0),
+        WeaponTypes::LaserSword =>          (0.0,       1.5,    0.0,    50.0,   75.0,     75.0,     100.0),
     };
     
     let burst_cooldown;
     let burst_shot_limit; 
-    let heat_seeking_agility;
 
     if weapon_type.clone() == WeaponTypes::LaserPulse {
         burst_cooldown = 0.1 as f32;
@@ -106,6 +146,8 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
     };
     
     let heat_seeking;
+    let heat_seeking_agility;
+
     if weapon_type.clone() == WeaponTypes::Missile {
         heat_seeking = true;
         heat_seeking_agility = 0.6;
@@ -114,10 +156,24 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
         heat_seeking = false;
         heat_seeking_agility = 0.0;
     }
+
+    let attached;
+    let deployed;
+
+    if weapon_type.clone() == WeaponTypes::LaserSword {
+        attached = true;
+        deployed = false;
+    }
+    else {
+        attached = false;
+        deployed = false;
+    }
     
     (weapon_type,
         heat_seeking,
         heat_seeking_agility,
+        attached,
+        deployed,
         weapon_cooldown, 
         burst_shot_limit,
         burst_cooldown,
@@ -155,6 +211,8 @@ pub struct Weapon {
     pub weapon_type: WeaponTypes,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
+    pub attached: bool,
+    pub deployed: bool,
     pub weapon_cooldown_timer: f32,
     pub weapon_cooldown_reset: f32,
     pub burst_shots: u32,
@@ -176,6 +234,8 @@ impl Weapon {
     pub fn new(weapon_type: WeaponTypes, 
         heat_seeking: bool,
         heat_seeking_agility: f32,
+        attached: bool,
+        deployed: bool,
         weapon_cooldown: f32, 
         burst_shot_limit: u32, 
         burst_cooldown: f32,
@@ -194,6 +254,8 @@ impl Weapon {
             weapon_type,
             heat_seeking,
             heat_seeking_agility,
+            attached,
+            deployed,
             weapon_cooldown_timer: -1.0,
             weapon_cooldown_reset: weapon_cooldown,
             burst_shots: 0,
@@ -228,6 +290,8 @@ pub struct WeaponFire {
     pub health_damage_pct: f32,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
+    pub attached: bool,
+    pub deployed: bool,
     pub weapon_type: WeaponTypes,
 }
 
@@ -241,6 +305,8 @@ impl WeaponFire {
         owner_player_id: usize,
         heat_seeking: bool,
         heat_seeking_agility: f32,
+        attached: bool,
+        deployed: bool,
         weapon_shot_speed: f32,
         damage: f32,
         shield_damage_pct: f32,
@@ -280,6 +346,8 @@ impl WeaponFire {
             health_damage_pct: health_damage_pct,
             heat_seeking,
             heat_seeking_agility,
+            attached,
+            deployed,
             weapon_type,
         }
     }
