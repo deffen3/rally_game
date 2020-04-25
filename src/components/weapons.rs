@@ -64,44 +64,6 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
     weapon.piercing_damage_pct = piercing_damage_pct;
     weapon.health_damage_pct = health_damage_pct;
 }
-/*
-let (weapon_type,
-    heat_seeking,
-    heat_seeking_agility,
-    attached,
-    deployed,
-    weapon_cooldown, 
-    burst_shot_limit,
-    burst_cooldown,
-    weapon_shot_speed,
-    damage,
-    shield_damage_pct,
-    armor_damage_pct,
-    piercing_damage_pct,
-    health_damage_pct,) = build_standard_weapon(weapon_type);
-
-world
-    .create_entity()
-    .with(vehicle_transform)
-    .with(vehicle_sprite_render)
-    .with(Vehicle::new())
-    .with(Weapon::new(weapon_type,
-        heat_seeking,
-        heat_seeking_agility,
-        attached,
-        deployed,
-        weapon_cooldown, 
-        burst_shot_limit,
-        burst_cooldown,
-        weapon_shot_speed,
-        damage,
-        shield_damage_pct,
-        armor_damage_pct,
-        piercing_damage_pct,
-        health_damage_pct))
-    .with(Player::new(player_index))
-    .build();
-*/
 
 
 pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
