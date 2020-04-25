@@ -22,9 +22,9 @@ pub fn get_next_weapon_type(weapon_type: WeaponTypes) -> Option<WeaponTypes> {
         WeaponTypes::ProjectileRapidFire => Some(WeaponTypes::Missile),
         WeaponTypes::Missile => Some(WeaponTypes::LaserBeam),
         WeaponTypes::LaserBeam => Some(WeaponTypes::ProjectileCannonFire),
-        WeaponTypes::ProjectileCannonFire => Some(WeaponTypes::Rockets),
-        WeaponTypes::Rockets => Some(WeaponTypes::LaserPulse),
-        WeaponTypes::LaserPulse => Some(WeaponTypes::ProjectileBurstFire),
+        WeaponTypes::ProjectileCannonFire => Some(WeaponTypes::LaserPulse),
+        WeaponTypes::LaserPulse => Some(WeaponTypes::Rockets),
+        WeaponTypes::Rockets => Some(WeaponTypes::ProjectileBurstFire),
         WeaponTypes::ProjectileBurstFire => Some(WeaponTypes::Mine),
         WeaponTypes::Mine => Some(WeaponTypes::LaserSword),
         WeaponTypes::LaserSword => None
