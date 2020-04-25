@@ -4,7 +4,6 @@ use amethyst::{
     prelude::*,
     ui::{Anchor, TtfFormat, UiText, UiTransform},
 };
-use amethyst::core::math::Vector3;
 
 
 /// ScoreText contains the ui text components that display the score

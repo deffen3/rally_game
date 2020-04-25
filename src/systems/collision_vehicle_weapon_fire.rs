@@ -1,20 +1,20 @@
 use amethyst::{
     core::{Transform, Time},
     derive::SystemDesc,
-    ecs::{World, Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities},
+    ecs::{World, Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities, LazyUpdate},
     assets::AssetStorage,
     audio::{output::Output, Source},
 };
 
 use crate::components::{
-    WeaponFire, Weapon, WeaponTypes, Vehicle, Player, 
+    WeaponFire, Weapon, WeaponTypes, Vehicle, Player, PlayerWeaponIcon,
     Hitbox,
     kill_restart_vehicle,
-    get_next_weapon_type, update_weapon_properties,
+    get_next_weapon_type, update_weapon_properties, update_weapon_icon,
 };
 
 use crate::rally::{vehicle_damage_model};
-
+use crate::resources::{WeaponFireResource};
 
 use std::ops::Deref;
 use crate::audio::{play_score_sound, play_bounce_sound, Sounds};
@@ -33,6 +33,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         ReadStorage<'s, Hitbox>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Player>,
+        ReadStorage<'s, PlayerWeaponIcon>,
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Weapon>,
         ReadStorage<'s, WeaponFire>,
@@ -40,14 +41,16 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
+        ReadExpect<'s, WeaponFireResource>,
+        ReadExpect<'s, LazyUpdate>,
     );
 
     fn setup(&mut self, _world: &mut World) {
         self.hit_sound_cooldown_timer = -1.0;
     }
 
-    fn run(&mut self, (entities, hitboxes, mut transforms, mut players, mut vehicles, mut weapons, weapon_fires,
-            time, storage, sounds, audio_output): Self::SystemData) {
+    fn run(&mut self, (entities, hitboxes, mut transforms, mut players, player_icons, mut vehicles, mut weapons, weapon_fires,
+            time, storage, sounds, audio_output, weapon_fire_resource, lazy_update): Self::SystemData) {
         let dt = time.delta_seconds();
 
 
@@ -126,6 +129,8 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
+        let mut weapon_icons_old: Vec<(usize, WeaponTypes)> = Vec::new();
+
         for (entity, player, weapon, vehicle, transform) in (&*entities, &mut players, &mut weapons, &mut vehicles, &mut transforms).join() {
 
             for (killer_id, killed_id, weapon_type) in &player_makes_kill {
@@ -135,9 +140,17 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                     player.kills += 1;
 
-                    if let Some(some_weapon_type) = new_weapon_type {
+                    if let Some(some_weapon_type) = new_weapon_type.clone() {
                         println!("{:?} {:?}",weapon_type.clone(), some_weapon_type);
                         update_weapon_properties(weapon, some_weapon_type);
+
+                        weapon_icons_old.push((player.id.clone(), weapon_type.clone()));
+
+                        update_weapon_icon(&entities,
+                            &weapon_fire_resource,
+                            new_weapon_type.unwrap(),
+                            player.id.clone(),
+                            &lazy_update)
                     }
                 }
 
@@ -145,6 +158,15 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     kill_restart_vehicle(vehicle, transform);
                 }
                 
+            }
+        }
+
+        for (entity, player_icon) in (&*entities, &player_icons).join() {
+
+            for (player_id, weapon_type) in &weapon_icons_old {
+                if *player_id == player_icon.id && *weapon_type == player_icon.weapon_type {
+                    let _ = entities.delete(entity);
+                }
             }
         }
 

@@ -1,4 +1,17 @@
+use amethyst::{
+    core::transform::Transform,
+    ecs::prelude::{Entity, Entities, ReadExpect, LazyUpdate},
+};
+use amethyst::core::math::Vector3;
+
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
+
+use std::f32::consts::PI;
+
+use crate::resources::{WeaponFireResource};
+use crate::components::{PlayerWeaponIcon};
+use crate::rally::{UI_HEIGHT};
+
 
 pub fn weapon_type_from_u8(n: u8) -> WeaponTypes {
     match n {
@@ -313,4 +326,54 @@ impl WeaponFire {
             weapon_type,
         }
     }
+}
+
+
+
+pub fn update_weapon_icon(entities: &Entities,
+    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
+    weapon_type: WeaponTypes,
+    player_id: usize,
+    lazy_update: &ReadExpect<LazyUpdate>)
+{
+    //UI icon
+    let weapon_entity: Entity = entities.create();
+
+    let x = 15.;
+    let y = UI_HEIGHT - 10.;
+    let dx = 32.;
+    let dx2 = 4.;
+
+    let weapon_icon_dx = 70.0;
+
+    let (icon_scale, weapon_sprite) = match weapon_type.clone() {
+        WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
+        WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
+        WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
+        WeaponTypes::ProjectileBurstFire => (3.0, weapon_fire_resource.projectile_burst_render.clone()),
+        WeaponTypes::ProjectileRapidFire => (3.0, weapon_fire_resource.projectile_rapid_render.clone()),
+        WeaponTypes::ProjectileCannonFire => (3.0, weapon_fire_resource.projectile_cannon_sprite_render.clone()),
+        WeaponTypes::Missile => (2.0, weapon_fire_resource.missile_sprite_render.clone()),
+        WeaponTypes::Rockets => (2.0, weapon_fire_resource.rockets_sprite_render.clone()),
+        WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_sprite_render.clone()),
+        WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
+    };
+
+    let mut icon_weapon_transform = Transform::default();
+
+    let starting_x = match player_id {
+        0 => (x),
+        1 => (x + 3.0*dx + dx2),
+        2 => (x + 6.0*dx + 2.0*dx2),
+        3 => (x + 9.0*dx + 3.0*dx2),
+        _ => (0.0),
+    };
+
+    icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.0);
+    icon_weapon_transform.set_rotation_2d(-PI/2.0);
+    icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
+
+    lazy_update.insert(weapon_entity, PlayerWeaponIcon::new(player_id, weapon_type));
+    lazy_update.insert(weapon_entity, weapon_sprite);
+    lazy_update.insert(weapon_entity, icon_weapon_transform);
 }

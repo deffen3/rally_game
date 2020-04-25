@@ -14,7 +14,7 @@ use crate::audio::initialise_audio;
 
 
 use crate::components::{
-    Hitbox, Vehicle, Weapon, WeaponFire, WeaponTypes, weapon_type_from_u8,
+    Hitbox, Vehicle, Weapon, WeaponFire, WeaponTypes, PlayerWeaponIcon, weapon_type_from_u8,
 };
 
 use crate::entities::{
@@ -68,6 +68,7 @@ impl SimpleState for Rally {
         initialise_arena_walls(world, self.sprite_sheet_handle.clone().unwrap());
         world.register::<Hitbox>();
 
+        world.register::<PlayerWeaponIcon>();
 
         for player_index in 0..MAX_PLAYERS {
             intialize_player(

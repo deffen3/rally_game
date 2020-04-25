@@ -63,7 +63,7 @@ pub fn intialize_player(
         .with(vehicle_transform)
         .with(vehicle_sprite_render.clone())
         .with(Vehicle::new())
-        .with(Weapon::new(weapon_type,
+        .with(Weapon::new(weapon_type.clone(),
             heat_seeking,
             heat_seeking_agility,
             attached,
@@ -88,28 +88,29 @@ pub fn intialize_player(
 
 
 
-    //UI icon
-    let mut icon_transform = Transform::default();
-
+    //UI icons
     let x = 15.;
     let y = UI_HEIGHT - 10.;
     let dx = 32.;
     let dx2 = 4.;
+    {
+        let mut icon_transform = Transform::default();
 
-    let (starting_x) = match player_index {
-        0 => (x),
-        1 => (x + 3.0*dx + dx2),
-        2 => (x + 6.0*dx + 2.0*dx2),
-        3 => (x + 9.0*dx + 3.0*dx2),
-        _ => (0.0),
-    };
+        let starting_x = match player_index {
+            0 => (x),
+            1 => (x + 3.0*dx + dx2),
+            2 => (x + 6.0*dx + 2.0*dx2),
+            3 => (x + 9.0*dx + 3.0*dx2),
+            _ => (0.0),
+        };
 
-    icon_transform.set_rotation_2d(-PI/2.0);
-    icon_transform.set_translation_xyz(starting_x as f32, y, 0.0);
+        icon_transform.set_rotation_2d(-PI/2.0);
+        icon_transform.set_translation_xyz(starting_x as f32, y, 0.0);
 
-    world
-        .create_entity()
-        .with(icon_transform)
-        .with(vehicle_sprite_render)
-        .build();
+        world
+            .create_entity()
+            .with(icon_transform)
+            .with(vehicle_sprite_render)
+            .build();
+    }
 }
