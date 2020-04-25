@@ -32,26 +32,28 @@ pub fn initialise_arena_walls(world: &mut World, sprite_sheet_handle: Handle<Spr
 
     //central circle
     let mut circle_transform = Transform::default();
+    let scale = 4.0;
     circle_transform.set_translation_xyz(ARENA_WIDTH/2.0, ARENA_WIDTH/2.0, 0.0);
-    circle_transform.set_scale(Vector3::new(4.0, 4.0, 0.0));
+    circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
     let circle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
         sprite_number: 14,
     };
 
-
     world
         .create_entity()
         .with(circle_transform)
         .with(circle_sprite_render)
-        .with(Hitbox::new(20.0, 20.0, 0.0, HitboxShape::Circle))
+        .with(Hitbox::new(20.0 * scale, 20.0 * scale, 0.0, HitboxShape::Circle))
         .build();
 
 
     //outer circles
     let spacing_factor = 5.0;
     let height = ARENA_HEIGHT + UI_HEIGHT;
+
+    let scale = 2.0;
 
     for idx in 0..4 {
         let (starting_x, starting_y) = match idx {
@@ -64,7 +66,7 @@ pub fn initialise_arena_walls(world: &mut World, sprite_sheet_handle: Handle<Spr
 
         let mut circle_transform = Transform::default();
         circle_transform.set_translation_xyz(starting_x, starting_y, 0.0);
-        circle_transform.set_scale(Vector3::new(2.0, 2.0, 0.0));
+        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let circle_sprite_render = SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),
@@ -75,7 +77,7 @@ pub fn initialise_arena_walls(world: &mut World, sprite_sheet_handle: Handle<Spr
             .create_entity()
             .with(circle_transform)
             .with(circle_sprite_render)
-            .with(Hitbox::new(20.0, 20.0, 0.0, HitboxShape::Circle))
+            .with(Hitbox::new(20.0 * scale, 20.0 * scale, 0.0, HitboxShape::Circle))
             .build();
     }
 }

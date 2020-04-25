@@ -1,6 +1,6 @@
 use amethyst::core::{Transform, Time};
 use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadExpect, Entities};
+use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect};
 use amethyst::input::{InputHandler, StringBindings};
 
 use amethyst::{
@@ -10,7 +10,7 @@ use amethyst::{
 
 use std::f32::consts::PI;
 
-use crate::components::{Vehicle, Player, kill_restart_vehicle, check_respawn_vehicle};
+use crate::components::{Vehicle, Player, Hitbox, kill_restart_vehicle, check_respawn_vehicle};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT,
     vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
@@ -26,6 +26,7 @@ pub struct VehicleMoveSystem;
 
 impl<'s> System<'s> for VehicleMoveSystem {
     type SystemData = (
+        ReadStorage<'s, Hitbox>,
         WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
@@ -36,7 +37,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (mut players, mut transforms, mut vehicles, 
+    fn run(&mut self, (hitboxes, mut players, mut transforms, mut vehicles, 
             time, input, storage, sounds, audio_output): Self::SystemData) {
 
         let dt = time.delta_seconds();
@@ -238,6 +239,55 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 }
 
                 vehicle.collision_cooldown_timer -= dt;
+            }
+        }
+
+        let mut player_destroyed: Vec<usize> = Vec::new();
+
+        for (hitbox, hitbox_transform) in (&hitboxes, &transforms).join() {
+            let hitbox_x = hitbox_transform.translation().x;
+            let hitbox_y = hitbox_transform.translation().y;
+
+            for (player, vehicle, transform) in (&mut players, &mut vehicles, &transforms).join() {
+                let wall_hit_non_bounce_decel_pct: f32 = 0.35;
+                let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
+
+                let vehicle_x = transform.translation().x;
+                let vehicle_y = transform.translation().y;
+
+                let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+                let abs_vel = sq_vel.sqrt();
+
+
+                if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2) < (hitbox.width/2.0 + vehicle.width/2.0).powi(2) {
+                    vehicle.dx *= wall_hit_bounce_decel_pct;
+                    vehicle.dy *= wall_hit_bounce_decel_pct;
+
+                    if vehicle.collision_cooldown_timer <= 0.0 {
+                        let damage:f32 = BASE_COLLISION_DAMAGE * abs_vel;
+                        //println!("Player {} has collided with {} damage", player.id, damage);
+
+                        let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
+                            COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+                            COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT);
+        
+                        if vehicle_destroyed {
+                            player_destroyed.push(player.id.clone());
+                        }
+
+                        play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        vehicle.collision_cooldown_timer = 1.0;
+                    }
+                }
+            }
+        }
+
+        for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
+            for destroyed_id in &player_destroyed {
+                if *destroyed_id == player.id {
+                    println!("Kill player");
+                    kill_restart_vehicle(vehicle, transform);
+                }
             }
         }
     }

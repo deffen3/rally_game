@@ -10,7 +10,7 @@ use amethyst::core::math::Vector3;
 
 use crate::audio::initialise_audio;
 
-use rand::Rng;
+//use rand::Rng;
 
 
 use crate::components::{
@@ -268,7 +268,7 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         }
     }
 
-    let mut health_damage:f32 = (damage + piercing_damage) * health_damage_pct/100.0;
+    let health_damage :f32 = (damage + piercing_damage) * health_damage_pct/100.0;
 
     let mut vehicle_destroyed = false;
 

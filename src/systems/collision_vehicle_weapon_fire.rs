@@ -8,7 +8,7 @@ use amethyst::{
 
 use crate::components::{
     WeaponFire, Weapon, WeaponTypes, Vehicle, Player, 
-    Hitbox, HitboxShape,
+    Hitbox,
     kill_restart_vehicle,
     get_next_weapon_type, update_weapon_properties,
 };
@@ -55,11 +55,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             let hitbox_x = transform.translation().x;
             let hitbox_y = transform.translation().y;
 
-            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in (&*entities, &weapon_fires, &transforms).join() {
+            for (weapon_fire_entity, _weapon_fire, weapon_fire_transform) in (&*entities, &weapon_fires, &transforms).join() {
                 let fire_x = weapon_fire_transform.translation().x;
                 let fire_y = weapon_fire_transform.translation().y;
 
-                if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2) < hitbox.width.powi(2) {
+                if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2) < (hitbox.width/2.0).powi(2) {
                     let _ = entities.delete(weapon_fire_entity);
                 }
             }
@@ -68,7 +68,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
         let mut player_makes_kill: Vec<(usize, usize, WeaponTypes)> = Vec::new();
 
-        for (vehicle_entity, player, vehicle, weapon, vehicle_transform) in (&*entities, &players, &mut vehicles, &mut weapons, &transforms).join() {
+        for (player, vehicle, _weapon, vehicle_transform) in (&players, &mut vehicles, &mut weapons, &transforms).join() {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
@@ -78,15 +78,15 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                 if weapon_fire.owner_player_id != player.id {
 
-                    let fire_rotation = weapon_fire_transform.rotation();
-                    let (_, _, fire_angle) = fire_rotation.euler_angles();
-                    let fire_x_comp = -fire_angle.sin(); //left is -, right is +
-                    let fire_y_comp = fire_angle.cos(); //up is +, down is -
+                    // let fire_rotation = weapon_fire_transform.rotation();
+                    // let (_, _, fire_angle) = fire_rotation.euler_angles();
+                    // let fire_x_comp = -fire_angle.sin(); //left is -, right is +
+                    // let fire_y_comp = fire_angle.cos(); //up is +, down is -
 
-                    let vehicle_rotation = vehicle_transform.rotation();
-                    let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
-                    let vehicle_x_comp = -vehicle_angle.sin(); //left is -, right is +
-                    let vehicle_y_comp = vehicle_angle.cos(); //up is +, down is -
+                    // let vehicle_rotation = vehicle_transform.rotation();
+                    // let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
+                    // let vehicle_x_comp = -vehicle_angle.sin(); //left is -, right is +
+                    // let vehicle_y_comp = vehicle_angle.cos(); //up is +, down is -
 
                     
 

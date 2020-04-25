@@ -1,7 +1,7 @@
 use amethyst::{
     core::{Transform, Time},
     derive::SystemDesc,
-    ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities},
+    ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect},
     assets::AssetStorage,
     audio::{output::Output, Source},
 };
@@ -14,8 +14,6 @@ use crate::rally::{vehicle_damage_model, BASE_COLLISION_DAMAGE,
 use std::ops::Deref;
 use crate::audio::{play_bounce_sound, Sounds};
 
-use std::f32::consts::PI;
-
 
 
 #[derive(SystemDesc, Default)]
@@ -25,7 +23,6 @@ pub struct CollisionVehToVehSystem;
 
 impl<'s> System<'s> for CollisionVehToVehSystem {
     type SystemData = (
-        Entities<'s>,
         WriteStorage<'s, Transform>,
         ReadStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
@@ -35,7 +32,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
         Option<Read<'s, Output>>,
     );
 
-    fn run(&mut self, (entities, mut transforms, players, mut vehicles,
+    fn run(&mut self, (mut transforms, players, mut vehicles,
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
@@ -52,8 +49,8 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                 if player_1.id != player_2.id {
                     if (vehicle_1_x - vehicle_2_x).powi(2) + (vehicle_1_y - vehicle_2_y).powi(2) < vehicle_1.width.powi(2) {
 
-                        let veh_hit_non_bounce_decel_pct: f32 = 0.35;
-                        let veh_hit_bounce_decel_pct: f32 = -veh_hit_non_bounce_decel_pct;
+                        // let veh_hit_non_bounce_decel_pct: f32 = 0.35;
+                        // let veh_hit_bounce_decel_pct: f32 = -veh_hit_non_bounce_decel_pct;
 
                     
 
@@ -78,7 +75,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             }
         }
 
-        for (vehicle_entity, vehicle, player, transform) in (&*entities, &mut vehicles, &players, &mut transforms).join() {
+        for (vehicle, player, transform) in (&mut vehicles, &players, &mut transforms).join() {
 
             for (col_id, v_diff) in &collision_ids_vec {
                 if player.id == *col_id {
