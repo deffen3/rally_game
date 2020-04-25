@@ -27,6 +27,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         let mut vehicle_owner_x = 40.0;
         let mut vehicle_owner_y = 40.0;
         let mut vehicle_owner_angle = 0.0;
+        let mut heat_seeking_angle = 0.0;
 
         for (weapon_fire, transform) in (&mut weapon_fires, &transforms).join() {
             let fire_x = transform.translation().x;
@@ -42,8 +43,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let vehicle_x = vehicle_transform.translation().x;
                         let vehicle_y = vehicle_transform.translation().y;
 
-                        let vehicle_rotation = transform.rotation();
-                        let (_, _, yaw) = vehicle_rotation.euler_angles();
+                        let weapon_rotation = transform.rotation();
+                        let (_, _, weapon_angle) = weapon_rotation.euler_angles();
 
                         let dist = ((vehicle_x - fire_x).powi(2) + (vehicle_y - fire_y).powi(2)).sqrt();
 
@@ -54,9 +55,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         }
                     }
                 }
-                
-                weapon_fire.dx -= closest_vehicle_x_diff * weapon_fire.heat_seeking_agility * dt;
-                weapon_fire.dy -= closest_vehicle_y_diff * weapon_fire.heat_seeking_agility * dt;
+
+                heat_seeking_angle = closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI/2.0); //rotate by PI/2 to line up with yaw angle
             }
             
             if weapon_fire.attached {
@@ -78,6 +78,27 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
 
         for (entity, weapon_fire, transform) in (&*entities, &mut weapon_fires, &mut transforms).join() {
+            if weapon_fire.heat_seeking == true {
+                transform.set_rotation_2d(heat_seeking_angle);
+
+                let velocity_x_comp = -heat_seeking_angle.sin(); //left is -, right is +
+                let velocity_y_comp = heat_seeking_angle.cos(); //up is +, down is -
+
+                let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                let abs_vel = sq_vel.sqrt();
+
+                weapon_fire.dx += (weapon_fire.heat_seeking_agility * velocity_x_comp * dt);
+                weapon_fire.dx *= 100.0/abs_vel;
+
+                weapon_fire.dy += (weapon_fire.heat_seeking_agility * velocity_y_comp * dt);
+                weapon_fire.dy *= 100.0/abs_vel;
+
+                let sq_vel2 = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                let abs_vel2 = sq_vel2.sqrt();
+
+                println!("{} : {}", abs_vel, abs_vel2);
+            }
+
             if weapon_fire.attached == true {
                 if weapon_fire.deployed == true {
                     let yaw_x_comp = -vehicle_owner_angle.sin(); //left is -, right is +
