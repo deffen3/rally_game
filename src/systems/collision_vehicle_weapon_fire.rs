@@ -139,10 +139,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         println!("{:?} {:?}",weapon_type.clone(), some_weapon_type);
                         update_weapon_properties(weapon, some_weapon_type);
                     }
-                    else {
-                        println!("Player {} wins!", player.id);
-                    }
-
                 }
 
                 if *killed_id == player.id {
