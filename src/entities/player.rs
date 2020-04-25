@@ -28,9 +28,9 @@ pub fn intialize_player(
 
     let (starting_rotation, starting_x, starting_y) = match player_index {
         0 => (-PI/4.0, ARENA_WIDTH / spacing_factor, height / spacing_factor),
-        1 => (PI + PI/4.0, ARENA_WIDTH / spacing_factor, height - (height / spacing_factor)),
-        2 => (PI/2.0 - PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height / spacing_factor),
-        3 => (PI/2.0 + PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height - (height / spacing_factor)),
+        1 => (PI/2.0 + PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height - (height / spacing_factor)),
+        2 => (PI + PI/4.0, ARENA_WIDTH / spacing_factor, height - (height / spacing_factor)),
+        3 => (PI/2.0 - PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height / spacing_factor),
         _ => (-PI/4.0, ARENA_WIDTH / spacing_factor, height / spacing_factor),
     };
 

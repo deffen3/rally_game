@@ -36,7 +36,7 @@ pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 50.0;
 pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
-//pub const MAX_PLAYERS: usize = 4;
+pub const MAX_PLAYERS: usize = 4;
 
 
 #[derive(Default)]
@@ -67,16 +67,18 @@ impl SimpleState for Rally {
         world.register::<Hitbox>();
 
 
-        // for player_index in 0..MAX_PLAYERS {
-        //     intialize_player(
-        //         world, 
-        //         self.sprite_sheet_handle.clone().unwrap(),
-        //         player_index as usize,
-        //         weapon_type_from_u8(0),
-        //     );
-        // }
+        for player_index in 0..MAX_PLAYERS {
+            intialize_player(
+                world, 
+                self.sprite_sheet_handle.clone().unwrap(),
+                player_index as usize,
+                weapon_type_from_u8(0),
+            );
+        }
 
-        
+
+        //Debug Spawns
+        /*
         let weapon1: WeaponTypes = weapon_type_from_u8(0);
         let weapon2: WeaponTypes = weapon_type_from_u8(0);
         let weapon3: WeaponTypes = weapon_type_from_u8(0);
@@ -115,7 +117,7 @@ impl SimpleState for Rally {
             3 as usize,
             weapon4,
         );
-
+        */
 
         //world.register::<Vehicle>(); // <- add this line temporarily
         //world.register::<Weapon>(); // <- add this line temporarily
