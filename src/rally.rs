@@ -27,7 +27,7 @@ use crate::resources::{
 
 
 pub const ARENA_HEIGHT: f32 = 400.0;
-pub const UI_HEIGHT: f32 = 30.0;
+pub const UI_HEIGHT: f32 = 35.0;
 pub const ARENA_WIDTH: f32 = 400.0;
 
 pub const BASE_COLLISION_DAMAGE: f32 = 20.0;
@@ -37,6 +37,8 @@ pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
 pub const MAX_PLAYERS: usize = 4;
+
+pub const KILLS_TO_WIN: i32 = 10;
 
 
 #[derive(Default)]

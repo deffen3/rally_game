@@ -2,6 +2,7 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
 pub struct Player {
     pub id: usize,
+    pub kills: u32,
 }
 
 impl Component for Player {
@@ -12,6 +13,7 @@ impl Player {
     pub fn new(id: usize) -> Player {
         Player {
             id,
+            kills: 0,
         }
     }
 }

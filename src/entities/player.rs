@@ -6,6 +6,7 @@ use amethyst::{
     prelude::*,
 };
 
+
 use std::f32::consts::PI;
 
 use crate::components::{
@@ -60,7 +61,7 @@ pub fn intialize_player(
     world
         .create_entity()
         .with(vehicle_transform)
-        .with(vehicle_sprite_render)
+        .with(vehicle_sprite_render.clone())
         .with(Vehicle::new())
         .with(Weapon::new(weapon_type,
             heat_seeking,
@@ -84,4 +85,31 @@ pub fn intialize_player(
     //if I separate it into three entities, then now my systems are broken as their
     //  is no relationship between these entities. Do I need to apply parent child relationships?
     //  Isn't this going against the purpose/elegance of ECS?
+
+
+
+    //UI icon
+    let mut icon_transform = Transform::default();
+
+    let x = 15.;
+    let y = UI_HEIGHT - 10.;
+    let dx = 32.;
+    let dx2 = 4.;
+
+    let (starting_x) = match player_index {
+        0 => (x),
+        1 => (x + 3.0*dx + dx2),
+        2 => (x + 6.0*dx + 2.0*dx2),
+        3 => (x + 9.0*dx + 3.0*dx2),
+        _ => (0.0),
+    };
+
+    icon_transform.set_rotation_2d(-PI/2.0);
+    icon_transform.set_translation_xyz(starting_x as f32, y, 0.0);
+
+    world
+        .create_entity()
+        .with(icon_transform)
+        .with(vehicle_sprite_render)
+        .build();
 }

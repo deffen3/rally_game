@@ -32,7 +32,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         Entities<'s>,
         ReadStorage<'s, Hitbox>,
         WriteStorage<'s, Transform>,
-        ReadStorage<'s, Player>,
+        WriteStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Weapon>,
         ReadStorage<'s, WeaponFire>,
@@ -46,7 +46,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         self.hit_sound_cooldown_timer = -1.0;
     }
 
-    fn run(&mut self, (entities, hitboxes, mut transforms, players, mut vehicles, mut weapons, weapon_fires,
+    fn run(&mut self, (entities, hitboxes, mut transforms, mut players, mut vehicles, mut weapons, weapon_fires,
             time, storage, sounds, audio_output): Self::SystemData) {
         let dt = time.delta_seconds();
 
@@ -60,7 +60,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 let fire_y = weapon_fire_transform.translation().y;
 
                 if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2) < (hitbox.width/2.0).powi(2) {
-                    let _ = entities.delete(weapon_fire_entity);
+                    if weapon_fire.attached == false {
+                        let _ = entities.delete(weapon_fire_entity);
+                    }
                 }
             }
         }
@@ -124,12 +126,14 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
-        for (entity, player, weapon, vehicle, transform) in (&*entities, &players, &mut weapons, &mut vehicles, &mut transforms).join() {
+        for (entity, player, weapon, vehicle, transform) in (&*entities, &mut players, &mut weapons, &mut vehicles, &mut transforms).join() {
 
             for (killer_id, killed_id, weapon_type) in &player_makes_kill {
                 if *killer_id == player.id {
                     //classic gun-game rules: upgrade weapon type for player who got the kill
                     let new_weapon_type = get_next_weapon_type(weapon_type.clone());
+
+                    player.kills += 1;
 
                     if let Some(some_weapon_type) = new_weapon_type {
                         println!("{:?} {:?}",weapon_type.clone(), some_weapon_type);
