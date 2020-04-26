@@ -1,6 +1,6 @@
-use amethyst::core::Transform;
-use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 use crate::entities::ui::PlayerStatusText;
+use amethyst::core::Transform;
+use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
 use rand::Rng;
 use std::f32::consts::PI;

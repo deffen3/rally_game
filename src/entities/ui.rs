@@ -397,9 +397,21 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         p4_kills,
     });
     [
-        PlayerStatusText { shield: p1_shield, armor: p1_armor },
-        PlayerStatusText { shield: p2_shield, armor: p2_armor },
-        PlayerStatusText { shield: p3_shield, armor: p3_armor },
-        PlayerStatusText { shield: p4_shield, armor: p4_armor },
+        PlayerStatusText {
+            shield: p1_shield,
+            armor: p1_armor,
+        },
+        PlayerStatusText {
+            shield: p2_shield,
+            armor: p2_armor,
+        },
+        PlayerStatusText {
+            shield: p3_shield,
+            armor: p3_armor,
+        },
+        PlayerStatusText {
+            shield: p4_shield,
+            armor: p4_armor,
+        },
     ]
 }

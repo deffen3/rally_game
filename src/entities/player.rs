@@ -1,7 +1,7 @@
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
-    ecs::prelude::{Entity, World},
+    ecs::prelude::World,
     prelude::*,
     renderer::{SpriteRender, SpriteSheet},
 };
