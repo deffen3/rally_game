@@ -148,8 +148,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                         println!("{} Mining", player.id);
                                     } else if weapon.weapon_type == WeaponTypes::LaserSword {
                                         player.bot_mode = BotMode::Swording;
-                                        println!("{} Swording", player.id);;
-                                    else {
+                                        println!("{} Swording", player.id);
+                                    } else {
                                         player.bot_mode = BotMode::StopAim;
                                         println!("{} StopAim", player.id);
                                     }
@@ -190,7 +190,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     if run_or_chase {
                                         player.bot_mode = BotMode::Running;
                                         println!("{} Running", player.id);
-                                    else {
+                                    } else {
                                         player.bot_mode = BotMode::Chasing;
                                         println!("{} Chasing", player.id);
                                     }
