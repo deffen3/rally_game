@@ -30,8 +30,8 @@ pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 25.0;
 pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
-pub const MAX_PLAYERS: usize = 4;
-pub const BOT_PLAYERS: usize = 3;
+pub const MAX_PLAYERS: usize = 2;
+pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 
 pub const KILLS_TO_WIN: i32 = 10;
 

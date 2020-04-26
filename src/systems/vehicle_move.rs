@@ -25,6 +25,11 @@ use crate::rally::{
 use crate::audio::{play_bounce_sound, Sounds};
 use std::ops::Deref;
 
+
+const BOT_COLLISION_TURN_COOLDOWN_RESET: f32 = 0.7;
+const BOT_COLLISION_MOVE_COOLDOWN_RESET: f32 = 0.7;
+
+
 #[derive(SystemDesc)]
 pub struct VehicleMoveSystem;
 
@@ -256,11 +261,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::CollisionMove;
                             println!("{} CollisionMove", player.id);
-                            player.bot_move_cooldown = 2.0;
+                            player.bot_move_cooldown = BOT_COLLISION_MOVE_COOLDOWN_RESET;
                         }
                     } else if player.bot_mode == BotMode::CollisionMove {
                         vehicle_accel = Some(0.5);
-                        vehicle_turn = Some(1.0);
+                        vehicle_turn = Some(0.0);
 
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::Running;
@@ -452,7 +457,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 {
                     player.bot_mode = BotMode::CollisionTurn;
                     println!("{} CollisionTurn", player.id);
-                    player.bot_move_cooldown = 0.4;
+                    player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
                 }
 
                 vehicle.collision_cooldown_timer -= dt;
@@ -491,7 +496,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     {
                         player.bot_mode = BotMode::CollisionTurn;
                         println!("{} CollisionTurn", player.id);
-                        player.bot_move_cooldown = 0.4;
+                        player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
                     }
 
                     if vehicle.collision_cooldown_timer <= 0.0 {
