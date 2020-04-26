@@ -123,9 +123,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     if (player.bot_mode == BotMode::Running) {
                         for (player_with_target, target_angle, closest_vehicle_dist) in &closest_target_angles {
                             if player.id == *player_with_target {
-                                if *closest_vehicle_dist <= 100.0 {
+                                if *closest_vehicle_dist <= 100.0 && player.bot_move_cooldown < 0.0 {
                                     player.bot_mode = BotMode::StopAim;
                                     println!("Target Engaged! {} {:?}", player.id, player.bot_mode);
+
+                                    player.bot_move_cooldown = 5.0;
                                 }
                                 else { //continue with Running mode
                                     if player.bot_move_cooldown < 0.0 { //issue new move command
@@ -149,14 +151,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         for (player_with_target, target_angle, closest_vehicle_dist) in &closest_target_angles {
                             if player.id == *player_with_target {
 
-                                if *closest_vehicle_dist > 120.0 {
+                                if *closest_vehicle_dist > 240.0 || player.bot_move_cooldown < 0.0 {
+                                    player.bot_move_cooldown = player.bot_move_cooldown_reset;
                                     player.bot_mode = BotMode::Running;
                                     println!("Target Lost! {} {:?}", player.id, player.bot_mode);
                                 }
                                 else { //continue with StopAim mode
                                     if (yaw < 0.0) { //aimed to the right (with 0 point towards top)
                                         if (*target_angle < 0.0) { //target to the right
-                                            println!("Right {}, Right {} ", yaw, *target_angle);
+                                            //println!("Right {}, Right {} ", yaw, *target_angle);
 
                                             if (yaw.abs() - target_angle.abs()) < 0.01 {
                                                 vehicle_turn = Some(-1.0);
@@ -169,19 +172,19 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                             }
                                         }
                                         else { //target to the left
-                                            println!("Right {}, Left {} ", yaw, *target_angle);
+                                            //println!("Right {}, Left {} ", yaw, *target_angle);
 
                                             vehicle_turn = Some(1.0);
                                         }
                                     }
                                     else { //aimed to the left
                                         if (*target_angle < 0.0) { //target to the right
-                                            println!("Left {}, Right {} ", yaw, *target_angle);
+                                            //println!("Left {}, Right {} ", yaw, *target_angle);
 
                                             vehicle_turn = Some(1.0);
                                         }
                                         else { //target to the left == PERFECT!!
-                                            println!("Left {}, Left {} ", yaw, *target_angle);
+                                            //println!("Left {}, Left {} ", yaw, *target_angle);
 
                                             if (yaw.abs() - target_angle.abs()) > 0.01 {
                                                 vehicle_turn = Some(-1.0);
@@ -194,14 +197,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                             }
                                         }
                                     }
-        
-                                    /*
-                                    if (-*target_angle + yaw) > 0.1 {
-                                        vehicle_turn = Some(1.0);
-                                    }
-                                    else {
-                                        vehicle_turn = Some(-1.0);
-                                    }*/
                                 }
                             }
                         }
@@ -352,7 +347,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             kill_restart_vehicle(vehicle, transform);
                         }
 
-                        if (abs_vel > 1.0) {
+                        if (abs_vel > 0.5) {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -375,7 +370,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             kill_restart_vehicle(vehicle, transform);
                         }
 
-                        if (abs_vel > 1.0) {
+                        if (abs_vel > 0.5) {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -396,14 +391,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
         }
 
+
+        //hitbox collision logic, right now only applied to circular arena obstacles
         let mut player_destroyed: Vec<usize> = Vec::new();
+        let mut player_arena_bounce: Vec<usize> = Vec::new();
 
         for (hitbox, hitbox_transform) in (&hitboxes, &transforms).join() {
             let hitbox_x = hitbox_transform.translation().x;
             let hitbox_y = hitbox_transform.translation().y;
 
             for (player, vehicle, transform) in (&mut players, &mut vehicles, &transforms).join() {
-                let wall_hit_non_bounce_decel_pct: f32 = 0.35;
+                let wall_hit_non_bounce_decel_pct: f32 = 0.65;
                 let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
 
                 let vehicle_x = transform.translation().x;
@@ -417,6 +415,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     vehicle.dx *= wall_hit_bounce_decel_pct;
                     vehicle.dy *= wall_hit_bounce_decel_pct;
 
+                    player_arena_bounce.push(player.id.clone());
+
                     if vehicle.collision_cooldown_timer <= 0.0 {
                         let damage:f32 = BASE_COLLISION_DAMAGE * abs_vel;
                         //println!("Player {} has collided with {} damage", player.id, damage);
@@ -429,7 +429,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             player_destroyed.push(player.id.clone());
                         }
 
-                        if (abs_vel > 1.0) {
+                        if (abs_vel > 0.5) {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -443,6 +443,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 if *destroyed_id == player.id {
                     println!("Kill player");
                     kill_restart_vehicle(vehicle, transform);
+                }
+            }
+
+            for bounced_id in &player_arena_bounce {
+                if *bounced_id == player.id {
+                    let vehicle_x = transform.translation().x;
+                    let vehicle_y = transform.translation().y;
+
+                    transform.set_translation_x(vehicle_x + vehicle.dx);
+                    transform.set_translation_y(vehicle_y + vehicle.dy);
                 }
             }
         }
