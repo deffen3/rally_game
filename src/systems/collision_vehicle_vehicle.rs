@@ -83,10 +83,12 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                     if vehicle.collision_cooldown_timer <= 0.0 {
                         //println!("Player {} has collided", player.id);
 
-                        play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
-                        vehicle.collision_cooldown_timer = 1.0;
-
                         let damage:f32 = BASE_COLLISION_DAMAGE * v_diff;
+
+                        if (*v_diff > 1.0) {
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        }
+                        vehicle.collision_cooldown_timer = 1.0;
 
                         let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
                             COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,

@@ -6,7 +6,7 @@ use amethyst::core::math::Vector3;
 
 use rand::Rng;
 
-use crate::components::{Vehicle, Player, Weapon};
+use crate::components::{Vehicle, Player, Weapon, BotMode};
 use crate::resources::{WeaponFireResource};
 use crate::rally::{fire_weapon};
 
@@ -46,7 +46,9 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             };
 
             if player.is_bot {
-                vehicle_weapon_fire = Some(rng.gen::<bool>());
+                if (player.bot_mode == BotMode::StopAim) {
+                    vehicle_weapon_fire = Some(rng.gen::<bool>());
+                }
             }
 
 

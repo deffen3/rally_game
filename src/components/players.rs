@@ -1,10 +1,24 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use crate::components::{WeaponTypes};
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum BotMode {
+    Running,
+    StopAim,
+    CollisionTurn,
+}
+
+
+
 pub struct Player {
     pub id: usize,
     pub kills: i32,
     pub is_bot: bool,
+    pub bot_mode: BotMode,
+    pub bot_move_cooldown: f32,
+    pub bot_move_cooldown_reset: f32,
+    pub last_accel_input: Option<f32>,
+    pub last_turn_input: Option<f32>,
 }
 
 impl Component for Player {
@@ -17,6 +31,11 @@ impl Player {
             id,
             kills: 0,
             is_bot,
+            bot_mode: BotMode::StopAim,
+            bot_move_cooldown: -1.0,
+            bot_move_cooldown_reset: 1.0,
+            last_accel_input: Some(0.0),
+            last_turn_input: Some(0.0),
         }
     }
 }

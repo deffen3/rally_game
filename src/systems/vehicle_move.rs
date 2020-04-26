@@ -11,7 +11,7 @@ use amethyst::{
 use std::f32::consts::PI;
 use rand::Rng;
 
-use crate::components::{Vehicle, Player, Hitbox, kill_restart_vehicle, check_respawn_vehicle};
+use crate::components::{Vehicle, Player, BotMode, Hitbox, kill_restart_vehicle, check_respawn_vehicle};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT,
     vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
@@ -32,7 +32,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
         Read<'s, Time>,
-        Read<'s, InputHandler<StringBindings>>,  //<MovementBindingTypes>>,
+        Read<'s, InputHandler<StringBindings>>,
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
@@ -44,7 +44,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut rng = rand::thread_rng();
         let dt = time.delta_seconds();
 
-        let mut closest_target_angles: Vec<(usize, f32)> = Vec::new();
+
+        let mut closest_target_angles: Vec<(usize, f32, f32)> = Vec::new();
 
         for (player1, vehicle1, vehicle1_transform) in (&players, &vehicles, &transforms).join() {
             let mut closest_vehicle_x_diff = 0.0;
@@ -71,8 +72,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             let target_angle = closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI/2.0); //rotate by PI/2 to line up with yaw angle
 
-            closest_target_angles.push((player1.id, target_angle));
+            closest_target_angles.push((player1.id, target_angle, closest_vehicle_dist));
         }
+
 
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
@@ -111,30 +113,83 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let (_, _, yaw) = vehicle_rotation.euler_angles();
 
 
+                player.bot_move_cooldown -= dt;
 
                 if player.is_bot {
-                    //vehicle_accel = Some(rng.gen_range(-0.5, 1.0) as f32);
+                    if (player.bot_mode == BotMode::Running) {
+                        for (player_with_target, target_angle, closest_vehicle_dist) in &closest_target_angles {
+                            if player.id == *player_with_target {
+                                if *closest_vehicle_dist <= 100.0 {
+                                    player.bot_mode = BotMode::StopAim;
+                                    println!("Target Engaged! {} {:?}", player.id, player.bot_mode);
+                                }
+                                else { //continue with Running mode
+                                    if player.bot_move_cooldown < 0.0 { //issue new move command
+                                        vehicle_accel = Some(rng.gen_range(0.2, 0.6) as f32);
+                                        vehicle_turn = Some(rng.gen_range(-1.0, 1.0) as f32);
 
-                    
-                    for (player_with_target, target_angle) in &closest_target_angles {
-                        if player.id == *player_with_target {
-                            if (*target_angle - yaw) > 0.1 {
-                                vehicle_turn = Some(1.0);
+                                        player.last_accel_input = vehicle_accel;
+                                        player.last_turn_input = vehicle_turn;
+
+                                        player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                                    }
+                                    else { //hold previous move
+                                        vehicle_accel = player.last_accel_input;
+                                        vehicle_turn = player.last_turn_input;
+                                    }
+                                }
                             }
-                            // else {
-                            //     vehicle_turn = Some(-1.0);
-                            // }
                         }
                     }
-                    
-                    //vehicle_turn = Some(rng.gen_range(-1.0, 1.0) as f32);
+                    else if (player.bot_mode == BotMode::StopAim) {
+                        for (player_with_target, target_angle, closest_vehicle_dist) in &closest_target_angles {
+                            if player.id == *player_with_target {
+
+                                if *closest_vehicle_dist > 120.0 {
+                                    player.bot_mode = BotMode::Running;
+                                    println!("Target Lost! {} {:?}", player.id, player.bot_mode);
+                                }
+                                else { //continue with StopAim mode
+                                    if (yaw < 0.0) { //aimed to the right (with 0 point towards top)
+                                        if (*target_angle < 0.0) { //target to the right
+                                            println!("Right {}, Right {} ", yaw, *target_angle);
+                                        }
+                                        else { //target to the left
+                                            println!("Right {}, Left {} ", yaw, *target_angle);
+                                        }
+                                    }
+                                    else { //aimed to the left
+                                        if (*target_angle < 0.0) { //target to the right
+                                            println!("Left {}, Right {} ", yaw, *target_angle);
+                                        }
+                                        else { //target to the left
+                                            println!("Left {}, Left {} ", yaw, *target_angle);
+                                        }
+                                    }
+        
+                                    /*
+                                    if (-*target_angle + yaw) > 0.1 {
+                                        vehicle_turn = Some(1.0);
+                                    }
+                                    else {
+                                        vehicle_turn = Some(-1.0);
+                                    }*/
+                                }
+                            }
+                        }
+                    }
+                    else if (player.bot_mode == BotMode::CollisionTurn) {
+                        vehicle_accel = Some(0.5);
+                        vehicle_turn = Some(1.0);
+                    }
                 }
                 
 
                 //println!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
 
-            
-                //println!("yaw:{}", yaw);
+                if player.id == 0 {
+                    //println!("yaw:{}", yaw);
+                }
 
                 let yaw_x_comp = -yaw.sin(); //left is -, right is +
                 let yaw_y_comp = yaw.cos(); //up is +, down is -
@@ -269,8 +324,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             kill_restart_vehicle(vehicle, transform);
                         }
 
-                        play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        if (abs_vel > 1.0) {
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        }
                         vehicle.collision_cooldown_timer = 1.0;
+                        
                     }
                 }
                 if y_collision {
@@ -289,9 +347,21 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             kill_restart_vehicle(vehicle, transform);
                         }
 
-                        play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        if (abs_vel > 1.0) {
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        }
                         vehicle.collision_cooldown_timer = 1.0;
                     }
+                }
+
+                if player.is_bot && (x_collision || y_collision) && (player.bot_mode != BotMode::CollisionTurn) {
+                    player.bot_mode = BotMode::CollisionTurn;
+                    player.bot_move_cooldown = 0.5;
+                    println!("Collision: {} {:?}", player.id, player.bot_mode);
+                }
+                if player.is_bot && player.bot_move_cooldown < 0.0 && player.bot_mode == BotMode::CollisionTurn {
+                    player.bot_mode = BotMode::Running;
+                    println!("Collision Remedial Done: {} {:?}", player.id, player.bot_mode);
                 }
 
                 vehicle.collision_cooldown_timer -= dt;
@@ -331,7 +401,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             player_destroyed.push(player.id.clone());
                         }
 
-                        play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        if (abs_vel > 1.0) {
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                        }
                         vehicle.collision_cooldown_timer = 1.0;
                     }
                 }

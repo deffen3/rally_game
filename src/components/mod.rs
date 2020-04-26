@@ -1,5 +1,5 @@
 pub use self::hitbox::{Hitbox, HitboxShape};
-pub use self::players::{Player, PlayerWeaponIcon};
+pub use self::players::{Player, PlayerWeaponIcon, BotMode};
 pub use self::vehicles::{Vehicle, kill_restart_vehicle, check_respawn_vehicle};
 pub use self::weapons::{
     Weapon, WeaponFire, WeaponTypes, 
