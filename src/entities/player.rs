@@ -6,6 +6,7 @@ use amethyst::{
     renderer::{SpriteRender, SpriteSheet},
 };
 
+use crate::entities::ui::PlayerStatusText;
 use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
@@ -23,7 +24,7 @@ pub fn intialize_player(
     weapon_type: WeaponTypes,
     weapon_fire_resource: WeaponFireResource,
     is_bot: bool,
-    shield_text: Entity,
+    player_status_text: PlayerStatusText,
 ) {
     let mut vehicle_transform = Transform::default();
 
@@ -88,7 +89,7 @@ pub fn intialize_player(
         .create_entity()
         .with(vehicle_transform)
         .with(vehicle_sprite_render.clone())
-        .with(Vehicle::new(shield_text))
+        .with(Vehicle::new(player_status_text))
         .with(Weapon::new(
             weapon_type.clone(),
             heat_seeking,

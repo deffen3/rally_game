@@ -1,5 +1,6 @@
 use amethyst::core::Transform;
 use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
+use crate::entities::ui::PlayerStatusText;
 
 use rand::Rng;
 use std::f32::consts::PI;
@@ -29,7 +30,7 @@ pub struct Vehicle {
     pub engine_power: f32,
     pub respawn_timer: f32,
     pub in_respawn: bool,
-    pub shield_text: Entity,
+    pub player_status_text: PlayerStatusText,
 }
 
 impl Component for Vehicle {
@@ -37,7 +38,7 @@ impl Component for Vehicle {
 }
 
 impl Vehicle {
-    pub fn new(shield_text: Entity) -> Vehicle {
+    pub fn new(player_status_text: PlayerStatusText) -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
             height: VEHICLE_HEIGHT,
@@ -58,7 +59,7 @@ impl Vehicle {
             engine_power: 100.0,
             respawn_timer: 5.0,
             in_respawn: false,
-            shield_text,
+            player_status_text,
         }
     }
 }

@@ -6,4 +6,4 @@ pub use self::ui::{initialize_ui, ScoreText};
 mod arena;
 mod camera;
 mod player;
-mod ui;
+pub mod ui;

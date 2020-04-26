@@ -19,15 +19,12 @@ impl<'s> System<'s> for VehicleStatusSystem {
     fn run(&mut self, (mut players, mut vehicles, mut ui_text, score_text): Self::SystemData) {
         //for (player, vehicle) in (players, vehicles).join() {
         for (player, vehicle) in (&mut players, &mut vehicles).join() {
-            ui_text.get_mut(vehicle.shield_text).unwrap().text =
+            ui_text.get_mut(vehicle.player_status_text.shield).unwrap().text =
                 format!("{:.0}", vehicle.shield.ceil());
+            ui_text.get_mut(vehicle.player_status_text.armor).unwrap().text =
+                format!("{:.0}", vehicle.armor.ceil());
 
             if player.id == 0 {
-                let armor: i32 = vehicle.armor.ceil() as i32;
-                if let Some(text) = ui_text.get_mut(score_text.p1_armor) {
-                    text.text = armor.to_string();
-                }
-
                 let health: i32 = vehicle.health.ceil() as i32;
                 if let Some(text) = ui_text.get_mut(score_text.p1_health) {
                     text.text = health.to_string();
@@ -45,11 +42,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 }
             }
             if player.id == 1 {
-                let armor: i32 = vehicle.armor.ceil() as i32;
-                if let Some(text) = ui_text.get_mut(score_text.p2_armor) {
-                    text.text = armor.to_string();
-                }
-
                 let health: i32 = vehicle.health.ceil() as i32;
                 if let Some(text) = ui_text.get_mut(score_text.p2_health) {
                     text.text = health.to_string();
@@ -67,11 +59,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 }
             }
             if player.id == 2 {
-                let armor: i32 = vehicle.armor.ceil() as i32;
-                if let Some(text) = ui_text.get_mut(score_text.p3_armor) {
-                    text.text = armor.to_string();
-                }
-
                 let health: i32 = vehicle.health.ceil() as i32;
                 if let Some(text) = ui_text.get_mut(score_text.p3_health) {
                     text.text = health.to_string();
@@ -89,11 +76,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 }
             }
             if player.id == 3 {
-                let armor: i32 = vehicle.armor.ceil() as i32;
-                if let Some(text) = ui_text.get_mut(score_text.p4_armor) {
-                    text.text = armor.to_string();
-                }
-
                 let health: i32 = vehicle.health.ceil() as i32;
                 if let Some(text) = ui_text.get_mut(score_text.p4_health) {
                     text.text = health.to_string();
