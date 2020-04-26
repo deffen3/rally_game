@@ -1,12 +1,10 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum HitboxShape {
     Rectangle,
     Circle,
 }
-
 
 #[derive(Clone)]
 pub struct Hitbox {
@@ -21,12 +19,7 @@ impl Component for Hitbox {
 }
 
 impl Hitbox {
-    pub fn new(
-        width: f32,
-        height: f32,
-        angle: f32,
-        shape: HitboxShape,
-    ) -> Hitbox {
+    pub fn new(width: f32, height: f32, angle: f32, shape: HitboxShape) -> Hitbox {
         Hitbox {
             width,
             height,

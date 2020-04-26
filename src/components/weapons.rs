@@ -1,17 +1,16 @@
+use amethyst::core::math::Vector3;
 use amethyst::{
     core::transform::Transform,
-    ecs::prelude::{Entity, Entities, ReadExpect, LazyUpdate},
+    ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
 };
-use amethyst::core::math::Vector3;
 
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
 use std::f32::consts::PI;
 
-use crate::resources::{WeaponFireResource};
-use crate::components::{PlayerWeaponIcon};
-use crate::rally::{UI_HEIGHT};
-
+use crate::components::PlayerWeaponIcon;
+use crate::rally::UI_HEIGHT;
+use crate::resources::WeaponFireResource;
 
 pub fn weapon_type_from_u8(n: u8) -> WeaponTypes {
     match n {
@@ -40,18 +39,18 @@ pub fn get_next_weapon_type(weapon_type: WeaponTypes) -> Option<WeaponTypes> {
         WeaponTypes::Rockets => Some(WeaponTypes::ProjectileBurstFire),
         WeaponTypes::ProjectileBurstFire => Some(WeaponTypes::Mine),
         WeaponTypes::Mine => Some(WeaponTypes::LaserSword),
-        WeaponTypes::LaserSword => None
+        WeaponTypes::LaserSword => None,
     }
 }
 
-
 pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
-    let (weapon_type,
+    let (
+        weapon_type,
         heat_seeking,
         heat_seeking_agility,
         attached,
         deployed,
-        weapon_cooldown, 
+        weapon_cooldown,
         burst_shot_limit,
         burst_cooldown,
         weapon_shot_speed,
@@ -59,7 +58,8 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
         shield_damage_pct,
         armor_damage_pct,
         piercing_damage_pct,
-        health_damage_pct) = build_standard_weapon(weapon_type.clone());
+        health_damage_pct,
+    ) = build_standard_weapon(weapon_type.clone());
 
     weapon.weapon_type = weapon_type;
     weapon.heat_seeking = heat_seeking;
@@ -78,60 +78,73 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_type: WeaponTypes) {
     weapon.health_damage_pct = health_damage_pct;
 }
 
-
-pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
-    WeaponTypes, bool, f32, bool, bool, f32, u32, f32, f32, f32, f32, f32, f32, f32
-    ) {
-    let (weapon_shot_speed, damage, weapon_cooldown, 
-            piercing_damage_pct, 
-            shield_damage_pct, armor_damage_pct, 
-            health_damage_pct,
-        ) = match weapon_type.clone()
-    {                                      //speed      dmg     cooldwn pierce% shield%   armor%    health%
-        WeaponTypes::LaserDouble =>         (400.0,     25.0,   0.4,    0.0,   120.0,     60.0,     100.0),
-        WeaponTypes::LaserBeam =>           (2800.0,    0.3,    0.005,  0.0,   120.0,     60.0,     100.0),
-        WeaponTypes::LaserPulse =>          (400.0,     12.0,   0.75,   0.0,   120.0,     60.0,     100.0),
-        WeaponTypes::ProjectileBurstFire => (250.0,     12.0,   0.50,   0.0,    80.0,     90.0,     100.0),
-        WeaponTypes::ProjectileRapidFire => (250.0,     3.0,    0.10,   0.0,    80.0,     90.0,     100.0),
-        WeaponTypes::ProjectileCannonFire =>(700.0,     50.0,   0.9,    0.0,    80.0,     90.0,     100.0),
-        WeaponTypes::Missile =>             (70.0,      50.0,   2.5,    15.0,   75.0,     75.0,     100.0),
-        WeaponTypes::Rockets =>             (250.0,     25.0,   0.8,    10.0,   75.0,     75.0,     100.0),
-        WeaponTypes::Mine =>                (0.0,       50.0,   2.5,    15.0,   75.0,     75.0,     100.0),
-        WeaponTypes::LaserSword =>          (0.0,       1.5,    0.0,    50.0,   75.0,     75.0,     100.0),
+pub fn build_standard_weapon(
+    weapon_type: WeaponTypes,
+) -> (
+    WeaponTypes,
+    bool,
+    f32,
+    bool,
+    bool,
+    f32,
+    u32,
+    f32,
+    f32,
+    f32,
+    f32,
+    f32,
+    f32,
+    f32,
+) {
+    let (
+        weapon_shot_speed,
+        damage,
+        weapon_cooldown,
+        piercing_damage_pct,
+        shield_damage_pct,
+        armor_damage_pct,
+        health_damage_pct,
+    ) = match weapon_type.clone() {
+        //speed      dmg     cooldwn pierce% shield%   armor%    health%
+        WeaponTypes::LaserDouble => (400.0, 25.0, 0.4, 0.0, 120.0, 60.0, 100.0),
+        WeaponTypes::LaserBeam => (2800.0, 0.3, 0.005, 0.0, 120.0, 60.0, 100.0),
+        WeaponTypes::LaserPulse => (400.0, 12.0, 0.75, 0.0, 120.0, 60.0, 100.0),
+        WeaponTypes::ProjectileBurstFire => (250.0, 12.0, 0.50, 0.0, 80.0, 90.0, 100.0),
+        WeaponTypes::ProjectileRapidFire => (250.0, 3.0, 0.10, 0.0, 80.0, 90.0, 100.0),
+        WeaponTypes::ProjectileCannonFire => (700.0, 50.0, 0.9, 0.0, 80.0, 90.0, 100.0),
+        WeaponTypes::Missile => (70.0, 50.0, 2.5, 15.0, 75.0, 75.0, 100.0),
+        WeaponTypes::Rockets => (250.0, 25.0, 0.8, 10.0, 75.0, 75.0, 100.0),
+        WeaponTypes::Mine => (0.0, 50.0, 2.5, 15.0, 75.0, 75.0, 100.0),
+        WeaponTypes::LaserSword => (0.0, 1.5, 0.0, 50.0, 75.0, 75.0, 100.0),
     };
-    
+
     let burst_cooldown;
-    let burst_shot_limit; 
+    let burst_shot_limit;
 
     if weapon_type.clone() == WeaponTypes::LaserPulse {
         burst_cooldown = 0.1 as f32;
         burst_shot_limit = 2 as u32;
-    }
-    else if weapon_type.clone() == WeaponTypes::ProjectileBurstFire{
+    } else if weapon_type.clone() == WeaponTypes::ProjectileBurstFire {
         burst_cooldown = 0.1 as f32;
         burst_shot_limit = 2 as u32;
-    }
-    else if weapon_type.clone() == WeaponTypes::Rockets{
+    } else if weapon_type.clone() == WeaponTypes::Rockets {
         burst_cooldown = 0.25 as f32;
         burst_shot_limit = 4 as u32;
-    }
-    else if weapon_type.clone() == WeaponTypes::Mine{
+    } else if weapon_type.clone() == WeaponTypes::Mine {
         burst_cooldown = 0.25 as f32;
         burst_shot_limit = 3 as u32;
-    }
-    else {
+    } else {
         burst_cooldown = weapon_cooldown.clone();
         burst_shot_limit = 1 as u32;
     };
-    
+
     let heat_seeking;
     let heat_seeking_agility;
 
     if weapon_type.clone() == WeaponTypes::Missile {
         heat_seeking = true;
         heat_seeking_agility = 150.0;
-    }
-    else {
+    } else {
         heat_seeking = false;
         heat_seeking_agility = 0.0;
     }
@@ -142,18 +155,18 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
     if weapon_type.clone() == WeaponTypes::LaserSword {
         attached = true;
         deployed = false;
-    }
-    else {
+    } else {
         attached = false;
         deployed = false;
     }
-    
-    (weapon_type,
+
+    (
+        weapon_type,
         heat_seeking,
         heat_seeking_agility,
         attached,
         deployed,
-        weapon_cooldown, 
+        weapon_cooldown,
         burst_shot_limit,
         burst_cooldown,
         weapon_shot_speed,
@@ -161,11 +174,9 @@ pub fn build_standard_weapon(weapon_type: WeaponTypes) -> (
         shield_damage_pct,
         armor_damage_pct,
         piercing_damage_pct,
-        health_damage_pct,)
-    }
-
-
-
+        health_damage_pct,
+    )
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum WeaponTypes {
@@ -180,7 +191,6 @@ pub enum WeaponTypes {
     Rockets,
     LaserSword,
 }
-
 
 #[derive(Clone)]
 pub struct Weapon {
@@ -210,13 +220,14 @@ impl Component for Weapon {
 }
 
 impl Weapon {
-    pub fn new(weapon_type: WeaponTypes, 
+    pub fn new(
+        weapon_type: WeaponTypes,
         heat_seeking: bool,
         heat_seeking_agility: f32,
         attached: bool,
         deployed: bool,
-        weapon_cooldown: f32, 
-        burst_shot_limit: u32, 
+        weapon_cooldown: f32,
+        burst_shot_limit: u32,
         burst_cooldown: f32,
         weapon_shot_speed: f32,
         damage: f32,
@@ -225,7 +236,6 @@ impl Weapon {
         piercing_damage_pct: f32,
         health_damage_pct: f32,
     ) -> Weapon {
-
         Weapon {
             x: 0.0,
             y: 0.0,
@@ -249,7 +259,6 @@ impl Weapon {
         }
     }
 }
-
 
 #[derive(Clone)]
 pub struct WeaponFire {
@@ -278,9 +287,9 @@ impl Component for WeaponFire {
     type Storage = DenseVecStorage<Self>;
 }
 
-
 impl WeaponFire {
-    pub fn new(weapon_type: WeaponTypes, 
+    pub fn new(
+        weapon_type: WeaponTypes,
         owner_player_id: usize,
         heat_seeking: bool,
         heat_seeking_agility: f32,
@@ -293,19 +302,17 @@ impl WeaponFire {
         piercing_damage_pct: f32,
         health_damage_pct: f32,
     ) -> WeaponFire {
-
-        let (width, height) = match weapon_type.clone()
-        {                                      
-            WeaponTypes::LaserDouble =>         (3.0, 6.0),
-            WeaponTypes::LaserBeam =>           (1.0, 20.0),
-            WeaponTypes::LaserPulse =>          (1.0, 3.0),
+        let (width, height) = match weapon_type.clone() {
+            WeaponTypes::LaserDouble => (3.0, 6.0),
+            WeaponTypes::LaserBeam => (1.0, 20.0),
+            WeaponTypes::LaserPulse => (1.0, 3.0),
             WeaponTypes::ProjectileBurstFire => (1.0, 4.0),
             WeaponTypes::ProjectileRapidFire => (1.0, 2.0),
-            WeaponTypes::ProjectileCannonFire =>(2.0, 3.0),
-            WeaponTypes::Missile =>             (3.0, 5.0),
-            WeaponTypes::Rockets =>             (5.0, 3.0),
-            WeaponTypes::Mine =>                (3.0, 3.0),
-            WeaponTypes::LaserSword =>          (3.0, 4.0),
+            WeaponTypes::ProjectileCannonFire => (2.0, 3.0),
+            WeaponTypes::Missile => (3.0, 5.0),
+            WeaponTypes::Rockets => (5.0, 3.0),
+            WeaponTypes::Mine => (3.0, 3.0),
+            WeaponTypes::LaserSword => (3.0, 4.0),
         };
 
         WeaponFire {
@@ -332,14 +339,13 @@ impl WeaponFire {
     }
 }
 
-
-
-pub fn update_weapon_icon(entities: &Entities,
+pub fn update_weapon_icon(
+    entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     weapon_type: WeaponTypes,
     player_id: usize,
-    lazy_update: &ReadExpect<LazyUpdate>)
-{
+    lazy_update: &ReadExpect<LazyUpdate>,
+) {
     //UI icon
     let weapon_entity: Entity = entities.create();
 
@@ -354,9 +360,16 @@ pub fn update_weapon_icon(entities: &Entities,
         WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
         WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
-        WeaponTypes::ProjectileBurstFire => (3.0, weapon_fire_resource.projectile_burst_render.clone()),
-        WeaponTypes::ProjectileRapidFire => (3.0, weapon_fire_resource.projectile_rapid_render.clone()),
-        WeaponTypes::ProjectileCannonFire => (3.0, weapon_fire_resource.projectile_cannon_sprite_render.clone()),
+        WeaponTypes::ProjectileBurstFire => {
+            (3.0, weapon_fire_resource.projectile_burst_render.clone())
+        }
+        WeaponTypes::ProjectileRapidFire => {
+            (3.0, weapon_fire_resource.projectile_rapid_render.clone())
+        }
+        WeaponTypes::ProjectileCannonFire => (
+            3.0,
+            weapon_fire_resource.projectile_cannon_sprite_render.clone(),
+        ),
         WeaponTypes::Missile => (2.0, weapon_fire_resource.missile_sprite_render.clone()),
         WeaponTypes::Rockets => (2.0, weapon_fire_resource.rockets_sprite_render.clone()),
         WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
@@ -377,14 +390,14 @@ pub fn update_weapon_icon(entities: &Entities,
 
     let starting_x = match player_id {
         0 => (x),
-        1 => (x + 3.0*dx + dx2),
-        2 => (x + 6.0*dx + 2.0*dx2),
-        3 => (x + 9.0*dx + 3.0*dx2),
+        1 => (x + 3.0 * dx + dx2),
+        2 => (x + 6.0 * dx + 2.0 * dx2),
+        3 => (x + 9.0 * dx + 3.0 * dx2),
         _ => (0.0),
     };
 
     icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.0);
-    icon_weapon_transform.set_rotation_2d(-PI/2.0);
+    icon_weapon_transform.set_rotation_2d(-PI / 2.0);
     icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
 
     lazy_update.insert(weapon_entity, PlayerWeaponIcon::new(player_id, weapon_type));

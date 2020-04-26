@@ -1,14 +1,11 @@
 use amethyst::{
-    assets::{Loader, AssetStorage},
-    audio::{output::Output, Source, OggFormat, SourceHandle},
+    assets::{AssetStorage, Loader},
+    audio::{output::Output, OggFormat, Source, SourceHandle},
     ecs::{World, WorldExt},
 };
 
-
 const BOUNCE_SOUND: &str = "audio/vehicle_bounce.ogg";
 const SCORE_SOUND: &str = "audio/weapon_hit.ogg";
-
-
 
 pub struct Sounds {
     pub score_sfx: SourceHandle,

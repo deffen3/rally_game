@@ -1,24 +1,24 @@
 use amethyst::{
-    core::{Transform, Time},
-    derive::SystemDesc,
-    ecs::{World, Join, Read, System, SystemData, WriteStorage, ReadStorage, ReadExpect, Entities, LazyUpdate},
     assets::AssetStorage,
     audio::{output::Output, Source},
+    core::{Time, Transform},
+    derive::SystemDesc,
+    ecs::{
+        Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
+        WriteStorage,
+    },
 };
 
 use crate::components::{
-    WeaponFire, Weapon, WeaponTypes, Vehicle, Player, PlayerWeaponIcon,
-    Hitbox,
-    kill_restart_vehicle,
-    get_next_weapon_type, update_weapon_properties, update_weapon_icon,
+    get_next_weapon_type, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
+    Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire, WeaponTypes,
 };
 
-use crate::rally::{vehicle_damage_model};
-use crate::resources::{WeaponFireResource};
+use crate::rally::vehicle_damage_model;
+use crate::resources::WeaponFireResource;
 
+use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 use std::ops::Deref;
-use crate::audio::{play_score_sound, play_bounce_sound, Sounds};
-
 
 pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.25;
 
@@ -49,20 +49,40 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         self.hit_sound_cooldown_timer = -1.0;
     }
 
-    fn run(&mut self, (entities, hitboxes, mut transforms, mut players, player_icons, mut vehicles, mut weapons, weapon_fires,
-            time, storage, sounds, audio_output, weapon_fire_resource, lazy_update): Self::SystemData) {
+    fn run(
+        &mut self,
+        (
+            entities,
+            hitboxes,
+            mut transforms,
+            mut players,
+            player_icons,
+            mut vehicles,
+            mut weapons,
+            weapon_fires,
+            time,
+            storage,
+            sounds,
+            audio_output,
+            weapon_fire_resource,
+            lazy_update,
+        ): Self::SystemData,
+    ) {
         let dt = time.delta_seconds();
-
 
         for (hitbox, transform) in (&hitboxes, &transforms).join() {
             let hitbox_x = transform.translation().x;
             let hitbox_y = transform.translation().y;
 
-            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in (&*entities, &weapon_fires, &transforms).join() {
+            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
+                (&*entities, &weapon_fires, &transforms).join()
+            {
                 let fire_x = weapon_fire_transform.translation().x;
                 let fire_y = weapon_fire_transform.translation().y;
 
-                if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2) < (hitbox.width/2.0).powi(2) {
+                if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2)
+                    < (hitbox.width / 2.0).powi(2)
+                {
                     if weapon_fire.attached == false {
                         let _ = entities.delete(weapon_fire_entity);
                     }
@@ -70,19 +90,21 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
-
         let mut player_makes_kill: Vec<(usize, usize, WeaponTypes)> = Vec::new();
 
-        for (player, vehicle, _weapon, vehicle_transform) in (&players, &mut vehicles, &mut weapons, &transforms).join() {
+        for (player, vehicle, _weapon, vehicle_transform) in
+            (&players, &mut vehicles, &mut weapons, &transforms).join()
+        {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
-            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in (&*entities, &weapon_fires, &transforms).join() {
+            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
+                (&*entities, &weapon_fires, &transforms).join()
+            {
                 let fire_x = weapon_fire_transform.translation().x;
                 let fire_y = weapon_fire_transform.translation().y;
 
                 if weapon_fire.owner_player_id != player.id {
-
                     let fire_rotation = weapon_fire_transform.rotation();
                     let (_, _, fire_angle) = fire_rotation.euler_angles();
                     let fire_x_comp = -fire_angle.sin(); //left is -, right is +
@@ -93,35 +115,50 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     // let vehicle_x_comp = -vehicle_angle.sin(); //left is -, right is +
                     // let vehicle_y_comp = vehicle_angle.cos(); //up is +, down is -
 
-
-                    if ((fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2) < vehicle.width.powi(2)) || 
-                        ((fire_x + fire_x_comp*weapon_fire.height/2.0 - vehicle_x).powi(2) + 
-                            (fire_y + fire_y_comp*weapon_fire.height/2.0 - vehicle_y).powi(2) < vehicle.width.powi(2)) ||
-                        ((fire_x - fire_x_comp*weapon_fire.height/2.0 - vehicle_x).powi(2) + 
-                            (fire_y - fire_y_comp*weapon_fire.height/2.0 - vehicle_y).powi(2) < vehicle.width.powi(2))
+                    if ((fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
+                        < vehicle.width.powi(2))
+                        || ((fire_x + fire_x_comp * weapon_fire.height / 2.0 - vehicle_x).powi(2)
+                            + (fire_y + fire_y_comp * weapon_fire.height / 2.0 - vehicle_y).powi(2)
+                            < vehicle.width.powi(2))
+                        || ((fire_x - fire_x_comp * weapon_fire.height / 2.0 - vehicle_x).powi(2)
+                            + (fire_y - fire_y_comp * weapon_fire.height / 2.0 - vehicle_y).powi(2)
+                            < vehicle.width.powi(2))
                     {
-
                         if weapon_fire.attached == false {
                             let _ = entities.delete(weapon_fire_entity);
                         }
 
-                        let damage:f32 = weapon_fire.damage.clone();
+                        let damage: f32 = weapon_fire.damage.clone();
 
-                        let vehicle_destroyed:bool = vehicle_damage_model(vehicle, damage, 
-                            weapon_fire.piercing_damage_pct, 
+                        let vehicle_destroyed: bool = vehicle_damage_model(
+                            vehicle,
+                            damage,
+                            weapon_fire.piercing_damage_pct,
                             weapon_fire.shield_damage_pct,
                             weapon_fire.armor_damage_pct,
-                            weapon_fire.health_damage_pct
+                            weapon_fire.health_damage_pct,
                         );
 
                         if vehicle_destroyed {
-                            play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                            play_bounce_sound(
+                                &*sounds,
+                                &storage,
+                                audio_output.as_ref().map(|o| o.deref()),
+                            );
 
-                            player_makes_kill.push((weapon_fire.owner_player_id.clone(), player.id.clone(), weapon_fire.weapon_type.clone()));
+                            player_makes_kill.push((
+                                weapon_fire.owner_player_id.clone(),
+                                player.id.clone(),
+                                weapon_fire.weapon_type.clone(),
+                            ));
                         }
 
                         if self.hit_sound_cooldown_timer < 0.0 {
-                            play_score_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
+                            play_score_sound(
+                                &*sounds,
+                                &storage,
+                                audio_output.as_ref().map(|o| o.deref()),
+                            );
                             self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
                         }
                     }
@@ -131,8 +168,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
         let mut weapon_icons_old: Vec<(usize, WeaponTypes)> = Vec::new();
 
-        for (player, weapon, vehicle, transform) in (&mut players, &mut weapons, &mut vehicles, &mut transforms).join() {
-
+        for (player, weapon, vehicle, transform) in
+            (&mut players, &mut weapons, &mut vehicles, &mut transforms).join()
+        {
             for (killer_id, killed_id, weapon_type) in &player_makes_kill {
                 if *killer_id == player.id {
                     //classic gun-game rules: upgrade weapon type for player who got the kill
@@ -145,23 +183,23 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                         weapon_icons_old.push((player.id.clone(), weapon_type.clone()));
 
-                        update_weapon_icon(&entities,
+                        update_weapon_icon(
+                            &entities,
                             &weapon_fire_resource,
                             new_weapon_type.unwrap(),
                             player.id.clone(),
-                            &lazy_update);
+                            &lazy_update,
+                        );
                     }
                 }
 
                 if *killed_id == player.id {
                     kill_restart_vehicle(vehicle, transform);
                 }
-                
             }
         }
 
         for (entity, player_icon) in (&*entities, &player_icons).join() {
-
             for (player_id, weapon_type) in &weapon_icons_old {
                 if *player_id == player_icon.id && *weapon_type == player_icon.weapon_type {
                     let _ = entities.delete(entity);
