@@ -30,7 +30,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
             
             if player.id == 0 {
                 let shield: i32 = vehicle.shield.ceil() as i32;
-                if let Some(text) = ui_text.get_mut(score_text.p1_shield) {
+                if let Some(text) = ui_text.get_mut(score_text.p1.shield) {
                     text.text = shield.to_string();
                 }
 
@@ -60,7 +60,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
             }
             if player.id == 1 {
                 let shield: i32 = vehicle.shield.ceil() as i32;
-                if let Some(text) = ui_text.get_mut(score_text.p2_shield) {
+                if let Some(text) = ui_text.get_mut(score_text.p2.shield) {
                     text.text = shield.to_string();
                 }
 
@@ -88,7 +88,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
             }
             if player.id == 2 {
                 let shield: i32 = vehicle.shield.ceil() as i32;
-                if let Some(text) = ui_text.get_mut(score_text.p3_shield) {
+                if let Some(text) = ui_text.get_mut(score_text.p3.shield) {
                     text.text = shield.to_string();
                 }
 
@@ -116,7 +116,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
             }
             if player.id == 3 {
                 let shield: i32 = vehicle.shield.ceil() as i32;
-                if let Some(text) = ui_text.get_mut(score_text.p4_shield) {
+                if let Some(text) = ui_text.get_mut(score_text.p4.shield) {
                     text.text = shield.to_string();
                 }
 
