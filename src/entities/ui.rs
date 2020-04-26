@@ -5,23 +5,15 @@ use amethyst::{
     ui::{Anchor, TtfFormat, UiText, UiTransform},
 };
 
+///contains the ui text components that display the player vehicle status
 #[derive(Clone, Copy)]
 pub struct PlayerStatusText {
     pub shield: Entity,
     pub armor: Entity,
+    pub health: Entity,
+    pub kills: Entity,
 }
 
-/// ScoreText contains the ui text components that display the score
-pub struct ScoreText {
-    pub p1_health: Entity,
-    pub p2_health: Entity,
-    pub p3_health: Entity,
-    pub p4_health: Entity,
-    pub p1_kills: Entity,
-    pub p2_kills: Entity,
-    pub p3_kills: Entity,
-    pub p4_kills: Entity,
-}
 
 /// Initialises the UI
 pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
@@ -386,32 +378,30 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         ))
         .build();
 
-    world.insert(ScoreText {
-        p1_health,
-        p2_health,
-        p3_health,
-        p4_health,
-        p1_kills,
-        p2_kills,
-        p3_kills,
-        p4_kills,
-    });
     [
         PlayerStatusText {
             shield: p1_shield,
             armor: p1_armor,
+            health: p1_health,
+            kills: p1_kills,
         },
         PlayerStatusText {
             shield: p2_shield,
             armor: p2_armor,
+            health: p2_health,
+            kills: p2_kills,
         },
         PlayerStatusText {
             shield: p3_shield,
             armor: p3_armor,
+            health: p3_health,
+            kills: p3_kills,
         },
         PlayerStatusText {
             shield: p4_shield,
             armor: p4_armor,
+            health: p4_health,
+            kills: p4_kills,
         },
     ]
 }
