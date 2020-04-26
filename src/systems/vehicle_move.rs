@@ -49,7 +49,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         //Find closest target
         let mut closest_target_angles: Vec<(usize, f32, f32)> = Vec::new();
 
-        for (player1, vehicle1, vehicle1_transform) in (&players, &vehicles, &transforms).join() {
+        for (player1, _vehicle1, vehicle1_transform) in (&players, &vehicles, &transforms).join() {
             let mut closest_vehicle_x_diff = 0.0;
             let mut closest_vehicle_y_diff = 0.0;
             let mut closest_vehicle_dist = 1000000000.0;
@@ -57,7 +57,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let vehicle1_x = vehicle1_transform.translation().x;
             let vehicle1_y = vehicle1_transform.translation().y;
 
-            for (player2, vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join() {
+            for (player2, _vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join() {
                 if player1.id != player2.id {
                     let vehicle2_x = vehicle2_transform.translation().x;
                     let vehicle2_y = vehicle2_transform.translation().y;
@@ -123,8 +123,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 if player.is_bot {
 
-                    if (player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining) {
-                        for (player_with_target, target_angle, closest_vehicle_dist) in &closest_target_angles {
+                    if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
+                        for (player_with_target, _target_angle, closest_vehicle_dist) in &closest_target_angles {
                             if player.id == *player_with_target {
                                 if *closest_vehicle_dist <= 100.0 && player.bot_move_cooldown < 0.0 { //change modes to attack
                                     if weapon.weapon_type == WeaponTypes::Mine {
@@ -160,9 +160,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             }
                         }
                     }
-                    else if (player.bot_mode == BotMode::StopAim ||
+                    else if player.bot_mode == BotMode::StopAim ||
                             player.bot_mode == BotMode::Chasing || 
-                            player.bot_mode == BotMode::Swording) {
+                            player.bot_mode == BotMode::Swording {
                         for (player_with_target, target_angle, closest_vehicle_dist) in &closest_target_angles {
                             if player.id == *player_with_target {
 
@@ -195,8 +195,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                         attack_angle = *target_angle;
                                     }
 
-                                    if (yaw < 0.0) { //aimed to the right (with 0 point towards top)
-                                        if (attack_angle < 0.0) { //target to the right
+                                    if yaw < 0.0 { //aimed to the right (with 0 point towards top)
+                                        if attack_angle < 0.0 { //target to the right
                                             //println!("Right {}, Right {} ", yaw, *target_angle);
 
                                             if (yaw.abs() - attack_angle.abs()) < 0.01 {
@@ -216,7 +216,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                         }
                                     }
                                     else { //aimed to the left
-                                        if (attack_angle < 0.0) { //target to the right
+                                        if attack_angle < 0.0 { //target to the right
                                             //println!("Left {}, Right {} ", yaw, *target_angle);
 
                                             vehicle_turn = Some(1.0);
@@ -239,7 +239,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             }
                         }
                     }
-                    else if (player.bot_mode == BotMode::CollisionTurn) {
+                    else if player.bot_mode == BotMode::CollisionTurn {
                         vehicle_accel = Some(0.5);
                         vehicle_turn = Some(1.0);
 
@@ -249,7 +249,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             player.bot_move_cooldown = 2.0;
                         }
                     }
-                    else if (player.bot_mode == BotMode::CollisionMove) {
+                    else if player.bot_mode == BotMode::CollisionMove {
                         vehicle_accel = Some(0.5);
                         vehicle_turn = Some(1.0);
 
@@ -400,7 +400,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             kill_restart_vehicle(vehicle, transform);
                         }
 
-                        if (abs_vel > 0.5) {
+                        if abs_vel > 0.5 {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -423,7 +423,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             kill_restart_vehicle(vehicle, transform);
                         }
 
-                        if (abs_vel > 0.5) {
+                        if abs_vel > 0.5 {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -486,7 +486,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             player_destroyed.push(player.id.clone());
                         }
 
-                        if (abs_vel > 0.5) {
+                        if abs_vel > 0.5 {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         }
 

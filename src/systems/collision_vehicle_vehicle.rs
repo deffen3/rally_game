@@ -85,7 +85,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
 
                         let damage:f32 = BASE_COLLISION_DAMAGE * v_diff;
 
-                        if (*v_diff > 1.0) {
+                        if *v_diff > 1.0 {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_ref().map(|o| o.deref()));
                         }
                         vehicle.collision_cooldown_timer = 1.0;
