@@ -9,6 +9,7 @@ TODO:
 1. Add current weapon type icon into UI - DONE
 1. Improve missile heat-seeking tracking - pretty good now
 1. Add simple AI opponents - DONE
+1. AI sword mode seems to not work very well, bad target tracking when in reverse?
 1. Improve collision algorithms
 1. What happens when you die from collision? Lose a gun-level? If another player recently hit you then they get the kill?
 1. Put weapon properties into a .ron config file
@@ -16,6 +17,7 @@ TODO:
 1. Weapon type should affect vehicle mass
 1. Visible Shield and Armor icons. Shield should be a faint bubble over top vehicle. Armor can be some grey stuff surrounding your vehicles sides.
 1. Weapon icon blinks if weapon on cooldown?
+1. UI Transform works different on Mac? UI is in the middle of the screen.
 
 ## How to run
 
