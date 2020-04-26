@@ -1,30 +1,24 @@
+use amethyst::core::math::Vector3;
 use amethyst::{
-    assets::{AssetStorage, Loader, Handle},
+    assets::{AssetStorage, Handle, Loader},
     core::transform::Transform,
-    ecs::prelude::{Entity, Entities, ReadExpect, LazyUpdate},
+    ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
     ui::{UiText, UiTransform},
 };
-use amethyst::core::math::Vector3;
 
-use crate::audio::initialise_audio;
+use crate::audio::initialize_audio;
 
 //use rand::Rng;
 
-
 use crate::components::{
-    Hitbox, Vehicle, Weapon, WeaponFire, WeaponTypes, PlayerWeaponIcon, weapon_type_from_u8,
+    weapon_type_from_u8, Hitbox, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire, WeaponTypes,
 };
 
-use crate::entities::{
-    initialise_camera, intialize_player, initialise_ui, initialise_arena_walls,
-};
+use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
 
-use crate::resources::{
-    initialise_weapon_fire_resource, WeaponFireResource,
-};
-
+use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource};
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -41,7 +35,6 @@ pub const BOT_PLAYERS: usize = 3;
 
 pub const KILLS_TO_WIN: i32 = 10;
 
-
 #[derive(Default)]
 pub struct Rally {
     sprite_sheet_handle: Option<Handle<SpriteSheet>>, // Load the spritesheet necessary to render the graphics.
@@ -53,20 +46,18 @@ impl SimpleState for Rally {
 
         self.sprite_sheet_handle.replace(load_sprite_sheet(world));
 
-        initialise_camera(world);
+        initialize_camera(world);
 
+        let weapon_fire_resource: WeaponFireResource =
+            initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
+        initialize_audio(world);
 
-        let weapon_fire_resource: WeaponFireResource = initialise_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
-
-        initialise_audio(world);
-
-        initialise_ui(world);
+        let player_status_texts = initialize_ui(world);
         world.register::<UiText>(); // <- add this line temporarily
         world.register::<UiTransform>();
-        
 
-        initialise_arena_walls(world, self.sprite_sheet_handle.clone().unwrap());
+        initialize_arena_walls(world, self.sprite_sheet_handle.clone().unwrap());
         world.register::<Hitbox>();
 
         world.register::<PlayerWeaponIcon>();
@@ -75,15 +66,15 @@ impl SimpleState for Rally {
             let is_bot = player_index >= MAX_PLAYERS - BOT_PLAYERS;
 
             intialize_player(
-                world, 
+                world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
                 weapon_type_from_u8(0),
                 weapon_fire_resource.clone(),
                 is_bot,
+                player_status_texts[player_index],
             );
         }
-
 
         //Debug Spawns
         /*
@@ -91,7 +82,7 @@ impl SimpleState for Rally {
         let weapon2: WeaponTypes = weapon_type_from_u8(0);
         let weapon3: WeaponTypes = weapon_type_from_u8(0);
         let weapon4: WeaponTypes = weapon_type_from_u8(0);
-        
+
         /*
         let mut rng = rand::thread_rng();
 
@@ -102,25 +93,25 @@ impl SimpleState for Rally {
         */
 
         intialize_player(
-            world, 
+            world,
             self.sprite_sheet_handle.clone().unwrap(),
             0 as usize,
             weapon1,
         );
         intialize_player(
-            world, 
+            world,
             self.sprite_sheet_handle.clone().unwrap(),
             1 as usize,
             weapon2,
         );
         intialize_player(
-            world, 
+            world,
             self.sprite_sheet_handle.clone().unwrap(),
             2 as usize,
             weapon3,
         );
         intialize_player(
-            world, 
+            world,
             self.sprite_sheet_handle.clone().unwrap(),
             3 as usize,
             weapon4,
@@ -138,11 +129,6 @@ impl SimpleState for Rally {
         Trans::None
     }
 }
-
-
-
-
-
 
 fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     // Load the sprite sheet necessary to render the graphics.
@@ -168,9 +154,6 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
         &sprite_sheet_store,
     )
 }
-
-
-
 
 pub fn fire_weapon(
     entities: &Entities,
@@ -209,7 +192,7 @@ pub fn fire_weapon(
 
         weapon_fire.dx = weapon_fire.weapon_shot_speed * angle_x_comp;
         weapon_fire.dy = weapon_fire.weapon_shot_speed * angle_y_comp;
-        
+
         //adjust the first postion
         let x = local_transform.translation().x;
         let y = local_transform.translation().y;
@@ -225,7 +208,6 @@ pub fn fire_weapon(
         local_transform
     };
     lazy_update.insert(fire_entity, weapon_fire);
-   
 
     let mut sprite = match weapon.weapon_type.clone() {
         WeaponTypes::LaserDouble => weapon_fire_resource.laser_double_sprite_render.clone(),
@@ -233,7 +215,9 @@ pub fn fire_weapon(
         WeaponTypes::LaserPulse => weapon_fire_resource.laser_burst_sprite_render.clone(),
         WeaponTypes::ProjectileBurstFire => weapon_fire_resource.projectile_burst_render.clone(),
         WeaponTypes::ProjectileRapidFire => weapon_fire_resource.projectile_rapid_render.clone(),
-        WeaponTypes::ProjectileCannonFire => weapon_fire_resource.projectile_cannon_sprite_render.clone(),
+        WeaponTypes::ProjectileCannonFire => {
+            weapon_fire_resource.projectile_cannon_sprite_render.clone()
+        }
         WeaponTypes::Missile => weapon_fire_resource.missile_sprite_render.clone(),
         WeaponTypes::Rockets => weapon_fire_resource.rockets_sprite_render.clone(),
         WeaponTypes::Mine => weapon_fire_resource.mine_p1_sprite_render.clone(),
@@ -254,38 +238,38 @@ pub fn fire_weapon(
     lazy_update.insert(fire_entity, local_transform);
 }
 
-
-
-pub fn vehicle_damage_model(vehicle: &mut Vehicle, 
-        mut damage:f32, piercing_damage_pct:f32, 
-        shield_damage_pct:f32, armor_damage_pct:f32, health_damage_pct:f32
-    ) -> bool {
-
-    let mut piercing_damage:f32 = 0.0;
+pub fn vehicle_damage_model(
+    vehicle: &mut Vehicle,
+    mut damage: f32,
+    piercing_damage_pct: f32,
+    shield_damage_pct: f32,
+    armor_damage_pct: f32,
+    health_damage_pct: f32,
+) -> bool {
+    let mut piercing_damage: f32 = 0.0;
 
     if piercing_damage_pct > 0.0 {
-        piercing_damage = damage * piercing_damage_pct/100.0;
+        piercing_damage = damage * piercing_damage_pct / 100.0;
         damage -= piercing_damage;
     }
 
     //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
     if vehicle.shield > 0.0 {
-        vehicle.shield -= damage * shield_damage_pct/100.0;
+        vehicle.shield -= damage * shield_damage_pct / 100.0;
         damage = 0.0;
 
         if vehicle.shield < 0.0 {
             damage -= vehicle.shield; //over damage on shields, needs taken from armor
             vehicle.shield = 0.0;
-        }
-        else {
+        } else {
             //take damage to shields, but shields are still alive, reset shield recharge cooldown
             vehicle.shield_cooldown_timer = vehicle.shield_cooldown_reset;
         }
     }
 
     if vehicle.armor > 0.0 {
-        vehicle.armor -= damage * armor_damage_pct/100.0;
+        vehicle.armor -= damage * armor_damage_pct / 100.0;
         damage = 0.0;
 
         if vehicle.armor < 0.0 {
@@ -294,15 +278,14 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
         }
     }
 
-    let health_damage :f32 = (damage + piercing_damage) * health_damage_pct/100.0;
+    let health_damage: f32 = (damage + piercing_damage) * health_damage_pct / 100.0;
 
     let mut vehicle_destroyed = false;
 
     if vehicle.health <= health_damage {
         vehicle_destroyed = true;
         vehicle.health = 0.0;
-    }
-    else {
+    } else {
         vehicle.health -= health_damage;
     }
 
@@ -310,8 +293,6 @@ pub fn vehicle_damage_model(vehicle: &mut Vehicle,
 
     vehicle_destroyed
 }
-
-
 
 /*
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,14 +1,11 @@
 use amethyst::{
-    assets::{Loader, AssetStorage},
-    audio::{output::Output, Source, OggFormat, SourceHandle},
+    assets::{AssetStorage, Loader},
+    audio::{output::Output, OggFormat, Source, SourceHandle},
     ecs::{World, WorldExt},
 };
 
-
 const BOUNCE_SOUND: &str = "audio/vehicle_bounce.ogg";
 const SCORE_SOUND: &str = "audio/weapon_hit.ogg";
-
-
 
 pub struct Sounds {
     pub score_sfx: SourceHandle,
@@ -23,7 +20,7 @@ fn load_audio_track(loader: &Loader, world: &World, file: &str) -> SourceHandle 
 /// Initialise audio in the world. This will eventually include
 /// the background tracks as well as the sound effects, but for now
 /// we'll just work on sound effects.
-pub fn initialise_audio(world: &mut World) {
+pub fn initialize_audio(world: &mut World) {
     let sound_effects = {
         let loader = world.read_resource::<Loader>();
 

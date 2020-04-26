@@ -1,7 +1,7 @@
 use amethyst::{
-    assets::{Handle},
+    assets::Handle,
+    ecs::prelude::World,
     renderer::{SpriteRender, SpriteSheet},
-    ecs::prelude::{World},
 };
 
 #[derive(Clone)]
@@ -22,8 +22,7 @@ pub struct WeaponFireResource {
     pub laser_sword_sprite_render: SpriteRender,
 }
 
-
-pub fn initialise_weapon_fire_resource(
+pub fn initialize_weapon_fire_resource(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>,
 ) -> WeaponFireResource {
@@ -82,6 +81,6 @@ pub fn initialise_weapon_fire_resource(
         },
     };
     world.insert(weapon_fire_resource.clone());
-    
+
     weapon_fire_resource
 }

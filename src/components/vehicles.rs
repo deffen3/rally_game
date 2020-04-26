@@ -1,14 +1,14 @@
+use crate::entities::ui::PlayerStatusText;
+use amethyst::core::Transform;
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
-use amethyst::core::{Transform};
 
-use std::f32::consts::PI;
 use rand::Rng;
+use std::f32::consts::PI;
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 6.0;
-
 
 pub struct Vehicle {
     pub width: f32,
@@ -30,6 +30,7 @@ pub struct Vehicle {
     pub engine_power: f32,
     pub respawn_timer: f32,
     pub in_respawn: bool,
+    pub player_status_text: PlayerStatusText,
 }
 
 impl Component for Vehicle {
@@ -37,7 +38,7 @@ impl Component for Vehicle {
 }
 
 impl Vehicle {
-    pub fn new() -> Vehicle {
+    pub fn new(player_status_text: PlayerStatusText) -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
             height: VEHICLE_HEIGHT,
@@ -58,19 +59,17 @@ impl Vehicle {
             engine_power: 100.0,
             respawn_timer: 5.0,
             in_respawn: false,
+            player_status_text,
         }
     }
 }
 
-
-
 pub fn kill_restart_vehicle(vehicle: &mut Vehicle, transform: &mut Transform) {
-    transform.set_translation_x(10.0*ARENA_WIDTH);
-    transform.set_translation_y(10.0*ARENA_HEIGHT);
+    transform.set_translation_x(10.0 * ARENA_WIDTH);
+    transform.set_translation_y(10.0 * ARENA_HEIGHT);
 
     vehicle.in_respawn = true;
 }
-
 
 pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, dt: f32) {
     let mut rng = rand::thread_rng();
@@ -97,14 +96,34 @@ pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, d
         let height = ARENA_HEIGHT + UI_HEIGHT;
 
         let (starting_rotation, starting_x, starting_y) = match spawn_index {
-            0 => (-PI/4.0, ARENA_WIDTH / spacing_factor, height / spacing_factor),
-            1 => (PI + PI/4.0, ARENA_WIDTH / spacing_factor, height - (height / spacing_factor)),
-            2 => (PI/2.0 - PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height / spacing_factor),
-            3 => (PI/2.0 + PI/4.0, ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), height - (height / spacing_factor)),
-            _ => (-PI/4.0, ARENA_WIDTH / spacing_factor, height / spacing_factor),
+            0 => (
+                -PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height / spacing_factor,
+            ),
+            1 => (
+                PI + PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height - (height / spacing_factor),
+            ),
+            2 => (
+                PI / 2.0 - PI / 4.0,
+                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                height / spacing_factor,
+            ),
+            3 => (
+                PI / 2.0 + PI / 4.0,
+                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                height - (height / spacing_factor),
+            ),
+            _ => (
+                -PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height / spacing_factor,
+            ),
         };
-    
+
         transform.set_rotation_2d(starting_rotation as f32);
         transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
-    }    
+    }
 }
