@@ -64,13 +64,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if dist < closest_vehicle_dist {
                         closest_vehicle_dist = dist.clone();
-                        closest_vehicle_x_diff = vehicle2_x - vehicle1_x;
-                        closest_vehicle_y_diff = vehicle2_y - vehicle1_y;
+                        closest_vehicle_x_diff = vehicle1_x - vehicle2_x;
+                        closest_vehicle_y_diff = vehicle1_y - vehicle2_y;
                     }
                 }
             }
 
-            let target_angle = closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI/2.0); //rotate by PI/2 to line up with yaw angle
+            let mut target_angle = closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI/2.0); //rotate by PI/2 to line up with yaw angle
+            if target_angle > PI {
+                target_angle -= 2.0*PI;
+            }
+
 
             closest_target_angles.push((player1.id, target_angle, closest_vehicle_dist));
         }
@@ -153,17 +157,41 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     if (yaw < 0.0) { //aimed to the right (with 0 point towards top)
                                         if (*target_angle < 0.0) { //target to the right
                                             println!("Right {}, Right {} ", yaw, *target_angle);
+
+                                            if (yaw.abs() - target_angle.abs()) < 0.01 {
+                                                vehicle_turn = Some(-1.0);
+                                            }
+                                            else if (yaw.abs() - target_angle.abs()) > 0.01 {
+                                                vehicle_turn = Some(1.0);
+                                            }
+                                            else {
+                                                vehicle_turn = Some(0.0);
+                                            }
                                         }
                                         else { //target to the left
                                             println!("Right {}, Left {} ", yaw, *target_angle);
+
+                                            vehicle_turn = Some(1.0);
                                         }
                                     }
                                     else { //aimed to the left
                                         if (*target_angle < 0.0) { //target to the right
                                             println!("Left {}, Right {} ", yaw, *target_angle);
+
+                                            vehicle_turn = Some(1.0);
                                         }
-                                        else { //target to the left
+                                        else { //target to the left == PERFECT!!
                                             println!("Left {}, Left {} ", yaw, *target_angle);
+
+                                            if (yaw.abs() - target_angle.abs()) > 0.01 {
+                                                vehicle_turn = Some(-1.0);
+                                            }
+                                            else if (yaw.abs() - target_angle.abs()) < 0.01 {
+                                                vehicle_turn = Some(1.0);
+                                            }
+                                            else {
+                                                vehicle_turn = Some(0.0);
+                                            }
                                         }
                                     }
         
