@@ -46,7 +46,11 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             };
 
             if player.is_bot {
-                if (player.bot_mode == BotMode::StopAim) {
+                if (player.bot_mode == BotMode::StopAim ||
+                        player.bot_mode == BotMode::Mining || 
+                        player.bot_mode == BotMode::Chasing ||
+                        player.bot_mode == BotMode::Swording
+                ) {
                     vehicle_weapon_fire = Some(rng.gen::<bool>());
                 }
             }

@@ -6,6 +6,10 @@ pub enum BotMode {
     Running,
     StopAim,
     CollisionTurn,
+    CollisionMove,
+    Mining,
+    Chasing,
+    Swording,
 }
 
 
