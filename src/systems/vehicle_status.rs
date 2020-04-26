@@ -19,9 +19,8 @@ impl<'s> System<'s> for VehicleStatusSystem {
     fn run(&mut self, (mut players, mut vehicles, mut ui_text, score_text): Self::SystemData) {
         //for (player, vehicle) in (players, vehicles).join() {
         for (player, vehicle) in (&mut players, &mut vehicles).join() {
-            let shield: i32 = vehicle.shield.ceil() as i32;
-            let text = ui_text.get_mut(vehicle.shield_text).unwrap();
-            text.text = shield.to_string();
+            ui_text.get_mut(vehicle.shield_text).unwrap().text =
+                format!("{:.0}", vehicle.shield.ceil());
 
             if player.id == 0 {
                 let armor: i32 = vehicle.armor.ceil() as i32;
