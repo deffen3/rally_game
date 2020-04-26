@@ -53,7 +53,7 @@ impl SimpleState for Rally {
 
         initialise_audio(world);
 
-        initialise_ui(world);
+        let shield_texts = initialise_ui(world);
         world.register::<UiText>(); // <- add this line temporarily
         world.register::<UiTransform>();
 
@@ -72,6 +72,7 @@ impl SimpleState for Rally {
                 weapon_type_from_u8(0),
                 weapon_fire_resource.clone(),
                 is_bot,
+                shield_texts[player_index],
             );
         }
 

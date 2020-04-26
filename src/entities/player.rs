@@ -1,7 +1,7 @@
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
-    ecs::prelude::World,
+    ecs::prelude::{Entity, World},
     prelude::*,
     renderer::{SpriteRender, SpriteSheet},
 };
@@ -23,6 +23,7 @@ pub fn intialize_player(
     weapon_type: WeaponTypes,
     weapon_fire_resource: WeaponFireResource,
     is_bot: bool,
+    shield_text: Entity,
 ) {
     let mut vehicle_transform = Transform::default();
 
@@ -87,7 +88,7 @@ pub fn intialize_player(
         .create_entity()
         .with(vehicle_transform)
         .with(vehicle_sprite_render.clone())
-        .with(Vehicle::new())
+        .with(Vehicle::new(shield_text))
         .with(Weapon::new(
             weapon_type.clone(),
             heat_seeking,

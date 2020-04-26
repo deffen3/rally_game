@@ -11,10 +11,6 @@ pub struct PlayerScoreText {
 
 /// ScoreText contains the ui text components that display the score
 pub struct ScoreText {
-    pub p1: PlayerScoreText,
-    pub p2: PlayerScoreText,
-    pub p3: PlayerScoreText,
-    pub p4: PlayerScoreText,
     pub p1_armor: Entity,
     pub p2_armor: Entity,
     pub p3_armor: Entity,
@@ -30,7 +26,7 @@ pub struct ScoreText {
 }
 
 /// Initialises the UI
-pub fn initialise_ui(world: &mut World) {
+pub fn initialise_ui(world: &mut World) -> [Entity; 4] {
     let font = world.read_resource::<Loader>().load(
         "font/square.ttf",
         TtfFormat,
@@ -393,10 +389,6 @@ pub fn initialise_ui(world: &mut World) {
         .build();
 
     world.insert(ScoreText {
-        p1: PlayerScoreText { shield: p1_shield },
-        p2: PlayerScoreText { shield: p2_shield },
-        p3: PlayerScoreText { shield: p3_shield },
-        p4: PlayerScoreText { shield: p4_shield },
         p1_armor,
         p2_armor,
         p3_armor,
@@ -410,4 +402,5 @@ pub fn initialise_ui(world: &mut World) {
         p3_kills,
         p4_kills,
     });
+    [p1_shield, p2_shield, p3_shield, p4_shield]
 }

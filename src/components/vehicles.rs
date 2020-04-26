@@ -1,5 +1,5 @@
 use amethyst::core::Transform;
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
+use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 
 use rand::Rng;
 use std::f32::consts::PI;
@@ -29,6 +29,7 @@ pub struct Vehicle {
     pub engine_power: f32,
     pub respawn_timer: f32,
     pub in_respawn: bool,
+    pub shield_text: Entity,
 }
 
 impl Component for Vehicle {
@@ -36,7 +37,7 @@ impl Component for Vehicle {
 }
 
 impl Vehicle {
-    pub fn new() -> Vehicle {
+    pub fn new(shield_text: Entity) -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
             height: VEHICLE_HEIGHT,
@@ -57,6 +58,7 @@ impl Vehicle {
             engine_power: 100.0,
             respawn_timer: 5.0,
             in_respawn: false,
+            shield_text,
         }
     }
 }
