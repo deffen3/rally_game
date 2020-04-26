@@ -8,7 +8,7 @@ use std::f32::consts::PI;
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
-pub const VEHICLE_WIDTH: f32 = 6.0;
+pub const VEHICLE_WIDTH: f32 = 7.0;
 
 pub struct Vehicle {
     pub width: f32,

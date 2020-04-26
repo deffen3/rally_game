@@ -5,19 +5,19 @@ List((
         ( //ship 0
             x: 0,
             y: 0,
-            width: 6,
+            width: 7,
             height: 12,
         ),
         ( //ship 1
-            x: 9,
+            x: 8,
             y: 0,
             width: 7,
             height: 12,
         ),
         ( //ship 2
-            x: 17,
+            x: 16,
             y: 0,
-            width: 6,
+            width: 7,
             height: 12,
         ),
         ( //ship 3
@@ -33,10 +33,10 @@ List((
             height: 6,
         ),
         ( //laser beam #5
-            x: 7,
+            x: 36,
             y: 0,
             width: 1,
-            height: 20,
+            height: 12,
         ),
         ( //laser burst #6
             x: 9,

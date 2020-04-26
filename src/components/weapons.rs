@@ -107,7 +107,7 @@ pub fn build_standard_weapon(
     ) = match weapon_type.clone() {
         //speed      dmg     cooldwn pierce% shield%   armor%    health%
         WeaponTypes::LaserDouble => (400.0, 25.0, 0.4, 0.0, 120.0, 60.0, 100.0),
-        WeaponTypes::LaserBeam => (2800.0, 0.3, 0.005, 0.0, 120.0, 60.0, 100.0),
+        WeaponTypes::LaserBeam => (1400.0, 0.6, 0.005, 0.0, 120.0, 60.0, 100.0),
         WeaponTypes::LaserPulse => (400.0, 12.0, 0.75, 0.0, 120.0, 60.0, 100.0),
         WeaponTypes::ProjectileBurstFire => (250.0, 12.0, 0.50, 0.0, 80.0, 90.0, 100.0),
         WeaponTypes::ProjectileRapidFire => (250.0, 3.0, 0.10, 0.0, 80.0, 90.0, 100.0),
@@ -304,7 +304,7 @@ impl WeaponFire {
     ) -> WeaponFire {
         let (width, height) = match weapon_type.clone() {
             WeaponTypes::LaserDouble => (3.0, 6.0),
-            WeaponTypes::LaserBeam => (1.0, 20.0),
+            WeaponTypes::LaserBeam => (1.0, 12.0),
             WeaponTypes::LaserPulse => (1.0, 3.0),
             WeaponTypes::ProjectileBurstFire => (1.0, 4.0),
             WeaponTypes::ProjectileRapidFire => (1.0, 2.0),
