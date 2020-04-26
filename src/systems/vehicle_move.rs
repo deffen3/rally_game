@@ -145,13 +145,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     //change modes to attack
                                     if weapon.weapon_type == WeaponTypes::Mine {
                                         player.bot_mode = BotMode::Mining;
-                                        println!("Mining");
+                                        println!("{} Mining", player.id);
                                     } else if weapon.weapon_type == WeaponTypes::LaserSword {
                                         player.bot_mode = BotMode::Swording;
-                                        println!("Swording");
-                                    } else {
+                                        println!("{} Swording", player.id);;
+                                    else {
                                         player.bot_mode = BotMode::StopAim;
-                                        println!("StopAim");
+                                        println!("{} StopAim", player.id);
                                     }
 
                                     player.bot_move_cooldown = 5.0;
@@ -189,10 +189,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                     if run_or_chase {
                                         player.bot_mode = BotMode::Running;
-                                        println!("Running");
-                                    } else {
+                                        println!("{} Running", player.id);
+                                    else {
                                         player.bot_mode = BotMode::Chasing;
-                                        println!("Chasing");
+                                        println!("{} Chasing", player.id);
                                     }
                                 } else {
                                     //continue with Attacking mode
@@ -255,7 +255,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::CollisionMove;
-                            println!("CollisionMove");
+                            println!("{} CollisionMove", player.id);
                             player.bot_move_cooldown = 2.0;
                         }
                     } else if player.bot_mode == BotMode::CollisionMove {
@@ -264,7 +264,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::Running;
-                            println!("Running");
+                            println!("{} Running", player.id);
                         }
                     }
                 }
@@ -451,7 +451,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     && (player.bot_mode != BotMode::CollisionMove)
                 {
                     player.bot_mode = BotMode::CollisionTurn;
-                    println!("CollisionTurn");
+                    println!("{} CollisionTurn", player.id);
                     player.bot_move_cooldown = 0.4;
                 }
 
@@ -490,7 +490,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         && (player.bot_mode != BotMode::CollisionMove)
                     {
                         player.bot_mode = BotMode::CollisionTurn;
-                        println!("CollisionTurn");
+                        println!("{} CollisionTurn", player.id);
                         player.bot_move_cooldown = 0.4;
                     }
 
