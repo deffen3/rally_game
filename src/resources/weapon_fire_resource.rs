@@ -22,7 +22,7 @@ pub struct WeaponFireResource {
     pub laser_sword_sprite_render: SpriteRender,
 }
 
-pub fn initialise_weapon_fire_resource(
+pub fn initialize_weapon_fire_resource(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>,
 ) -> WeaponFireResource {

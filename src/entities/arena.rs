@@ -12,7 +12,7 @@ use std::f32::consts::PI;
 use crate::components::{Hitbox, HitboxShape};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
-pub fn initialise_arena_walls(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
+pub fn initialize_arena_walls(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
     //bottom UI wall
     let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
 

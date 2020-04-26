@@ -8,7 +8,7 @@ use amethyst::{
     ui::{UiText, UiTransform},
 };
 
-use crate::audio::initialise_audio;
+use crate::audio::initialize_audio;
 
 //use rand::Rng;
 
@@ -16,9 +16,9 @@ use crate::components::{
     weapon_type_from_u8, Hitbox, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire, WeaponTypes,
 };
 
-use crate::entities::{initialise_arena_walls, initialise_camera, initialise_ui, intialize_player};
+use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
 
-use crate::resources::{initialise_weapon_fire_resource, WeaponFireResource};
+use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource};
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -46,18 +46,18 @@ impl SimpleState for Rally {
 
         self.sprite_sheet_handle.replace(load_sprite_sheet(world));
 
-        initialise_camera(world);
+        initialize_camera(world);
 
         let weapon_fire_resource: WeaponFireResource =
-            initialise_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
+            initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
-        initialise_audio(world);
+        initialize_audio(world);
 
-        let shield_texts = initialise_ui(world);
+        let shield_texts = initialize_ui(world);
         world.register::<UiText>(); // <- add this line temporarily
         world.register::<UiTransform>();
 
-        initialise_arena_walls(world, self.sprite_sheet_handle.clone().unwrap());
+        initialize_arena_walls(world, self.sprite_sheet_handle.clone().unwrap());
         world.register::<Hitbox>();
 
         world.register::<PlayerWeaponIcon>();

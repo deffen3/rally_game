@@ -26,7 +26,7 @@ pub struct ScoreText {
 }
 
 /// Initialises the UI
-pub fn initialise_ui(world: &mut World) -> [Entity; 4] {
+pub fn initialize_ui(world: &mut World) -> [Entity; 4] {
     let font = world.read_resource::<Loader>().load(
         "font/square.ttf",
         TtfFormat,
