@@ -19,25 +19,18 @@ impl<'s> System<'s> for VehicleShieldsSystem {
         let dt = time.delta_seconds();
 
         for vehicle in (&mut vehicles).join() {
-            /*
-            vehicle.shield
-            //shield_recharge_rate: 5.0,
-            //shield_cooldown_timer: -1.0,
-            //shield_cooldown_reset: 10.0,
-            */
-
-            if (vehicle.shield > 0.0) && (vehicle.shield < vehicle.shield_max) {
-                if vehicle.shield_cooldown_timer < 0.0 {
+            if (vehicle.shield.value > 0.0) && (vehicle.shield.value < vehicle.shield.max) {
+                if vehicle.shield.cooldown_timer < 0.0 {
                     //recharging
-                    vehicle.shield += vehicle.shield_recharge_rate * dt;
+                    vehicle.shield.value += vehicle.shield.recharge_rate * dt;
 
-                    vehicle.shield = vehicle.shield.min(vehicle.shield_max);
+                    vehicle.shield.value = vehicle.shield.value.min(vehicle.shield.max);
 
-                    vehicle.shield_cooldown_timer = -1.0;
+                    vehicle.shield.cooldown_timer = -1.0;
                 } else {
                     //waiting for recharge...
                     //note that the cooldown timer is reset every time that the vehicle's shields are hit
-                    vehicle.shield_cooldown_timer -= dt;
+                    vehicle.shield.cooldown_timer -= dt;
                 }
             }
         }

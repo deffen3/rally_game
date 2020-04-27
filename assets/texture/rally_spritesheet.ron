@@ -116,5 +116,11 @@ List((
             width: 4,
             height: 4,
         ),
+        ( //shield bubble #19
+            x: 44,
+            y: 2,
+            width: 13,
+            height: 16,
+        ),
     ],
 ))

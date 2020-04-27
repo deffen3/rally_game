@@ -20,7 +20,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
             ui_text
                 .get_mut(vehicle.player_status_text.shield)
                 .unwrap()
-                .text = format!("{:.0}", vehicle.shield.ceil());
+                .text = format!("{:.0}", vehicle.shield.value.ceil());
                 
             ui_text
                 .get_mut(vehicle.player_status_text.armor)

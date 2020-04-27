@@ -85,11 +85,30 @@ pub fn intialize_player(
         health_damage_pct,
     ) = build_standard_weapon(weapon_type);
 
+
+
+    //Create Shield Entity
+    let mut shield_transform = Transform::default();
+    //shield_transform.set_rotation_2d(starting_rotation as f32);
+    //shield_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+
+    let shield_sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: 19,
+    };
+
+    let shield_entity = world
+        .create_entity()
+        .with(shield_transform)
+        .with(shield_sprite_render)
+        .build();
+        
+
     world
         .create_entity()
         .with(vehicle_transform)
         .with(vehicle_sprite_render.clone())
-        .with(Vehicle::new(player_status_text))
+        .with(Vehicle::new(player_status_text, shield_entity))
         .with(Weapon::new(
             weapon_type.clone(),
             heat_seeking,

@@ -255,16 +255,16 @@ pub fn vehicle_damage_model(
 
     //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
-    if vehicle.shield > 0.0 {
-        vehicle.shield -= damage * shield_damage_pct / 100.0;
+    if vehicle.shield.value > 0.0 {
+        vehicle.shield.value -= damage * shield_damage_pct / 100.0;
         damage = 0.0;
 
-        if vehicle.shield < 0.0 {
-            damage -= vehicle.shield; //over damage on shields, needs taken from armor
-            vehicle.shield = 0.0;
+        if vehicle.shield.value < 0.0 {
+            damage -= vehicle.shield.value; //over damage on shields, needs taken from armor
+            vehicle.shield.value = 0.0;
         } else {
             //take damage to shields, but shields are still alive, reset shield recharge cooldown
-            vehicle.shield_cooldown_timer = vehicle.shield_cooldown_reset;
+            vehicle.shield.cooldown_timer = vehicle.shield.cooldown_reset;
         }
     }
 

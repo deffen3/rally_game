@@ -1,11 +1,12 @@
 use crate::entities::ui::PlayerStatusText;
 use amethyst::core::Transform;
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
+use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 
 use rand::Rng;
 use std::f32::consts::PI;
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::components::{Shield};
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 7.0;
@@ -19,11 +20,6 @@ pub struct Vehicle {
     pub collision_cooldown_timer: f32,
     pub health: f32,
     pub health_max: f32,
-    pub shield: f32,
-    pub shield_max: f32,
-    pub shield_recharge_rate: f32,
-    pub shield_cooldown_timer: f32,
-    pub shield_cooldown_reset: f32,
     pub armor: f32,
     pub armor_max: f32,
     pub weight: f32,
@@ -31,6 +27,7 @@ pub struct Vehicle {
     pub respawn_timer: f32,
     pub in_respawn: bool,
     pub player_status_text: PlayerStatusText,
+    pub shield: Shield,
 }
 
 impl Component for Vehicle {
@@ -38,7 +35,7 @@ impl Component for Vehicle {
 }
 
 impl Vehicle {
-    pub fn new(player_status_text: PlayerStatusText) -> Vehicle {
+    pub fn new(player_status_text: PlayerStatusText, shield_entity: Entity) -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
             height: VEHICLE_HEIGHT,
@@ -48,11 +45,6 @@ impl Vehicle {
             collision_cooldown_timer: -1.0,
             health: 100.0,
             health_max: 100.0,
-            shield: 100.0,
-            shield_max: 100.0,
-            shield_recharge_rate: 5.0,
-            shield_cooldown_timer: -1.0,
-            shield_cooldown_reset: 10.0,
             armor: 100.0,
             armor_max: 100.0,
             weight: 100.0,
@@ -60,6 +52,14 @@ impl Vehicle {
             respawn_timer: 5.0,
             in_respawn: false,
             player_status_text,
+            shield: Shield {value: 100.0,
+                max: 100.0,
+                recharge_rate: 5.0,
+                cooldown_timer: -1.0,
+                cooldown_reset: 10.0,
+                radius: 15.0,
+                entity: shield_entity,
+            },
         }
     }
 }
@@ -84,8 +84,8 @@ pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, d
         vehicle.dy = 0.0;
         vehicle.dr = 0.0;
 
-        vehicle.shield = vehicle.shield_max;
-        vehicle.shield_cooldown_timer = -1.;
+        vehicle.shield.value = vehicle.shield.max;
+        vehicle.shield.cooldown_timer = -1.;
 
         vehicle.armor = vehicle.armor_max;
         vehicle.health = vehicle.health_max;
