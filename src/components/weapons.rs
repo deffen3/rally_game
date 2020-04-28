@@ -2,6 +2,11 @@ use amethyst::core::math::Vector3;
 use amethyst::{
     core::transform::Transform,
     ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
+    renderer::{
+        Transparent,
+        palette::Srgba,
+        resources::Tint,
+    },
 };
 
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
@@ -194,6 +199,7 @@ pub enum WeaponTypes {
 
 #[derive(Clone)]
 pub struct Weapon {
+    pub icon_entity: Entity,
     pub x: f32,
     pub y: f32,
     pub aim_angle: f32,
@@ -221,6 +227,7 @@ impl Component for Weapon {
 
 impl Weapon {
     pub fn new(
+        icon_entity: Entity,
         weapon_type: WeaponTypes,
         heat_seeking: bool,
         heat_seeking_agility: f32,
@@ -237,6 +244,7 @@ impl Weapon {
         health_damage_pct: f32,
     ) -> Weapon {
         Weapon {
+            icon_entity,
             x: 0.0,
             y: 0.0,
             aim_angle: 0.0,
@@ -341,6 +349,7 @@ impl WeaponFire {
 
 pub fn update_weapon_icon(
     entities: &Entities,
+    weapon: &mut Weapon,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     weapon_type: WeaponTypes,
     player_id: usize,
@@ -348,6 +357,8 @@ pub fn update_weapon_icon(
 ) {
     //UI icon
     let weapon_entity: Entity = entities.create();
+
+    weapon.icon_entity = weapon_entity;
 
     let x = 15.;
     let y = UI_HEIGHT - 10.;
@@ -400,7 +411,11 @@ pub fn update_weapon_icon(
     icon_weapon_transform.set_rotation_2d(-PI / 2.0);
     icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
 
+    let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+
     lazy_update.insert(weapon_entity, PlayerWeaponIcon::new(player_id, weapon_type));
     lazy_update.insert(weapon_entity, weapon_sprite);
     lazy_update.insert(weapon_entity, icon_weapon_transform);
+    lazy_update.insert(weapon_entity, icon_tint);
+    lazy_update.insert(weapon_entity, Transparent);
 }

@@ -160,35 +160,6 @@ pub fn intialize_player(
         .build();
 
 
-    //Create actual Player with Vehicle and Weapon
-    world
-        .create_entity()
-        .with(vehicle_transform)
-        .with(vehicle_sprite_render.clone())
-        .with(Vehicle::new(player_status_text, 
-            health_entity,
-            armor_entity,
-            shield_entity,
-        ))
-        .with(Weapon::new(
-            weapon_type.clone(),
-            heat_seeking,
-            heat_seeking_agility,
-            attached,
-            deployed,
-            weapon_cooldown,
-            burst_shot_limit,
-            burst_cooldown,
-            weapon_shot_speed,
-            damage,
-            shield_damage_pct,
-            armor_damage_pct,
-            piercing_damage_pct,
-            health_damage_pct,
-        ))
-        .with(Player::new(player_index, is_bot))
-        .build();
-
 
 
     //UI vehicle icons
@@ -213,7 +184,7 @@ pub fn intialize_player(
         world
             .create_entity()
             .with(icon_transform)
-            .with(vehicle_sprite_render)
+            .with(vehicle_sprite_render.clone())
             .build();
     }
 
@@ -269,10 +240,48 @@ pub fn intialize_player(
     icon_weapon_transform.set_rotation_2d(-PI / 2.0);
     icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
 
-    world
+    // White shows the sprite as normal.
+    // You can change the color at any point to modify the sprite's tint.
+    let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+
+    let weapon_icon = world
         .create_entity()
-        .with(PlayerWeaponIcon::new(player_index, weapon_type))
+        .with(PlayerWeaponIcon::new(player_index, weapon_type.clone()))
         .with(weapon_sprite)
         .with(icon_weapon_transform)
+        .with(icon_tint)
+        .with(Transparent)
         .build();
+
+
+    //Create actual Player with Vehicle and Weapon
+    world
+        .create_entity()
+        .with(vehicle_transform)
+        .with(vehicle_sprite_render.clone())
+        .with(Vehicle::new(player_status_text, 
+            health_entity,
+            armor_entity,
+            shield_entity,
+        ))
+        .with(Weapon::new(
+            weapon_icon,
+            weapon_type.clone(),
+            heat_seeking,
+            heat_seeking_agility,
+            attached,
+            deployed,
+            weapon_cooldown,
+            burst_shot_limit,
+            burst_cooldown,
+            weapon_shot_speed,
+            damage,
+            shield_damage_pct,
+            armor_damage_pct,
+            piercing_damage_pct,
+            health_damage_pct,
+        ))
+        .with(Player::new(player_index, is_bot))
+        .build();
+    
 }

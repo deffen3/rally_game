@@ -24,7 +24,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
         Read<'s, InputHandler<StringBindings>>,
     );
 
-    fn run(&mut self, (players, mut vehicles, mut transforms, mut tint, time, _input): Self::SystemData) {
+    fn run(&mut self, (players, mut vehicles, mut transforms, mut tints, time, _input): Self::SystemData) {
         let dt = time.delta_seconds();
 
         let mut owner_data: Vec<(usize, f32, f32, f32, f32, f32, f32)> = Vec::new();
@@ -72,7 +72,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                         transform.set_translation_y(*y);
                         transform.set_rotation_2d(*angle);
 
-                        let tint = tint.get_mut(vehicle.shield.entity).unwrap();
+                        let tint = tints.get_mut(vehicle.shield.entity).unwrap();
                         if *shield_pct < 0.5 {
                             *tint = Tint(Srgba::new(1.0, 1.0, 1.0, (*shield_pct) * 2.0));
                         }
@@ -89,7 +89,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                         transform.set_translation_y(*y);
                         transform.set_rotation_2d(*angle);
 
-                        let tint = tint.get_mut(vehicle.armor.entity).unwrap();
+                        let tint = tints.get_mut(vehicle.armor.entity).unwrap();
                         if *armor_pct < 0.5 {
                             *tint = Tint(Srgba::new(1.0, 1.0, 1.0, *(armor_pct) * 2.0));
                         }
@@ -106,7 +106,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                         transform.set_translation_y(*y);
                         transform.set_rotation_2d(*angle);
 
-                        let tint = tint.get_mut(vehicle.health.entity).unwrap();
+                        let tint = tints.get_mut(vehicle.health.entity).unwrap();
                         if *health_pct < (4./5.) {
                             *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0-((*health_pct) * (5./4.))));
                         }

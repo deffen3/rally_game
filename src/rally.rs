@@ -69,7 +69,7 @@ impl SimpleState for Rally {
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
-                weapon_type_from_u8(8),
+                weapon_type_from_u8(0),
                 weapon_fire_resource.clone(),
                 is_bot,
                 player_status_texts[player_index],

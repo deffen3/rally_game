@@ -1,10 +1,13 @@
-use amethyst::core::math::Vector3;
-use amethyst::core::{Time, Transform};
-use amethyst::derive::SystemDesc;
-use amethyst::ecs::{
-    Entities, Join, LazyUpdate, Read, ReadExpect, System, SystemData, WriteStorage,
+use amethyst::{
+    core::{math::Vector3, Time, Transform},
+    derive::SystemDesc,
+    ecs::{Entities, Join, LazyUpdate, Read, ReadExpect, System, SystemData, WriteStorage},
+    input::{InputHandler, StringBindings},
+    renderer::{
+        palette::Srgba,
+        resources::Tint,
+    },
 };
-use amethyst::input::{InputHandler, StringBindings};
 
 use rand::Rng;
 
@@ -22,6 +25,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Weapon>,
+        WriteStorage<'s, Tint>,
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
         Read<'s, Time>,
@@ -36,6 +40,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             mut transforms,
             mut vehicles,
             mut weapons,
+            mut tints,
             weapon_fire_resource,
             lazy_update,
             time,
@@ -112,6 +117,19 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                 }
             }
             weapon.weapon_cooldown_timer = (weapon.weapon_cooldown_timer - dt).max(-1.0);
+
+
+            let cooldown_pct = weapon.weapon_cooldown_timer / weapon.weapon_cooldown_reset;
+            let tint_component = tints.get_mut(weapon.icon_entity);
+
+            if let Some(tint) = tint_component {
+                if cooldown_pct < 0.0 {
+                    *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+                }
+                else {
+                    *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.33));
+                }
+            }
         }
     }
 }
