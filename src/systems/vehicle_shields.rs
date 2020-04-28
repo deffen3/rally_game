@@ -1,7 +1,13 @@
-use amethyst::core::{Time, Transform};
-use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage};
-use amethyst::input::{InputHandler, StringBindings};
+use amethyst::{
+    core::{Time, Transform},
+    derive::SystemDesc,
+    ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage},
+    input::{InputHandler, StringBindings},
+    renderer::{
+        palette::Srgba,
+        resources::Tint,
+    },
+};
 
 use crate::components::{Vehicle, Player};
 
@@ -13,14 +19,15 @@ impl<'s> System<'s> for VehicleShieldsSystem {
         ReadStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Transform>,
+        WriteStorage<'s, Tint>,
         Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>,
     );
 
-    fn run(&mut self, (players, mut vehicles, mut transforms, time, _input): Self::SystemData) {
+    fn run(&mut self, (players, mut vehicles, mut transforms, mut tint, time, _input): Self::SystemData) {
         let dt = time.delta_seconds();
 
-        let mut owner: Vec<(usize, f32, f32, f32)> = Vec::new();
+        let mut owner_data: Vec<(usize, f32, f32, f32, f32)> = Vec::new();
 
         for (player, vehicle, vehicle_transform) in (&players, &mut vehicles, &transforms).join() {
             if (vehicle.shield.value > 0.0) && (vehicle.shield.value < vehicle.shield.max) {
@@ -44,17 +51,28 @@ impl<'s> System<'s> for VehicleShieldsSystem {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
-            owner.push((player.id, vehicle_x, vehicle_y, yaw));
+            owner_data.push((player.id,
+                vehicle_x,
+                vehicle_y,
+                yaw, 
+                vehicle.shield.value / vehicle.shield.max
+            ));
         }
 
         for (player, vehicle) in (&players, &mut vehicles).join() {
-            for (player_id_check, x, y, angle) in &owner {
+            for (player_id_check, x, y, angle, damage_pct) in &owner_data {
                 if *player_id_check == player.id {
                     let shield_transform = transforms.get_mut(vehicle.shield.entity).unwrap();
-
+                    
                     shield_transform.set_translation_x(*x);
                     shield_transform.set_translation_y(*y);
                     shield_transform.set_rotation_2d(*angle);
+
+
+                    if *damage_pct < 0.5 {
+                        let shield_tint = tint.get_mut(vehicle.shield.entity).unwrap();
+                        *shield_tint = Tint(Srgba::new(1.0, 1.0, 1.0, *damage_pct*2.0));
+                    }
                 }
             }
         }

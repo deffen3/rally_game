@@ -3,7 +3,11 @@ use amethyst::{
     core::transform::Transform,
     ecs::prelude::World,
     prelude::*,
-    renderer::{SpriteRender, SpriteSheet},
+    renderer::{
+        SpriteRender, SpriteSheet, Transparent,
+        palette::Srgba,
+        resources::Tint,
+    },
 };
 
 use crate::entities::ui::PlayerStatusText;
@@ -97,10 +101,16 @@ pub fn intialize_player(
         sprite_number: 19,
     };
 
+    // White shows the sprite as normal.
+    // You can change the color at any point to modify the sprite's tint.
+    let tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+
     let shield_entity = world
         .create_entity()
         .with(shield_transform)
         .with(shield_sprite_render)
+        .with(Transparent)
+        .with(tint)
         .build();
 
 
