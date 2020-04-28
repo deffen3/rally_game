@@ -72,8 +72,8 @@ fn main() -> amethyst::Result<()> {
             &["vehicle_move_system"],
         )
         .with(
-            systems::VehicleShieldsSystem,
-            "vehicle_shields_system",
+            systems::VehicleShieldArmorHealthSystem,
+            "vehicle_shield_armor_health_system",
             &["input_system"],
         )
         .with(

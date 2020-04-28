@@ -6,7 +6,7 @@ use rand::Rng;
 use std::f32::consts::PI;
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
-use crate::components::{Shield};
+use crate::components::{Shield, Armor, Health};
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 7.0;
@@ -18,16 +18,15 @@ pub struct Vehicle {
     pub dy: f32,
     pub dr: f32,
     pub collision_cooldown_timer: f32,
-    pub health: f32,
-    pub health_max: f32,
-    pub armor: f32,
-    pub armor_max: f32,
+    pub health: Health,
+    pub armor: Armor,
+    pub shield: Shield,
     pub weight: f32,
     pub engine_power: f32,
     pub respawn_timer: f32,
     pub in_respawn: bool,
     pub player_status_text: PlayerStatusText,
-    pub shield: Shield,
+    
 }
 
 impl Component for Vehicle {
@@ -35,7 +34,11 @@ impl Component for Vehicle {
 }
 
 impl Vehicle {
-    pub fn new(player_status_text: PlayerStatusText, shield_entity: Entity) -> Vehicle {
+    pub fn new(player_status_text: PlayerStatusText,
+            health_entity: Entity,
+            armor_entity: Entity,
+            shield_entity: Entity,
+    ) -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
             height: VEHICLE_HEIGHT,
@@ -43,16 +46,18 @@ impl Vehicle {
             dy: 0.0,
             dr: 0.0,
             collision_cooldown_timer: -1.0,
-            health: 100.0,
-            health_max: 100.0,
-            armor: 100.0,
-            armor_max: 100.0,
-            weight: 100.0,
-            engine_power: 100.0,
-            respawn_timer: 5.0,
-            in_respawn: false,
-            player_status_text,
-            shield: Shield {value: 100.0,
+            health: Health {
+                value: 100.0,
+                max: 100.0,
+                entity: health_entity,
+            },
+            armor: Armor {
+                value: 100.0,
+                max: 100.0,
+                entity: armor_entity,
+            },
+            shield: Shield {
+                value: 100.0,
                 max: 100.0,
                 recharge_rate: 2.0,
                 cooldown_timer: -1.0,
@@ -60,6 +65,11 @@ impl Vehicle {
                 radius: 15.0,
                 entity: shield_entity,
             },
+            weight: 100.0,
+            engine_power: 100.0,
+            respawn_timer: 5.0,
+            in_respawn: false,
+            player_status_text,
         }
     }
 }
@@ -87,8 +97,8 @@ pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, d
         vehicle.shield.value = vehicle.shield.max;
         vehicle.shield.cooldown_timer = -1.;
 
-        vehicle.armor = vehicle.armor_max;
-        vehicle.health = vehicle.health_max;
+        vehicle.armor.value = vehicle.armor.max;
+        vehicle.health.value = vehicle.health.max;
 
         let spawn_index = rng.gen_range(0, 4);
 

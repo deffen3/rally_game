@@ -91,10 +91,56 @@ pub fn intialize_player(
 
 
 
+    //Create Health Entity
+    let mut health_transform = Transform::default();
+    health_transform.set_rotation_2d(starting_rotation as f32);
+    health_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.3);
+
+    let health_sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: 21,
+    };
+
+    // White shows the sprite as normal.
+    // You can change the color at any point to modify the sprite's tint.
+    let health_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
+
+    let health_entity = world
+        .create_entity()
+        .with(health_transform)
+        .with(health_sprite_render)
+        .with(Transparent)
+        .with(health_tint)
+        .build();
+
+
+    //Create Armor Entity
+    let mut armor_transform = Transform::default();
+    armor_transform.set_rotation_2d(starting_rotation as f32);
+    armor_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.2);
+
+    let armor_sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: 20,
+    };
+
+    // White shows the sprite as normal.
+    // You can change the color at any point to modify the sprite's tint.
+    let armor_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+
+    let armor_entity = world
+        .create_entity()
+        .with(armor_transform)
+        .with(armor_sprite_render)
+        .with(Transparent)
+        .with(armor_tint)
+        .build();
+
+
     //Create Shield Entity
     let mut shield_transform = Transform::default();
     shield_transform.set_rotation_2d(starting_rotation as f32);
-    shield_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+    shield_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.1);
 
     let shield_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
@@ -103,22 +149,27 @@ pub fn intialize_player(
 
     // White shows the sprite as normal.
     // You can change the color at any point to modify the sprite's tint.
-    let tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+    let shield_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
 
     let shield_entity = world
         .create_entity()
         .with(shield_transform)
         .with(shield_sprite_render)
         .with(Transparent)
-        .with(tint)
+        .with(shield_tint)
         .build();
 
 
+    //Create actual Player with Vehicle and Weapon
     world
         .create_entity()
         .with(vehicle_transform)
         .with(vehicle_sprite_render.clone())
-        .with(Vehicle::new(player_status_text, shield_entity))
+        .with(Vehicle::new(player_status_text, 
+            health_entity,
+            armor_entity,
+            shield_entity,
+        ))
         .with(Weapon::new(
             weapon_type.clone(),
             heat_seeking,
@@ -138,10 +189,7 @@ pub fn intialize_player(
         .with(Player::new(player_index, is_bot))
         .build();
 
-    //I can build all of this as one entity, but then I get only one sprite.
-    //if I separate it into three entities, then now my systems are broken as their
-    //  is no relationship between these entities. Do I need to apply parent child relationships?
-    //  Isn't this going against the purpose/elegance of ECS?
+
 
     //UI vehicle icons
     let x = 20.;

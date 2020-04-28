@@ -6,9 +6,13 @@ pub use self::weapons::{
     weapon_type_from_u8, Weapon, WeaponFire, WeaponTypes,
 };
 pub use self::shields::Shield;
+pub use self::armor::Armor;
+pub use self::health::Health;
 
 mod hitbox;
 mod players;
 mod vehicles;
 mod weapons;
 mod shields;
+mod armor;
+mod health;

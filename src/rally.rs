@@ -268,13 +268,13 @@ pub fn vehicle_damage_model(
         }
     }
 
-    if vehicle.armor > 0.0 {
-        vehicle.armor -= damage * armor_damage_pct / 100.0;
+    if vehicle.armor.value > 0.0 {
+        vehicle.armor.value -= damage * armor_damage_pct / 100.0;
         damage = 0.0;
 
-        if vehicle.armor < 0.0 {
-            damage -= vehicle.armor; //over damage on armor, needs taken from health
-            vehicle.armor = 0.0;
+        if vehicle.armor.value < 0.0 {
+            damage -= vehicle.armor.value; //over damage on armor, needs taken from health
+            vehicle.armor.value = 0.0;
         }
     }
 
@@ -282,11 +282,11 @@ pub fn vehicle_damage_model(
 
     let mut vehicle_destroyed = false;
 
-    if vehicle.health <= health_damage {
+    if vehicle.health.value <= health_damage {
         vehicle_destroyed = true;
-        vehicle.health = 0.0;
+        vehicle.health.value = 0.0;
     } else {
-        vehicle.health -= health_damage;
+        vehicle.health.value -= health_damage;
     }
 
     //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);

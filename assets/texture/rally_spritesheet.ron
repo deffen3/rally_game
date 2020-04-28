@@ -33,7 +33,7 @@ List((
             height: 6,
         ),
         ( //laser beam #5
-            x: 36,
+            x: 32,
             y: 0,
             width: 1,
             height: 12,
@@ -117,10 +117,22 @@ List((
             height: 4,
         ),
         ( //shield bubble #19
-            x: 44,
-            y: 2,
+            x: 36,
+            y: 0,
             width: 13,
             height: 16,
+        ),
+        ( //armor plating #20
+            x: 52,
+            y: 1,
+            width: 9,
+            height: 14,
+        ),
+        ( //vehicle fire #21
+            x: 38,
+            y: 17,
+            width: 7,
+            height: 12,
         ),
     ],
 ))

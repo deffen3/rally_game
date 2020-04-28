@@ -25,12 +25,12 @@ impl<'s> System<'s> for VehicleStatusSystem {
             ui_text
                 .get_mut(vehicle.player_status_text.armor)
                 .unwrap()
-                .text = format!("{:.0}", vehicle.armor.ceil());
+                .text = format!("{:.0}", vehicle.armor.value.ceil());
 
             ui_text
                 .get_mut(vehicle.player_status_text.health)
                 .unwrap()
-                .text = format!("{:.0}", vehicle.health.ceil());
+                .text = format!("{:.0}", vehicle.health.value.ceil());
 
 
             if player.kills >= KILLS_TO_WIN {
