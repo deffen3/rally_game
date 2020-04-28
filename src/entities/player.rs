@@ -89,8 +89,8 @@ pub fn intialize_player(
 
     //Create Shield Entity
     let mut shield_transform = Transform::default();
-    //shield_transform.set_rotation_2d(starting_rotation as f32);
-    //shield_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+    shield_transform.set_rotation_2d(starting_rotation as f32);
+    shield_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
 
     let shield_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
@@ -102,7 +102,7 @@ pub fn intialize_player(
         .with(shield_transform)
         .with(shield_sprite_render)
         .build();
-        
+
 
     world
         .create_entity()
