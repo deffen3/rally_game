@@ -154,14 +154,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     } else if weapon.weapon_type == WeaponTypes::LaserSword {
                                         player.bot_mode = BotMode::Swording;
                                         println!("{} Swording", player.id);
+                                        player.bot_move_cooldown = 5.0;
                                     } else {
                                         player.bot_mode = BotMode::StopAim;
                                         println!("{} StopAim", player.id);
+                                        player.bot_move_cooldown = 5.0;
                                     }
-
-                                    player.bot_move_cooldown = 5.0;
-                                } else {
-                                    //continue with Running mode
+                                } 
+                                
+                                if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
+                                    //continue with Running or Mining mode
                                     if player.bot_move_cooldown < 0.0 {
                                         //issue new move command
                                         vehicle_accel = Some(rng.gen_range(0.2, 0.6) as f32);
@@ -202,14 +204,25 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 } else {
                                     //continue with Attacking mode
                                     let attack_angle;
+                                    let turn_value;
+
                                     if player.bot_mode == BotMode::Swording {
-                                        attack_angle = -*target_angle;
+                                        //spin target angle by 180deg
+                                        if *target_angle < 0.0 {
+                                            attack_angle = *target_angle + PI;
+                                        }
+                                        else {
+                                            attack_angle = *target_angle - PI;
+                                        }
+                                        turn_value = 1.0;
                                         vehicle_accel = Some(-1.0);
                                     } else if player.bot_mode == BotMode::Chasing {
                                         attack_angle = *target_angle;
+                                        turn_value = 1.0;
                                         vehicle_accel = Some(0.6);
                                     } else {
                                         attack_angle = *target_angle;
+                                        turn_value = 1.0;
                                     }
 
                                     if yaw < 0.0 {
@@ -219,9 +232,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                             //println!("Right {}, Right {} ", yaw, *target_angle);
 
                                             if (yaw.abs() - attack_angle.abs()) < 0.01 {
-                                                vehicle_turn = Some(-1.0);
+                                                vehicle_turn = Some(-turn_value);
                                             } else if (yaw.abs() - attack_angle.abs()) > 0.01 {
-                                                vehicle_turn = Some(1.0);
+                                                vehicle_turn = Some(turn_value);
                                             } else {
                                                 vehicle_turn = Some(0.0);
                                             }
@@ -229,7 +242,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                             //target to the left
                                             //println!("Right {}, Left {} ", yaw, *target_angle);
 
-                                            vehicle_turn = Some(1.0);
+                                            vehicle_turn = Some(turn_value);
                                         }
                                     } else {
                                         //aimed to the left
@@ -237,15 +250,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                             //target to the right
                                             //println!("Left {}, Right {} ", yaw, *target_angle);
 
-                                            vehicle_turn = Some(1.0);
+                                            vehicle_turn = Some(turn_value);
                                         } else {
                                             //target to the left == PERFECT!!
                                             //println!("Left {}, Left {} ", yaw, *target_angle);
 
                                             if (yaw.abs() - attack_angle.abs()) > 0.01 {
-                                                vehicle_turn = Some(-1.0);
+                                                vehicle_turn = Some(-turn_value);
                                             } else if (yaw.abs() - attack_angle.abs()) < 0.01 {
-                                                vehicle_turn = Some(1.0);
+                                                vehicle_turn = Some(turn_value);
                                             } else {
                                                 vehicle_turn = Some(0.0);
                                             }
