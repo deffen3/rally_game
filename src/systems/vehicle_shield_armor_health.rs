@@ -65,18 +65,18 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                     if vehicle.health.value < vehicle.health.max {
                         //repair initiated
                         vehicle.repair.activated = true;
-                        vehicle.repair.cooldown_timer += dt;
+                        vehicle.repair.init_timer += dt;
                     } else if vehicle.shield.value == 0.0 {
                         //repair initiated
                         vehicle.repair.activated = true;
-                        vehicle.repair.cooldown_timer += dt;
+                        vehicle.repair.init_timer += dt;
                     } else { //cancel
                         vehicle.repair.activated = false;
-                        vehicle.repair.cooldown_timer = 0.0;
+                        vehicle.repair.init_timer = 0.0;
                         vehicle.shield.repair_timer = 0.0;
                     }
 
-                    if vehicle.repair.cooldown_timer >= vehicle.repair.cooldown_threshold {
+                    if vehicle.repair.init_timer >= vehicle.repair.init_threshold {
                         //repair successful started
                         if vehicle.health.value < vehicle.health.max {
                             vehicle.health.value += vehicle.health.repair_rate * dt;
@@ -88,20 +88,20 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                             }
                         } else { //completed
                             vehicle.repair.activated = false;
-                            vehicle.repair.cooldown_timer = 0.0;
+                            vehicle.repair.init_timer = 0.0;
                             vehicle.shield.repair_timer = 0.0;
                         }
                     }
                 }
                 else { //cancel
                     vehicle.repair.activated = false;
-                    vehicle.repair.cooldown_timer = 0.0;
+                    vehicle.repair.init_timer = 0.0;
                     vehicle.shield.repair_timer = 0.0;
                 }
             }
             else { //cancel
                 vehicle.repair.activated = false;
-                vehicle.repair.cooldown_timer = 0.0;
+                vehicle.repair.init_timer = 0.0;
                 vehicle.shield.repair_timer = 0.0;
             }
 
@@ -112,7 +112,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 vehicle.shield.value / vehicle.shield.max,
                 vehicle.armor.value / vehicle.armor.max,
                 vehicle.health.value / vehicle.health.max,
-                vehicle.repair.cooldown_timer / vehicle.repair.cooldown_threshold,
+                vehicle.repair.init_timer / vehicle.repair.init_threshold,
                 vehicle.shield.repair_timer / vehicle.shield.repair_threshold,
             ));
         }

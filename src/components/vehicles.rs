@@ -51,7 +51,7 @@ impl Vehicle {
             health: Health {
                 value: 100.0,
                 max: 100.0,
-                repair_rate: 2.5,
+                repair_rate: 5.0,
                 entity: health_entity,
             },
             armor: Armor {
@@ -72,8 +72,8 @@ impl Vehicle {
             },
             repair: Repair {
                 activated: false,
-                cooldown_timer: 0.0,
-                cooldown_threshold: 5.0,
+                init_timer: 0.0,
+                init_threshold: 5.0,
                 entity: repair_entity,
             },
             weight: 100.0,
