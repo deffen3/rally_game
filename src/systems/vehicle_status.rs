@@ -42,7 +42,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
             if player.kills >= KILLS_TO_WIN {
                 if self.winners.contains(&player.id) {
-
+                    //pass
                 }
                 else {
                     self.winners.push(player.id.clone());

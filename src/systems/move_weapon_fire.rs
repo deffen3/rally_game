@@ -6,6 +6,7 @@ use crate::components::{Player, Vehicle, WeaponFire};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 use std::f32::consts::PI;
+use std::collections::HashMap;
 
 #[derive(SystemDesc)]
 pub struct MoveWeaponFireSystem;
@@ -29,7 +30,9 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         let mut vehicle_owner: Vec<(usize, f32, f32, f32)> = Vec::new();
         let mut heat_seeking_angle: Vec<(usize, f32)> = Vec::new();
 
-        for (weapon_fire, transform) in (&mut weapon_fires, &transforms).join() {
+        let mut heat_seeking_angle_map = HashMap::new();
+
+        for (entity, weapon_fire, transform) in (&entities, &mut weapon_fires, &transforms).join() {
             let fire_x = transform.translation().x;
             let fire_y = transform.translation().y;
 
@@ -62,7 +65,10 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                 let target_angle =
                     closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0); //rotate by PI/2 to line up with yaw angle
                 let velocity_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
-                heat_seeking_angle.push((weapon_fire.owner_player_id, target_angle));
+
+                heat_seeking_angle.push((weapon_fire.owner_player_id.clone(), target_angle.clone()));
+
+                heat_seeking_angle_map.insert(entity.id(), (weapon_fire.owner_player_id, target_angle));
             }
 
             if weapon_fire.attached {
@@ -86,8 +92,11 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
             (&*entities, &mut weapon_fires, &mut transforms).join()
         {
             if weapon_fire.heat_seeking == true {
-                for (player_id, angle) in &heat_seeking_angle {
-                    if *player_id == weapon_fire.owner_player_id {
+
+                if let heat_seeking_data = Some(heat_seeking_angle_map.get(&entity.id())) {
+                    if let Some(heat_seeking_data) = heat_seeking_data.unwrap() {
+                        let (player_id, angle) = heat_seeking_data;
+
                         transform.set_rotation_2d(*angle);
 
                         let velocity_x_comp = -angle.sin(); //left is -, right is +
@@ -105,9 +114,14 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let sq_vel2 = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                         let abs_vel2 = sq_vel2.sqrt();
 
-                        //println!("{} : {}", abs_vel, abs_vel2);
+                        //println!("{} : {}", abs_vel, abs_vel2);   
                     }
                 }
+
+                
+                // for (player_id, angle) in &heat_seeking_angle {
+                //     if *player_id == weapon_fire.owner_player_id {
+                        
             }
 
             if weapon_fire.attached == true {
