@@ -11,8 +11,12 @@
   },
   actions: {
     "p1_shoot": [[Key(Space)]],
+    "p1_repair": [[Key(R)]],
     "p2_shoot": [[Key(RControl)]],
+    "p2_repair": [[Key(RShift)]],
     "p3_shoot": [[Key(Numpad0)]],
+    "p3_repair": [[Key(NumpadEnter)]],
     "p4_shoot": [[Key(RAlt)]],
+    "p4_repair": [[Key(Semicolon)]],
   },
 )

@@ -50,7 +50,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
         let mut rng = rand::thread_rng();
         let dt = time.delta_seconds();
 
-        for (player, _vehicle, weapon, transform) in
+        for (player, vehicle, weapon, transform) in
             (&mut players, &mut vehicles, &mut weapons, &mut transforms).join()
         {
             //let vehicle_weapon_fire = input.action_is_down(&ActionBinding::VehicleShoot(player.id));
@@ -74,45 +74,47 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             }
 
             if let Some(fire) = vehicle_weapon_fire {
-                if fire && weapon.weapon_cooldown_timer <= 0.0 {
-                    let vehicle_rotation = transform.rotation();
-                    let (_, _, yaw) = vehicle_rotation.euler_angles();
+                if vehicle.repair.activated == false {
+                    if fire && weapon.weapon_cooldown_timer <= 0.0 {
+                        let vehicle_rotation = transform.rotation();
+                        let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-                    let yaw_x_comp = -yaw.sin(); //left is -, right is +
-                    let yaw_y_comp = yaw.cos(); //up is +, down is -
+                        let yaw_x_comp = -yaw.sin(); //left is -, right is +
+                        let yaw_y_comp = yaw.cos(); //up is +, down is -
 
-                    let fire_position = Vector3::new(
-                        transform.translation().x + yaw_x_comp * 5.0,
-                        transform.translation().y + yaw_y_comp * 5.0,
-                        0.0,
-                    );
-
-                    let vehicle_rotation = transform.rotation();
-                    let (_, _, fire_angle) = vehicle_rotation.euler_angles();
-
-                    if weapon.attached == false
-                        || (weapon.attached == true && weapon.deployed == false)
-                    {
-                        if weapon.deployed == false {
-                            weapon.deployed = true;
-                        }
-                        fire_weapon(
-                            &entities,
-                            &weapon_fire_resource,
-                            weapon.clone(),
-                            fire_position,
-                            fire_angle,
-                            player.id,
-                            &lazy_update,
+                        let fire_position = Vector3::new(
+                            transform.translation().x + yaw_x_comp * 5.0,
+                            transform.translation().y + yaw_y_comp * 5.0,
+                            0.0,
                         );
-                    }
 
-                    if fire && weapon.burst_shots < weapon.burst_shot_limit {
-                        weapon.weapon_cooldown_timer = weapon.burst_cooldown_reset;
-                        weapon.burst_shots += 1;
-                    } else {
-                        weapon.weapon_cooldown_timer = weapon.weapon_cooldown_reset;
-                        weapon.burst_shots = 0;
+                        let vehicle_rotation = transform.rotation();
+                        let (_, _, fire_angle) = vehicle_rotation.euler_angles();
+
+                        if weapon.attached == false
+                            || (weapon.attached == true && weapon.deployed == false)
+                        {
+                            if weapon.deployed == false {
+                                weapon.deployed = true;
+                            }
+                            fire_weapon(
+                                &entities,
+                                &weapon_fire_resource,
+                                weapon.clone(),
+                                fire_position,
+                                fire_angle,
+                                player.id,
+                                &lazy_update,
+                            );
+                        }
+
+                        if fire && weapon.burst_shots < weapon.burst_shot_limit {
+                            weapon.weapon_cooldown_timer = weapon.burst_cooldown_reset;
+                            weapon.burst_shots += 1;
+                        } else {
+                            weapon.weapon_cooldown_timer = weapon.weapon_cooldown_reset;
+                            weapon.burst_shots = 0;
+                        }
                     }
                 }
             }
@@ -127,7 +129,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                     *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
                 }
                 else {
-                    *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.33));
+                    *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.15));
                 }
             }
         }

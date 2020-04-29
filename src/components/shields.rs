@@ -7,6 +7,8 @@ pub struct Shield {
     pub recharge_rate: f32,
     pub cooldown_timer: f32,
     pub cooldown_reset: f32,
+    pub repair_timer: f32,
+    pub repair_threshold: f32,
     pub radius: f32,
     pub entity: Entity,
 }

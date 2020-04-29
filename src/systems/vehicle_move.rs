@@ -114,7 +114,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 //let max_velocity: f32 = 0.5;
 
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power / 100.0;
-                let rotate_friction_decel_rate: f32 = 0.97 * vehicle.engine_power / 100.0;
+                let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_power / 100.0;
 
                 let thrust_accel_rate: f32 = 0.9 * vehicle.engine_power / 100.0;
                 let thrust_decel_rate: f32 = 0.6 * vehicle.engine_power / 100.0;
@@ -150,14 +150,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     //change modes to attack
                                     if weapon.weapon_type == WeaponTypes::Mine {
                                         player.bot_mode = BotMode::Mining;
-                                        println!("{} Mining", player.id);
+                                        //println!("{} Mining", player.id);
                                     } else if weapon.weapon_type == WeaponTypes::LaserSword {
                                         player.bot_mode = BotMode::Swording;
-                                        println!("{} Swording", player.id);
+                                        //println!("{} Swording", player.id);
                                         player.bot_move_cooldown = 5.0;
                                     } else {
                                         player.bot_mode = BotMode::StopAim;
-                                        println!("{} StopAim", player.id);
+                                        //println!("{} StopAim", player.id);
                                         player.bot_move_cooldown = 5.0;
                                     }
                                 } 
@@ -196,10 +196,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                     if run_or_chase {
                                         player.bot_mode = BotMode::Running;
-                                        println!("{} Running", player.id);
+                                        //println!("{} Running", player.id);
                                     } else {
                                         player.bot_mode = BotMode::Chasing;
-                                        println!("{} Chasing", player.id);
+                                        //println!("{} Chasing", player.id);
                                     }
                                 } else {
                                     //continue with Attacking mode
@@ -273,7 +273,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::CollisionMove;
-                            println!("{} CollisionMove", player.id);
+                            //println!("{} CollisionMove", player.id);
                             player.bot_move_cooldown = BOT_COLLISION_MOVE_COOLDOWN_RESET;
                         }
                     } else if player.bot_mode == BotMode::CollisionMove {
@@ -282,7 +282,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::Running;
-                            println!("{} Running", player.id);
+                            //println!("{} Running", player.id);
                         }
                     }
                 }
@@ -300,7 +300,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //Update vehicle velocity from vehicle speed accel input
                 if let Some(move_amount) = vehicle_accel {
-                    let scaled_amount: f32 = if move_amount > 0.0 {
+                    let scaled_amount: f32 = if vehicle.repair.activated == true {
+                        0.0 as f32
+                    } else if move_amount > 0.0 {
                         thrust_accel_rate * move_amount as f32
                     } else {
                         thrust_decel_rate * move_amount as f32
@@ -345,7 +347,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //Apply vehicle rotation from turn input
                 if let Some(turn_amount) = vehicle_turn {
-                    let scaled_amount = rotate_accel_rate * turn_amount as f32;
+                    let scaled_amount: f32 = if vehicle.repair.activated == true {
+                        0.0 as f32
+                    }
+                    else {
+                        rotate_accel_rate * turn_amount as f32
+                    };
 
                     if scaled_amount > 0.1 || scaled_amount < -0.1 {
                         if vehicle.dr > 0.01 {
@@ -469,7 +476,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     && (player.bot_mode != BotMode::CollisionMove)
                 {
                     player.bot_mode = BotMode::CollisionTurn;
-                    println!("{} CollisionTurn", player.id);
+                    //println!("{} CollisionTurn", player.id);
                     player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
                 }
 
@@ -508,7 +515,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         && (player.bot_mode != BotMode::CollisionMove)
                     {
                         player.bot_mode = BotMode::CollisionTurn;
-                        println!("{} CollisionTurn", player.id);
+                        //println!("{} CollisionTurn", player.id);
                         player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
                     }
 

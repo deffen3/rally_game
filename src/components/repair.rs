@@ -1,13 +1,13 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 
 #[derive(Clone)]
-pub struct Health {
-    pub value: f32,
-    pub max: f32,
-    pub repair_rate: f32,
+pub struct Repair {
+    pub activated: bool,
+    pub cooldown_timer: f32,
+    pub cooldown_threshold: f32,
     pub entity: Entity,
 }
 
-impl Component for Health {
+impl Component for Repair {
     type Storage = DenseVecStorage<Self>;
 }

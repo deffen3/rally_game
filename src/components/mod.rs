@@ -8,6 +8,7 @@ pub use self::weapons::{
 pub use self::shields::Shield;
 pub use self::armor::Armor;
 pub use self::health::Health;
+pub use self::repair::Repair;
 
 mod hitbox;
 mod players;
@@ -16,3 +17,4 @@ mod weapons;
 mod shields;
 mod armor;
 mod health;
+mod repair;

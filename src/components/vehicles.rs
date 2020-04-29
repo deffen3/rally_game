@@ -6,7 +6,7 @@ use rand::Rng;
 use std::f32::consts::PI;
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
-use crate::components::{Shield, Armor, Health};
+use crate::components::{Shield, Armor, Health, Repair};
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 7.0;
@@ -21,6 +21,7 @@ pub struct Vehicle {
     pub health: Health,
     pub armor: Armor,
     pub shield: Shield,
+    pub repair: Repair,
     pub weight: f32,
     pub engine_power: f32,
     pub respawn_timer: f32,
@@ -38,6 +39,7 @@ impl Vehicle {
             health_entity: Entity,
             armor_entity: Entity,
             shield_entity: Entity,
+            repair_entity: Entity,
     ) -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
@@ -49,6 +51,7 @@ impl Vehicle {
             health: Health {
                 value: 100.0,
                 max: 100.0,
+                repair_rate: 2.5,
                 entity: health_entity,
             },
             armor: Armor {
@@ -59,11 +62,19 @@ impl Vehicle {
             shield: Shield {
                 value: 100.0,
                 max: 100.0,
-                recharge_rate: 2.0,
+                recharge_rate: 5.0,
                 cooldown_timer: -1.0,
-                cooldown_reset: 5.0,
+                cooldown_reset: 3.5,
+                repair_timer: 0.0,
+                repair_threshold: 5.0,
                 radius: 15.0,
                 entity: shield_entity,
+            },
+            repair: Repair {
+                activated: false,
+                cooldown_timer: 0.0,
+                cooldown_threshold: 5.0,
+                entity: repair_entity,
             },
             weight: 100.0,
             engine_power: 100.0,

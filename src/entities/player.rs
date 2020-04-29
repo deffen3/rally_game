@@ -114,6 +114,29 @@ pub fn intialize_player(
         .build();
 
 
+    //Create Repair Lines Entity
+    let mut repair_transform = Transform::default();
+    repair_transform.set_rotation_2d(starting_rotation as f32);
+    repair_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.4);
+
+    let repair_sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: 22,
+    };
+
+    // White shows the sprite as normal.
+    // You can change the color at any point to modify the sprite's tint.
+    let repair_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
+
+    let repair_entity = world
+        .create_entity()
+        .with(repair_transform)
+        .with(repair_sprite_render)
+        .with(Transparent)
+        .with(repair_tint)
+        .build();
+
+
     //Create Armor Entity
     let mut armor_transform = Transform::default();
     armor_transform.set_rotation_2d(starting_rotation as f32);
@@ -263,6 +286,7 @@ pub fn intialize_player(
             health_entity,
             armor_entity,
             shield_entity,
+            repair_entity,
         ))
         .with(Weapon::new(
             weapon_icon,

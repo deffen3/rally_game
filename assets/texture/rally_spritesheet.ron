@@ -134,5 +134,11 @@ List((
             width: 7,
             height: 12,
         ),
+        ( //repair lines #22
+            x: 50,
+            y: 17,
+            width: 10,
+            height: 14,
+        ),
     ],
 ))
