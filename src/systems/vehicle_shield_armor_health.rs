@@ -185,7 +185,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
 
                         let tint = tints.get_mut(vehicle.repair.entity).unwrap();
                         if *shield_repair_pct > 0.01 {
-                            *tint = Tint(Srgba::new(0.4, 0.1, 1.0, 1.0));
+                            *tint = Tint(Srgba::new(0.6, 0.1, 1.0, 1.0));
                         } else if *health_repair_pct > 0.01 {
                             *tint = Tint(Srgba::new(1.0, 1.0, 0.0, 1.0));
                         } else {
