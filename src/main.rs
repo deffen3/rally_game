@@ -77,7 +77,7 @@ fn main() -> amethyst::Result<()> {
             &["input_system"],
         )
         .with(
-            systems::VehicleStatusSystem,
+            systems::VehicleStatusSystem::default(),
             "vehicle_status_system",
             &["input_system"],
         )

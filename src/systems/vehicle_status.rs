@@ -1,18 +1,25 @@
-use amethyst::ecs::{Join, ReadStorage, System, SystemData, WriteStorage};
+use amethyst::ecs::{Join, ReadStorage, System, SystemData, WriteStorage, World};
 use amethyst::{derive::SystemDesc, ui::UiText};
 
 use crate::components::{Player, Vehicle};
 use crate::rally::KILLS_TO_WIN;
 
-#[derive(SystemDesc)]
-pub struct VehicleStatusSystem;
+#[derive(SystemDesc, Default)]
+pub struct VehicleStatusSystem {
+    pub winners: Vec<usize>,
+}
 
 impl<'s> System<'s> for VehicleStatusSystem {
     type SystemData = (
+
         ReadStorage<'s, Player>,
         ReadStorage<'s, Vehicle>,
         WriteStorage<'s, UiText>,
     );
+
+    fn setup(&mut self, _world: &mut World) {
+        self.winners = vec![];
+    }
 
     fn run(&mut self, (players, vehicles, mut ui_text): Self::SystemData) {
         //for (player, vehicle) in (players, vehicles).join() {
@@ -34,10 +41,25 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
 
             if player.kills >= KILLS_TO_WIN {
-                ui_text
-                    .get_mut(vehicle.player_status_text.kills)
-                    .unwrap()
-                    .text = "WIN!".to_string();
+                if self.winners.contains(&player.id) {
+
+                }
+                else {
+                    self.winners.push(player.id.clone());
+
+                    let text_out = match self.winners.len() {
+                        1 => "1st!".to_string(),
+                        2 => "2nd!".to_string(),
+                        3 => "3rd!".to_string(),
+                        4 => "4th!".to_string(),
+                        _ => "???".to_string(),
+                    };
+
+                    ui_text
+                        .get_mut(vehicle.player_status_text.kills)
+                        .unwrap()
+                        .text = text_out;
+                }
             }
             else {
                 ui_text
