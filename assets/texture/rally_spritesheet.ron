@@ -135,10 +135,10 @@ List((
             height: 12,
         ),
         ( //repair lines #22
-            x: 50,
+            x: 48,
             y: 17,
-            width: 10,
-            height: 14,
+            width: 12,
+            height: 16,
         ),
     ],
 ))

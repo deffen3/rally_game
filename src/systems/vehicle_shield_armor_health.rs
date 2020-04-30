@@ -9,6 +9,8 @@ use amethyst::{
     },
 };
 
+use rand::Rng;
+
 use crate::components::{Vehicle, Player};
 
 #[derive(SystemDesc)]
@@ -183,11 +185,17 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                         transform.set_translation_y(*y);
                         transform.set_rotation_2d(*angle);
 
+                        let mut rng = rand::thread_rng();
+                        
+                        
+
                         let tint = tints.get_mut(vehicle.repair.entity).unwrap();
                         if *shield_repair_pct > 0.01 {
-                            *tint = Tint(Srgba::new(0.6, 0.1, 1.0, 1.0));
+                            let blue = rng.gen_range(0.5, 1.0);
+                            *tint = Tint(Srgba::new(0.0, 0.0, blue, blue));
                         } else if *health_repair_pct > 0.01 {
-                            *tint = Tint(Srgba::new(1.0, 1.0, 0.0, 1.0));
+                            let red = rng.gen_range(0.5, 1.0);
+                            *tint = Tint(Srgba::new(red, 0.0, 0.0, red));
                         } else {
                             *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
                         }
