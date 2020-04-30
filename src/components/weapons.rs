@@ -238,8 +238,6 @@ pub fn build_named_weapon(
     weapon_name: WeaponNames,
 ) -> WeaponStats {
 
-    println!("Building weapon for {:?}", weapon_name);
-    
     let WEAPON_CONFIGS: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
 
     if let weapon_config = Some(WEAPON_CONFIGS.get(&weapon_name)) {
