@@ -9,6 +9,7 @@ amethyst = "0.15.0"
 serde = { version = "1", features = ["derive"] }
 specs-physics = { git = "https://github.com/paulkernfeld/specs-physics" }
 rand = "0.7.3"
+ron = "0.2.0"
 
 [features]
 default = ["vulkan"]

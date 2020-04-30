@@ -13,7 +13,6 @@ use std::f32::consts::PI;
 
 use crate::components::{
     check_respawn_vehicle, kill_restart_vehicle, BotMode, Hitbox, Player, Vehicle, Weapon,
-    WeaponTypes,
 };
 
 use crate::rally::{
@@ -148,10 +147,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 if *closest_vehicle_dist <= 100.0 && player.bot_move_cooldown < 0.0
                                 {
                                     //change modes to attack
-                                    if weapon.weapon_type == WeaponTypes::Mine {
+                                    if weapon.stats.shot_speed <= 0.0 { //Typically just Mines
                                         player.bot_mode = BotMode::Mining;
                                         //println!("{} Mining", player.id);
-                                    } else if weapon.weapon_type == WeaponTypes::LaserSword {
+                                    } else if weapon.stats.attached == true { //Typically just LaserSword
                                         player.bot_mode = BotMode::Swording;
                                         //println!("{} Swording", player.id);
                                         player.bot_move_cooldown = 5.0;

@@ -75,7 +75,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
 
             if let Some(fire) = vehicle_weapon_fire {
                 if vehicle.repair.activated == false {
-                    if fire && weapon.weapon_cooldown_timer <= 0.0 {
+                    if fire && weapon.cooldown_timer <= 0.0 {
                         let vehicle_rotation = transform.rotation();
                         let (_, _, yaw) = vehicle_rotation.euler_angles();
 
@@ -91,11 +91,11 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                         let vehicle_rotation = transform.rotation();
                         let (_, _, fire_angle) = vehicle_rotation.euler_angles();
 
-                        if weapon.attached == false
-                            || (weapon.attached == true && weapon.deployed == false)
+                        if weapon.stats.attached == false
+                            || (weapon.stats.attached == true && weapon.stats.deployed == false)
                         {
-                            if weapon.deployed == false {
-                                weapon.deployed = true;
+                            if weapon.stats.deployed == false {
+                                weapon.stats.deployed = true;
                             }
                             fire_weapon(
                                 &entities,
@@ -108,20 +108,20 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                             );
                         }
 
-                        if fire && weapon.burst_shots < weapon.burst_shot_limit {
-                            weapon.weapon_cooldown_timer = weapon.burst_cooldown_reset;
+                        if weapon.stats.burst_shot_limit > 0 && weapon.burst_shots < weapon.stats.burst_shot_limit {
+                            weapon.cooldown_timer = weapon.stats.burst_cooldown_reset;
                             weapon.burst_shots += 1;
                         } else {
-                            weapon.weapon_cooldown_timer = weapon.weapon_cooldown_reset;
+                            weapon.cooldown_timer = weapon.stats.cooldown_reset;
                             weapon.burst_shots = 0;
                         }
                     }
                 }
             }
-            weapon.weapon_cooldown_timer = (weapon.weapon_cooldown_timer - dt).max(-1.0);
+            weapon.cooldown_timer = (weapon.cooldown_timer - dt).max(-1.0);
 
 
-            let cooldown_pct = weapon.weapon_cooldown_timer / weapon.weapon_cooldown_reset;
+            let cooldown_pct = weapon.cooldown_timer / weapon.stats.cooldown_reset;
             let tint_component = tints.get_mut(weapon.icon_entity);
 
             if let Some(tint) = tint_component {

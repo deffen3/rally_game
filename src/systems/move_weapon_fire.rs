@@ -106,10 +106,10 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let abs_vel = sq_vel.sqrt();
 
                         weapon_fire.dx += weapon_fire.heat_seeking_agility * velocity_x_comp * dt;
-                        weapon_fire.dx *= weapon_fire.weapon_shot_speed / abs_vel;
+                        weapon_fire.dx *= weapon_fire.shot_speed / abs_vel;
 
                         weapon_fire.dy += weapon_fire.heat_seeking_agility * velocity_y_comp * dt;
-                        weapon_fire.dy *= weapon_fire.weapon_shot_speed / abs_vel;
+                        weapon_fire.dy *= weapon_fire.shot_speed / abs_vel;
 
                         let sq_vel2 = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                         let abs_vel2 = sq_vel2.sqrt();

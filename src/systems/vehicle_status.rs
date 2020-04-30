@@ -11,7 +11,6 @@ pub struct VehicleStatusSystem {
 
 impl<'s> System<'s> for VehicleStatusSystem {
     type SystemData = (
-
         ReadStorage<'s, Player>,
         ReadStorage<'s, Vehicle>,
         WriteStorage<'s, UiText>,

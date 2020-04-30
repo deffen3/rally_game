@@ -10,8 +10,8 @@ use amethyst::{
 };
 
 use crate::components::{
-    get_next_weapon_type, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
-    Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire, WeaponTypes,
+    get_next_weapon_name, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
+    Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire, WeaponTypes, WeaponNames,
 };
 
 use crate::rally::vehicle_damage_model;
@@ -90,7 +90,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
-        let mut player_makes_kill: Vec<(usize, usize, WeaponTypes)> = Vec::new();
+        let mut player_makes_kill: Vec<(usize, usize, WeaponNames)> = Vec::new();
 
         for (player, vehicle, _weapon, vehicle_transform) in
             (&players, &mut vehicles, &mut weapons, &transforms).join()
@@ -149,7 +149,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             player_makes_kill.push((
                                 weapon_fire.owner_player_id.clone(),
                                 player.id.clone(),
-                                weapon_fire.weapon_type.clone(),
+                                weapon_fire.weapon_name.clone(),
                             ));
                         }
 
@@ -171,23 +171,23 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         for (player, mut weapon, vehicle, transform) in
             (&mut players, &mut weapons, &mut vehicles, &mut transforms).join()
         {
-            for (killer_id, killed_id, weapon_type) in &player_makes_kill {
+            for (killer_id, killed_id, weapon_name) in &player_makes_kill {
                 if *killer_id == player.id {
                     //classic gun-game rules: upgrade weapon type for player who got the kill
-                    let new_weapon_type = get_next_weapon_type(weapon_type.clone());
+
+                    let new_weapon_name = get_next_weapon_name(weapon_name.clone());
 
                     player.kills += 1;
 
-                    if let Some(some_weapon_type) = new_weapon_type.clone() {
-                        update_weapon_properties(weapon, some_weapon_type);
+                    if let Some(new_weapon_name) = new_weapon_name.clone() {
+                        weapon_icons_old.push((player.id.clone(), weapon.stats.weapon_type.clone()));
 
-                        weapon_icons_old.push((player.id.clone(), weapon_type.clone()));
+                        update_weapon_properties(weapon, new_weapon_name);                        
 
                         update_weapon_icon(
                             &entities,
                             &mut weapon,
                             &weapon_fire_resource,
-                            new_weapon_type.unwrap(),
                             player.id.clone(),
                             &lazy_update,
                         );

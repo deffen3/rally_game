@@ -15,7 +15,7 @@ use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
 use crate::components::{
-    build_standard_weapon, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponTypes,
+    build_named_weapon, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponTypes, WeaponNames,
 };
 use crate::resources::WeaponFireResource;
 
@@ -25,7 +25,7 @@ pub fn intialize_player(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>,
     player_index: usize,
-    weapon_type: WeaponTypes,
+    weapon_name: WeaponNames,
     weapon_fire_resource: WeaponFireResource,
     is_bot: bool,
     player_status_text: PlayerStatusText,
@@ -72,22 +72,7 @@ pub fn intialize_player(
         sprite_number: player_index,
     };
 
-    let (
-        weapon_type,
-        heat_seeking,
-        heat_seeking_agility,
-        attached,
-        deployed,
-        weapon_cooldown,
-        burst_shot_limit,
-        burst_cooldown,
-        weapon_shot_speed,
-        damage,
-        shield_damage_pct,
-        armor_damage_pct,
-        piercing_damage_pct,
-        health_damage_pct,
-    ) = build_standard_weapon(weapon_type);
+    let weapon_stats = build_named_weapon(weapon_name.clone());
 
 
 
@@ -219,7 +204,7 @@ pub fn intialize_player(
 
     let weapon_icon_dx = 70.0;
 
-    let (icon_scale, mut weapon_sprite) = match weapon_type.clone() {
+    let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type.clone() {
         WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
         WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
@@ -239,7 +224,7 @@ pub fn intialize_player(
         WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
     };
 
-    if weapon_type.clone() == WeaponTypes::Mine {
+    if weapon_stats.weapon_type.clone() == WeaponTypes::Mine {
         weapon_sprite = match player_index {
             0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
             1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
@@ -269,7 +254,7 @@ pub fn intialize_player(
 
     let weapon_icon = world
         .create_entity()
-        .with(PlayerWeaponIcon::new(player_index, weapon_type.clone()))
+        .with(PlayerWeaponIcon::new(player_index, weapon_stats.weapon_type.clone()))
         .with(weapon_sprite)
         .with(icon_weapon_transform)
         .with(icon_tint)
@@ -289,21 +274,9 @@ pub fn intialize_player(
             repair_entity,
         ))
         .with(Weapon::new(
+            weapon_name,
             weapon_icon,
-            weapon_type.clone(),
-            heat_seeking,
-            heat_seeking_agility,
-            attached,
-            deployed,
-            weapon_cooldown,
-            burst_shot_limit,
-            burst_cooldown,
-            weapon_shot_speed,
-            damage,
-            shield_damage_pct,
-            armor_damage_pct,
-            piercing_damage_pct,
-            health_damage_pct,
+            weapon_stats,
         ))
         .with(Player::new(player_index, is_bot))
         .build();

@@ -13,7 +13,8 @@ use crate::audio::initialize_audio;
 //use rand::Rng;
 
 use crate::components::{
-    weapon_type_from_u8, Hitbox, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire, WeaponTypes,
+    Hitbox, PlayerWeaponIcon, Vehicle, 
+    Weapon, WeaponFire, WeaponTypes, WeaponNames,
 };
 
 use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
@@ -69,58 +70,12 @@ impl SimpleState for Rally {
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
-                weapon_type_from_u8(0),
+                WeaponNames::LaserDouble,
                 weapon_fire_resource.clone(),
                 is_bot,
                 player_status_texts[player_index],
             );
         }
-
-        //Debug Spawns
-        /*
-        let weapon1: WeaponTypes = weapon_type_from_u8(0);
-        let weapon2: WeaponTypes = weapon_type_from_u8(0);
-        let weapon3: WeaponTypes = weapon_type_from_u8(0);
-        let weapon4: WeaponTypes = weapon_type_from_u8(0);
-
-        /*
-        let mut rng = rand::thread_rng();
-
-        let weapon1: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 1) as u8);
-        let weapon2: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
-        let weapon3: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
-        let weapon4: WeaponTypes = weapon_type_from_u8(rng.gen_range(0, 9) as u8);
-        */
-
-        intialize_player(
-            world,
-            self.sprite_sheet_handle.clone().unwrap(),
-            0 as usize,
-            weapon1,
-        );
-        intialize_player(
-            world,
-            self.sprite_sheet_handle.clone().unwrap(),
-            1 as usize,
-            weapon2,
-        );
-        intialize_player(
-            world,
-            self.sprite_sheet_handle.clone().unwrap(),
-            2 as usize,
-            weapon3,
-        );
-        intialize_player(
-            world,
-            self.sprite_sheet_handle.clone().unwrap(),
-            3 as usize,
-            weapon4,
-        );
-        */
-
-        //world.register::<Vehicle>(); // <- add this line temporarily
-        //world.register::<Weapon>(); // <- add this line temporarily
-        //world.register::<WeaponFire>(); // <- add this line temporarily
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -167,18 +122,19 @@ pub fn fire_weapon(
     let fire_entity: Entity = entities.create();
 
     let mut weapon_fire = WeaponFire::new(
-        weapon.weapon_type.clone(),
+        weapon.name.clone(),
+        weapon.stats.weapon_type.clone(),
         player_id,
-        weapon.heat_seeking,
-        weapon.heat_seeking_agility,
-        weapon.attached,
-        weapon.deployed,
-        weapon.weapon_shot_speed,
-        weapon.damage,
-        weapon.shield_damage_pct,
-        weapon.armor_damage_pct,
-        weapon.piercing_damage_pct,
-        weapon.health_damage_pct,
+        weapon.stats.heat_seeking,
+        weapon.stats.heat_seeking_agility,
+        weapon.stats.attached,
+        weapon.stats.deployed,
+        weapon.stats.shot_speed,
+        weapon.stats.damage,
+        weapon.stats.shield_damage_pct,
+        weapon.stats.armor_damage_pct,
+        weapon.stats.piercing_damage_pct,
+        weapon.stats.health_damage_pct,
     );
 
     let local_transform = {
@@ -190,8 +146,8 @@ pub fn fire_weapon(
 
         local_transform.set_rotation_2d(fire_angle);
 
-        weapon_fire.dx = weapon_fire.weapon_shot_speed * angle_x_comp;
-        weapon_fire.dy = weapon_fire.weapon_shot_speed * angle_y_comp;
+        weapon_fire.dx = weapon_fire.shot_speed * angle_x_comp;
+        weapon_fire.dy = weapon_fire.shot_speed * angle_y_comp;
 
         //adjust the first postion
         let x = local_transform.translation().x;
@@ -209,7 +165,7 @@ pub fn fire_weapon(
     };
     lazy_update.insert(fire_entity, weapon_fire);
 
-    let mut sprite = match weapon.weapon_type.clone() {
+    let mut sprite = match weapon.stats.weapon_type.clone() {
         WeaponTypes::LaserDouble => weapon_fire_resource.laser_double_sprite_render.clone(),
         WeaponTypes::LaserBeam => weapon_fire_resource.laser_beam_sprite_render.clone(),
         WeaponTypes::LaserPulse => weapon_fire_resource.laser_burst_sprite_render.clone(),
@@ -224,7 +180,7 @@ pub fn fire_weapon(
         WeaponTypes::LaserSword => weapon_fire_resource.laser_sword_sprite_render.clone(),
     };
 
-    if weapon.weapon_type.clone() == WeaponTypes::Mine {
+    if weapon.stats.weapon_type.clone() == WeaponTypes::Mine {
         sprite = match player_id {
             0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
             1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
