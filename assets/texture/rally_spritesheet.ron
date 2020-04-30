@@ -136,9 +136,9 @@ List((
         ),
         ( //repair lines #22
             x: 48,
-            y: 17,
-            width: 12,
-            height: 16,
+            y: 16,
+            width: 13,
+            height: 18,
         ),
     ],
 ))
