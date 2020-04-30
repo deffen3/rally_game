@@ -14,7 +14,7 @@ use crate::audio::initialize_audio;
 
 use crate::components::{
     Hitbox, PlayerWeaponIcon, Vehicle, 
-    Weapon, WeaponFire, WeaponTypes, WeaponNames,
+    Weapon, WeaponFire, WeaponTypes, WeaponNames, get_mine_sprite,
 };
 
 use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
@@ -34,7 +34,7 @@ pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 pub const MAX_PLAYERS: usize = 4;
 pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 
-pub const KILLS_TO_WIN: i32 = 10;
+pub const KILLS_TO_WIN: i32 = 12;
 
 #[derive(Default)]
 pub struct Rally {
@@ -181,14 +181,9 @@ pub fn fire_weapon(
     };
 
     if weapon.stats.weapon_type.clone() == WeaponTypes::Mine {
-        sprite = match player_id {
-            0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
-            1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
-            2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
-            3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
-            _ => weapon_fire_resource.mine_p1_sprite_render.clone(),
-        }
+        sprite = get_mine_sprite(player_id, weapon.stats.shot_speed.clone(), weapon_fire_resource);
     }
+    
 
     lazy_update.insert(fire_entity, sprite);
     lazy_update.insert(fire_entity, local_transform);
@@ -238,11 +233,13 @@ pub fn vehicle_damage_model(
 
     let mut vehicle_destroyed = false;
 
-    if vehicle.health.value <= health_damage {
-        vehicle_destroyed = true;
-        vehicle.health.value = 0.0;
-    } else {
-        vehicle.health.value -= health_damage;
+    if vehicle.health.value > 0.0 { //only destroy once
+        if vehicle.health.value <= health_damage {
+            vehicle_destroyed = true;
+            vehicle.health.value = 0.0;
+        } else {
+            vehicle.health.value -= health_damage;
+        }
     }
 
     //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);

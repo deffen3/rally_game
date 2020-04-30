@@ -15,7 +15,8 @@ use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
 use crate::components::{
-    build_named_weapon, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponTypes, WeaponNames,
+    build_named_weapon, Player, PlayerWeaponIcon, Vehicle, 
+    Weapon, WeaponTypes, WeaponNames, get_mine_sprite,
 };
 use crate::resources::WeaponFireResource;
 
@@ -225,13 +226,7 @@ pub fn intialize_player(
     };
 
     if weapon_stats.weapon_type.clone() == WeaponTypes::Mine {
-        weapon_sprite = match player_index {
-            0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
-            1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
-            2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
-            3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
-            _ => weapon_fire_resource.mine_p1_sprite_render.clone(),
-        }
+        weapon_sprite = get_mine_sprite(player_index, weapon_stats.shot_speed.clone(), &weapon_fire_resource);
     }
 
     let mut icon_weapon_transform = Transform::default();

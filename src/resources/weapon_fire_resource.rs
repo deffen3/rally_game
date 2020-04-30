@@ -17,6 +17,7 @@ pub struct WeaponFireResource {
     pub mine_p2_sprite_render: SpriteRender,
     pub mine_p3_sprite_render: SpriteRender,
     pub mine_p4_sprite_render: SpriteRender,
+    pub mine_neutral_sprite_render: SpriteRender,
     pub missile_sprite_render: SpriteRender,
     pub rockets_sprite_render: SpriteRender,
     pub laser_sword_sprite_render: SpriteRender,
@@ -66,6 +67,10 @@ pub fn initialize_weapon_fire_resource(
         mine_p4_sprite_render: SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 18,
+        },
+        mine_neutral_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 23,
         },
         missile_sprite_render: SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),

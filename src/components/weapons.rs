@@ -4,6 +4,7 @@ use amethyst::{
     ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect, Component, DenseVecStorage},
     renderer::{
         Transparent,
+        SpriteRender,
         palette::Srgba,
         resources::Tint,
     },
@@ -14,7 +15,7 @@ use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
 use std::f32::consts::PI;
 
-use crate::components::PlayerWeaponIcon;
+use crate::components::{PlayerWeaponIcon};
 use crate::rally::UI_HEIGHT;
 use crate::resources::WeaponFireResource;
 
@@ -35,6 +36,8 @@ pub enum WeaponNames {
     Missile,
     Rockets,
     LaserSword,
+    LaserDoubleBurst,
+    ProjectileMine,
 }
 
 
@@ -49,7 +52,9 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::LaserPulse => Some(WeaponNames::Rockets),
         WeaponNames::Rockets => Some(WeaponNames::ProjectileBurstFire),
         WeaponNames::ProjectileBurstFire => Some(WeaponNames::Mine),
-        WeaponNames::Mine => Some(WeaponNames::LaserSword),
+        WeaponNames::Mine => Some(WeaponNames::LaserDoubleBurst),
+        WeaponNames::LaserDoubleBurst => Some(WeaponNames::ProjectileMine),
+        WeaponNames::ProjectileMine => Some(WeaponNames::LaserSword),
         WeaponNames::LaserSword => None,
     }
 }
@@ -306,13 +311,7 @@ pub fn update_weapon_icon(
     };
 
     if weapon_type.clone() == WeaponTypes::Mine {
-        weapon_sprite = match player_id {
-            0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
-            1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
-            2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
-            3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
-            _ => weapon_fire_resource.mine_p1_sprite_render.clone(),
-        }
+        weapon_sprite = get_mine_sprite(player_id, weapon.stats.shot_speed.clone(), weapon_fire_resource);
     }
 
     let mut icon_weapon_transform = Transform::default();
@@ -336,4 +335,24 @@ pub fn update_weapon_icon(
     lazy_update.insert(weapon_entity, icon_weapon_transform);
     lazy_update.insert(weapon_entity, icon_tint);
     lazy_update.insert(weapon_entity, Transparent);
+}
+
+
+pub fn get_mine_sprite(player_id: usize,
+        shot_speed: f32,
+        weapon_fire_resource: &WeaponFireResource,
+    ) -> SpriteRender
+{
+    if shot_speed > 0.0 {
+        weapon_fire_resource.mine_neutral_sprite_render.clone()
+    }
+    else {
+        match player_id {
+            0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
+            1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
+            2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
+            3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
+            _ => weapon_fire_resource.mine_neutral_sprite_render.clone(),
+        }
+    }
 }
