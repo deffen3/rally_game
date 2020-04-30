@@ -78,10 +78,10 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                 if vehicle.repair.activated == false {
                     if fire && weapon.cooldown_timer <= 0.0 {
                         let vehicle_rotation = transform.rotation();
-                        let (_, _, yaw) = vehicle_rotation.euler_angles();
+                        let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
 
-                        let yaw_x_comp = -yaw.sin(); //left is -, right is +
-                        let yaw_y_comp = yaw.cos(); //up is +, down is -
+                        let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
+                        let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
 
                         let fire_position = Vector3::new(
                             transform.translation().x + yaw_x_comp * 5.0,
@@ -89,16 +89,20 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                             0.0,
                         );
 
-                        let vehicle_rotation = transform.rotation();
-                        let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
-
                         let fire_angle;
                         if weapon.stats.tracking_angle <= 0.001 {
                             fire_angle = vehicle_angle;
                         } else if weapon.stats.tracking_angle >= 2.0*PI {
                             fire_angle = vehicle.angle_to_closest_vehicle;
                         } else {
-                            fire_angle = vehicle_angle;
+                            let angle_diff = vehicle_angle - vehicle.angle_to_closest_vehicle;
+
+                            if angle_diff.abs() < weapon.stats.tracking_angle {
+                                fire_angle = vehicle.angle_to_closest_vehicle;
+                            }
+                            else {
+                                fire_angle = vehicle_angle - weapon.stats.tracking_angle * angle_diff/angle_diff.abs();
+                            }
                         }
 
                         if weapon.stats.attached == false
