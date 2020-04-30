@@ -34,7 +34,7 @@ pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 pub const MAX_PLAYERS: usize = 4;
 pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 
-pub const KILLS_TO_WIN: i32 = 12;
+pub const KILLS_TO_WIN: i32 = 13;
 
 #[derive(Default)]
 pub struct Rally {
