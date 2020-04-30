@@ -5,6 +5,7 @@ This is my first attempt at using rust, my first attempt to use an Entity-Compon
 For now I am prioritizing the goal of having fun making a game higher than the goal of writing good rust code. I know some of the code is pretty crap for now, lots of code duplication!
 
 TODO:
+
 1. Create a Hitbox component, and create a hitbox detection function - in progress
 1. Add current weapon type icon into UI - DONE
 1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
@@ -18,6 +19,7 @@ TODO:
 1. Visible Shield and Armor icons. Shield should be a faint bubble over top vehicle. Armor can be some grey stuff surrounding your vehicles sides. - DONE
 1. Weapon icon blinks if weapon on cooldown? - DONE
 1. UI Transform works different on Mac? UI is in the middle of the screen.
+1. Red laser weapon can go through opponents on computers with potato frame rate
 
 ## How to run
 
