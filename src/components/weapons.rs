@@ -229,6 +229,7 @@ impl WeaponFire {
 
 
 pub fn update_weapon_properties(weapon: &mut Weapon, weapon_name: WeaponNames) {
+    weapon.name = weapon_name.clone();
     weapon.stats = build_named_weapon(weapon_name);
 }
 
@@ -236,6 +237,8 @@ pub fn update_weapon_properties(weapon: &mut Weapon, weapon_name: WeaponNames) {
 pub fn build_named_weapon(
     weapon_name: WeaponNames,
 ) -> WeaponStats {
+
+    println!("Building weapon for {:?}", weapon_name);
     
     let WEAPON_CONFIGS: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
 

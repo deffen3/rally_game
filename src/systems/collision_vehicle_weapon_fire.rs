@@ -175,15 +175,16 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 if *killer_id == player.id {
                     //classic gun-game rules: upgrade weapon type for player who got the kill
 
+                    
                     let new_weapon_name = get_next_weapon_name(weapon_name.clone());
+                    println!("Old: {:?}, New: {:?}",weapon_name.clone(), new_weapon_name);
 
                     player.kills += 1;
 
                     if let Some(new_weapon_name) = new_weapon_name.clone() {
                         weapon_icons_old.push((player.id.clone(), weapon.stats.weapon_type.clone()));
 
-                        update_weapon_properties(weapon, new_weapon_name);                        
-
+                        update_weapon_properties(weapon, new_weapon_name);
                         update_weapon_icon(
                             &entities,
                             &mut weapon,
