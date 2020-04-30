@@ -63,7 +63,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
                 let target_angle =
                     closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0); //rotate by PI/2 to line up with yaw angle
-                let velocity_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
+                //let velocity_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
 
                 heat_seeking_angle_map.insert(entity.id(), target_angle);
             }

@@ -9,6 +9,8 @@ use amethyst::{
     },
 };
 
+use std::collections::HashMap;
+
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
     Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire, WeaponTypes, WeaponNames,
@@ -90,7 +92,10 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
-        let mut player_makes_kill: Vec<(usize, usize, WeaponNames)> = Vec::new();
+        //let mut player_makes_kill: Vec<(usize, usize, WeaponNames)> = Vec::new();
+
+        let mut player_makes_kill_map = HashMap::new();
+        let mut player_got_killed_map = HashMap::new();
 
         for (player, vehicle, _weapon, vehicle_transform) in
             (&players, &mut vehicles, &mut weapons, &transforms).join()
@@ -146,11 +151,21 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                                 audio_output.as_ref().map(|o| o.deref()),
                             );
 
-                            player_makes_kill.push((
+                            // player_makes_kill.push((
+                            //     weapon_fire.owner_player_id.clone(),
+                            //     player.id.clone(),
+                            //     weapon_fire.weapon_name.clone(),
+                            // ));
+
+                            player_makes_kill_map.insert(
                                 weapon_fire.owner_player_id.clone(),
-                                player.id.clone(),
                                 weapon_fire.weapon_name.clone(),
-                            ));
+                            );
+
+                            player_got_killed_map.insert(
+                                player.id.clone(),
+                                weapon_fire.owner_player_id.clone(),
+                            );
                         }
 
                         if self.hit_sound_cooldown_timer < 0.0 {
@@ -171,9 +186,14 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         for (player, mut weapon, vehicle, transform) in
             (&mut players, &mut weapons, &mut vehicles, &mut transforms).join()
         {
-            for (killer_id, killed_id, weapon_name) in &player_makes_kill {
-                if *killer_id == player.id {
-                    
+            // for (killer_id, killed_id, weapon_name) in &player_makes_kill {
+            //     if *killer_id == player.id {
+            
+            if let killer_data = Some(player_makes_kill_map.get(&player.id)) {
+                if let Some(killer_data) = killer_data.unwrap() {
+                    let weapon_name = killer_data;
+            
+
                     //classic gun-game rules: upgrade weapon type for player who got the kill
                     let new_weapon_name = get_next_weapon_name(weapon_name.clone());
 
@@ -191,9 +211,13 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             &lazy_update,
                         );
                     }
-                }
 
-                if *killed_id == player.id {
+                    
+                }
+            }
+
+            if let killed_data = Some(player_got_killed_map.get(&player.id)) {
+                if let Some(killed_data) = killed_data.unwrap() {
                     kill_restart_vehicle(vehicle, transform);
                 }
             }

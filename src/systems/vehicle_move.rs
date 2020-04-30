@@ -556,7 +556,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
             for destroyed_id in &player_destroyed {
                 if *destroyed_id == player.id {
-                    println!("Kill player");
                     kill_restart_vehicle(vehicle, transform);
                 }
             }
