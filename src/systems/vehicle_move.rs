@@ -28,6 +28,9 @@ use std::ops::Deref;
 const BOT_COLLISION_TURN_COOLDOWN_RESET: f32 = 0.7;
 const BOT_COLLISION_MOVE_COOLDOWN_RESET: f32 = 0.7;
 
+const BOT_ENGAGE_DISTANCE: f32 = 160.0;
+const BOT_DISENGAGE_DISTANCE: f32 = 240.0;
+
 
 #[derive(SystemDesc)]
 pub struct VehicleMoveSystem;
@@ -144,9 +147,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             &closest_target_angles
                         {
                             if player.id == *player_with_target {
-                                if *closest_vehicle_dist <= 100.0 && player.bot_move_cooldown < 0.0
+                                if *closest_vehicle_dist <= BOT_ENGAGE_DISTANCE && player.bot_move_cooldown < 0.0
                                 {
                                     //change modes to attack
+
                                     if weapon.stats.attached == true { //Typically just LaserSword
                                         player.bot_mode = BotMode::Swording;
                                         //println!("{} Swording", player.id);
@@ -188,7 +192,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             &closest_target_angles
                         {
                             if player.id == *player_with_target {
-                                if *closest_vehicle_dist > 240.0 || player.bot_move_cooldown < 0.0 {
+                                if *closest_vehicle_dist > BOT_DISENGAGE_DISTANCE || player.bot_move_cooldown < 0.0 {
                                     player.bot_move_cooldown = player.bot_move_cooldown_reset;
 
                                     let run_or_chase = rng.gen::<bool>();

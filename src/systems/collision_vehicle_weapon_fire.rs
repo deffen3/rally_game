@@ -173,10 +173,10 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         {
             for (killer_id, killed_id, weapon_name) in &player_makes_kill {
                 if *killer_id == player.id {
-                    //classic gun-game rules: upgrade weapon type for player who got the kill
-
-                    let new_weapon_name = get_next_weapon_name(weapon_name.clone());
                     
+                    //classic gun-game rules: upgrade weapon type for player who got the kill
+                    let new_weapon_name = get_next_weapon_name(weapon_name.clone());
+
                     player.kills += 1;
 
                     if let Some(new_weapon_name) = new_weapon_name.clone() {
