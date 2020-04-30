@@ -115,6 +115,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
             } else {
                 //let max_velocity: f32 = 0.5;
 
+                for (player_with_target, target_angle, closest_vehicle_dist) in
+                    &closest_target_angles
+                {
+                    if player.id == *player_with_target {
+                        vehicle.angle_to_closest_vehicle = *target_angle;
+                        vehicle.dist_to_closest_vehicle = *closest_vehicle_dist;
+                    }
+                }
+
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power / 100.0;
                 let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_power / 100.0;
 
@@ -143,129 +152,118 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 if player.is_bot {
                     if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
-                        for (player_with_target, _target_angle, closest_vehicle_dist) in
-                            &closest_target_angles
+
+                        if vehicle.dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE && player.bot_move_cooldown < 0.0
                         {
-                            if player.id == *player_with_target {
-                                if *closest_vehicle_dist <= BOT_ENGAGE_DISTANCE && player.bot_move_cooldown < 0.0
-                                {
-                                    //change modes to attack
+                            //change modes to attack
 
-                                    if weapon.stats.attached == true { //Typically just LaserSword
-                                        player.bot_mode = BotMode::Swording;
-                                        //println!("{} Swording", player.id);
-                                        player.bot_move_cooldown = 5.0;
-                                    } else if weapon.stats.shot_speed <= 0.0 { //Typically just Mines
-                                        player.bot_mode = BotMode::Mining;
-                                        //println!("{} Mining", player.id);
-                                    } else {
-                                        player.bot_mode = BotMode::StopAim;
-                                        //println!("{} StopAim", player.id);
-                                        player.bot_move_cooldown = 5.0;
-                                    }
-                                } 
-                                
-                                if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
-                                    //continue with Running or Mining mode
-                                    if player.bot_move_cooldown < 0.0 {
-                                        //issue new move command
-                                        vehicle_accel = Some(rng.gen_range(0.2, 0.6) as f32);
-                                        vehicle_turn = Some(rng.gen_range(-1.0, 1.0) as f32);
+                            if weapon.stats.attached == true { //Typically just LaserSword
+                                player.bot_mode = BotMode::Swording;
+                                //println!("{} Swording", player.id);
+                                player.bot_move_cooldown = 5.0;
+                            } else if weapon.stats.shot_speed <= 0.0 { //Typically just Mines
+                                player.bot_mode = BotMode::Mining;
+                                //println!("{} Mining", player.id);
+                            } else {
+                                player.bot_mode = BotMode::StopAim;
+                                //println!("{} StopAim", player.id);
+                                player.bot_move_cooldown = 5.0;
+                            }
+                        } 
+                        
+                        if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
+                            //continue with Running or Mining mode
+                            if player.bot_move_cooldown < 0.0 {
+                                //issue new move command
+                                vehicle_accel = Some(rng.gen_range(0.2, 0.6) as f32);
+                                vehicle_turn = Some(rng.gen_range(-1.0, 1.0) as f32);
 
-                                        player.last_accel_input = vehicle_accel;
-                                        player.last_turn_input = vehicle_turn;
+                                player.last_accel_input = vehicle_accel;
+                                player.last_turn_input = vehicle_turn;
 
-                                        player.bot_move_cooldown = player.bot_move_cooldown_reset;
-                                    } else {
-                                        //hold previous Running move
-                                        vehicle_accel = player.last_accel_input;
-                                        vehicle_turn = player.last_turn_input;
-                                    }
-                                }
+                                player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                            } else {
+                                //hold previous Running move
+                                vehicle_accel = player.last_accel_input;
+                                vehicle_turn = player.last_turn_input;
                             }
                         }
                     } else if player.bot_mode == BotMode::StopAim
                         || player.bot_mode == BotMode::Chasing
                         || player.bot_mode == BotMode::Swording
                     {
-                        for (player_with_target, target_angle, closest_vehicle_dist) in
-                            &closest_target_angles
-                        {
-                            if player.id == *player_with_target {
-                                if *closest_vehicle_dist > BOT_DISENGAGE_DISTANCE || player.bot_move_cooldown < 0.0 {
-                                    player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                        if vehicle.dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE || player.bot_move_cooldown < 0.0 {
+                            player.bot_move_cooldown = player.bot_move_cooldown_reset;
 
-                                    let run_or_chase = rng.gen::<bool>();
+                            let run_or_chase = rng.gen::<bool>();
 
-                                    if run_or_chase {
-                                        player.bot_mode = BotMode::Running;
-                                        //println!("{} Running", player.id);
+                            if run_or_chase {
+                                player.bot_mode = BotMode::Running;
+                                //println!("{} Running", player.id);
+                            } else {
+                                player.bot_mode = BotMode::Chasing;
+                                //println!("{} Chasing", player.id);
+                            }
+                        } else {
+                            //continue with Attacking mode
+                            let attack_angle;
+                            let turn_value;
+
+                            if player.bot_mode == BotMode::Swording {
+                                //spin target angle by 180deg
+                                if vehicle.angle_to_closest_vehicle < 0.0 {
+                                    attack_angle = vehicle.angle_to_closest_vehicle + PI;
+                                }
+                                else {
+                                    attack_angle = vehicle.angle_to_closest_vehicle - PI;
+                                }
+                                turn_value = 1.0;
+                                vehicle_accel = Some(-1.0);
+                            } else if player.bot_mode == BotMode::Chasing {
+                                attack_angle = vehicle.angle_to_closest_vehicle;
+                                turn_value = 1.0;
+                                vehicle_accel = Some(0.6);
+                            } else {
+                                attack_angle = vehicle.angle_to_closest_vehicle;
+                                turn_value = 1.0;
+                            }
+
+                            if yaw < 0.0 {
+                                //aimed to the right (with 0 point towards top)
+                                if attack_angle < 0.0 {
+                                    //target to the right
+                                    //println!("Right {}, Right {} ", yaw, vehicle.angle_to_closest_vehicle);
+
+                                    if (yaw.abs() - attack_angle.abs()) < 0.01 {
+                                        vehicle_turn = Some(-turn_value);
+                                    } else if (yaw.abs() - attack_angle.abs()) > 0.01 {
+                                        vehicle_turn = Some(turn_value);
                                     } else {
-                                        player.bot_mode = BotMode::Chasing;
-                                        //println!("{} Chasing", player.id);
+                                        vehicle_turn = Some(0.0);
                                     }
                                 } else {
-                                    //continue with Attacking mode
-                                    let attack_angle;
-                                    let turn_value;
+                                    //target to the left
+                                    //println!("Right {}, Left {} ", yaw, vehicle.angle_to_closest_vehicle);
 
-                                    if player.bot_mode == BotMode::Swording {
-                                        //spin target angle by 180deg
-                                        if *target_angle < 0.0 {
-                                            attack_angle = *target_angle + PI;
-                                        }
-                                        else {
-                                            attack_angle = *target_angle - PI;
-                                        }
-                                        turn_value = 1.0;
-                                        vehicle_accel = Some(-1.0);
-                                    } else if player.bot_mode == BotMode::Chasing {
-                                        attack_angle = *target_angle;
-                                        turn_value = 1.0;
-                                        vehicle_accel = Some(0.6);
+                                    vehicle_turn = Some(turn_value);
+                                }
+                            } else {
+                                //aimed to the left
+                                if attack_angle < 0.0 {
+                                    //target to the right
+                                    //println!("Left {}, Right {} ", yaw, vehicle.angle_to_closest_vehicle);
+
+                                    vehicle_turn = Some(turn_value);
+                                } else {
+                                    //target to the left == PERFECT!!
+                                    //println!("Left {}, Left {} ", yaw, vehicle.angle_to_closest_vehicle);
+
+                                    if (yaw.abs() - attack_angle.abs()) > 0.01 {
+                                        vehicle_turn = Some(-turn_value);
+                                    } else if (yaw.abs() - attack_angle.abs()) < 0.01 {
+                                        vehicle_turn = Some(turn_value);
                                     } else {
-                                        attack_angle = *target_angle;
-                                        turn_value = 1.0;
-                                    }
-
-                                    if yaw < 0.0 {
-                                        //aimed to the right (with 0 point towards top)
-                                        if attack_angle < 0.0 {
-                                            //target to the right
-                                            //println!("Right {}, Right {} ", yaw, *target_angle);
-
-                                            if (yaw.abs() - attack_angle.abs()) < 0.01 {
-                                                vehicle_turn = Some(-turn_value);
-                                            } else if (yaw.abs() - attack_angle.abs()) > 0.01 {
-                                                vehicle_turn = Some(turn_value);
-                                            } else {
-                                                vehicle_turn = Some(0.0);
-                                            }
-                                        } else {
-                                            //target to the left
-                                            //println!("Right {}, Left {} ", yaw, *target_angle);
-
-                                            vehicle_turn = Some(turn_value);
-                                        }
-                                    } else {
-                                        //aimed to the left
-                                        if attack_angle < 0.0 {
-                                            //target to the right
-                                            //println!("Left {}, Right {} ", yaw, *target_angle);
-
-                                            vehicle_turn = Some(turn_value);
-                                        } else {
-                                            //target to the left == PERFECT!!
-                                            //println!("Left {}, Left {} ", yaw, *target_angle);
-
-                                            if (yaw.abs() - attack_angle.abs()) > 0.01 {
-                                                vehicle_turn = Some(-turn_value);
-                                            } else if (yaw.abs() - attack_angle.abs()) < 0.01 {
-                                                vehicle_turn = Some(turn_value);
-                                            } else {
-                                                vehicle_turn = Some(0.0);
-                                            }
-                                        }
+                                        vehicle_turn = Some(0.0);
                                     }
                                 }
                             }

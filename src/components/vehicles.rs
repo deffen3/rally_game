@@ -17,6 +17,8 @@ pub struct Vehicle {
     pub dx: f32,
     pub dy: f32,
     pub dr: f32,
+    pub angle_to_closest_vehicle: f32,
+    pub dist_to_closest_vehicle: f32,
     pub collision_cooldown_timer: f32,
     pub health: Health,
     pub armor: Armor,
@@ -47,6 +49,8 @@ impl Vehicle {
             dx: 0.0,
             dy: 0.0,
             dr: 0.0,
+            angle_to_closest_vehicle: 0.0,
+            dist_to_closest_vehicle: 0.0,
             collision_cooldown_timer: -1.0,
             health: Health {
                 value: 100.0,
