@@ -29,7 +29,7 @@ pub enum WeaponNames {
     LaserBeam,
     LaserPulse,
     LaserDouble,
-    ProjectileRapidFire,
+    ProjectileRapidFireTurret,
     ProjectileBurstFire,
     ProjectileCannonFire,
     Mine,
@@ -45,8 +45,8 @@ pub enum WeaponNames {
 //For Gun-Game mode rules
 pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
     match weapon_name {
-        WeaponNames::LaserDouble => Some(WeaponNames::ProjectileRapidFire),
-        WeaponNames::ProjectileRapidFire => Some(WeaponNames::Missile),
+        WeaponNames::LaserDouble => Some(WeaponNames::ProjectileRapidFireTurret),
+        WeaponNames::ProjectileRapidFireTurret => Some(WeaponNames::Missile),
         WeaponNames::Missile => Some(WeaponNames::LaserBeam),
         WeaponNames::LaserBeam => Some(WeaponNames::ProjectileCannonFire),
         WeaponNames::ProjectileCannonFire => Some(WeaponNames::LaserPulse),

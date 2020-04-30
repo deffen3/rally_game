@@ -91,7 +91,12 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                         let vehicle_rotation = transform.rotation();
                         let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
 
-                        let fire_angle = vehicle_angle;
+                        let fire_angle;
+                        if weapon.stats.tracking_angle <= 0.001 {
+                            fire_angle = vehicle_angle;
+                        } else {
+                            fire_angle = vehicle.angle_to_closest_vehicle;
+                        }
 
                         if weapon.stats.attached == false
                             || (weapon.stats.attached == true && weapon.stats.deployed == false)
