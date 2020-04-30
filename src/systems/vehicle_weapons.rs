@@ -10,6 +10,7 @@ use amethyst::{
 };
 
 use rand::Rng;
+use std::f32::consts::PI;
 
 use crate::components::{BotMode, Player, Vehicle, Weapon};
 use crate::rally::fire_weapon;
@@ -94,8 +95,10 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                         let fire_angle;
                         if weapon.stats.tracking_angle <= 0.001 {
                             fire_angle = vehicle_angle;
-                        } else {
+                        } else if weapon.stats.tracking_angle >= 2.0*PI {
                             fire_angle = vehicle.angle_to_closest_vehicle;
+                        } else {
+                            fire_angle = vehicle_angle;
                         }
 
                         if weapon.stats.attached == false

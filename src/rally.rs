@@ -70,7 +70,7 @@ impl SimpleState for Rally {
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
-                WeaponNames::LaserDouble,
+                WeaponNames::LaserDoubleGimballed,
                 weapon_fire_resource.clone(),
                 is_bot,
                 player_status_texts[player_index],
