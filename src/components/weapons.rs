@@ -28,17 +28,19 @@ use crate::resources::WeaponFireResource;
 pub enum WeaponNames {
     LaserBeam,
     LaserPulse,
+    LaserPulseGimballed,
     LaserDouble,
     LaserDoubleGimballed,
+    LaserDoubleBurst,
     ProjectileRapidFire,
     ProjectileRapidFireTurret,
     ProjectileBurstFire,
     ProjectileCannonFire,
+    Shotgun,
     Mine,
     Missile,
     Rockets,
     LaserSword,
-    LaserDoubleBurst,
     RocketGrenade,
     ProjectileSteadyFire,
 }
@@ -50,9 +52,10 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::LaserDoubleGimballed => Some(WeaponNames::ProjectileRapidFireTurret),
         WeaponNames::ProjectileRapidFireTurret => Some(WeaponNames::Missile),
         WeaponNames::Missile => Some(WeaponNames::LaserBeam),
-        WeaponNames::LaserBeam => Some(WeaponNames::ProjectileCannonFire),
-        WeaponNames::ProjectileCannonFire => Some(WeaponNames::LaserPulse),
-        WeaponNames::LaserPulse => Some(WeaponNames::Rockets),
+        WeaponNames::LaserBeam => Some(WeaponNames::Shotgun),
+        WeaponNames::Shotgun => Some(WeaponNames::ProjectileCannonFire),
+        WeaponNames::ProjectileCannonFire => Some(WeaponNames::LaserPulseGimballed),
+        WeaponNames::LaserPulseGimballed => Some(WeaponNames::Rockets),
         WeaponNames::Rockets => Some(WeaponNames::ProjectileBurstFire),
         WeaponNames::ProjectileBurstFire => Some(WeaponNames::Mine),
         WeaponNames::Mine => Some(WeaponNames::LaserDoubleBurst),
@@ -62,6 +65,7 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::LaserSword => None,
         WeaponNames::LaserDouble => None,
         WeaponNames::ProjectileRapidFire => None,
+        WeaponNames::LaserPulse => None
     }
 }
 
@@ -75,6 +79,7 @@ pub struct WeaponStats {
     pub attached: bool,
     pub deployed: bool,
     pub tracking_angle: f32,
+    pub spread_angle: f32,
     pub cooldown_reset: f32,
     pub burst_shot_limit: u32,
     pub burst_cooldown_reset: f32,
@@ -263,6 +268,7 @@ pub fn build_named_weapon(
             attached: false,
             deployed: false,
             tracking_angle: 0.0,
+            spread_angle: 0.0,
             cooldown_reset: 100.0,
             burst_shot_limit: 0,
             burst_cooldown_reset: 100.0,

@@ -89,20 +89,30 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                             0.0,
                         );
 
-                        let fire_angle;
-                        if weapon.stats.tracking_angle <= 0.001 {
-                            fire_angle = vehicle_angle;
-                        } else if weapon.stats.tracking_angle >= 2.0*PI {
-                            fire_angle = vehicle.angle_to_closest_vehicle;
-                        } else {
-                            let angle_diff = vehicle_angle - vehicle.angle_to_closest_vehicle;
-
-                            if angle_diff.abs() < weapon.stats.tracking_angle {
+                        let mut fire_angle;
+                        if vehicle.dist_to_closest_vehicle <= 200.0 {
+                            if weapon.stats.tracking_angle <= 0.001 {
+                                fire_angle = vehicle_angle;
+                            } else if weapon.stats.tracking_angle >= 2.0*PI {
                                 fire_angle = vehicle.angle_to_closest_vehicle;
+                            } else {
+                                let angle_diff = vehicle_angle - vehicle.angle_to_closest_vehicle;
+
+                                if angle_diff.abs() < weapon.stats.tracking_angle {
+                                    fire_angle = vehicle.angle_to_closest_vehicle;
+                                }
+                                else {
+                                    fire_angle = vehicle_angle - weapon.stats.tracking_angle * angle_diff/angle_diff.abs();
+                                }
                             }
-                            else {
-                                fire_angle = vehicle_angle - weapon.stats.tracking_angle * angle_diff/angle_diff.abs();
-                            }
+                        }
+                        else {
+                            fire_angle = vehicle_angle; //no tracking, distance too far
+                        }
+
+                        if weapon.stats.spread_angle >= 0.001 {
+                            let spread_angle_modifier = rng.gen_range(-1.0, 1.0) * weapon.stats.spread_angle;
+                            fire_angle += spread_angle_modifier;
                         }
 
                         if weapon.stats.attached == false
