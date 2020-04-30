@@ -89,7 +89,9 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                         );
 
                         let vehicle_rotation = transform.rotation();
-                        let (_, _, fire_angle) = vehicle_rotation.euler_angles();
+                        let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
+
+                        let fire_angle = vehicle_angle;
 
                         if weapon.stats.attached == false
                             || (weapon.stats.attached == true && weapon.stats.deployed == false)
