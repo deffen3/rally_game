@@ -95,14 +95,7 @@ pub struct WeaponStats {
 pub fn build_weapon_store() -> HashMap<WeaponNames, WeaponStats> {
     let input_path = format!("{}/config/weapons.ron", env!("CARGO_MANIFEST_DIR"));
     let f = File::open(&input_path).expect("Failed opening file");
-    let weapon_configs: HashMap<WeaponNames, WeaponStats> = match from_reader(f) {
-        Ok(x) => x,
-        Err(e) => {
-            println!("Failed to load config: {}", e);
-
-            std::process::exit(1);
-        }
-    };
+    let weapon_configs = from_reader(f).expect("Failed to load config");
 
     info!("Config: {:?}", &weapon_configs);
 
