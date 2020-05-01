@@ -9,6 +9,7 @@ use amethyst::{
     },
 };
 
+use log::debug;
 use rand::Rng;
 use std::f32::consts::PI;
 
@@ -115,7 +116,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                 }
 
                                 if player.id == 0 {
-                                    println!("{}, {}",vehicle_angle, vehicle.angle_to_closest_vehicle);
+                                    debug!("{}, {}",vehicle_angle, vehicle.angle_to_closest_vehicle);
                                 }
                             }
                         }
