@@ -93,16 +93,29 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                         if vehicle.dist_to_closest_vehicle <= 200.0 {
                             if weapon.stats.tracking_angle <= 0.001 {
                                 fire_angle = vehicle_angle;
-                            } else if weapon.stats.tracking_angle >= 2.0*PI {
+                            } else if weapon.stats.tracking_angle >= PI {
                                 fire_angle = vehicle.angle_to_closest_vehicle;
                             } else {
-                                let angle_diff = vehicle_angle - vehicle.angle_to_closest_vehicle;
+
+                                let mut angle_diff = vehicle_angle - vehicle.angle_to_closest_vehicle;
+
+                                if angle_diff > PI {
+                                    angle_diff = -(2.0*PI - angle_diff);
+                                }
+                                else if angle_diff < -PI {
+                                    angle_diff = -(-2.0*PI - angle_diff);
+                                }
+                                
 
                                 if angle_diff.abs() < weapon.stats.tracking_angle {
                                     fire_angle = vehicle.angle_to_closest_vehicle;
                                 }
                                 else {
                                     fire_angle = vehicle_angle - weapon.stats.tracking_angle * angle_diff/angle_diff.abs();
+                                }
+
+                                if player.id == 0 {
+                                    println!("{}, {}",vehicle_angle, vehicle.angle_to_closest_vehicle);
                                 }
                             }
                         }
