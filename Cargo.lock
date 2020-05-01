@@ -142,7 +142,7 @@ dependencies = [
  "objekt",
  "parking_lot 0.10.2",
  "rayon",
- "ron 0.5.1",
+ "ron",
  "serde",
 ]
 
@@ -170,7 +170,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d93c5c157a43db0130972c420ef1071a59b77cd52a46c344f066aa9ad191e585"
 dependencies = [
  "log",
- "ron 0.5.1",
+ "ron",
  "serde",
 ]
 
@@ -305,7 +305,7 @@ dependencies = [
  "log",
  "palette",
  "rendy",
- "ron 0.5.1",
+ "ron",
  "serde",
  "smallvec 1.4.0",
  "static_assertions 1.1.0",
@@ -337,7 +337,7 @@ dependencies = [
  "log",
  "paste",
  "rand 0.7.3",
- "ron 0.5.1",
+ "ron",
  "serde",
  "smallvec 1.4.0",
  "unicode-normalization",
@@ -2499,7 +2499,7 @@ dependencies = [
  "amethyst",
  "log",
  "rand 0.7.3",
- "ron 0.2.2",
+ "ron",
  "serde",
  "specs-physics",
 ]
@@ -3087,16 +3087,6 @@ dependencies = [
  "lazy_static",
  "lewton",
  "minimp3",
-]
-
-[[package]]
-name = "ron"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "724e7f09f9ee39398f9da98141e7250308dff027f48020d5c41b08bfb2536ee4"
-dependencies = [
- "bitflags",
- "serde",
 ]
 
 [[package]]

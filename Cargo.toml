@@ -8,7 +8,7 @@ edition = "2018"
 amethyst = "0.15"
 log = "0.4"
 rand = "0.7"
-ron = "0.2"
+ron = "0.5"
 serde = { version = "1", features = ["derive"] }
 specs-physics = { git = "https://github.com/paulkernfeld/specs-physics" }
 
