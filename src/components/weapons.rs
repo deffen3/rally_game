@@ -10,6 +10,7 @@ use amethyst::{
     },
 };
 
+use log::info;
 use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
@@ -94,16 +95,9 @@ pub struct WeaponStats {
 pub fn build_weapon_store() -> HashMap<WeaponNames, WeaponStats> {
     let input_path = format!("{}/config/weapons.ron", env!("CARGO_MANIFEST_DIR"));
     let f = File::open(&input_path).expect("Failed opening file");
-    let weapon_configs: HashMap<WeaponNames, WeaponStats> = match from_reader(f) {
-        Ok(x) => x,
-        Err(e) => {
-            println!("Failed to load config: {}", e);
+    let weapon_configs = from_reader(f).expect("Failed to load config");
 
-            std::process::exit(1);
-        }
-    };
-
-    //println!("Config: {:?}", &weapon_configs);
+    info!("Config: {:?}", &weapon_configs);
 
     weapon_configs
 }

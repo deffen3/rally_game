@@ -5,11 +5,12 @@ authors = []
 edition = "2018"
 
 [dependencies]
-amethyst = "0.15.0"
+amethyst = "0.15"
+log = "0.4"
+rand = "0.7"
+ron = "0.5"
 serde = { version = "1", features = ["derive"] }
 specs-physics = { git = "https://github.com/paulkernfeld/specs-physics" }
-rand = "0.7.3"
-ron = "0.2.0"
 
 [features]
 default = ["vulkan"]
