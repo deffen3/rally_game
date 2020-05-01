@@ -5,6 +5,7 @@ use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, Write
 use crate::components::{Player, Vehicle, WeaponFire};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
+use log::debug;
 use std::f32::consts::PI;
 use std::collections::HashMap;
 
@@ -121,7 +122,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                             let yaw_x_comp = -angle.sin(); //left is -, right is +
                             let yaw_y_comp = angle.cos(); //up is +, down is -
 
-                            //println!("attached: {}, {}, {}",x, y, angle);
+                            debug!("attached: {}, {}, {}", x, y, angle);
 
                             transform.set_rotation_2d(angle - PI);
                             transform.set_translation_x(x - yaw_x_comp * 14.0);

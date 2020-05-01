@@ -10,6 +10,7 @@ use amethyst::{
     },
 };
 
+use log::info;
 use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
@@ -103,7 +104,7 @@ pub fn build_weapon_store() -> HashMap<WeaponNames, WeaponStats> {
         }
     };
 
-    //println!("Config: {:?}", &weapon_configs);
+    info!("Config: {:?}", &weapon_configs);
 
     weapon_configs
 }

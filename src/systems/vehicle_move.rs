@@ -8,6 +8,7 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
+use log::debug;
 use rand::Rng;
 use std::f32::consts::PI;
 
@@ -159,14 +160,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             if weapon.stats.attached == true { //Typically just LaserSword
                                 player.bot_mode = BotMode::Swording;
-                                //println!("{} Swording", player.id);
+                                debug!("{} Swording", player.id);
                                 player.bot_move_cooldown = 5.0;
                             } else if weapon.stats.shot_speed <= 0.0 { //Typically just Mines
                                 player.bot_mode = BotMode::Mining;
-                                //println!("{} Mining", player.id);
+                                debug!("{} Mining", player.id);
                             } else {
                                 player.bot_mode = BotMode::StopAim;
-                                //println!("{} StopAim", player.id);
+                                debug!("{} StopAim", player.id);
                                 player.bot_move_cooldown = 5.0;
                             }
                         } 
@@ -199,10 +200,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             if run_or_chase {
                                 player.bot_mode = BotMode::Running;
-                                //println!("{} Running", player.id);
+                                debug!("{} Running", player.id);
                             } else {
                                 player.bot_mode = BotMode::Chasing;
-                                //println!("{} Chasing", player.id);
+                                debug!("{} Chasing", player.id);
                             }
                         } else {
                             //continue with Attacking mode
@@ -232,7 +233,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 //aimed to the right (with 0 point towards top)
                                 if attack_angle < 0.0 {
                                     //target to the right
-                                    //println!("Right {}, Right {} ", yaw, vehicle.angle_to_closest_vehicle);
+                                    debug!("Right {}, Right {} ", yaw, vehicle.angle_to_closest_vehicle);
 
                                     if (yaw.abs() - attack_angle.abs()) < 0.01 {
                                         vehicle_turn = Some(-turn_value);
@@ -243,7 +244,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     }
                                 } else {
                                     //target to the left
-                                    //println!("Right {}, Left {} ", yaw, vehicle.angle_to_closest_vehicle);
+                                    debug!("Right {}, Left {} ", yaw, vehicle.angle_to_closest_vehicle);
 
                                     vehicle_turn = Some(turn_value);
                                 }
@@ -251,12 +252,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 //aimed to the left
                                 if attack_angle < 0.0 {
                                     //target to the right
-                                    //println!("Left {}, Right {} ", yaw, vehicle.angle_to_closest_vehicle);
+                                    debug!("Left {}, Right {} ", yaw, vehicle.angle_to_closest_vehicle);
 
                                     vehicle_turn = Some(turn_value);
                                 } else {
                                     //target to the left == PERFECT!!
-                                    //println!("Left {}, Left {} ", yaw, vehicle.angle_to_closest_vehicle);
+                                    debug!("Left {}, Left {} ", yaw, vehicle.angle_to_closest_vehicle);
 
                                     if (yaw.abs() - attack_angle.abs()) > 0.01 {
                                         vehicle_turn = Some(-turn_value);
@@ -274,7 +275,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::CollisionMove;
-                            //println!("{} CollisionMove", player.id);
+                            debug!("{} CollisionMove", player.id);
                             player.bot_move_cooldown = BOT_COLLISION_MOVE_COOLDOWN_RESET;
                         }
                     } else if player.bot_mode == BotMode::CollisionMove {
@@ -283,21 +284,21 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::Running;
-                            //println!("{} Running", player.id);
+                            debug!("{} Running", player.id);
                         }
                     }
                 }
 
-                //println!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
+                debug!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
 
                 if player.id == 0 {
-                    //println!("yaw:{}", yaw);
+                    debug!("yaw:{}", yaw);
                 }
 
                 let yaw_x_comp = -yaw.sin(); //left is -, right is +
                 let yaw_y_comp = yaw.cos(); //up is +, down is -
 
-                //println!("yaw_x_comp:{0:>6.3}, yaw_y_comp:{1:>6.3}", yaw_x_comp, yaw_y_comp);
+                debug!("yaw_x_comp:{0:>6.3}, yaw_y_comp:{1:>6.3}", yaw_x_comp, yaw_y_comp);
 
                 //Update vehicle velocity from vehicle speed accel input
                 if let Some(move_amount) = vehicle_accel {
@@ -313,23 +314,23 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     vehicle.dy += scaled_amount * yaw_y_comp * dt;
                 }
 
-                //println!("vel_x:{}, vel_y:{}", vehicle.dx, vehicle.dy);
+                debug!("vel_x:{}, vel_y:{}", vehicle.dx, vehicle.dy);
 
                 //Apply friction
                 //this needs to be applied to vehicle momentum angle, not yaw angle
                 let velocity_angle = vehicle.dy.atan2(vehicle.dx) - (PI / 2.0); //rotate by PI/2 to line up with yaw angle
 
-                //println!("vel_angle:{}", velocity_angle);
+                debug!("vel_angle:{}", velocity_angle);
 
                 let velocity_x_comp = -velocity_angle.sin(); //left is -, right is +
                 let velocity_y_comp = velocity_angle.cos(); //up is +, down is -
 
-                //println!("vel_angle_sin:{0:>6.3}, vel_angle_cos:{1:>6.3}", velocity_x_comp, velocity_y_comp);
+                debug!("vel_angle_sin:{0:>6.3}, vel_angle_cos:{1:>6.3}", velocity_x_comp, velocity_y_comp);
 
                 vehicle.dx -= thrust_friction_decel_rate * velocity_x_comp * dt;
                 vehicle.dy -= thrust_friction_decel_rate * velocity_y_comp * dt;
 
-                //println!("vel_x:{0:>6.3}, vel_y:{1:>6.3}", vehicle.dx, vehicle.dy);
+                debug!("vel_x:{0:>6.3}, vel_y:{1:>6.3}", vehicle.dx, vehicle.dy);
 
                 let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
                 let abs_vel = sq_vel.sqrt();
@@ -339,7 +340,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 //     vehicle.dy = velocity_y_comp * max_velocity;
                 // }
 
-                // println!("{}",abs_vel);
+                debug!("{}",abs_vel);
 
                 //Transform on vehicle velocity
                 transform.prepend_translation_x(vehicle.dx);
@@ -414,7 +415,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if vehicle.collision_cooldown_timer <= 0.0 {
                         let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_x_comp.abs();
-                        //println!("Player {} has collided with {} damage", player.id, damage);
+                        debug!("Player {} has collided with {} damage", player.id, damage);
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
@@ -445,7 +446,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if vehicle.collision_cooldown_timer <= 0.0 {
                         let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_y_comp.abs();
-                        //println!("Player {} has collided with {} damage", player.id, damage);
+                        debug!("Player {} has collided with {} damage", player.id, damage);
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
@@ -477,7 +478,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     && (player.bot_mode != BotMode::CollisionMove)
                 {
                     player.bot_mode = BotMode::CollisionTurn;
-                    //println!("{} CollisionTurn", player.id);
+                    debug!("{} CollisionTurn", player.id);
                     player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
                 }
 
@@ -516,13 +517,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         && (player.bot_mode != BotMode::CollisionMove)
                     {
                         player.bot_mode = BotMode::CollisionTurn;
-                        //println!("{} CollisionTurn", player.id);
+                        debug!("{} CollisionTurn", player.id);
                         player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
                     }
 
                     if vehicle.collision_cooldown_timer <= 0.0 {
                         let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel;
-                        //println!("Player {} has collided with {} damage", player.id, damage);
+                        debug!("Player {} has collided with {} damage", player.id, damage);
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,

@@ -13,6 +13,7 @@ use crate::rally::{
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
+use log::debug;
 use std::ops::Deref;
 
 #[derive(SystemDesc, Default)]
@@ -82,7 +83,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             for (col_id, v_diff) in &collision_ids_vec {
                 if player.id == *col_id {
                     if vehicle.collision_cooldown_timer <= 0.0 {
-                        //println!("Player {} has collided", player.id);
+                        debug!("Player {} has collided", player.id);
 
                         let damage: f32 = BASE_COLLISION_DAMAGE * v_diff;
 

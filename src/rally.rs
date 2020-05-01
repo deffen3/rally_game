@@ -204,7 +204,7 @@ pub fn vehicle_damage_model(
         damage -= piercing_damage;
     }
 
-    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
+    //debug!("Beginning vehicle_damage_model: H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
     if vehicle.shield.value > 0.0 {
         vehicle.shield.value -= damage * shield_damage_pct / 100.0;
@@ -242,7 +242,7 @@ pub fn vehicle_damage_model(
         }
     }
 
-    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
+    //debug!("Finishing vehicle_damage_model: H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
 
     vehicle_destroyed
 }
