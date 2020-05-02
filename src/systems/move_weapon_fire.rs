@@ -125,7 +125,9 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     let vehicle_owner_data = vehicle_owner_map.get(&weapon_fire.owner_player_id);
 
                     if let Some(vehicle_owner_data) = vehicle_owner_data {
-                        let (x, y, angle) = vehicle_owner_data;
+                        let (x, y, vehicle_angle) = vehicle_owner_data;
+
+                        let angle = vehicle_angle + weapon_fire.spawn_angle;
                         
                         let yaw_x_comp = -angle.sin(); //left is -, right is +
                         let yaw_y_comp = angle.cos(); //up is +, down is -
@@ -133,8 +135,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         debug!("attached: {}, {}, {}", x, y, angle);
 
                         transform.set_rotation_2d(angle - PI);
-                        transform.set_translation_x(x - yaw_x_comp * 14.0);
-                        transform.set_translation_y(y - yaw_y_comp * 14.0);
+                        transform.set_translation_x(x + yaw_x_comp * 14.0);
+                        transform.set_translation_y(y + yaw_y_comp * 14.0);
                     }
                 }
             } else {

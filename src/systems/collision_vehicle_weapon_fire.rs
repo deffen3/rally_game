@@ -13,7 +13,7 @@ use std::collections::HashMap;
 
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
-    Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire, WeaponTypes,
+    Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
 };
 
 use crate::rally::vehicle_damage_model;

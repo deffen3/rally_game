@@ -158,30 +158,23 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             }
                         } else {
                             //continue with Attacking mode
-                            let attack_angle;
-                            let turn_value;
+                            let attack_angle = vehicle.angle_to_closest_vehicle;
+                            let turn_value = 1.0;
 
                             //Prepare magnitude of Turning and Acceleration input
                             if player.bot_mode == BotMode::Swording {
-                                //spin target angle by 180deg for Sword Mode
-                                if vehicle.angle_to_closest_vehicle < 0.0 {
-                                    attack_angle = vehicle.angle_to_closest_vehicle + PI;
-                                } else {
-                                    attack_angle = vehicle.angle_to_closest_vehicle - PI;
+                                if weapon.stats.mounted_angle > PI/2.0 || weapon.stats.mounted_angle < -PI/2.0 {
+                                    vehicle_accel = Some(-1.0); //drive backwards sword fighting
                                 }
-                                turn_value = 1.0;
-                                vehicle_accel = Some(-1.0);
+                                else {
+                                    vehicle_accel = Some(1.0); //drive forwards sword fighting
+                                }
                             } else if player.bot_mode == BotMode::Chasing {
-                                attack_angle = vehicle.angle_to_closest_vehicle;
-                                turn_value = 1.0;
                                 vehicle_accel = Some(0.6);
-                            } else {
-                                attack_angle = vehicle.angle_to_closest_vehicle;
-                                turn_value = 1.0;
                             }
 
                             //Solve for Angle and Direction to turn
-                            let mut angle_diff = vehicle_angle - attack_angle;
+                            let mut angle_diff = vehicle_angle + weapon.stats.mounted_angle - attack_angle;
 
                             if angle_diff > PI {
                                 angle_diff = -(2.0*PI - angle_diff);

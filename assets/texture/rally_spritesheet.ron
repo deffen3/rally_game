@@ -96,7 +96,7 @@ List((
             x: 32,
             y: 14,
             width: 3,
-            height: 14,
+            height: 15,
         ),
         ( //mine p2 #16
             x: 21,
