@@ -34,6 +34,7 @@ pub enum WeaponNames {
     LaserDoubleBurst,
     ProjectileRapidFire,
     ProjectileRapidFireTurret,
+    ProjectileSteadyFire,
     ProjectileBurstFire,
     ProjectileCannonFire,
     Shotgun,
@@ -41,9 +42,9 @@ pub enum WeaponNames {
     Missile,
     Rockets,
     LaserSword,
+    PivotLaserSword,
     BackwardsLaserSword,
-    RocketGrenade,
-    ProjectileSteadyFire,
+    SuperRocketGrenades,
 }
 
 
@@ -60,11 +61,12 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::Rockets => Some(WeaponNames::ProjectileBurstFire),
         WeaponNames::ProjectileBurstFire => Some(WeaponNames::Mine),
         WeaponNames::Mine => Some(WeaponNames::LaserDoubleBurst),
-        WeaponNames::LaserDoubleBurst => Some(WeaponNames::RocketGrenade),
-        WeaponNames::RocketGrenade => Some(WeaponNames::ProjectileSteadyFire),
-        WeaponNames::ProjectileSteadyFire => Some(WeaponNames::LaserSword),
+        WeaponNames::LaserDoubleBurst => Some(WeaponNames::SuperRocketGrenades),
+        WeaponNames::SuperRocketGrenades => Some(WeaponNames::PivotLaserSword),
+        WeaponNames::PivotLaserSword => Some(WeaponNames::BackwardsLaserSword),
         WeaponNames::LaserSword => Some(WeaponNames::BackwardsLaserSword),
         WeaponNames::BackwardsLaserSword => None,
+        WeaponNames::ProjectileSteadyFire => None,
         WeaponNames::LaserDouble => None,
         WeaponNames::ProjectileRapidFire => None,
         WeaponNames::LaserPulse => None

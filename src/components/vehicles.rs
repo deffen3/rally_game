@@ -77,7 +77,7 @@ impl Vehicle {
             repair: Repair {
                 activated: false,
                 init_timer: 0.0,
-                init_threshold: 5.0,
+                init_threshold: 2.5,
                 entity: repair_entity,
             },
             weight: 100.0,
