@@ -191,7 +191,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             if angle_diff > 0.001 {
                                 vehicle_turn = Some(-turn_value);
-                            } else if angle_diff > 0.001 {
+                            } else if angle_diff < -0.001 {
                                 vehicle_turn = Some(turn_value);
                             } else {
                                 vehicle_turn = Some(0.0);
