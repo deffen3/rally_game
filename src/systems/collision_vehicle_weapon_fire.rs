@@ -185,40 +185,37 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         for (player, mut weapon, vehicle, transform) in
             (&mut players, &mut weapons, &mut vehicles, &mut transforms).join()
         {
-            // for (killer_id, killed_id, weapon_name) in &player_makes_kill {
-            //     if *killer_id == player.id {
-            
-            if let killer_data = Some(player_makes_kill_map.get(&player.id)) {
-                if let Some(killer_data) = killer_data.unwrap() {
-                    let weapon_name = killer_data;
-            
 
-                    //classic gun-game rules: upgrade weapon type for player who got the kill
-                    let new_weapon_name = get_next_weapon_name(weapon_name.clone());
+            let killer_data = player_makes_kill_map.get(&player.id);
 
-                    player.kills += 1;
+            if let Some(killer_data) = killer_data {
+                let weapon_name = killer_data;
 
-                    if let Some(new_weapon_name) = new_weapon_name.clone() {
-                        weapon_icons_old.push((player.id, weapon.stats.weapon_type));
+                //classic gun-game rules: upgrade weapon type for player who got the kill
+                let new_weapon_name = get_next_weapon_name(weapon_name.clone());
 
-                        update_weapon_properties(weapon, new_weapon_name);
-                        update_weapon_icon(
-                            &entities,
-                            &mut weapon,
-                            &weapon_fire_resource,
-                            player.id,
-                            &lazy_update,
-                        );
-                    }
+                player.kills += 1;
 
-                    
+                if let Some(new_weapon_name) = new_weapon_name.clone() {
+                    weapon_icons_old.push((player.id, weapon.stats.weapon_type));
+
+                    update_weapon_properties(weapon, new_weapon_name);
+                    update_weapon_icon(
+                        &entities,
+                        &mut weapon,
+                        &weapon_fire_resource,
+                        player.id,
+                        &lazy_update,
+                    );
                 }
+
+                
             }
 
-            if let killed_data = Some(player_got_killed_map.get(&player.id)) {
-                if let Some(killed_data) = killed_data.unwrap() {
-                    kill_restart_vehicle(vehicle, transform);
-                }
+            let killed_data = player_got_killed_map.get(&player.id);
+
+            if let Some(_killed_data) = killed_data {
+                kill_restart_vehicle(vehicle, transform);
             }
         }
 

@@ -1,12 +1,11 @@
 use amethyst::core::{Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Join, ReadStorage, System, SystemData, WriteStorage};
-use amethyst::input::{InputHandler, StringBindings};
 
 use std::f32::consts::PI;
 
 use crate::components::{
-    Player, Vehicle, Weapon,
+    Player, Vehicle,
 };
 
 

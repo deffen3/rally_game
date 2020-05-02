@@ -91,28 +91,33 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         {
             if weapon_fire.heat_seeking {
 
-                if let heat_seeking_data = Some(heat_seeking_angle_map.get(&entity.id())) {
-                    if let Some(heat_seeking_data) = heat_seeking_data.unwrap() {
-                        let angle = heat_seeking_data;
+                // let killer_data = player_makes_kill_map.get(&player.id);
 
-                        transform.set_rotation_2d(*angle);
+                // if let Some(killer_data) = killer_data {
+                //     let weapon_name = killer_data;
 
-                        let velocity_x_comp = -angle.sin(); //left is -, right is +
-                        let velocity_y_comp = angle.cos(); //up is +, down is -
+                let heat_seeking_data = heat_seeking_angle_map.get(&entity.id());
 
-                        let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
-                        let abs_vel = sq_vel.sqrt();
+                if let Some(heat_seeking_data) = heat_seeking_data {
+                    let angle = heat_seeking_data;
 
-                        weapon_fire.dx += weapon_fire.heat_seeking_agility * velocity_x_comp * dt;
-                        weapon_fire.dx *= weapon_fire.shot_speed / abs_vel;
+                    transform.set_rotation_2d(*angle);
 
-                        weapon_fire.dy += weapon_fire.heat_seeking_agility * velocity_y_comp * dt;
-                        weapon_fire.dy *= weapon_fire.shot_speed / abs_vel;
+                    let velocity_x_comp = -angle.sin(); //left is -, right is +
+                    let velocity_y_comp = angle.cos(); //up is +, down is -
 
-                        //let sq_vel2 = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
-                        //let abs_vel2 = sq_vel2.sqrt();
-                    }
-                }                        
+                    let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                    let abs_vel = sq_vel.sqrt();
+
+                    weapon_fire.dx += weapon_fire.heat_seeking_agility * velocity_x_comp * dt;
+                    weapon_fire.dx *= weapon_fire.shot_speed / abs_vel;
+
+                    weapon_fire.dy += weapon_fire.heat_seeking_agility * velocity_y_comp * dt;
+                    weapon_fire.dy *= weapon_fire.shot_speed / abs_vel;
+
+                    //let sq_vel2 = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                    //let abs_vel2 = sq_vel2.sqrt();
+                }            
             }
 
             if weapon_fire.attached {

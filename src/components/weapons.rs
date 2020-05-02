@@ -247,11 +247,9 @@ pub fn build_named_weapon(
 
     let weapon_configs_map: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
 
-    if let weapon_config = Some(weapon_configs_map.get(&weapon_name)) {
-        *weapon_config.unwrap().unwrap()
-    }
-    else {
-        WeaponStats {
+    match weapon_configs_map.get(&weapon_name) {
+        Some(weapon_config) => *weapon_config,
+        _ => WeaponStats {
             weapon_type: WeaponTypes::LaserDouble,
             heat_seeking: false,
             heat_seeking_agility: 0.0,
