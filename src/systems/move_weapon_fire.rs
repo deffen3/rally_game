@@ -39,7 +39,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
             if weapon_fire.heat_seeking {
                 let mut closest_vehicle_x_diff = 0.0;
                 let mut closest_vehicle_y_diff = 0.0;
-                let mut closest_vehicle_dist = 1000000000.0;
+                let mut closest_vehicle_dist = 1_000_000_000.0;
 
                 for (_vehicle, vehicle_transform, player) in
                     (&vehicles, &transforms, &players).join()
@@ -55,7 +55,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                             ((vehicle_x - fire_x).powi(2) + (vehicle_y - fire_y).powi(2)).sqrt();
 
                         if dist < closest_vehicle_dist {
-                            closest_vehicle_dist = dist.clone();
+                            closest_vehicle_dist = dist;
                             closest_vehicle_x_diff = fire_x - vehicle_x;
                             closest_vehicle_y_diff = fire_y - vehicle_y;
                         }
@@ -89,7 +89,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         for (entity, weapon_fire, transform) in
             (&*entities, &mut weapon_fires, &mut transforms).join()
         {
-            if weapon_fire.heat_seeking == true {
+            if weapon_fire.heat_seeking {
 
                 if let heat_seeking_data = Some(heat_seeking_angle_map.get(&entity.id())) {
                     if let Some(heat_seeking_data) = heat_seeking_data.unwrap() {
@@ -115,8 +115,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                 }                        
             }
 
-            if weapon_fire.attached == true {
-                if weapon_fire.deployed == true {
+            if weapon_fire.attached {
+                if weapon_fire.deployed {
                     for (player_id, x, y, angle) in &vehicle_owner {
                         if *player_id == weapon_fire.owner_player_id {
                             let yaw_x_comp = -angle.sin(); //left is -, right is +
@@ -143,7 +143,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     || (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
                     || (fire_y < (UI_HEIGHT - -2.0 * weapon_fire.width))
                 {
-                    if weapon_fire.attached == false {
+                    if !weapon_fire.attached {
                         let _ = entities.delete(entity);
                     }
                 }

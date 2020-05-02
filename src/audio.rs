@@ -24,12 +24,10 @@ pub fn initialize_audio(world: &mut World) {
     let sound_effects = {
         let loader = world.read_resource::<Loader>();
 
-        let sound = Sounds {
+        Sounds {
             bounce_sfx: load_audio_track(&loader, &world, BOUNCE_SOUND),
             score_sfx: load_audio_track(&loader, &world, SCORE_SOUND),
-        };
-
-        sound
+        }
     };
 
     // Add sound effects to the world. We have to do this in another scope because

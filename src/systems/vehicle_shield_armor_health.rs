@@ -64,11 +64,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
 
             if let Some(repair) = vehicle_repair {
                 if repair {
-                    if vehicle.health.value < vehicle.health.max {
-                        //repair initiated
-                        vehicle.repair.activated = true;
-                        vehicle.repair.init_timer += dt;
-                    } else if vehicle.shield.value == 0.0 {
+                    if vehicle.health.value < vehicle.health.max || vehicle.shield.value == 0.0{
                         //repair initiated
                         vehicle.repair.activated = true;
                         vehicle.repair.init_timer += dt;

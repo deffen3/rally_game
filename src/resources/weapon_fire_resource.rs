@@ -81,7 +81,7 @@ pub fn initialize_weapon_fire_resource(
             sprite_number: 12,
         },
         laser_sword_sprite_render: SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_sheet: sprite_sheet_handle,
             sprite_number: 15,
         },
     };

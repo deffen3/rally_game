@@ -74,7 +74,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (player1, _vehicle1, vehicle1_transform) in (&players, &vehicles, &transforms).join() {
             let mut closest_vehicle_x_diff = 0.0;
             let mut closest_vehicle_y_diff = 0.0;
-            let mut closest_vehicle_dist = 1000000000.0;
+            let mut closest_vehicle_dist = 1_000_000_000.0;
 
             let vehicle1_x = vehicle1_transform.translation().x;
             let vehicle1_y = vehicle1_transform.translation().y;
@@ -91,7 +91,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     .sqrt();
 
                     if dist < closest_vehicle_dist {
-                        closest_vehicle_dist = dist.clone();
+                        closest_vehicle_dist = dist;
                         closest_vehicle_x_diff = vehicle1_x - vehicle2_x;
                         closest_vehicle_y_diff = vehicle1_y - vehicle2_y;
                     }
@@ -111,7 +111,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (player, vehicle, transform, weapon) in
             (&mut players, &mut vehicles, &mut transforms, &weapons).join()
         {
-            if vehicle.in_respawn == true {
+            if vehicle.in_respawn {
                 check_respawn_vehicle(vehicle, transform, dt);
             } else {
                 //let max_velocity: f32 = 0.5;
@@ -158,7 +158,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         {
                             //change modes to attack
 
-                            if weapon.stats.attached == true { //Typically just LaserSword
+                            if weapon.stats.attached { //Typically just LaserSword
                                 player.bot_mode = BotMode::Swording;
                                 debug!("{} Swording", player.id);
                                 player.bot_move_cooldown = 5.0;
@@ -302,7 +302,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //Update vehicle velocity from vehicle speed accel input
                 if let Some(move_amount) = vehicle_accel {
-                    let scaled_amount: f32 = if vehicle.repair.activated == true {
+                    let scaled_amount: f32 = if vehicle.repair.activated {
                         0.0 as f32
                     } else if move_amount > 0.0 {
                         thrust_accel_rate * move_amount as f32
@@ -349,7 +349,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //Apply vehicle rotation from turn input
                 if let Some(turn_amount) = vehicle_turn {
-                    let scaled_amount: f32 = if vehicle.repair.activated == true {
+                    let scaled_amount: f32 = if vehicle.repair.activated {
                         0.0 as f32
                     }
                     else {
@@ -434,7 +434,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             play_bounce_sound(
                                 &*sounds,
                                 &storage,
-                                audio_output.as_ref().map(|o| o.deref()),
+                                audio_output.as_deref(),
                             );
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -465,7 +465,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             play_bounce_sound(
                                 &*sounds,
                                 &storage,
-                                audio_output.as_ref().map(|o| o.deref()),
+                                audio_output.as_deref(),
                             );
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -542,7 +542,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             play_bounce_sound(
                                 &*sounds,
                                 &storage,
-                                audio_output.as_ref().map(|o| o.deref()),
+                                audio_output.as_deref(),
                             );
                         }
 

@@ -10,7 +10,6 @@ use amethyst::{
     },
 };
 
-use log::info;
 use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
@@ -95,9 +94,8 @@ pub struct WeaponStats {
 pub fn build_weapon_store() -> HashMap<WeaponNames, WeaponStats> {
     let input_path = format!("{}/config/weapons.ron", env!("CARGO_MANIFEST_DIR"));
     let f = File::open(&input_path).expect("Failed opening file");
-    let weapon_configs = from_reader(f).expect("Failed to load config");
-
-    weapon_configs
+    
+    from_reader(f).expect("Failed to load config")
 }
 
 
@@ -196,7 +194,7 @@ impl WeaponFire {
         piercing_damage_pct: f32,
         health_damage_pct: f32,
     ) -> WeaponFire {
-        let (width, height) = match weapon_type.clone() {
+        let (width, height) = match weapon_type {
             WeaponTypes::LaserDouble => (3.0, 6.0),
             WeaponTypes::LaserBeam => (1.0, 12.0),
             WeaponTypes::LaserPulse => (1.0, 3.0),
@@ -218,12 +216,12 @@ impl WeaponFire {
             spawn_y: 0.0,
             spawn_angle: 0.0,
             owner_player_id,
-            damage: damage,
-            shot_speed: shot_speed,
-            shield_damage_pct: shield_damage_pct,
-            armor_damage_pct: armor_damage_pct,
-            piercing_damage_pct: piercing_damage_pct,
-            health_damage_pct: health_damage_pct,
+            damage,
+            shot_speed,
+            shield_damage_pct,
+            armor_damage_pct,
+            piercing_damage_pct,
+            health_damage_pct,
             heat_seeking,
             heat_seeking_agility,
             attached,
@@ -247,9 +245,9 @@ pub fn build_named_weapon(
     weapon_name: WeaponNames,
 ) -> WeaponStats {
 
-    let WEAPON_CONFIGS: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
+    let weapon_configs_map: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
 
-    if let weapon_config = Some(WEAPON_CONFIGS.get(&weapon_name)) {
+    if let weapon_config = Some(weapon_configs_map.get(&weapon_name)) {
         *weapon_config.unwrap().unwrap()
     }
     else {
@@ -282,7 +280,7 @@ pub fn update_weapon_icon(
     player_id: usize,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
-    let weapon_type = weapon.stats.weapon_type.clone();
+    let weapon_type = weapon.stats.weapon_type;
 
     //UI icon
     let weapon_entity: Entity = entities.create();
@@ -296,7 +294,7 @@ pub fn update_weapon_icon(
 
     let weapon_icon_dx = 70.0;
 
-    let (icon_scale, mut weapon_sprite) = match weapon_type.clone() {
+    let (icon_scale, mut weapon_sprite) = match weapon_type {
         WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
         WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
@@ -316,8 +314,8 @@ pub fn update_weapon_icon(
         WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
     };
 
-    if weapon_type.clone() == WeaponTypes::Mine {
-        weapon_sprite = get_mine_sprite(player_id, weapon.stats.shot_speed.clone(), weapon_fire_resource);
+    if weapon_type == WeaponTypes::Mine {
+        weapon_sprite = get_mine_sprite(player_id, weapon.stats.shot_speed, weapon_fire_resource);
     }
 
     let mut icon_weapon_transform = Transform::default();

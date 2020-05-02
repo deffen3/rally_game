@@ -123,7 +123,7 @@ pub fn fire_weapon(
 
     let mut weapon_fire = WeaponFire::new(
         weapon.name.clone(),
-        weapon.stats.weapon_type.clone(),
+        weapon.stats.weapon_type,
         player_id,
         weapon.stats.heat_seeking,
         weapon.stats.heat_seeking_agility,
@@ -165,25 +165,26 @@ pub fn fire_weapon(
     };
     lazy_update.insert(fire_entity, weapon_fire);
 
-    let mut sprite = match weapon.stats.weapon_type.clone() {
-        WeaponTypes::LaserDouble => weapon_fire_resource.laser_double_sprite_render.clone(),
-        WeaponTypes::LaserBeam => weapon_fire_resource.laser_beam_sprite_render.clone(),
-        WeaponTypes::LaserPulse => weapon_fire_resource.laser_burst_sprite_render.clone(),
-        WeaponTypes::ProjectileBurstFire => weapon_fire_resource.projectile_burst_render.clone(),
-        WeaponTypes::ProjectileRapidFire => weapon_fire_resource.projectile_rapid_render.clone(),
-        WeaponTypes::ProjectileCannonFire => {
-            weapon_fire_resource.projectile_cannon_sprite_render.clone()
-        }
-        WeaponTypes::Missile => weapon_fire_resource.missile_sprite_render.clone(),
-        WeaponTypes::Rockets => weapon_fire_resource.rockets_sprite_render.clone(),
-        WeaponTypes::Mine => weapon_fire_resource.mine_p1_sprite_render.clone(),
-        WeaponTypes::LaserSword => weapon_fire_resource.laser_sword_sprite_render.clone(),
-    };
 
-    if weapon.stats.weapon_type.clone() == WeaponTypes::Mine {
-        sprite = get_mine_sprite(player_id, weapon.stats.shot_speed.clone(), weapon_fire_resource);
+    let sprite = if weapon.stats.weapon_type == WeaponTypes::Mine {
+        get_mine_sprite(player_id, weapon.stats.shot_speed, weapon_fire_resource)
     }
-    
+    else {
+        match weapon.stats.weapon_type {
+            WeaponTypes::LaserDouble => weapon_fire_resource.laser_double_sprite_render.clone(),
+            WeaponTypes::LaserBeam => weapon_fire_resource.laser_beam_sprite_render.clone(),
+            WeaponTypes::LaserPulse => weapon_fire_resource.laser_burst_sprite_render.clone(),
+            WeaponTypes::ProjectileBurstFire => weapon_fire_resource.projectile_burst_render.clone(),
+            WeaponTypes::ProjectileRapidFire => weapon_fire_resource.projectile_rapid_render.clone(),
+            WeaponTypes::ProjectileCannonFire => {
+                weapon_fire_resource.projectile_cannon_sprite_render.clone()
+            }
+            WeaponTypes::Missile => weapon_fire_resource.missile_sprite_render.clone(),
+            WeaponTypes::Rockets => weapon_fire_resource.rockets_sprite_render.clone(),
+            WeaponTypes::Mine => weapon_fire_resource.mine_p1_sprite_render.clone(),
+            WeaponTypes::LaserSword => weapon_fire_resource.laser_sword_sprite_render.clone(),
+        }
+    };
 
     lazy_update.insert(fire_entity, sprite);
     lazy_update.insert(fire_entity, local_transform);
@@ -204,7 +205,7 @@ pub fn vehicle_damage_model(
         damage -= piercing_damage;
     }
 
-    //debug!("Beginning vehicle_damage_model: H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
+    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
     if vehicle.shield.value > 0.0 {
         vehicle.shield.value -= damage * shield_damage_pct / 100.0;
@@ -242,7 +243,7 @@ pub fn vehicle_damage_model(
         }
     }
 
-    //debug!("Finishing vehicle_damage_model: H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
+    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
 
     vehicle_destroyed
 }

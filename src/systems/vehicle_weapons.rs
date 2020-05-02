@@ -129,10 +129,10 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                             fire_angle += spread_angle_modifier;
                         }
 
-                        if weapon.stats.attached == false
-                            || (weapon.stats.attached == true && weapon.stats.deployed == false)
+                        if !weapon.stats.attached
+                            || (weapon.stats.attached && !weapon.stats.deployed)
                         {
-                            if weapon.stats.deployed == false {
+                            if !weapon.stats.deployed {
                                 weapon.stats.deployed = true;
                             }
                             fire_weapon(

@@ -152,7 +152,7 @@ pub fn intialize_player(
     shield_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.1);
 
     let shield_sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_sheet: sprite_sheet_handle,
         sprite_number: 19,
     };
 
@@ -205,7 +205,7 @@ pub fn intialize_player(
 
     let weapon_icon_dx = 70.0;
 
-    let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type.clone() {
+    let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type {
         WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
         WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
@@ -225,8 +225,8 @@ pub fn intialize_player(
         WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
     };
 
-    if weapon_stats.weapon_type.clone() == WeaponTypes::Mine {
-        weapon_sprite = get_mine_sprite(player_index, weapon_stats.shot_speed.clone(), &weapon_fire_resource);
+    if weapon_stats.weapon_type == WeaponTypes::Mine {
+        weapon_sprite = get_mine_sprite(player_index, weapon_stats.shot_speed, &weapon_fire_resource);
     }
 
     let mut icon_weapon_transform = Transform::default();
@@ -261,7 +261,7 @@ pub fn intialize_player(
     world
         .create_entity()
         .with(vehicle_transform)
-        .with(vehicle_sprite_render.clone())
+        .with(vehicle_sprite_render)
         .with(Vehicle::new(player_status_text, 
             health_entity,
             armor_entity,

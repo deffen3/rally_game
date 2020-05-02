@@ -85,7 +85,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2)
                     < (hitbox.width / 2.0).powi(2)
                 {
-                    if weapon_fire.attached == false {
+                    if !weapon_fire.attached {
                         let _ = entities.delete(weapon_fire_entity);
                     }
                 }
@@ -129,11 +129,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             + (fire_y - fire_y_comp * weapon_fire.height / 2.0 - vehicle_y).powi(2)
                             < vehicle.width.powi(2))
                     {
-                        if weapon_fire.attached == false {
+                        if !weapon_fire.attached {
                             let _ = entities.delete(weapon_fire_entity);
                         }
 
-                        let damage: f32 = weapon_fire.damage.clone();
+                        let damage: f32 = weapon_fire.damage;
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
@@ -148,7 +148,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             play_bounce_sound(
                                 &*sounds,
                                 &storage,
-                                audio_output.as_ref().map(|o| o.deref()),
+                                audio_output.as_deref(),
                             );
 
                             // player_makes_kill.push((
@@ -172,7 +172,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             play_score_sound(
                                 &*sounds,
                                 &storage,
-                                audio_output.as_ref().map(|o| o.deref()),
+                                audio_output.as_deref(),
                             );
                             self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
                         }
@@ -200,14 +200,14 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     player.kills += 1;
 
                     if let Some(new_weapon_name) = new_weapon_name.clone() {
-                        weapon_icons_old.push((player.id.clone(), weapon.stats.weapon_type.clone()));
+                        weapon_icons_old.push((player.id, weapon.stats.weapon_type));
 
                         update_weapon_properties(weapon, new_weapon_name);
                         update_weapon_icon(
                             &entities,
                             &mut weapon,
                             &weapon_fire_resource,
-                            player.id.clone(),
+                            player.id,
                             &lazy_update,
                         );
                     }
