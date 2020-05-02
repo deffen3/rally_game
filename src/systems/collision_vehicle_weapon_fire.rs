@@ -16,7 +16,7 @@ use crate::components::{
     Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
 };
 
-use crate::rally::vehicle_damage_model;
+use crate::rally::{vehicle_damage_model, GUN_GAME_MODE};
 use crate::resources::WeaponFireResource;
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
@@ -186,7 +186,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 if *weapon_name == weapon.name { //if kill was using player's current weapon
                     player.kills += 1;
 
-                    if GUN_GAME_MODE {}
+                    if GUN_GAME_MODE {
                         //classic gun-game rules: upgrade weapon type for player who got the kill
                         let new_weapon_name = get_next_weapon_name(weapon.name.clone());
                         
