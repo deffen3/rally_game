@@ -91,7 +91,7 @@ fn main() -> amethyst::Result<()> {
                 // The RenderToWindow plugin provides all the scaffolding for opening a window and drawing on it
                 .with_plugin(
                     RenderToWindow::from_config_path(display_config_path)?
-                        .with_clear([0.14, 0.16, 0.13, 1.0]), //background color R,G,B
+                        .with_clear([0.14, 0.14, 0.13, 1.0]), //background color R,G,B
                 )
                 // RenderFlat2D plugin is used to render entities with a `SpriteRender` component.
                 .with_plugin(RenderFlat2D::default())
