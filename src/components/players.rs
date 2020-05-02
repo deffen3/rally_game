@@ -15,6 +15,7 @@ pub enum BotMode {
 pub struct Player {
     pub id: usize,
     pub kills: i32,
+    pub deaths: i32,
     pub earned_kill: bool,
     pub is_bot: bool,
     pub bot_mode: BotMode,
@@ -35,6 +36,7 @@ impl Player {
         Player {
             id,
             kills: 0,
+            deaths: 0,
             earned_kill: false,
             is_bot,
             bot_mode: BotMode::StopAim,

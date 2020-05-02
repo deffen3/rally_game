@@ -184,23 +184,24 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 let weapon_name = killer_data;
 
                 if *weapon_name == weapon.name { //if kill was using player's current weapon
-
-                    //classic gun-game rules: upgrade weapon type for player who got the kill
-                    let new_weapon_name = get_next_weapon_name(weapon.name.clone());
-
                     player.kills += 1;
 
-                    if let Some(new_weapon_name) = new_weapon_name.clone() {
-                        weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
+                    if GUN_GAME_MODE {}
+                        //classic gun-game rules: upgrade weapon type for player who got the kill
+                        let new_weapon_name = get_next_weapon_name(weapon.name.clone());
+                        
+                        if let Some(new_weapon_name) = new_weapon_name.clone() {
+                            weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
-                        update_weapon_properties(weapon, new_weapon_name);
-                        update_weapon_icon(
-                            &entities,
-                            &mut weapon,
-                            &weapon_fire_resource,
-                            player.id,
-                            &lazy_update,
-                        );
+                            update_weapon_properties(weapon, new_weapon_name);
+                            update_weapon_icon(
+                                &entities,
+                                &mut weapon,
+                                &weapon_fire_resource,
+                                player.id,
+                                &lazy_update,
+                            );
+                        }
                     }
                 }
             }
@@ -208,6 +209,8 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             let killed_data = player_got_killed_map.get(&player.id);
 
             if let Some(_killed_data) = killed_data {
+                player.deaths += 1;
+
                 kill_restart_vehicle(vehicle, transform);
             }
         }

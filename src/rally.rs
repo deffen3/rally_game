@@ -36,6 +36,9 @@ pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 
 pub const KILLS_TO_WIN: i32 = 15;
 
+pub const GUN_GAME_MODE: bool = true;
+
+
 #[derive(Default)]
 pub struct Rally {
     sprite_sheet_handle: Option<Handle<SpriteSheet>>, // Load the spritesheet necessary to render the graphics.
