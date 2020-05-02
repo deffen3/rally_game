@@ -54,7 +54,7 @@ fn main() -> amethyst::Result<()> {
         .with(
             systems::VehicleMoveSystem,
             "vehicle_move_system",
-            &["input_system"],
+            &["input_system", "vehicle_tracking_system"],
         )
         .with(
             systems::VehicleWeaponsSystem,

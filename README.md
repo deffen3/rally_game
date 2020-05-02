@@ -14,14 +14,14 @@ TODO:
 1. UI Transform works different on Mac? UI is in the middle of the screen.
 1. Red laser weapon can go through opponents on computers with potato frame rate
 
-DONE:
+RECENTLY DONE:
 1. Fixed gimballed/turret/auto-aim feature
 1. Add simple AI opponents
 1. Add current weapon type icon into UI
-1. AI sword mode seems to not work very well, bad target tracking when in reverse?
+1. AI sword mode seems to not work very well, bad target tracking when in reverse? - FIXED
 1. Put weapon properties into a .ron config file
 1. Visible Shield and Armor icons. Shield should be a faint bubble over top vehicle. Armor can be some grey stuff surrounding your vehicles sides.
-1. Weapon icon blinks if weapon on cooldown?
+1. Weapon icon goes transparent when on cooldown
 
 
 Currently this is a ship combat game where the goal is to get a kill with all of the weapons. Once you get a kill with a weapon then it will automatically switch to your next weapon.

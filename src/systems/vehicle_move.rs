@@ -98,7 +98,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 };
 
                 let vehicle_rotation = transform.rotation();
-                let (_, _, yaw) = vehicle_rotation.euler_angles();
+                let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
 
                 player.bot_move_cooldown -= dt;
 
@@ -161,12 +161,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             let attack_angle;
                             let turn_value;
 
+                            //Prepare magnitude of Turning and Acceleration input
                             if player.bot_mode == BotMode::Swording {
-                                //spin target angle by 180deg
+                                //spin target angle by 180deg for Sword Mode
                                 if vehicle.angle_to_closest_vehicle < 0.0 {
                                     attack_angle = vehicle.angle_to_closest_vehicle + PI;
-                                }
-                                else {
+                                } else {
                                     attack_angle = vehicle.angle_to_closest_vehicle - PI;
                                 }
                                 turn_value = 1.0;
@@ -180,44 +180,21 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 turn_value = 1.0;
                             }
 
-                            if yaw < 0.0 {
-                                //aimed to the right (with 0 point towards top)
-                                if attack_angle < 0.0 {
-                                    //target to the right
-                                    debug!("Right {}, Right {} ", yaw, vehicle.angle_to_closest_vehicle);
+                            //Solve for Angle and Direction to turn
+                            let mut angle_diff = vehicle_angle - attack_angle;
 
-                                    if (yaw.abs() - attack_angle.abs()) < 0.01 {
-                                        vehicle_turn = Some(-turn_value);
-                                    } else if (yaw.abs() - attack_angle.abs()) > 0.01 {
-                                        vehicle_turn = Some(turn_value);
-                                    } else {
-                                        vehicle_turn = Some(0.0);
-                                    }
-                                } else {
-                                    //target to the left
-                                    debug!("Right {}, Left {} ", yaw, vehicle.angle_to_closest_vehicle);
+                            if angle_diff > PI {
+                                angle_diff = -(2.0*PI - angle_diff);
+                            } else if angle_diff < -PI {
+                                angle_diff = -(-2.0*PI - angle_diff);
+                            }
 
-                                    vehicle_turn = Some(turn_value);
-                                }
+                            if angle_diff > 0.001 {
+                                vehicle_turn = Some(-turn_value);
+                            } else if angle_diff > 0.001 {
+                                vehicle_turn = Some(turn_value);
                             } else {
-                                //aimed to the left
-                                if attack_angle < 0.0 {
-                                    //target to the right
-                                    debug!("Left {}, Right {} ", yaw, vehicle.angle_to_closest_vehicle);
-
-                                    vehicle_turn = Some(turn_value);
-                                } else {
-                                    //target to the left == PERFECT!!
-                                    debug!("Left {}, Left {} ", yaw, vehicle.angle_to_closest_vehicle);
-
-                                    if (yaw.abs() - attack_angle.abs()) > 0.01 {
-                                        vehicle_turn = Some(-turn_value);
-                                    } else if (yaw.abs() - attack_angle.abs()) < 0.01 {
-                                        vehicle_turn = Some(turn_value);
-                                    } else {
-                                        vehicle_turn = Some(0.0);
-                                    }
-                                }
+                                vehicle_turn = Some(0.0);
                             }
                         }
                     } else if player.bot_mode == BotMode::CollisionTurn {
@@ -243,11 +220,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 debug!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
 
                 if player.id == 0 {
-                    debug!("yaw:{}", yaw);
+                    debug!("vehicle_angle:{}", vehicle_angle);
                 }
 
-                let yaw_x_comp = -yaw.sin(); //left is -, right is +
-                let yaw_y_comp = yaw.cos(); //up is +, down is -
+                let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
+                let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
 
                 debug!("yaw_x_comp:{0:>6.3}, yaw_y_comp:{1:>6.3}", yaw_x_comp, yaw_y_comp);
 
@@ -268,8 +245,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 debug!("vel_x:{}, vel_y:{}", vehicle.dx, vehicle.dy);
 
                 //Apply friction
-                //this needs to be applied to vehicle momentum angle, not yaw angle
-                let velocity_angle = vehicle.dy.atan2(vehicle.dx) - (PI / 2.0); //rotate by PI/2 to line up with yaw angle
+                //this needs to be applied to vehicle momentum angle, not vehicle_angle angle
+                let velocity_angle = vehicle.dy.atan2(vehicle.dx) - (PI / 2.0); //rotate by PI/2 to line up with vehicle_angle angle
 
                 debug!("vel_angle:{}", velocity_angle);
 
@@ -325,7 +302,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     vehicle.dr = vehicle.dr.min(0.025).max(-0.025);
 
-                    transform.set_rotation_2d(yaw + vehicle.dr);
+                    transform.set_rotation_2d(vehicle_angle + vehicle.dr);
                 }
 
                 //Wall-collision logic

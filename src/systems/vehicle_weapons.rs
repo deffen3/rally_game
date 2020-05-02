@@ -102,21 +102,15 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
 
                                 if angle_diff > PI {
                                     angle_diff = -(2.0*PI - angle_diff);
-                                }
-                                else if angle_diff < -PI {
+                                } else if angle_diff < -PI {
                                     angle_diff = -(-2.0*PI - angle_diff);
                                 }
                                 
 
                                 if angle_diff.abs() < weapon.stats.tracking_angle {
                                     fire_angle = vehicle.angle_to_closest_vehicle;
-                                }
-                                else {
+                                } else {
                                     fire_angle = vehicle_angle - weapon.stats.tracking_angle * angle_diff/angle_diff.abs();
-                                }
-
-                                if player.id == 0 {
-                                    debug!("{}, {}",vehicle_angle, vehicle.angle_to_closest_vehicle);
                                 }
                             }
                         }
