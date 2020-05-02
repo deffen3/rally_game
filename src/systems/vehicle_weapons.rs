@@ -76,7 +76,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             }
 
             if let Some(fire) = vehicle_weapon_fire {
-                if vehicle.repair.activated == false {
+                if !vehicle.repair.activated {
                     if fire && weapon.cooldown_timer <= 0.0 {
                         let vehicle_rotation = transform.rotation();
                         let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
@@ -129,12 +129,11 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                             fire_angle += spread_angle_modifier;
                         }
 
-                        if !weapon.stats.attached
-                            || (weapon.stats.attached && !weapon.stats.deployed)
-                        {
+                        if !weapon.stats.attached || !weapon.stats.deployed {
                             if !weapon.stats.deployed {
                                 weapon.stats.deployed = true;
                             }
+                            
                             fire_weapon(
                                 &entities,
                                 &weapon_fire_resource,

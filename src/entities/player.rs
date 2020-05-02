@@ -249,7 +249,7 @@ pub fn intialize_player(
 
     let weapon_icon = world
         .create_entity()
-        .with(PlayerWeaponIcon::new(player_index, weapon_stats.weapon_type.clone()))
+        .with(PlayerWeaponIcon::new(player_index, weapon_stats.weapon_type))
         .with(weapon_sprite)
         .with(icon_weapon_transform)
         .with(icon_tint)

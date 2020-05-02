@@ -71,7 +71,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (player, vehicle, transform, weapon) in
             (&mut players, &mut vehicles, &mut transforms, &weapons).join()
         {
-            if vehicle.in_respawn == true {
+            if vehicle.in_respawn {
                 check_respawn_vehicle(vehicle, transform, dt);
             } else {
                 //let max_velocity: f32 = 0.5;
@@ -109,7 +109,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         {
                             //change modes to attack
 
-                            if weapon.stats.attached == true { //Typically just LaserSword
+                            if weapon.stats.attached { //Typically just LaserSword
                                 player.bot_mode = BotMode::Swording;
                                 debug!("{} Swording", player.id);
                                 player.bot_move_cooldown = 5.0;
@@ -253,7 +253,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //Update vehicle velocity from vehicle speed accel input
                 if let Some(move_amount) = vehicle_accel {
-                    let scaled_amount: f32 = if vehicle.repair.activated == true {
+                    let scaled_amount: f32 = if vehicle.repair.activated {
                         0.0 as f32
                     } else if move_amount > 0.0 {
                         thrust_accel_rate * move_amount as f32
