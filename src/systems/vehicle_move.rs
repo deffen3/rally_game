@@ -74,8 +74,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
             if vehicle.in_respawn {
                 check_respawn_vehicle(vehicle, transform, dt);
             } else {
-                //let max_velocity: f32 = 0.5;
-
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power / 100.0;
                 let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_power / 100.0;
 
@@ -256,10 +254,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
                 let abs_vel = sq_vel.sqrt();
 
-                // if abs_vel > max_velocity {
-                //     vehicle.dx = velocity_x_comp * max_velocity;
-                //     vehicle.dy = velocity_y_comp * max_velocity;
-                // }
+                if abs_vel > vehicle.max_velocity {
+                    vehicle.dx *= vehicle.max_velocity / abs_vel;
+                    vehicle.dy *= vehicle.max_velocity / abs_vel;
+                }
 
                 debug!("{}",abs_vel);
 
