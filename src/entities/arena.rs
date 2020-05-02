@@ -12,10 +12,31 @@ use std::f32::consts::PI;
 use crate::components::{Hitbox, HitboxShape};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
-pub fn initialize_arena_walls(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
-    //bottom UI wall
+pub fn initialize_arena_walls(
+        world: &mut World, 
+        sprite_sheet_handle: Handle<SpriteSheet>,
+        texture_sheet_handle: Handle<SpriteSheet>
+    ) {
+    
     let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
 
+    //arena floor
+    let mut floor_transform = Transform::default();
+    floor_transform.set_translation_xyz(ARENA_WIDTH/2.0, arena_ui_height/2.0, -0.01);
+    floor_transform.set_scale(Vector3::new(6.25, 5.75, 0.0));
+
+    let floor_texture_render = SpriteRender {
+        sprite_sheet: texture_sheet_handle,
+        sprite_number: 0,
+    };
+
+    world
+        .create_entity()
+        .with(floor_transform)
+        .with(floor_texture_render)
+        .build();
+
+    //bottom UI wall
     let mut wall_transform = Transform::default();
     wall_transform.set_translation_xyz(0.0, UI_HEIGHT - 1.0, 0.39);
     wall_transform.set_scale(Vector3::new(40.0, 1.0, 0.0));

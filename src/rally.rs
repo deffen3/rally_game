@@ -34,18 +34,24 @@ pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 pub const MAX_PLAYERS: usize = 4;
 pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 
-pub const KILLS_TO_WIN: i32 = 15;
+pub const KILLS_TO_WIN: i32 = 14;
 
 #[derive(Default)]
 pub struct Rally {
     sprite_sheet_handle: Option<Handle<SpriteSheet>>, // Load the spritesheet necessary to render the graphics.
+    texture_sheet_handle: Option<Handle<SpriteSheet>>,
 }
 
 impl SimpleState for Rally {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
-        self.sprite_sheet_handle.replace(load_sprite_sheet(world));
+        self.sprite_sheet_handle.replace(load_sprite_sheet(
+            world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
+        ));
+        self.texture_sheet_handle.replace(load_sprite_sheet(
+            world, "texture/rally_texture_sheet.png".to_string(), "texture/rally_texture_sheet.ron".to_string()
+        ));
 
         initialize_camera(world);
 
@@ -58,7 +64,12 @@ impl SimpleState for Rally {
         world.register::<UiText>(); // <- add this line temporarily
         world.register::<UiTransform>();
 
-        initialize_arena_walls(world, self.sprite_sheet_handle.clone().unwrap());
+        initialize_arena_walls(
+            world,
+            self.sprite_sheet_handle.clone().unwrap(),
+            self.texture_sheet_handle.clone().unwrap(),
+        );
+
         world.register::<Hitbox>();
 
         world.register::<PlayerWeaponIcon>();
@@ -85,7 +96,7 @@ impl SimpleState for Rally {
     }
 }
 
-fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
+fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handle<SpriteSheet> {
     // Load the sprite sheet necessary to render the graphics.
     // The texture is the pixel data
     // `texture_handle` is a cloneable reference to the texture
@@ -93,7 +104,7 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
         let loader = world.read_resource::<Loader>();
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
         loader.load(
-            "texture/rally_spritesheet.png",
+            storage,
             ImageFormat::default(),
             (),
             &texture_storage,
@@ -103,7 +114,7 @@ fn load_sprite_sheet(world: &mut World) -> Handle<SpriteSheet> {
     let loader = world.read_resource::<Loader>();
     let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
     loader.load(
-        "texture/rally_spritesheet.ron", // Here we load the associated ron file
+        store, // Here we load the associated ron file
         SpriteSheetFormat(texture_handle),
         (),
         &sprite_sheet_store,
