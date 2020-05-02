@@ -131,6 +131,7 @@ pub fn fire_weapon(
         weapon.stats.deployed,
         weapon.stats.mounted_angle,
         weapon.stats.shot_speed,
+        weapon.stats.shot_life_limit,
         weapon.stats.damage,
         weapon.stats.shield_damage_pct,
         weapon.stats.armor_damage_pct,

@@ -33,58 +33,67 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         let mut heat_seeking_angle_map = HashMap::new();
 
         for (entity, weapon_fire, transform) in (&entities, &mut weapon_fires, &transforms).join() {
-            let fire_x = transform.translation().x;
-            let fire_y = transform.translation().y;
 
-            if weapon_fire.heat_seeking {
-                let mut closest_vehicle_x_diff = 0.0;
-                let mut closest_vehicle_y_diff = 0.0;
-                let mut closest_vehicle_dist = 1_000_000_000.0;
+            weapon_fire.shot_life_timer += dt;
 
-                for (_vehicle, vehicle_transform, player) in
-                    (&vehicles, &transforms, &players).join()
-                {
-                    if weapon_fire.owner_player_id != player.id {
-                        let vehicle_x = vehicle_transform.translation().x;
-                        let vehicle_y = vehicle_transform.translation().y;
+            if weapon_fire.shot_life_limit >= 0.0 &&
+                    weapon_fire.shot_life_timer >= weapon_fire.shot_life_limit {
+                let _ = entities.delete(entity);
+            }
+            else {
+                let fire_x = transform.translation().x;
+                let fire_y = transform.translation().y;
 
-                        // let weapon_rotation = transform.rotation();
-                        // let (_, _, weapon_angle) = weapon_rotation.euler_angles();
+                if weapon_fire.heat_seeking {
+                    let mut closest_vehicle_x_diff = 0.0;
+                    let mut closest_vehicle_y_diff = 0.0;
+                    let mut closest_vehicle_dist = 1_000_000_000.0;
 
-                        let dist =
-                            ((vehicle_x - fire_x).powi(2) + (vehicle_y - fire_y).powi(2)).sqrt();
+                    for (_vehicle, vehicle_transform, player) in
+                        (&vehicles, &transforms, &players).join()
+                    {
+                        if weapon_fire.owner_player_id != player.id {
+                            let vehicle_x = vehicle_transform.translation().x;
+                            let vehicle_y = vehicle_transform.translation().y;
 
-                        if dist < closest_vehicle_dist {
-                            closest_vehicle_dist = dist;
-                            closest_vehicle_x_diff = fire_x - vehicle_x;
-                            closest_vehicle_y_diff = fire_y - vehicle_y;
+                            // let weapon_rotation = transform.rotation();
+                            // let (_, _, weapon_angle) = weapon_rotation.euler_angles();
+
+                            let dist =
+                                ((vehicle_x - fire_x).powi(2) + (vehicle_y - fire_y).powi(2)).sqrt();
+
+                            if dist < closest_vehicle_dist {
+                                closest_vehicle_dist = dist;
+                                closest_vehicle_x_diff = fire_x - vehicle_x;
+                                closest_vehicle_y_diff = fire_y - vehicle_y;
+                            }
                         }
                     }
+
+                    let target_angle =
+                        closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0); //rotate by PI/2 to line up with yaw angle
+                    //let velocity_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
+
+                    heat_seeking_angle_map.insert(entity.id(), target_angle);
                 }
 
-                let target_angle =
-                    closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0); //rotate by PI/2 to line up with yaw angle
-                //let velocity_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
+                if weapon_fire.attached {
+                    for (_vehicle, vehicle_transform, weapon, player) in
+                        (&vehicles, &transforms, &weapons, &players).join()
+                    {
+                        if weapon_fire.owner_player_id == player.id {
+                            let vehicle_rotation = vehicle_transform.rotation();
+                            let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-                heat_seeking_angle_map.insert(entity.id(), target_angle);
-            }
+                            if weapon.name != weapon_fire.weapon_name {
+                                weapon_fire.deployed = false;
+                            }
 
-            if weapon_fire.attached {
-                for (_vehicle, vehicle_transform, weapon, player) in
-                    (&vehicles, &transforms, &weapons, &players).join()
-                {
-                    if weapon_fire.owner_player_id == player.id {
-                        let vehicle_rotation = vehicle_transform.rotation();
-                        let (_, _, yaw) = vehicle_rotation.euler_angles();
-
-                        if weapon.name != weapon_fire.weapon_name {
-                            weapon_fire.deployed = false;
+                            vehicle_owner_map.insert(weapon_fire.owner_player_id,
+                                (vehicle_transform.translation().x,
+                                vehicle_transform.translation().y,
+                                yaw));
                         }
-
-                        vehicle_owner_map.insert(weapon_fire.owner_player_id,
-                            (vehicle_transform.translation().x,
-                            vehicle_transform.translation().y,
-                            yaw));
                     }
                 }
             }
@@ -94,7 +103,6 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
             (&*entities, &mut weapon_fires, &mut transforms).join()
         {
             if weapon_fire.heat_seeking {
-
                 // let killer_data = player_makes_kill_map.get(&player.id);
 
                 // if let Some(killer_data) = killer_data {
