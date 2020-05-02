@@ -45,7 +45,7 @@
     heat_seeking_agility: 0.0,
     attached: false,
     deployed: true,
-    tracking_angle: 0.52,
+    tracking_angle: 1.5707,
     spread_angle: 0.0,
     mounted_angle: 1.5707,
     shot_speed: 400.0,
