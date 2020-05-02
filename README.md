@@ -41,8 +41,7 @@ There are various weapons with various properties, including:
 
 
 
-![Imgur](https://i.imgur.com/GV4P4yT.png)
-
+![Imgur](https://i.imgur.com/mgp8j3F.png)
 
 ---
 
