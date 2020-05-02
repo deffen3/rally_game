@@ -9,7 +9,6 @@ use amethyst::{
     },
 };
 
-use log::debug;
 use rand::Rng;
 use std::f32::consts::PI;
 

@@ -10,6 +10,7 @@ use amethyst::{
 };
 
 use rand::Rng;
+use std::collections::HashMap;
 
 use crate::components::{Vehicle, Player};
 
@@ -29,7 +30,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
     fn run(&mut self, (players, mut vehicles, mut transforms, mut tints, time, input): Self::SystemData) {
         let dt = time.delta_seconds();
 
-        let mut owner_data: Vec<(usize, f32, f32, f32, f32, f32, f32, f32, f32)> = Vec::new();
+        let mut owner_data_map = HashMap::new();
 
         for (player, vehicle, vehicle_transform) in (&players, &mut vehicles, &transforms).join() {
             if (vehicle.shield.value > 0.0) && (vehicle.shield.value < vehicle.shield.max) {
@@ -103,98 +104,97 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 vehicle.shield.repair_timer = 0.0;
             }
 
-            owner_data.push((player.id,
-                vehicle_x,
-                vehicle_y,
-                yaw, 
+            owner_data_map.insert(player.id,
+                (vehicle_x, vehicle_y, yaw,
                 vehicle.shield.value / vehicle.shield.max,
                 vehicle.armor.value / vehicle.armor.max,
                 vehicle.health.value / vehicle.health.max,
                 vehicle.repair.init_timer / vehicle.repair.init_threshold,
-                vehicle.shield.repair_timer / vehicle.shield.repair_threshold,
-            ));
+                vehicle.shield.repair_timer / vehicle.shield.repair_threshold));
         }
 
 
 
         //visual updates
         for (player, vehicle) in (&players, &mut vehicles).join() {
-            for (player_id_check, x, y, angle, 
+
+            let owner_data = owner_data_map.get(&player.id);
+
+            if let Some(owner_data) = owner_data {
+                let (x, y, angle,
                     shield_pct, armor_pct, health_pct,
-                    health_repair_pct, shield_repair_pct,
-            ) in &owner_data {
-                if *player_id_check == player.id {
-                    //Shield update
-                    {
-                        let transform = transforms.get_mut(vehicle.shield.entity).unwrap();
-                        
-                        transform.set_translation_x(*x);
-                        transform.set_translation_y(*y);
-                        transform.set_rotation_2d(*angle);
+                    health_repair_pct, shield_repair_pct) = owner_data;
 
-                        let tint = tints.get_mut(vehicle.shield.entity).unwrap();
-                        if *shield_pct < 0.5 {
-                            *tint = Tint(Srgba::new(1.0, 1.0, 1.0, (*shield_pct) * 2.0));
-                        } else {
-                            *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
-                        }
-                    }
-
-                    //Armor update
-                    {
-                        let transform = transforms.get_mut(vehicle.armor.entity).unwrap();
-                        
-                        transform.set_translation_x(*x);
-                        transform.set_translation_y(*y);
-                        transform.set_rotation_2d(*angle);
-
-                        let tint = tints.get_mut(vehicle.armor.entity).unwrap();
-                        if *armor_pct < 0.5 {
-                            *tint = Tint(Srgba::new(1.0, 1.0, 1.0, *(armor_pct) * 2.0));
-                        } else {
-                            *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
-                        }
-                    }
-
-                    //Health update
-                    {
-                        let transform = transforms.get_mut(vehicle.health.entity).unwrap();
+                //Shield update
+                {
+                    let transform = transforms.get_mut(vehicle.shield.entity).unwrap();
                     
-                        transform.set_translation_x(*x);
-                        transform.set_translation_y(*y);
-                        transform.set_rotation_2d(*angle);
+                    transform.set_translation_x(*x);
+                    transform.set_translation_y(*y);
+                    transform.set_rotation_2d(*angle);
 
-                        let tint = tints.get_mut(vehicle.health.entity).unwrap();
-                        if *health_pct < (4./5.) {
-                            *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0-((*health_pct) * (5./4.))));
-                        } else {
-                            *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
-                        }
+                    let tint = tints.get_mut(vehicle.shield.entity).unwrap();
+                    if *shield_pct < 0.5 {
+                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, (*shield_pct) * 2.0));
+                    } else {
+                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
                     }
+                }
 
-
-                    //Repair update
-                    {
-                        let transform = transforms.get_mut(vehicle.repair.entity).unwrap();
+                //Armor update
+                {
+                    let transform = transforms.get_mut(vehicle.armor.entity).unwrap();
                     
-                        transform.set_translation_x(*x);
-                        transform.set_translation_y(*y);
-                        transform.set_rotation_2d(*angle);
+                    transform.set_translation_x(*x);
+                    transform.set_translation_y(*y);
+                    transform.set_rotation_2d(*angle);
 
-                        let mut rng = rand::thread_rng();
-                        
-                        
+                    let tint = tints.get_mut(vehicle.armor.entity).unwrap();
+                    if *armor_pct < 0.5 {
+                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, *(armor_pct) * 2.0));
+                    } else {
+                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+                    }
+                }
 
-                        let tint = tints.get_mut(vehicle.repair.entity).unwrap();
-                        if *shield_repair_pct > 0.01 {
-                            let blue = rng.gen_range(0.5, 1.0);
-                            *tint = Tint(Srgba::new(0.0, 0.0, blue, blue));
-                        } else if *health_repair_pct > 0.01 {
-                            let red = rng.gen_range(0.5, 1.0);
-                            *tint = Tint(Srgba::new(red, 0.0, 0.0, red));
-                        } else {
-                            *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
-                        }
+                //Health update
+                {
+                    let transform = transforms.get_mut(vehicle.health.entity).unwrap();
+                
+                    transform.set_translation_x(*x);
+                    transform.set_translation_y(*y);
+                    transform.set_rotation_2d(*angle);
+
+                    let tint = tints.get_mut(vehicle.health.entity).unwrap();
+                    if *health_pct < (4./5.) {
+                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0-((*health_pct) * (5./4.))));
+                    } else {
+                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
+                    }
+                }
+
+
+                //Repair update
+                {
+                    let transform = transforms.get_mut(vehicle.repair.entity).unwrap();
+                
+                    transform.set_translation_x(*x);
+                    transform.set_translation_y(*y);
+                    transform.set_rotation_2d(*angle);
+
+                    let mut rng = rand::thread_rng();
+                    
+                    
+
+                    let tint = tints.get_mut(vehicle.repair.entity).unwrap();
+                    if *shield_repair_pct > 0.01 {
+                        let blue = rng.gen_range(0.5, 1.0);
+                        *tint = Tint(Srgba::new(0.0, 0.0, blue, blue));
+                    } else if *health_repair_pct > 0.01 {
+                        let red = rng.gen_range(0.5, 1.0);
+                        *tint = Tint(Srgba::new(red, 0.0, 0.0, red));
+                    } else {
+                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
                     }
                 }
             }

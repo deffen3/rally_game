@@ -28,8 +28,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
     ) {
         let dt = time.delta_seconds();
 
-        let mut vehicle_owner: Vec<(usize, f32, f32, f32)> = Vec::new();
-
+        let mut vehicle_owner_map = HashMap::new();
         let mut heat_seeking_angle_map = HashMap::new();
 
         for (entity, weapon_fire, transform) in (&entities, &mut weapon_fires, &transforms).join() {
@@ -77,8 +76,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let vehicle_rotation = vehicle_transform.rotation();
                         let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-                        vehicle_owner.push((weapon_fire.owner_player_id,
-                            vehicle_transform.translation().x,
+                        vehicle_owner_map.insert(weapon_fire.owner_player_id,
+                            (vehicle_transform.translation().x,
                             vehicle_transform.translation().y,
                             yaw));
                     }
@@ -122,17 +121,20 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
             if weapon_fire.attached {
                 if weapon_fire.deployed {
-                    for (player_id, x, y, angle) in &vehicle_owner {
-                        if *player_id == weapon_fire.owner_player_id {
-                            let yaw_x_comp = -angle.sin(); //left is -, right is +
-                            let yaw_y_comp = angle.cos(); //up is +, down is -
 
-                            debug!("attached: {}, {}, {}", x, y, angle);
+                    let vehicle_owner_data = vehicle_owner_map.get(&weapon_fire.owner_player_id);
 
-                            transform.set_rotation_2d(angle - PI);
-                            transform.set_translation_x(x - yaw_x_comp * 14.0);
-                            transform.set_translation_y(y - yaw_y_comp * 14.0);
-                        }
+                    if let Some(vehicle_owner_data) = vehicle_owner_data {
+                        let (x, y, angle) = vehicle_owner_data;
+                        
+                        let yaw_x_comp = -angle.sin(); //left is -, right is +
+                        let yaw_y_comp = angle.cos(); //up is +, down is -
+
+                        debug!("attached: {}, {}, {}", x, y, angle);
+
+                        transform.set_rotation_2d(angle - PI);
+                        transform.set_translation_x(x - yaw_x_comp * 14.0);
+                        transform.set_translation_y(y - yaw_y_comp * 14.0);
                     }
                 }
             } else {

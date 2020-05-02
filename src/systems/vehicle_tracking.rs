@@ -3,6 +3,7 @@ use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Join, ReadStorage, System, SystemData, WriteStorage};
 
 use std::f32::consts::PI;
+use std::collections::HashMap;
 
 use crate::components::{
     Player, Vehicle,
@@ -28,7 +29,7 @@ impl<'s> System<'s> for VehicleTrackingSystem {
         ): Self::SystemData,
     ) {
         //Find closest target
-        let mut closest_target_angles: Vec<(usize, f32, f32)> = Vec::new();
+        let mut closest_target_angles_map = HashMap::new();
 
         for (player1, _vehicle1, vehicle1_transform) in (&players, &vehicles, &transforms).join() {
             let mut closest_vehicle_x_diff = 0.0;
@@ -63,19 +64,20 @@ impl<'s> System<'s> for VehicleTrackingSystem {
                 target_angle -= 2.0 * PI;
             }
 
-            closest_target_angles.push((player1.id, target_angle, closest_vehicle_dist));
+            closest_target_angles_map.insert(player1.id,
+                (target_angle, closest_vehicle_dist));
         }
 
         //Assign Tracking Data
         for (player, vehicle) in (&mut players, &mut vehicles).join()
         {
-            for (player_with_target, target_angle, closest_vehicle_dist) in
-                &closest_target_angles
-            {
-                if player.id == *player_with_target {
-                    vehicle.angle_to_closest_vehicle = *target_angle;
-                    vehicle.dist_to_closest_vehicle = *closest_vehicle_dist;
-                }
+            let closest_target_angles = closest_target_angles_map.get(&player.id);
+
+            if let Some(closest_target_angles) = closest_target_angles {
+                let (target_angle, closest_vehicle_dist) = closest_target_angles;
+
+                vehicle.angle_to_closest_vehicle = *target_angle;
+                vehicle.dist_to_closest_vehicle = *closest_vehicle_dist;
             }
         }
     }
