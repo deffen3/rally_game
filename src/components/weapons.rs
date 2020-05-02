@@ -326,7 +326,7 @@ pub fn update_weapon_icon(
         _ => (0.0),
     };
 
-    icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.0);
+    icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.4);
     icon_weapon_transform.set_rotation_2d(-PI / 2.0);
     icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
 
