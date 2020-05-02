@@ -183,7 +183,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 if *weapon_name == weapon.name { //if kill was using player's current weapon
 
                     //classic gun-game rules: upgrade weapon type for player who got the kill
-                    let new_weapon_name = get_next_weapon_name(weapon_name);
+                    let new_weapon_name = get_next_weapon_name(weapon.name.clone());
 
                     player.kills += 1;
 

@@ -21,6 +21,8 @@ pub struct Player {
     pub bot_move_cooldown_reset: f32,
     pub last_accel_input: Option<f32>,
     pub last_turn_input: Option<f32>,
+    pub last_hit_by_id: Option<usize>,
+    pub last_hit_timer: f32,
 }
 
 impl Component for Player {
@@ -38,6 +40,8 @@ impl Player {
             bot_move_cooldown_reset: 1.0,
             last_accel_input: Some(0.0),
             last_turn_input: Some(0.0),
+            last_hit_by_id: None,
+            last_hit_timer: 0.0
         }
     }
 }
