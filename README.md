@@ -24,7 +24,7 @@ RECENTLY DONE:
 1. Weapon icon goes transparent when on cooldown
 
 
-Currently this is a ship combat game where the goal is to get a kill with all of the weapons. Once you get a kill with a weapon then it will automatically switch to your next weapon.
+Currently this is a 2D overhead-view vehicle combat game where the goal is to get a kill with all of the weapons. Once you get a kill with a weapon then it will automatically switch to your next weapon.
 
 
 __Vehicles__ can accelerate, decelerate, and turn with its __Engines__.
@@ -61,25 +61,7 @@ There are various weapons with various properties, including:
 
 
 
-{
-  LaserDouble : WeaponStats (
-    weapon_type: LaserDouble,
-    heat_seeking: false,
-    heat_seeking_agility: 0.0,
-    attached: false,
-    deployed: true,
-    tracking_angle: 0.0,
-    spread_angle: 0.0,
-    shot_speed: 400.0,
-    damage: 20.0,
-    cooldown_reset: 0.4,
-    burst_shot_limit: 0,
-    burst_cooldown_reset: 0.0,
-    piercing_damage_pct: 0.0,
-    shield_damage_pct: 120.0,
-    armor_damage_pct: 60.0,
-    health_damage_pct: 100.0,
-  ),
+[Imgur](https://i.imgur.com/GV4P4yT.png)
 
 
 
