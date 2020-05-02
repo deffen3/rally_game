@@ -1,4 +1,7 @@
 use amethyst::{
+    assets::HotReloadBundle,
+    audio::AudioBundle,
+    input::{InputBundle, StringBindings},
     core::transform::TransformBundle,
     prelude::*,
     renderer::{
@@ -6,20 +9,25 @@ use amethyst::{
         types::DefaultBackend,
         RenderingBundle,
     },
-    utils::application_root_dir,
+    ui::{RenderUi, UiBundle},
+    utils::{application_root_dir, fps_counter::FpsCounterBundle},
 };
 
-use amethyst::audio::AudioBundle;
-use amethyst::input::{InputBundle, StringBindings};
-use amethyst::ui::{RenderUi, UiBundle};
+
+mod rally;
+mod welcome;
+mod menu;
+mod credits;
+mod events;
+mod pause;
 
 mod components;
 mod entities;
-mod rally;
 mod resources;
 mod systems;
 
-use crate::rally::Rally;
+use crate::rally::GameplayState;
+use crate::welcome::WelcomeScreen;
 
 mod audio;
 
@@ -43,9 +51,16 @@ fn main() -> amethyst::Result<()> {
 
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
-        .with_bundle(AudioBundle::default())?
         .with_bundle(input_bundle)?
         .with_bundle(UiBundle::<StringBindings>::new())?
+        .with_bundle(HotReloadBundle::default())?
+        .with_bundle(AudioBundle::default())?
+        .with_system_desc(
+            crate::events::UiEventHandlerSystemDesc::default(),
+            "ui_event_handler",
+            &[],
+        )
+        .with_bundle(FpsCounterBundle)?
         .with(
             systems::VehicleTrackingSystem,
             "vehicle_tracking_system",
@@ -86,6 +101,12 @@ fn main() -> amethyst::Result<()> {
             "vehicle_status_system",
             &["input_system"],
         )
+        // .with(
+        //     systems::GameplayManagerSystem::default(),
+        //     "gameplay_manager_system",
+        //     &["input_system"],
+        // )
+        
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 // The RenderToWindow plugin provides all the scaffolding for opening a window and drawing on it
@@ -98,7 +119,7 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderUi::default()),
         )?;
 
-    let mut game = Application::new(assets_dir, Rally::default(), game_data)?;
+    let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
     game.run();
 
     Ok(())

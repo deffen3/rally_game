@@ -1,11 +1,13 @@
-use amethyst::core::math::Vector3;
 use amethyst::{
+    core::math::Vector3,
     assets::{AssetStorage, Handle, Loader},
     core::transform::Transform,
     ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
-    ui::{UiText, UiTransform},
+    ui::{UiText, UiTransform, UiCreator},
+    audio::output::init_output,
+    utils::fps_counter::FpsCounter,
 };
 
 use crate::audio::initialize_audio;
@@ -38,16 +40,86 @@ pub const KILLS_TO_WIN: i32 = 15;
 
 pub const GUN_GAME_MODE: bool = true;
 
+// #[derive(Clone, Debug, PartialEq, Eq)]
+// pub enum GameModes {
+//     ClassicGunGame, //First to get a kill with each weapon, and weapons are hot-swapped after kills.
+//     Deathmatch, //First to a certain number of kills. New weapons can be picked up from arena.
+//     StockBattle, //Last player alive wins, with a set number of starting lives. New weapons can be picked up from arena.
+//     KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins.
+// }
 
-#[derive(Default)]
-pub struct Rally {
-    sprite_sheet_handle: Option<Handle<SpriteSheet>>, // Load the spritesheet necessary to render the graphics.
-    texture_sheet_handle: Option<Handle<SpriteSheet>>,
+// pub struct GameRules {
+//     pub game_mode: Option<GameModes>,
+//     pub kills_to_win: i32,
+//     pub starting_lives: i32,
+//     pub points_to_win: i32,
+// }
+
+
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CurrentState {
+    MainMenu,
+    Gameplay,
 }
 
-impl SimpleState for Rally {
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum UserAction {
+    OpenMenu,
+    ResumeGame,
+    Quit,
+}
+
+impl Default for CurrentState {
+    fn default() -> Self {
+        CurrentState::Gameplay
+    }
+}
+
+pub struct Game {
+    pub user_action: Option<UserAction>,
+    pub current_state: CurrentState,
+}
+
+impl Default for Game {
+    fn default() -> Self {
+        Game {
+            user_action: None,
+            current_state: CurrentState::default(),
+        }
+    }
+}
+
+
+
+
+
+
+
+#[derive(Default)]
+pub struct GameplayState {
+    sprite_sheet_handle: Option<Handle<SpriteSheet>>, // Load the spritesheet necessary to render the graphics.
+    texture_sheet_handle: Option<Handle<SpriteSheet>>,
+
+    // If the Game is paused or not
+    paused: bool,
+    // The UI root entity. Deleting this should remove the complete UI
+    ui_root: Option<Entity>,
+    // A reference to the FPS display, which we want to interact with
+    fps_display: Option<Entity>,
+    // A reference to the random text, which we want to modify during updates
+    random_text: Option<Entity>,
+}
+
+
+impl SimpleState for GameplayState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let world = data.world;
+        let StateData { mut world, .. } = data;
+
+        init_output(&mut world);
+
+        self.ui_root =
+            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/example.ron", ())));
 
         self.sprite_sheet_handle.replace(load_sprite_sheet(
             world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
@@ -94,10 +166,52 @@ impl SimpleState for Rally {
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         data.world.maintain();
+        // If the `Game` resource has been set up to go back to the menu, push
+        // the menu state so that we go back.
+
+        // let mut game = data.world.write_resource::<Game>();
+
+        // if let Some(UserAction::OpenMenu) = game.user_action.take() {
+        //     return Trans::Push(Box::new(GameMenuState));
+        // }
 
         Trans::None
     }
+
+    fn on_resume(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
+        // mark that the current state is a gameplay state.
+        data.world.write_resource::<Game>().current_state = CurrentState::Gameplay;
+    }
 }
+
+
+
+// struct GameMenuState;
+
+// impl SimpleState for GameMenuState {
+//     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+//         let mut game = data.world.write_resource::<Game>();
+
+//         match game.user_action.take() {
+//             Some(UserAction::ResumeGame) => Trans::Pop,
+//             Some(UserAction::Quit) => {
+//                 // Note: no need to clean up :)
+//                 Trans::Quit
+//             },
+//             _ => Trans::None,
+//         }
+//     }
+
+//     fn on_resume(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
+//         // mark that the current state is a main menu state.
+//         data.world.write_resource::<Game>().current_state = CurrentState::MainMenu;
+//     }
+// }
+
+
+
+
+
 
 fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handle<SpriteSheet> {
     // Load the sprite sheet necessary to render the graphics.

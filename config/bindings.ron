@@ -10,6 +10,7 @@
     "p4_turn": Emulated(pos: Key(J), neg: Key(L)),
   },
   actions: {
+    "open_menu": [[Key(Escape)]],
     "p1_shoot": [[Key(Space)]],
     "p1_repair": [[Key(R)]],
     "p2_shoot": [[Key(RControl)]],
