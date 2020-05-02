@@ -2,7 +2,7 @@ use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage};
 
-use crate::components::{Player, Vehicle, WeaponFire};
+use crate::components::{Player, Vehicle, Weapon, WeaponFire};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 use log::debug;
@@ -18,13 +18,14 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, WeaponFire>,
         ReadStorage<'s, Vehicle>,
+        ReadStorage<'s, Weapon>,
         ReadStorage<'s, Player>,
         Read<'s, Time>,
     );
 
     fn run(
         &mut self,
-        (entities, mut transforms, mut weapon_fires, vehicles, players, time): Self::SystemData,
+        (entities, mut transforms, mut weapon_fires, vehicles, weapons, players, time): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
@@ -69,12 +70,16 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
             }
 
             if weapon_fire.attached {
-                for (_vehicle, vehicle_transform, player) in
-                    (&vehicles, &transforms, &players).join()
+                for (_vehicle, vehicle_transform, weapon, player) in
+                    (&vehicles, &transforms, &weapons, &players).join()
                 {
                     if weapon_fire.owner_player_id == player.id {
                         let vehicle_rotation = vehicle_transform.rotation();
                         let (_, _, yaw) = vehicle_rotation.euler_angles();
+
+                        if weapon.name != weapon_fire.weapon_name {
+                            weapon_fire.deployed = false;
+                        }
 
                         vehicle_owner_map.insert(weapon_fire.owner_player_id,
                             (vehicle_transform.translation().x,
@@ -138,6 +143,9 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         transform.set_translation_x(x + yaw_x_comp * 14.0);
                         transform.set_translation_y(y + yaw_y_comp * 14.0);
                     }
+                }
+                else {
+                    let _ = entities.delete(entity);
                 }
             } else {
                 transform.prepend_translation_x(weapon_fire.dx * dt);
