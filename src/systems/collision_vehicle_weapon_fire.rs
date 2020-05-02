@@ -114,11 +114,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let fire_x_comp = -fire_angle.sin(); //left is -, right is +
                     let fire_y_comp = fire_angle.cos(); //up is +, down is -
 
-                    // let vehicle_rotation = vehicle_transform.rotation();
-                    // let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
-                    // let vehicle_x_comp = -vehicle_angle.sin(); //left is -, right is +
-                    // let vehicle_y_comp = vehicle_angle.cos(); //up is +, down is -
-
                     if ((fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
                         < vehicle.width.powi(2))
                         || ((fire_x + fire_x_comp * weapon_fire.height / 2.0 - vehicle_x).powi(2)
@@ -149,12 +144,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                                 &storage,
                                 audio_output.as_deref(),
                             );
-
-                            // player_makes_kill.push((
-                            //     weapon_fire.owner_player_id.clone(),
-                            //     player.id.clone(),
-                            //     weapon_fire.weapon_name.clone(),
-                            // ));
 
                             player_makes_kill_map.insert(
                                 weapon_fire.owner_player_id.clone(),
@@ -191,25 +180,26 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             if let Some(killer_data) = killer_data {
                 let weapon_name = killer_data;
 
-                //classic gun-game rules: upgrade weapon type for player who got the kill
-                let new_weapon_name = get_next_weapon_name(weapon_name.clone());
+                if *weapon_name == weapon.name { //if kill was using player's current weapon
 
-                player.kills += 1;
+                    //classic gun-game rules: upgrade weapon type for player who got the kill
+                    let new_weapon_name = get_next_weapon_name(weapon_name);
 
-                if let Some(new_weapon_name) = new_weapon_name.clone() {
-                    weapon_icons_old.push((player.id, weapon.stats.weapon_type));
+                    player.kills += 1;
 
-                    update_weapon_properties(weapon, new_weapon_name);
-                    update_weapon_icon(
-                        &entities,
-                        &mut weapon,
-                        &weapon_fire_resource,
-                        player.id,
-                        &lazy_update,
-                    );
+                    if let Some(new_weapon_name) = new_weapon_name.clone() {
+                        weapon_icons_old.push((player.id, weapon.stats.weapon_type));
+
+                        update_weapon_properties(weapon, new_weapon_name);
+                        update_weapon_icon(
+                            &entities,
+                            &mut weapon,
+                            &weapon_fire_resource,
+                            player.id,
+                            &lazy_update,
+                        );
+                    }
                 }
-
-                
             }
 
             let killed_data = player_got_killed_map.get(&player.id);
