@@ -16,7 +16,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     build_named_weapon, Player, PlayerWeaponIcon, Vehicle, 
-    Weapon, WeaponTypes, WeaponNames, get_mine_sprite,
+    Weapon, WeaponNames, get_weapon_icon,
 };
 use crate::resources::WeaponFireResource;
 
@@ -205,29 +205,7 @@ pub fn intialize_player(
 
     let weapon_icon_dx = 70.0;
 
-    let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type {
-        WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
-        WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
-        WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
-        WeaponTypes::ProjectileBurstFire => {
-            (3.0, weapon_fire_resource.projectile_burst_render.clone())
-        }
-        WeaponTypes::ProjectileRapidFire => {
-            (3.0, weapon_fire_resource.projectile_rapid_render.clone())
-        }
-        WeaponTypes::ProjectileCannonFire => (
-            3.0,
-            weapon_fire_resource.projectile_cannon_sprite_render.clone(),
-        ),
-        WeaponTypes::Missile => (2.0, weapon_fire_resource.missile_sprite_render.clone()),
-        WeaponTypes::Rockets => (2.0, weapon_fire_resource.rockets_sprite_render.clone()),
-        WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
-        WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
-    };
-
-    if weapon_stats.weapon_type == WeaponTypes::Mine {
-        weapon_sprite = get_mine_sprite(player_index, weapon_stats.shot_speed, &weapon_fire_resource);
-    }
+    let (icon_scale, weapon_sprite) = get_weapon_icon(player_index, weapon_stats, &weapon_fire_resource);
 
     let mut icon_weapon_transform = Transform::default();
 

@@ -31,7 +31,7 @@ pub enum WeaponNames {
     LaserPulseGimballed,
     LaserDouble,
     LaserDoubleGimballed,
-    LaserDoubleBurst,
+    LaserDoubleBurstSide,
     ProjectileRapidFire,
     ProjectileRapidFireTurret,
     ProjectileSteadyFire,
@@ -39,6 +39,7 @@ pub enum WeaponNames {
     ProjectileCannonFire,
     Shotgun,
     Mine,
+    Trap,
     Missile,
     Rockets,
     LaserSword,
@@ -58,11 +59,12 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::ProjectileCannonFire => Some(WeaponNames::LaserPulseGimballed),
         WeaponNames::LaserPulseGimballed => Some(WeaponNames::Rockets),
         WeaponNames::Rockets => Some(WeaponNames::ProjectileBurstFire),
-        WeaponNames::ProjectileBurstFire => Some(WeaponNames::Mine),
-        WeaponNames::Mine => Some(WeaponNames::LaserDoubleBurst),
-        WeaponNames::LaserDoubleBurst => Some(WeaponNames::SuperRocketGrenades),
-        WeaponNames::SuperRocketGrenades => Some(WeaponNames::LaserSword),
-        WeaponNames::LaserSword => Some(WeaponNames::BackwardsLaserSword),
+        WeaponNames::ProjectileBurstFire => Some(WeaponNames::LaserDoubleBurstSide),
+        WeaponNames::LaserDoubleBurstSide => Some(WeaponNames::SuperRocketGrenades),
+        WeaponNames::SuperRocketGrenades => Some(WeaponNames::Mine),
+        WeaponNames::Mine => Some(WeaponNames::LaserSword),
+        WeaponNames::LaserSword => Some(WeaponNames::Trap),
+        WeaponNames::Trap => Some(WeaponNames::BackwardsLaserSword),
         WeaponNames::BackwardsLaserSword => None,
         WeaponNames::ProjectileSteadyFire => None,
         WeaponNames::LaserDouble => None,
@@ -113,6 +115,7 @@ pub enum WeaponTypes {
     ProjectileBurstFire,
     ProjectileCannonFire,
     Mine,
+    Trap,
     Missile,
     Rockets,
     LaserSword,
@@ -212,6 +215,7 @@ impl WeaponFire {
             WeaponTypes::Missile => (3.0, 5.0),
             WeaponTypes::Rockets => (5.0, 3.0),
             WeaponTypes::Mine => (3.0, 3.0),
+            WeaponTypes::Trap => (2.0, 4.0),
             WeaponTypes::LaserSword => (3.0, 4.0),
         };
 
@@ -304,30 +308,8 @@ pub fn update_weapon_icon(
 
     let weapon_icon_dx = 70.0;
 
-    let (icon_scale, mut weapon_sprite) = match weapon_type {
-        WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
-        WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
-        WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
-        WeaponTypes::ProjectileBurstFire => {
-            (3.0, weapon_fire_resource.projectile_burst_render.clone())
-        }
-        WeaponTypes::ProjectileRapidFire => {
-            (3.0, weapon_fire_resource.projectile_rapid_render.clone())
-        }
-        WeaponTypes::ProjectileCannonFire => (
-            3.0,
-            weapon_fire_resource.projectile_cannon_sprite_render.clone(),
-        ),
-        WeaponTypes::Missile => (2.0, weapon_fire_resource.missile_sprite_render.clone()),
-        WeaponTypes::Rockets => (2.0, weapon_fire_resource.rockets_sprite_render.clone()),
-        WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
-        WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
-    };
-
-    if weapon_type == WeaponTypes::Mine {
-        weapon_sprite = get_mine_sprite(player_id, weapon.stats.shot_speed, weapon_fire_resource);
-    }
-
+    let (icon_scale, weapon_sprite) = get_weapon_icon(player_id, weapon.stats, weapon_fire_resource);
+    
     let mut icon_weapon_transform = Transform::default();
 
     let starting_x = match player_id {
@@ -352,6 +334,44 @@ pub fn update_weapon_icon(
 }
 
 
+pub fn get_weapon_icon(player_id: usize,
+        weapon_stats: WeaponStats, 
+        weapon_fire_resource: &WeaponFireResource,
+    ) -> (f32, SpriteRender) {
+    let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type {
+        WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
+        WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
+        WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
+        WeaponTypes::ProjectileBurstFire => {
+            (3.0, weapon_fire_resource.projectile_burst_render.clone())
+        }
+        WeaponTypes::ProjectileRapidFire => {
+            (3.0, weapon_fire_resource.projectile_rapid_render.clone())
+        }
+        WeaponTypes::ProjectileCannonFire => (
+            3.0,
+            weapon_fire_resource.projectile_cannon_sprite_render.clone(),
+        ),
+        WeaponTypes::Missile => (2.0, weapon_fire_resource.missile_sprite_render.clone()),
+        WeaponTypes::Rockets => (2.0, weapon_fire_resource.rockets_sprite_render.clone()),
+        WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
+        WeaponTypes::Trap => (3.0, weapon_fire_resource.trap_p1_sprite_render.clone()),
+        WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
+    };
+
+    if weapon_stats.weapon_type == WeaponTypes::Mine {
+        weapon_sprite = get_mine_sprite(player_id, weapon_stats.shot_speed, weapon_fire_resource);
+    }
+    else if weapon_stats.weapon_type == WeaponTypes::Trap {
+        weapon_sprite = get_trap_sprite(player_id, weapon_fire_resource);
+    }
+
+    (icon_scale, weapon_sprite)
+}
+
+
+
+
 pub fn get_mine_sprite(player_id: usize,
         shot_speed: f32,
         weapon_fire_resource: &WeaponFireResource,
@@ -368,5 +388,18 @@ pub fn get_mine_sprite(player_id: usize,
             3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
             _ => weapon_fire_resource.mine_neutral_sprite_render.clone(),
         }
+    }
+}
+
+pub fn get_trap_sprite(player_id: usize,
+    weapon_fire_resource: &WeaponFireResource,
+) -> SpriteRender
+{
+    match player_id {
+        0 => weapon_fire_resource.trap_p1_sprite_render.clone(),
+        1 => weapon_fire_resource.trap_p2_sprite_render.clone(),
+        2 => weapon_fire_resource.trap_p3_sprite_render.clone(),
+        3 => weapon_fire_resource.trap_p4_sprite_render.clone(),
+        _ => weapon_fire_resource.trap_p1_sprite_render.clone(),
     }
 }

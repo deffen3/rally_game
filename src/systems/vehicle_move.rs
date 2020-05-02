@@ -113,7 +113,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 player.bot_mode = BotMode::Swording;
                                 debug!("{} Swording", player.id);
                                 player.bot_move_cooldown = 5.0;
-                            } else if weapon.stats.shot_speed <= 0.0 { //Typically just Mines
+                            } else if weapon.stats.shot_speed <= 0.0 { //Typically just Mines or Traps
                                 player.bot_mode = BotMode::Mining;
                                 debug!("{} Mining", player.id);
                             } else {

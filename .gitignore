@@ -1,5 +1,6 @@
 # Unwanted files
 target
+screenshots
 
 # Backup files
 .DS_Store

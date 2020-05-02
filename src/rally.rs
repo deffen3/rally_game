@@ -14,7 +14,7 @@ use crate::audio::initialize_audio;
 
 use crate::components::{
     Hitbox, PlayerWeaponIcon, Vehicle, 
-    Weapon, WeaponFire, WeaponTypes, WeaponNames, get_mine_sprite,
+    Weapon, WeaponFire, WeaponNames, get_weapon_icon
 };
 
 use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
@@ -34,7 +34,7 @@ pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 pub const MAX_PLAYERS: usize = 4;
 pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 
-pub const KILLS_TO_WIN: i32 = 14;
+pub const KILLS_TO_WIN: i32 = 15;
 
 #[derive(Default)]
 pub struct Rally {
@@ -179,27 +179,9 @@ pub fn fire_weapon(
     lazy_update.insert(fire_entity, weapon_fire);
 
 
-    let sprite = if weapon.stats.weapon_type == WeaponTypes::Mine {
-        get_mine_sprite(player_id, weapon.stats.shot_speed, weapon_fire_resource)
-    }
-    else {
-        match weapon.stats.weapon_type {
-            WeaponTypes::LaserDouble => weapon_fire_resource.laser_double_sprite_render.clone(),
-            WeaponTypes::LaserBeam => weapon_fire_resource.laser_beam_sprite_render.clone(),
-            WeaponTypes::LaserPulse => weapon_fire_resource.laser_burst_sprite_render.clone(),
-            WeaponTypes::ProjectileBurstFire => weapon_fire_resource.projectile_burst_render.clone(),
-            WeaponTypes::ProjectileRapidFire => weapon_fire_resource.projectile_rapid_render.clone(),
-            WeaponTypes::ProjectileCannonFire => {
-                weapon_fire_resource.projectile_cannon_sprite_render.clone()
-            }
-            WeaponTypes::Missile => weapon_fire_resource.missile_sprite_render.clone(),
-            WeaponTypes::Rockets => weapon_fire_resource.rockets_sprite_render.clone(),
-            WeaponTypes::Mine => weapon_fire_resource.mine_p1_sprite_render.clone(),
-            WeaponTypes::LaserSword => weapon_fire_resource.laser_sword_sprite_render.clone(),
-        }
-    };
+    let (_icon_scale, weapon_sprite) = get_weapon_icon(player_id, weapon.stats, weapon_fire_resource);
 
-    lazy_update.insert(fire_entity, sprite);
+    lazy_update.insert(fire_entity, weapon_sprite);
     lazy_update.insert(fire_entity, local_transform);
 }
 
