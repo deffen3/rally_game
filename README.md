@@ -4,26 +4,6 @@ This is my first attempt at using rust, my first attempt to use an Entity-Compon
 
 For now I am prioritizing the goal of *having fun making a game* higher than the goal of *writing good rust code*. I know some of the code is pretty crap for now, lots of code duplication and poor ECS architecture!
 
-TODO:
-1. Create a Hitbox component, and create a hitbox detection function - in progress
-1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
-1. Improve collision algorithms
-1. What happens when you die from collision? Lose a gun-level? If another player recently hit you then they get the kill?
-1. Vehicle mass should affect physics
-1. Weapon type should affect vehicle mass
-1. UI Transform works different on Mac? UI is in the middle of the screen.
-1. Red laser weapon can go through opponents on computers with potato frame rate
-
-RECENTLY DONE:
-1. Fixed gimballed/turret/auto-aim feature
-1. Add simple AI opponents
-1. Add current weapon type icon into UI
-1. AI sword mode seems to not work very well, bad target tracking when in reverse? - FIXED
-1. Put weapon properties into a .ron config file
-1. Visible Shield and Armor icons. Shield should be a faint bubble over top vehicle. Armor can be some grey stuff surrounding your vehicles sides.
-1. Weapon icon goes transparent when on cooldown
-
-
 Currently this is a 2D overhead-view vehicle combat game where the goal is to get a kill with all of the weapons. Once you get a kill with a weapon then it will automatically switch to your next weapon.
 
 
@@ -63,6 +43,31 @@ There are various weapons with various properties, including:
 
 ![Imgur](https://i.imgur.com/GV4P4yT.png)
 
+
+---
+
+
+TODO:
+1. Create a Hitbox component, and create a hitbox detection function - in progress
+1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
+1. Improve collision algorithms
+1. What happens when you die from collision? Lose a gun-level? If another player recently hit you then they get the kill?
+1. Vehicle mass should affect physics
+1. Weapon type should affect vehicle mass
+1. UI Transform works different on Mac? UI is in the middle of the screen.
+1. Red laser weapon can go through opponents on computers with potato frame rate
+
+RECENTLY DONE:
+1. Fixed gimballed/turret/auto-aim feature
+1. Add simple AI opponents
+1. Add current weapon type icon into UI
+1. AI sword mode seems to not work very well, bad target tracking when in reverse? - FIXED
+1. Put weapon properties into a .ron config file
+1. Visible Shield and Armor icons. Shield should be a faint bubble over top vehicle. Armor can be some grey stuff surrounding your vehicles sides.
+1. Weapon icon goes transparent when on cooldown
+
+
+---
 
 
 ## How to run
