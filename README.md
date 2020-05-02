@@ -15,12 +15,73 @@ TODO:
 1. Red laser weapon can go through opponents on computers with potato frame rate
 
 DONE:
-1. Add simple AI opponents - DONE
-1. Add current weapon type icon into UI - DONE
-1. AI sword mode seems to not work very well, bad target tracking when in reverse? - FIXED DONE
-1. Put weapon properties into a .ron config file - DONE
-1. Visible Shield and Armor icons. Shield should be a faint bubble over top vehicle. Armor can be some grey stuff surrounding your vehicles sides. - DONE
-1. Weapon icon blinks if weapon on cooldown? - DONE
+1. Fixed gimballed/turret/auto-aim feature
+1. Add simple AI opponents
+1. Add current weapon type icon into UI
+1. AI sword mode seems to not work very well, bad target tracking when in reverse?
+1. Put weapon properties into a .ron config file
+1. Visible Shield and Armor icons. Shield should be a faint bubble over top vehicle. Armor can be some grey stuff surrounding your vehicles sides.
+1. Weapon icon blinks if weapon on cooldown?
+
+
+Currently this is a ship combat game where the goal is to get a kill with all of the weapons. Once you get a kill with a weapon then it will automatically switch to your next weapon.
+
+
+__Vehicles__ can accelerate, decelerate, and turn with its __Engines__.
+
+__Vehicles__ can also shoot or deploy its __Weapons__.
+
+Each __Vehicle__ has __Shields__, __Armor__, and __Health__. 
+
+__Shields__ will regenerate if you still have some __Shields__ and you haven't been hit in awhile.
+
+__Armor__ is permanently lost. 
+
+__Health__ can be repaired by holding the __Repair__ button. 
+After fully repairing all __Health__, the __Shields__ will eventually re-boot if you continue holding __Repair__.
+Note that using __Repair__ will disable all use of __Engines__ and __Weapons__.
+
+
+There are various weapons with various properties, including:
+* Lasers
+* Bullets
+* Heat-Seeking Missiles
+* Rockets
+* Mines
+* Laser Swords
+* single-shot, burst-fire, rapid-fire
+* fixed aim, gimballed slight auto-aim, full 360deg auto-aim
+* shield/armor piercing damage 
+    (explosives do some piercing damage to health, regardless of shield/armor)
+* shield damage multiplier
+    (lasers are more effective against shields)
+* armor damage multiplier
+    (bullets are more effective against armor)
+* health damage multiplier
+
+
+
+{
+  LaserDouble : WeaponStats (
+    weapon_type: LaserDouble,
+    heat_seeking: false,
+    heat_seeking_agility: 0.0,
+    attached: false,
+    deployed: true,
+    tracking_angle: 0.0,
+    spread_angle: 0.0,
+    shot_speed: 400.0,
+    damage: 20.0,
+    cooldown_reset: 0.4,
+    burst_shot_limit: 0,
+    burst_cooldown_reset: 0.0,
+    piercing_damage_pct: 0.0,
+    shield_damage_pct: 120.0,
+    armor_damage_pct: 60.0,
+    health_damage_pct: 100.0,
+  ),
+
+
 
 ## How to run
 
