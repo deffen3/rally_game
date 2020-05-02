@@ -91,16 +91,16 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
-        //let mut player_makes_kill: Vec<(usize, usize, WeaponNames)> = Vec::new();
-
         let mut player_makes_kill_map = HashMap::new();
         let mut player_got_killed_map = HashMap::new();
 
         for (player, vehicle, _weapon, vehicle_transform) in
-            (&players, &mut vehicles, &mut weapons, &transforms).join()
+            (&mut players, &mut vehicles, &mut weapons, &transforms).join()
         {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
+
+            player.last_hit_timer += dt;
 
             for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
                 (&*entities, &weapon_fires, &transforms).join()
@@ -126,6 +126,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         if !weapon_fire.attached {
                             let _ = entities.delete(weapon_fire_entity);
                         }
+
+                        player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
+                        player.last_hit_timer = 0.0;
 
                         let damage: f32 = weapon_fire.damage;
 
@@ -169,7 +172,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
-        let mut weapon_icons_old: Vec<(usize, WeaponTypes)> = Vec::new();
+        let mut weapon_icons_old_map = HashMap::new();
 
         for (player, mut weapon, vehicle, transform) in
             (&mut players, &mut weapons, &mut vehicles, &mut transforms).join()
@@ -188,7 +191,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     player.kills += 1;
 
                     if let Some(new_weapon_name) = new_weapon_name.clone() {
-                        weapon_icons_old.push((player.id, weapon.stats.weapon_type));
+                        weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
                         update_weapon_properties(weapon, new_weapon_name);
                         update_weapon_icon(
@@ -210,8 +213,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         }
 
         for (entity, player_icon) in (&*entities, &player_icons).join() {
-            for (player_id, weapon_type) in &weapon_icons_old {
-                if *player_id == player_icon.id && *weapon_type == player_icon.weapon_type {
+            let weapon_icons_old = weapon_icons_old_map.get(&player_icon.id);
+
+            if let Some(weapon_icons_old) = weapon_icons_old {
+                let weapon_type = weapon_icons_old;
+                if *weapon_type == player_icon.weapon_type {
                     let _ = entities.delete(entity);
                 }
             }

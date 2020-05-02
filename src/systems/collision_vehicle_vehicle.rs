@@ -6,14 +6,18 @@ use amethyst::{
     ecs::{Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteStorage},
 };
 
+use crate::audio::{play_bounce_sound, Sounds};
+use log::debug;
+use std::collections::HashMap;
+
+
 use crate::components::{kill_restart_vehicle, Player, Vehicle};
 use crate::rally::{
     vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
     COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
 };
 
-use crate::audio::{play_bounce_sound, Sounds};
-use log::debug;
+
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
@@ -36,7 +40,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
     ) {
         let dt = time.delta_seconds();
 
-        let mut collision_ids_vec: Vec<(usize, f32)> = Vec::new();
+        let mut collision_ids_map = HashMap::new();
 
         for (vehicle_1, player_1, vehicle_1_transform) in (&vehicles, &players, &transforms).join()
         {
@@ -60,8 +64,8 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         + (vehicle_1.dy - vehicle_2.dy).powi(2);
                     let abs_vel_diff = sq_vel_diff.sqrt();
 
-                    collision_ids_vec.push((player_1.id, abs_vel_diff));
-                    collision_ids_vec.push((player_2.id, abs_vel_diff));
+                    collision_ids_map.insert(player_1.id, abs_vel_diff);
+                    collision_ids_map.insert(player_2.id, abs_vel_diff);
 
                     /*
                     let velocity_1_angle = vehicle_1.dy.atan2(vehicle_1.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
@@ -78,43 +82,45 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
         }
 
         for (vehicle, player, transform) in (&mut vehicles, &players, &mut transforms).join() {
-            for (col_id, v_diff) in &collision_ids_vec {
-                if player.id == *col_id {
-                    if vehicle.collision_cooldown_timer <= 0.0 {
-                        debug!("Player {} has collided", player.id);
 
-                        let damage: f32 = BASE_COLLISION_DAMAGE * v_diff;
+            let collision_ids = collision_ids_map.get(&player.id);
 
-                        if *v_diff > 1.0 {
-                            play_bounce_sound(
-                                &*sounds,
-                                &storage,
-                                audio_output.as_deref(),
-                            );
-                        }
-                        vehicle.collision_cooldown_timer = 1.0;
+            if let Some(collision_ids) = collision_ids {
+                let v_diff = collision_ids;
+                if vehicle.collision_cooldown_timer <= 0.0 {
+                    debug!("Player {} has collided", player.id);
 
-                        let vehicle_destroyed: bool = vehicle_damage_model(
-                            vehicle,
-                            damage,
-                            COLLISION_PIERCING_DAMAGE_PCT,
-                            COLLISION_SHIELD_DAMAGE_PCT,
-                            COLLISION_ARMOR_DAMAGE_PCT,
-                            COLLISION_HEALTH_DAMAGE_PCT,
+                    let damage: f32 = BASE_COLLISION_DAMAGE * v_diff;
+
+                    if *v_diff > 1.0 {
+                        play_bounce_sound(
+                            &*sounds,
+                            &storage,
+                            audio_output.as_deref(),
                         );
-
-                        if vehicle_destroyed {
-                            kill_restart_vehicle(vehicle, transform);
-                        }
-
-                    //vehicle_1.dx *= veh_hit_bounce_decel_pct * velocity_1_x_comp.abs();
-                    //vehicle_1.dy *= veh_hit_bounce_decel_pct * velocity_1_y_comp.abs();
-
-                    //vehicle_2.dx *= veh_hit_bounce_decel_pct * velocity_2_x_comp.abs();
-                    //vehicle_2.dy *= veh_hit_bounce_decel_pct * velocity_2_y_comp.abs();
-                    } else {
-                        vehicle.collision_cooldown_timer -= dt;
                     }
+                    vehicle.collision_cooldown_timer = 1.0;
+
+                    let vehicle_destroyed: bool = vehicle_damage_model(
+                        vehicle,
+                        damage,
+                        COLLISION_PIERCING_DAMAGE_PCT,
+                        COLLISION_SHIELD_DAMAGE_PCT,
+                        COLLISION_ARMOR_DAMAGE_PCT,
+                        COLLISION_HEALTH_DAMAGE_PCT,
+                    );
+
+                    if vehicle_destroyed {
+                        kill_restart_vehicle(vehicle, transform);
+                    }
+
+                //vehicle_1.dx *= veh_hit_bounce_decel_pct * velocity_1_x_comp.abs();
+                //vehicle_1.dy *= veh_hit_bounce_decel_pct * velocity_1_y_comp.abs();
+
+                //vehicle_2.dx *= veh_hit_bounce_decel_pct * velocity_2_x_comp.abs();
+                //vehicle_2.dy *= veh_hit_bounce_decel_pct * velocity_2_y_comp.abs();
+                } else {
+                    vehicle.collision_cooldown_timer -= dt;
                 }
             }
         }

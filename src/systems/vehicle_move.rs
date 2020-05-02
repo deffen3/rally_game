@@ -481,20 +481,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
         }
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
-            for destroyed_id in &player_destroyed {
-                if *destroyed_id == player.id {
-                    kill_restart_vehicle(vehicle, transform);
-                }
+            if player_destroyed.contains(&player.id) {
+                kill_restart_vehicle(vehicle, transform);
             }
 
-            for bounced_id in &player_arena_bounce {
-                if *bounced_id == player.id {
-                    let vehicle_x = transform.translation().x;
-                    let vehicle_y = transform.translation().y;
+            if player_arena_bounce.contains(&player.id) {
+                let vehicle_x = transform.translation().x;
+                let vehicle_y = transform.translation().y;
 
-                    transform.set_translation_x(vehicle_x + vehicle.dx);
-                    transform.set_translation_y(vehicle_y + vehicle.dy);
-                }
+                transform.set_translation_x(vehicle_x + vehicle.dx);
+                transform.set_translation_y(vehicle_y + vehicle.dy);
             }
         }
     }
