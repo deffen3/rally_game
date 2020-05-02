@@ -23,7 +23,6 @@ use crate::rally::{
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
-use std::ops::Deref;
 
 
 const BOT_COLLISION_TURN_COOLDOWN_RESET: f32 = 0.7;
@@ -68,62 +67,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut rng = rand::thread_rng();
         let dt = time.delta_seconds();
 
-        //Find closest target
-        let mut closest_target_angles: Vec<(usize, f32, f32)> = Vec::new();
-
-        for (player1, _vehicle1, vehicle1_transform) in (&players, &vehicles, &transforms).join() {
-            let mut closest_vehicle_x_diff = 0.0;
-            let mut closest_vehicle_y_diff = 0.0;
-            let mut closest_vehicle_dist = 1_000_000_000.0;
-
-            let vehicle1_x = vehicle1_transform.translation().x;
-            let vehicle1_y = vehicle1_transform.translation().y;
-
-            for (player2, _vehicle2, vehicle2_transform) in
-                (&players, &vehicles, &transforms).join()
-            {
-                if player1.id != player2.id {
-                    let vehicle2_x = vehicle2_transform.translation().x;
-                    let vehicle2_y = vehicle2_transform.translation().y;
-
-                    let dist = ((vehicle2_x - vehicle1_x).powi(2)
-                        + (vehicle2_y - vehicle1_y).powi(2))
-                    .sqrt();
-
-                    if dist < closest_vehicle_dist {
-                        closest_vehicle_dist = dist;
-                        closest_vehicle_x_diff = vehicle1_x - vehicle2_x;
-                        closest_vehicle_y_diff = vehicle1_y - vehicle2_y;
-                    }
-                }
-            }
-
-            let mut target_angle =
-                closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0); //rotate by PI/2 to line up with yaw angle
-            if target_angle > PI {
-                target_angle -= 2.0 * PI;
-            }
-
-            closest_target_angles.push((player1.id, target_angle, closest_vehicle_dist));
-        }
-
         //Turn and Accel
         for (player, vehicle, transform, weapon) in
             (&mut players, &mut vehicles, &mut transforms, &weapons).join()
         {
-            if vehicle.in_respawn {
+            if vehicle.in_respawn == true {
                 check_respawn_vehicle(vehicle, transform, dt);
             } else {
                 //let max_velocity: f32 = 0.5;
-
-                for (player_with_target, target_angle, closest_vehicle_dist) in
-                    &closest_target_angles
-                {
-                    if player.id == *player_with_target {
-                        vehicle.angle_to_closest_vehicle = *target_angle;
-                        vehicle.dist_to_closest_vehicle = *closest_vehicle_dist;
-                    }
-                }
 
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power / 100.0;
                 let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_power / 100.0;
@@ -158,7 +109,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         {
                             //change modes to attack
 
-                            if weapon.stats.attached { //Typically just LaserSword
+                            if weapon.stats.attached == true { //Typically just LaserSword
                                 player.bot_mode = BotMode::Swording;
                                 debug!("{} Swording", player.id);
                                 player.bot_move_cooldown = 5.0;
@@ -302,7 +253,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //Update vehicle velocity from vehicle speed accel input
                 if let Some(move_amount) = vehicle_accel {
-                    let scaled_amount: f32 = if vehicle.repair.activated {
+                    let scaled_amount: f32 = if vehicle.repair.activated == true {
                         0.0 as f32
                     } else if move_amount > 0.0 {
                         thrust_accel_rate * move_amount as f32
@@ -349,7 +300,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //Apply vehicle rotation from turn input
                 if let Some(turn_amount) = vehicle_turn {
-                    let scaled_amount: f32 = if vehicle.repair.activated {
+                    let scaled_amount: f32 = if vehicle.repair.activated == true {
                         0.0 as f32
                     }
                     else {

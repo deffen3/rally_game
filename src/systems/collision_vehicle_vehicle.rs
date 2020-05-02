@@ -14,7 +14,6 @@ use crate::rally::{
 
 use crate::audio::{play_bounce_sound, Sounds};
 use log::debug;
-use std::ops::Deref;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;

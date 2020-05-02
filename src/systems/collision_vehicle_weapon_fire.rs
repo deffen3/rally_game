@@ -20,7 +20,6 @@ use crate::rally::vehicle_damage_model;
 use crate::resources::WeaponFireResource;
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
-use std::ops::Deref;
 
 pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.25;
 

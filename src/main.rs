@@ -47,6 +47,11 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(input_bundle)?
         .with_bundle(UiBundle::<StringBindings>::new())?
         .with(
+            systems::VehicleTrackingSystem,
+            "vehicle_tracking_system",
+            &[],
+        )
+        .with(
             systems::VehicleMoveSystem,
             "vehicle_move_system",
             &["input_system"],
