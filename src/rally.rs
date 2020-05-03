@@ -118,9 +118,6 @@ impl SimpleState for GameplayState {
 
         init_output(&mut world);
 
-        self.ui_root =
-            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/example.ron", ())));
-
         self.sprite_sheet_handle.replace(load_sprite_sheet(
             world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
         ));
@@ -162,6 +159,9 @@ impl SimpleState for GameplayState {
                 player_status_texts[player_index],
             );
         }
+
+        // self.ui_root =
+        //     Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/example.ron", ())));
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {

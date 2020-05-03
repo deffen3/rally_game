@@ -119,7 +119,9 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderUi::default()),
         )?;
 
-    let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
+    let mut game = Application::new(assets_dir, GameplayState::default(), game_data)?;
+    //let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
+
     game.run();
 
     Ok(())
