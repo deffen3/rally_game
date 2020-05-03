@@ -65,14 +65,14 @@ pub struct GameplayState {
     sprite_sheet_handle: Option<Handle<SpriteSheet>>, // Load the spritesheet necessary to render the graphics.
     texture_sheet_handle: Option<Handle<SpriteSheet>>,
 
-    // If the Game is paused or not
-    paused: bool,
-    // The UI root entity. Deleting this should remove the complete UI
-    ui_root: Option<Entity>,
-    // A reference to the FPS display, which we want to interact with
-    fps_display: Option<Entity>,
-    // A reference to the random text, which we want to modify during updates
-    random_text: Option<Entity>,
+    // // If the Game is paused or not
+    // paused: bool,
+    // // The UI root entity. Deleting this should remove the complete UI
+    // ui_root: Option<Entity>,
+    // // A reference to the FPS display, which we want to interact with
+    // fps_display: Option<Entity>,
+    // // A reference to the random text, which we want to modify during updates
+    // random_text: Option<Entity>,
 }
 
 
@@ -130,21 +130,8 @@ impl SimpleState for GameplayState {
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         data.world.maintain();
-        // If the `Game` resource has been set up to go back to the menu, push
-        // the menu state so that we go back.
-
-        // let mut game = data.world.write_resource::<Game>();
-
-        // if let Some(UserAction::OpenMenu) = game.user_action.take() {
-        //     return Trans::Push(Box::new(GameMenuState));
-        // }
 
         Trans::None
-    }
-
-    fn on_resume(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
-        // mark that the current state is a gameplay state.
-        data.world.write_resource::<Game>().current_state = CurrentState::Gameplay;
     }
 }
 
