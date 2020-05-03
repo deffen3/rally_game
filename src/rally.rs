@@ -64,7 +64,7 @@ pub const GUN_GAME_MODE: bool = true;
 #[derive(Default)]
 pub struct GameplayState {
     // // If the Game is paused or not
-    paused: bool,
+    pub paused: bool,
     // The UI root entity. Deleting this should remove the complete UI
     ui_root: Option<Entity>,
     // A reference to the FPS display, which we want to interact with
