@@ -25,11 +25,11 @@ mod components;
 mod entities;
 mod resources;
 mod systems;
+mod audio;
 
-use crate::rally::GameplayState;
 use crate::welcome::WelcomeScreen;
 
-mod audio;
+
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -55,11 +55,11 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(UiBundle::<StringBindings>::new())?
         .with_bundle(HotReloadBundle::default())?
         .with_bundle(AudioBundle::default())?
-        .with_system_desc(
-            crate::events::UiEventHandlerSystemDesc::default(),
-            "ui_event_handler",
-            &[],
-        )
+        // .with_system_desc(
+        //     crate::events::UiEventHandlerSystemDesc::default(),
+        //     "ui_event_handler",
+        //     &[],
+        // )
         .with_bundle(FpsCounterBundle)?
         .with(
             systems::VehicleTrackingSystem,
@@ -114,8 +114,8 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderUi::default()),
         )?;
 
-    let mut game = Application::new(assets_dir, GameplayState::default(), game_data)?;
-    //let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
+    //let mut game = Application::new(assets_dir, GameplayState::default(), game_data)?;
+    let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
 
     game.run();
 
