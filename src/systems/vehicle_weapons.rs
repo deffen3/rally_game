@@ -50,8 +50,6 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             gameplay_state,
         ): Self::SystemData,
     ) {
-        println!("{:?}",gameplay_state.paused);
-
         if !gameplay_state.paused {
             let mut rng = rand::thread_rng();
             let dt = time.delta_seconds();

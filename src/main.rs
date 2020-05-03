@@ -18,7 +18,6 @@ mod rally;
 mod welcome;
 mod menu;
 mod credits;
-mod events;
 mod pause;
 
 mod components;
