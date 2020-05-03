@@ -57,42 +57,6 @@ pub const GUN_GAME_MODE: bool = true;
 
 
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum CurrentState {
-    MainMenu,
-    Gameplay,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum UserAction {
-    OpenMenu,
-    ResumeGame,
-    Quit,
-}
-
-impl Default for CurrentState {
-    fn default() -> Self {
-        CurrentState::Gameplay
-    }
-}
-
-pub struct Game {
-    pub user_action: Option<UserAction>,
-    pub current_state: CurrentState,
-}
-
-impl Default for Game {
-    fn default() -> Self {
-        Game {
-            user_action: None,
-            current_state: CurrentState::default(),
-        }
-    }
-}
-
-
-
-
 
 
 
@@ -184,29 +148,6 @@ impl SimpleState for GameplayState {
     }
 }
 
-
-
-// struct GameMenuState;
-
-// impl SimpleState for GameMenuState {
-//     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-//         let mut game = data.world.write_resource::<Game>();
-
-//         match game.user_action.take() {
-//             Some(UserAction::ResumeGame) => Trans::Pop,
-//             Some(UserAction::Quit) => {
-//                 // Note: no need to clean up :)
-//                 Trans::Quit
-//             },
-//             _ => Trans::None,
-//         }
-//     }
-
-//     fn on_resume(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
-//         // mark that the current state is a main menu state.
-//         data.world.write_resource::<Game>().current_state = CurrentState::MainMenu;
-//     }
-// }
 
 
 

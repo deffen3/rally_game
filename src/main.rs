@@ -101,11 +101,6 @@ fn main() -> amethyst::Result<()> {
             "vehicle_status_system",
             &["input_system"],
         )
-        // .with(
-        //     systems::GameplayManagerSystem::default(),
-        //     "gameplay_manager_system",
-        //     &["input_system"],
-        // )
         
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
