@@ -27,7 +27,7 @@ const EXIT_TO_MAIN_MENU_BUTTON_ID: &str = "exit_to_main_menu";
 const EXIT_BUTTON_ID: &str = "exit";
 
 // load the pause_menu.ron prefab then instantiate it
-// if the "resume" button is clicked, goto MainGameState
+// if the "resume" button is clicked, goto GameplayState
 // if the "exit_to_main_menu" button is clicked, remove the pause and main game states and go to MenuState.
 // if the "exit" button is clicked, quit the program.
 impl<'a> SimpleState for PauseMenuState {

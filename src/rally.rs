@@ -4,7 +4,7 @@ use amethyst::{
     core::Time,
     ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
     prelude::*,
-    ui::{UiText, UiFinder},
+    ui::{UiText, UiFinder, UiCreator},
     input::{is_close_requested, is_key_down},
     audio::output::init_output,
     utils::fps_counter::FpsCounter,
@@ -81,8 +81,8 @@ impl SimpleState for GameplayState {
         // needed for registering audio output.
         init_output(&mut world);
 
-        // self.ui_root =
-        //     Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/example.ron", ())));
+        self.ui_root =
+            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/game_fps.ron", ())));
     }
 
     fn on_pause(&mut self, _data: StateData<'_, GameData<'_, '_>>) {

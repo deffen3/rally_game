@@ -22,6 +22,8 @@ use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource};
 use crate::rally::{MAX_PLAYERS, BOT_PLAYERS};
 
 
+
+
 #[derive(Default, Debug)]
 pub struct WelcomeScreen {
     ui_handle: Option<Entity>,
