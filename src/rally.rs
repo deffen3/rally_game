@@ -1,27 +1,28 @@
 use amethyst::{
     core::math::Vector3,
-    assets::{AssetStorage, Handle, Loader},
     core::transform::Transform,
+    core::Time,
     ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
     prelude::*,
-    renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
-    ui::{UiText, UiTransform, UiCreator},
+    ui::{UiText, UiFinder},
+    input::{is_close_requested, is_key_down},
     audio::output::init_output,
     utils::fps_counter::FpsCounter,
+    winit::VirtualKeyCode,
 };
 
-use crate::audio::initialize_audio;
 
-//use rand::Rng;
+
+use crate::pause::PauseMenuState;
+
 
 use crate::components::{
-    Hitbox, PlayerWeaponIcon, Vehicle, 
-    Weapon, WeaponFire, WeaponNames, get_weapon_icon
+    Vehicle, Weapon, WeaponFire, get_weapon_icon
 };
 
-use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
+use crate::resources::{WeaponFireResource};
 
-use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource};
+
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -62,17 +63,14 @@ pub const GUN_GAME_MODE: bool = true;
 
 #[derive(Default)]
 pub struct GameplayState {
-    sprite_sheet_handle: Option<Handle<SpriteSheet>>, // Load the spritesheet necessary to render the graphics.
-    texture_sheet_handle: Option<Handle<SpriteSheet>>,
-
     // // If the Game is paused or not
-    // paused: bool,
-    // // The UI root entity. Deleting this should remove the complete UI
-    // ui_root: Option<Entity>,
-    // // A reference to the FPS display, which we want to interact with
-    // fps_display: Option<Entity>,
-    // // A reference to the random text, which we want to modify during updates
-    // random_text: Option<Entity>,
+    paused: bool,
+    // The UI root entity. Deleting this should remove the complete UI
+    ui_root: Option<Entity>,
+    // A reference to the FPS display, which we want to interact with
+    fps_display: Option<Entity>,
+    // A reference to the random text, which we want to modify during updates
+    random_text: Option<Entity>,
 }
 
 
@@ -80,56 +78,111 @@ impl SimpleState for GameplayState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let StateData { mut world, .. } = data;
 
+        // needed for registering audio output.
         init_output(&mut world);
-
-        self.sprite_sheet_handle.replace(load_sprite_sheet(
-            world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
-        ));
-        self.texture_sheet_handle.replace(load_sprite_sheet(
-            world, "texture/rally_texture_sheet.png".to_string(), "texture/rally_texture_sheet.ron".to_string()
-        ));
-
-        initialize_camera(world);
-
-        let weapon_fire_resource: WeaponFireResource =
-            initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
-
-        initialize_audio(world);
-
-        let player_status_texts = initialize_ui(world);
-        world.register::<UiText>(); // <- add this line temporarily
-        world.register::<UiTransform>();
-
-        initialize_arena_walls(
-            world,
-            self.sprite_sheet_handle.clone().unwrap(),
-            self.texture_sheet_handle.clone().unwrap(),
-        );
-
-        world.register::<Hitbox>();
-
-        world.register::<PlayerWeaponIcon>();
-
-        for player_index in 0..MAX_PLAYERS {
-            let is_bot = player_index >= MAX_PLAYERS - BOT_PLAYERS;
-
-            intialize_player(
-                world,
-                self.sprite_sheet_handle.clone().unwrap(),
-                player_index,
-                WeaponNames::LaserDoubleGimballed,
-                weapon_fire_resource.clone(),
-                is_bot,
-                player_status_texts[player_index],
-            );
-        }
 
         // self.ui_root =
         //     Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/example.ron", ())));
     }
 
+    fn on_pause(&mut self, _data: StateData<'_, GameData<'_, '_>>) {
+        self.paused = true;
+    }
+
+    fn on_resume(&mut self, _data: StateData<'_, GameData<'_, '_>>) {
+        self.paused = false;
+    }
+
+    fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        if let Some(root_entity) = self.ui_root {
+            data.world
+                .delete_entity(root_entity)
+                .expect("Failed to remove Game Screen");
+        }
+
+        self.ui_root = None;
+        self.fps_display = None;
+        self.random_text = None;
+    }
+
+    fn handle_event(
+        &mut self,
+        _: StateData<'_, GameData<'_, '_>>,
+        event: StateEvent,
+    ) -> SimpleTrans {
+        match &event {
+            StateEvent::Window(event) => {
+                if is_close_requested(&event) {
+                    log::info!("[Trans::Quit] Quitting Application!");
+                    Trans::Quit
+                } else if is_key_down(&event, VirtualKeyCode::Escape) {
+                    log::info!("[Trans::Push] Pausing Game!");
+                    Trans::Push(Box::new(PauseMenuState::default()))
+                } else {
+                    Trans::None
+                }
+            }
+            StateEvent::Ui(ui_event) => {
+                log::info!(
+                    "[HANDLE_EVENT] You just interacted with a ui element: {:?}",
+                    ui_event
+                );
+                Trans::None
+            }
+            StateEvent::Input(_input) => {
+                //log::info!("Input Event detected: {:?}.", input);
+                Trans::None
+            }
+        }
+    }
+
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         data.world.maintain();
+
+        let StateData { world, .. } = data;
+
+        // this cannot happen in 'on_start', as the entity might not be fully
+        // initialized/registered/created yet.
+        if self.fps_display.is_none() {
+            world.exec(|finder: UiFinder<'_>| {
+                if let Some(entity) = finder.find("fps") {
+                    self.fps_display = Some(entity);
+                }
+            });
+        }
+
+        if self.random_text.is_none() {
+            world.exec(|finder: UiFinder| {
+                if let Some(entity) = finder.find("random_text") {
+                    self.random_text = Some(entity);
+                }
+            });
+        }
+
+        // it is important that the 'paused' field is actually pausing your game.
+        // Make sure to also pause your running systems.
+        if !self.paused {
+            let mut ui_text = world.write_storage::<UiText>();
+
+            if let Some(fps_display) = self.fps_display.and_then(|entity| ui_text.get_mut(entity)) {
+                if world.read_resource::<Time>().frame_number() % 20 == 0 && !self.paused {
+                    let fps = world.read_resource::<FpsCounter>().sampled_fps();
+                    fps_display.text = format!("FPS: {:.*}", 2, fps);
+                }
+            }
+
+            if let Some(random_text) = self.random_text.and_then(|entity| ui_text.get_mut(entity)) {
+                if let Ok(value) = random_text.text.parse::<i32>() {
+                    let mut new_value = value * 10;
+                    if new_value > 100_000 {
+                        new_value = 1;
+                    }
+                    random_text.text = new_value.to_string();
+                } else {
+                    random_text.text = String::from("1");
+                }
+            }
+        }
 
         Trans::None
     }
@@ -137,34 +190,6 @@ impl SimpleState for GameplayState {
 
 
 
-
-
-
-
-fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handle<SpriteSheet> {
-    // Load the sprite sheet necessary to render the graphics.
-    // The texture is the pixel data
-    // `texture_handle` is a cloneable reference to the texture
-    let texture_handle = {
-        let loader = world.read_resource::<Loader>();
-        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-        loader.load(
-            storage,
-            ImageFormat::default(),
-            (),
-            &texture_storage,
-        )
-    };
-
-    let loader = world.read_resource::<Loader>();
-    let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
-    loader.load(
-        store, // Here we load the associated ron file
-        SpriteSheetFormat(texture_handle),
-        (),
-        &sprite_sheet_store,
-    )
-}
 
 pub fn fire_weapon(
     entities: &Entities,
