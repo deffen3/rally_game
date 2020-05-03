@@ -7,9 +7,9 @@ For now I am prioritizing the goal of *having fun making a game* higher than the
 Currently this is a 2D overhead-view vehicle combat game where the goal is to get a kill with all of the weapons. Once you get a kill with a weapon then it will automatically switch to your next weapon.
 
 
-__Vehicles__ can accelerate, decelerate, and turn with its __Engines__.
+Each __Vehicle__ can accelerate, decelerate, and turn with its __Engines__.
 
-__Vehicles__ can also shoot or deploy its __Weapons__.
+Each __Vehicle__ can also shoot or deploy its __Weapons__.
 
 Each __Vehicle__ has __Shields__, __Armor__, and __Health__. 
 
@@ -47,6 +47,7 @@ There are various weapons with various properties, including:
 
 
 TODO:
+1. On the ui_menu branch: Integrate the [amethyst-master example of a welcome screen, pause, and main menu features](https://github.com/amethyst/amethyst/tree/master/examples/states_ui)
 1. Create a Hitbox component, and create a hitbox detection function - in progress
 1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
 1. Improve collision algorithms
