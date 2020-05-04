@@ -11,6 +11,15 @@ use crate::components::{Shield, Armor, Health, Repair, Player};
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 7.0;
 
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum VehicleState {
+    Active,
+    Inactive,
+    In_respawn,
+}
+
+
 pub struct Vehicle {
     pub width: f32,
     pub height: f32,
@@ -28,7 +37,7 @@ pub struct Vehicle {
     pub engine_power: f32,
     pub max_velocity: f32,
     pub respawn_timer: f32,
-    pub in_respawn: bool,
+    pub state: VehicleState,
     pub player_status_text: PlayerStatusText,
     
 }
@@ -85,7 +94,7 @@ impl Vehicle {
             engine_power: 100.0,
             max_velocity: 1.0,
             respawn_timer: 5.0,
-            in_respawn: false,
+            state: VehicleState::Active,
             player_status_text,
         }
     }
@@ -96,10 +105,10 @@ pub fn kill_restart_vehicle(player: &Player, vehicle: &mut Vehicle, transform: &
     transform.set_translation_y(10.0 * ARENA_HEIGHT);
 
     if STOCK_LIVES > 0 && player.deaths >= STOCK_LIVES {
-        vehicle.in_respawn = false;
+        vehicle.state = VehicleState::Inactive;
     }
     else {
-        vehicle.in_respawn = true;
+        vehicle.state = VehicleState::In_respawn;
     }    
 }
 
@@ -107,56 +116,59 @@ pub fn kill_restart_vehicle(player: &Player, vehicle: &mut Vehicle, transform: &
 pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, dt: f32) {
     let mut rng = rand::thread_rng();
 
-    vehicle.respawn_timer -= dt;
+    if vehicle.state == VehicleState::In_respawn {
+        vehicle.respawn_timer -= dt;
 
-    if vehicle.respawn_timer < 0.0 {
-        vehicle.in_respawn = false;
-        vehicle.respawn_timer = 5.0;
+        if vehicle.respawn_timer < 0.0 {
+            vehicle.state = VehicleState::Active;
 
-        vehicle.dx = 0.0;
-        vehicle.dy = 0.0;
-        vehicle.dr = 0.0;
+            vehicle.respawn_timer = 5.0;
 
-        vehicle.shield.value = vehicle.shield.max;
-        vehicle.shield.cooldown_timer = -1.;
+            vehicle.dx = 0.0;
+            vehicle.dy = 0.0;
+            vehicle.dr = 0.0;
 
-        vehicle.armor.value = vehicle.armor.max;
-        vehicle.health.value = vehicle.health.max;
+            vehicle.shield.value = vehicle.shield.max;
+            vehicle.shield.cooldown_timer = -1.;
 
-        let spawn_index = rng.gen_range(0, 4);
+            vehicle.armor.value = vehicle.armor.max;
+            vehicle.health.value = vehicle.health.max;
 
-        let spacing_factor = 5.0;
-        let height = ARENA_HEIGHT + UI_HEIGHT;
+            let spawn_index = rng.gen_range(0, 4);
 
-        let (starting_rotation, starting_x, starting_y) = match spawn_index {
-            0 => (
-                -PI / 4.0,
-                ARENA_WIDTH / spacing_factor,
-                height / spacing_factor,
-            ),
-            1 => (
-                PI + PI / 4.0,
-                ARENA_WIDTH / spacing_factor,
-                height - (height / spacing_factor),
-            ),
-            2 => (
-                PI / 2.0 - PI / 4.0,
-                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                height / spacing_factor,
-            ),
-            3 => (
-                PI / 2.0 + PI / 4.0,
-                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                height - (height / spacing_factor),
-            ),
-            _ => (
-                -PI / 4.0,
-                ARENA_WIDTH / spacing_factor,
-                height / spacing_factor,
-            ),
-        };
+            let spacing_factor = 5.0;
+            let height = ARENA_HEIGHT + UI_HEIGHT;
 
-        transform.set_rotation_2d(starting_rotation as f32);
-        transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+            let (starting_rotation, starting_x, starting_y) = match spawn_index {
+                0 => (
+                    -PI / 4.0,
+                    ARENA_WIDTH / spacing_factor,
+                    height / spacing_factor,
+                ),
+                1 => (
+                    PI + PI / 4.0,
+                    ARENA_WIDTH / spacing_factor,
+                    height - (height / spacing_factor),
+                ),
+                2 => (
+                    PI / 2.0 - PI / 4.0,
+                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                    height / spacing_factor,
+                ),
+                3 => (
+                    PI / 2.0 + PI / 4.0,
+                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                    height - (height / spacing_factor),
+                ),
+                _ => (
+                    -PI / 4.0,
+                    ARENA_WIDTH / spacing_factor,
+                    height / spacing_factor,
+                ),
+            };
+
+            transform.set_rotation_2d(starting_rotation as f32);
+            transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+        }
     }
 }

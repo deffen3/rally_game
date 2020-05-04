@@ -13,7 +13,7 @@ use rand::Rng;
 use std::f32::consts::PI;
 
 use crate::components::{
-    check_respawn_vehicle, kill_restart_vehicle, BotMode, Hitbox, Player, Vehicle, Weapon,
+    check_respawn_vehicle, kill_restart_vehicle, BotMode, Hitbox, Player, Vehicle, Weapon, VehicleState,
 };
 
 use crate::rally::{
@@ -73,9 +73,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (player, vehicle, transform, weapon) in
             (&mut players, &mut vehicles, &mut transforms, &weapons).join()
         {
-            if vehicle.in_respawn {
+            if vehicle.state == VehicleState::In_respawn {
                 check_respawn_vehicle(vehicle, transform, dt);
-            } else {
+            } else if vehicle.state == VehicleState::Active {
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power / 100.0;
                 let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_power / 100.0;
 

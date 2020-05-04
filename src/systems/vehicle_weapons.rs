@@ -12,7 +12,7 @@ use amethyst::{
 use rand::Rng;
 use std::f32::consts::PI;
 
-use crate::components::{BotMode, Player, Vehicle, Weapon};
+use crate::components::{BotMode, Player, Vehicle, VehicleState, Weapon};
 use crate::rally::{fire_weapon};
 use crate::resources::WeaponFireResource;
 
@@ -54,7 +54,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
         for (player, vehicle, weapon, transform) in
             (&mut players, &mut vehicles, &mut weapons, &mut transforms).join()
         {
-            if !vehicle.in_respawn {
+            if vehicle.state == VehicleState::Active {
                 //let vehicle_weapon_fire = input.action_is_down(&ActionBinding::VehicleShoot(player.id));
 
                 let mut vehicle_weapon_fire = match player.id {
