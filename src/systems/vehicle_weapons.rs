@@ -13,7 +13,7 @@ use rand::Rng;
 use std::f32::consts::PI;
 
 use crate::components::{BotMode, Player, Vehicle, Weapon};
-use crate::rally::{fire_weapon, GameplayState};
+use crate::rally::{fire_weapon};
 use crate::resources::WeaponFireResource;
 
 #[derive(SystemDesc)]

@@ -132,7 +132,7 @@ impl SimpleState for GameplayState {
                     Trans::None
                 }
             }
-            StateEvent::Ui(ui_event) => {
+            StateEvent::Ui(_ui_event) => {
                 // log::info!(
                 //     "[HANDLE_EVENT] You just interacted with a ui element: {:?}",
                 //     ui_event

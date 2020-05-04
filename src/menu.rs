@@ -7,7 +7,7 @@ use amethyst::{
 };
 
 //use crate::{credits::CreditsScreen, game::Game, welcome::WelcomeScreen};
-use crate::{welcome::WelcomeScreen, rally::GameplayState};
+use crate::{rally::GameplayState};
 
 const BUTTON_START: &str = "start";
 const BUTTON_LOAD: &str = "load";

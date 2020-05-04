@@ -17,7 +17,6 @@ use crate::components::{
 };
 
 use crate::rally::{
-    GameplayState,
     vehicle_damage_model, 
     ARENA_HEIGHT, ARENA_WIDTH, 
     BASE_COLLISION_DAMAGE,
