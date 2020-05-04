@@ -62,9 +62,9 @@ impl SimpleState for MainMenu {
                 if is_close_requested(&event) {
                     log::info!("[Trans::Quit] Quitting Application!");
                     Trans::Quit
-                } else if is_key_down(&event, VirtualKeyCode::Escape) {
-                    log::info!("[Trans::Switch] Switching back to WelcomeScreen!");
-                    Trans::Switch(Box::new(WelcomeScreen::default()))
+                // } else if is_key_down(&event, VirtualKeyCode::Escape) {
+                //     log::info!("[Trans::Switch] Switching back to WelcomeScreen!");
+                //     Trans::Switch(Box::new(WelcomeScreen::default()))
                 } else {
                     Trans::None
                 }
@@ -75,7 +75,7 @@ impl SimpleState for MainMenu {
             }) => {
                 if Some(target) == self.button_credits {
                     log::info!("[Trans::Switch] Switching to CreditsScreen!");
-                    //return Trans::Switch(Box::new(CreditsScreen::default()));
+                    log::info!("This Buttons functionality is not yet implemented!");
                 }
                 if Some(target) == self.button_start {
                     log::info!("[Trans::Switch] Switching to GameplayState!");

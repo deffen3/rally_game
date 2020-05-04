@@ -32,7 +32,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "START GAME",
+                        text: "CLASSIC GUNGAME",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 75.,
                         normal_text_color: (1.0, 0.65, 0., 1.0), // ffa500
@@ -67,7 +67,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "LOAD GAME",
+                        text: "DEATHMATCH",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 75.,
                         normal_text_color: (1.0, 0.65, 0., 1.0), // ffa500
@@ -102,7 +102,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "OPTIONS",
+                        text: "STOCK LIFE BATTLE",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 75.,
                         normal_text_color: (1.0, 0.65, 0., 1.0), // ffa500
@@ -137,7 +137,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "CREDITS",
+                        text: "KING OF THE HILL",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 75.,
                         normal_text_color: (1.0, 0.65, 0., 1.0), // ffa500

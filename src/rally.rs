@@ -58,6 +58,19 @@ pub const GUN_GAME_MODE: bool = true;
 
 
 
+#[derive(PartialEq)]
+pub enum CurrentState {
+    Running,
+    Paused,
+}
+
+impl Default for CurrentState {
+    fn default() -> Self {
+        CurrentState::Paused
+    }
+}
+
+
 
 
 
@@ -120,10 +133,10 @@ impl SimpleState for GameplayState {
                 }
             }
             StateEvent::Ui(ui_event) => {
-                log::info!(
-                    "[HANDLE_EVENT] You just interacted with a ui element: {:?}",
-                    ui_event
-                );
+                // log::info!(
+                //     "[HANDLE_EVENT] You just interacted with a ui element: {:?}",
+                //     ui_event
+                // );
                 Trans::None
             }
             StateEvent::Input(_input) => {
