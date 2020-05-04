@@ -20,7 +20,7 @@ use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, 
 
 use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource};
 
-use crate::rally::{MAX_PLAYERS, BOT_PLAYERS};
+use crate::rally::{MAX_PLAYERS, BOT_PLAYERS, STARTER_WEAPON};
 
 
 
@@ -83,7 +83,7 @@ impl SimpleState for WelcomeScreen {
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
-                WeaponNames::LaserDoubleGimballed,
+                STARTER_WEAPON,
                 weapon_fire_resource.clone(),
                 is_bot,
                 player_status_texts[player_index],

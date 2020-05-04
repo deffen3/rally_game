@@ -62,7 +62,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
             }*/
 
             //Scoring logic
-            if self.match_timer <= MATCH_TIME_LIMIT {
+            if MATCH_TIME_LIMIT < 0.0 || self.match_timer <= MATCH_TIME_LIMIT {
                 let player_score;
 
                 if GAME_MODE == GameModes::ClassicGunGame {

@@ -73,7 +73,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (player, vehicle, transform, weapon) in
             (&mut players, &mut vehicles, &mut transforms, &weapons).join()
         {
-            if vehicle.state == VehicleState::In_respawn {
+            if vehicle.state == VehicleState::InRespawn {
                 check_respawn_vehicle(vehicle, transform, dt);
             } else if vehicle.state == VehicleState::Active {
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power / 100.0;

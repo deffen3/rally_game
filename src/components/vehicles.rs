@@ -15,8 +15,8 @@ pub const VEHICLE_WIDTH: f32 = 7.0;
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum VehicleState {
     Active,
-    Inactive,
-    In_respawn,
+    InActive,
+    InRespawn,
 }
 
 
@@ -105,10 +105,10 @@ pub fn kill_restart_vehicle(player: &Player, vehicle: &mut Vehicle, transform: &
     transform.set_translation_y(10.0 * ARENA_HEIGHT);
 
     if STOCK_LIVES > 0 && player.deaths >= STOCK_LIVES {
-        vehicle.state = VehicleState::Inactive;
+        vehicle.state = VehicleState::InActive;
     }
     else {
-        vehicle.state = VehicleState::In_respawn;
+        vehicle.state = VehicleState::InRespawn;
     }    
 }
 
@@ -116,7 +116,7 @@ pub fn kill_restart_vehicle(player: &Player, vehicle: &mut Vehicle, transform: &
 pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, dt: f32) {
     let mut rng = rand::thread_rng();
 
-    if vehicle.state == VehicleState::In_respawn {
+    if vehicle.state == VehicleState::InRespawn {
         vehicle.respawn_timer -= dt;
 
         if vehicle.respawn_timer < 0.0 {

@@ -7,7 +7,6 @@ use amethyst::{
     prelude::*,
     ui::{UiText, UiFinder, UiCreator},
     input::{is_close_requested, is_key_down},
-    audio::output::init_output,
     utils::fps_counter::FpsCounter,
     winit::VirtualKeyCode,
 };
@@ -18,7 +17,7 @@ use crate::pause::PauseMenuState;
 
 
 use crate::components::{
-    Vehicle, Weapon, WeaponFire, get_weapon_icon
+    Vehicle, Weapon, WeaponFire, WeaponNames, get_weapon_icon
 };
 
 use crate::resources::{WeaponFireResource};
@@ -59,15 +58,15 @@ pub enum GameModes {
     KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
 }
 
+pub const GAME_MODE: GameModes = GameModes::ClassicGunGame;
 
-pub const MATCH_TIME_LIMIT: f32 = 5.0 * 60.0; //Applies to all games modes
+pub const MATCH_TIME_LIMIT: f32 = -1.0 * 60.0; //In seconds. Applies to all games modes. Typically set negative for non Timed matches.
 
-pub const POINTS_TO_WIN: i32 = -1; //Applies to all games modes, typically set negative for Stock or Timed_KD
+pub const POINTS_TO_WIN: i32 = 6; //Applies to all games modes. Typically set negative for Stock or Timed_KD.
 
-pub const STOCK_LIVES: i32 = 3; //Applies to all games modes, typically set negative for non Stock battles
+pub const STOCK_LIVES: i32 = -1; //Applies to all games modes. Typically set negative for non Stock battles.
 
-pub const GAME_MODE: GameModes = GameModes::Deathmatch_Stock;
-
+pub const STARTER_WEAPON: WeaponNames = WeaponNames::LaserDoubleGimballed;
 
 
 
