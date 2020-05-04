@@ -111,7 +111,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                     );
 
                     if vehicle_destroyed {
-                        kill_restart_vehicle(vehicle, transform);
+                        kill_restart_vehicle(player, vehicle, transform);
                     }
 
                 //vehicle_1.dx *= veh_hit_bounce_decel_pct * velocity_1_x_comp.abs();

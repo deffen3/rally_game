@@ -348,7 +348,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         );
 
                         if vehicle_destroyed {
-                            kill_restart_vehicle(vehicle, transform);
+                            kill_restart_vehicle(player, vehicle, transform);
                         }
 
                         if abs_vel > 0.5 {
@@ -379,7 +379,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         );
 
                         if vehicle_destroyed {
-                            kill_restart_vehicle(vehicle, transform);
+                            kill_restart_vehicle(player, vehicle, transform);
                         }
 
                         if abs_vel > 0.5 {
@@ -475,7 +475,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
             if player_destroyed.contains(&player.id) {
-                kill_restart_vehicle(vehicle, transform);
+                kill_restart_vehicle(player, vehicle, transform);
             }
 
             if player_arena_bounce.contains(&player.id) {

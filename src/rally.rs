@@ -49,38 +49,25 @@ pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 pub const MAX_PLAYERS: usize = 4;
 pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 
-pub const KILLS_TO_WIN: i32 = 15;
 
-pub const GUN_GAME_MODE: bool = true;
-
-// #[derive(Clone, Debug, PartialEq, Eq)]
-// pub enum GameModes {
-//     ClassicGunGame, //First to get a kill with each weapon, and weapons are hot-swapped after kills.
-//     Deathmatch, //First to a certain number of kills. New weapons can be picked up from arena.
-//     StockBattle, //Last player alive wins, with a set number of starting lives. New weapons can be picked up from arena.
-//     KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins.
-// }
-
-// pub struct GameRules {
-//     pub game_mode: Option<GameModes>,
-//     pub kills_to_win: i32,
-//     pub starting_lives: i32,
-//     pub points_to_win: i32,
-// }
-
-
-
-#[derive(PartialEq)]
-pub enum CurrentState {
-    Running,
-    Paused,
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum GameModes {
+    ClassicGunGame, //First to get a kill with each weapon. Weapons are hot-swapped after kills.
+    Deathmatch_Kills, //First to a certain number of kills. New weapons can be picked up from arena.
+    Deathmatch_Stock, //If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
+    Deathmatch_Timed_KD, //Match ends after set time. Kills-Deaths is winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
+    KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
 }
 
-impl Default for CurrentState {
-    fn default() -> Self {
-        CurrentState::Paused
-    }
-}
+
+pub const MATCH_TIME_LIMIT: f32 = 5.0 * 60.0; //Applies to all games modes
+
+pub const POINTS_TO_WIN: i32 = -1; //Applies to all games modes, typically set negative for Stock or Timed_KD
+
+pub const STOCK_LIVES: i32 = 3; //Applies to all games modes, typically set negative for non Stock battles
+
+pub const GAME_MODE: GameModes = GameModes::Deathmatch_Stock;
+
 
 
 
