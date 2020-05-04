@@ -2,7 +2,8 @@ use amethyst::{
     core::math::Vector3,
     core::transform::Transform,
     core::Time,
-    ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
+    ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect, 
+        DispatcherBuilder, Dispatcher},
     prelude::*,
     ui::{UiText, UiFinder, UiCreator},
     input::{is_close_requested, is_key_down},
@@ -21,6 +22,17 @@ use crate::components::{
 };
 
 use crate::resources::{WeaponFireResource};
+
+use crate::systems::{
+    VehicleTrackingSystem,
+    VehicleMoveSystem,
+    VehicleWeaponsSystem,
+    MoveWeaponFireSystem,
+    CollisionVehToVehSystem,
+    CollisionVehicleWeaponFireSystem,
+    VehicleShieldArmorHealthSystem,
+    VehicleStatusSystem,
+};
 
 
 
@@ -75,22 +87,51 @@ impl Default for CurrentState {
 
 
 #[derive(Default)]
-pub struct GameplayState {
+pub struct GameplayState<'a, 'b> {
     // // If the Game is paused or not
     pub paused: bool,
     // The UI root entity. Deleting this should remove the complete UI
     ui_root: Option<Entity>,
     // A reference to the FPS display, which we want to interact with
     fps_display: Option<Entity>,
+
+    /// The `State` specific `Dispatcher`, containing `System`s only relevant for this `State`.
+    dispatcher: Option<Dispatcher<'a, 'b>>,
 }
 
 
-impl SimpleState for GameplayState {
-    fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let StateData { mut world, .. } = data;
+impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
+    fn on_start(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
+        let world = &mut data.world;
 
-        // needed for registering audio output.
-        init_output(&mut world);
+        // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
+        let mut dispatcher_builder = DispatcherBuilder::new();
+        dispatcher_builder.add(VehicleTrackingSystem, 
+            "vehicle_tracking_system", &[]);
+        dispatcher_builder.add(VehicleMoveSystem, 
+            "vehicle_move_system", &[]);
+
+        dispatcher_builder.add(VehicleWeaponsSystem, 
+            "vehicle_weapons_system", &[]);
+        dispatcher_builder.add(MoveWeaponFireSystem, 
+            "move_weapon_fire_system", &["vehicle_weapons_system"]);
+
+        dispatcher_builder.add(CollisionVehToVehSystem,
+            "collision_vehicle_vehicle_system", &["vehicle_move_system"]);
+        dispatcher_builder.add(CollisionVehicleWeaponFireSystem::default(),
+            "collision_vehicle_weapon_fire_system", &["vehicle_move_system"]);
+
+        dispatcher_builder.add(VehicleShieldArmorHealthSystem,
+            "vehicle_shield_armor_health_system", &[]);
+        dispatcher_builder.add(VehicleStatusSystem::default(),
+            "vehicle_status_system", &[]);
+
+
+        // Build and setup the `Dispatcher`.
+        let mut dispatcher = dispatcher_builder.build();
+        dispatcher.setup(world);
+ 
+        self.dispatcher = Some(dispatcher);
 
         self.ui_root =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/game_fps.ron", ())));
@@ -147,9 +188,11 @@ impl SimpleState for GameplayState {
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        data.world.maintain();
+        if let Some(dispatcher) = self.dispatcher.as_mut() {
+            dispatcher.dispatch(&data.world);
+        }
 
-        let StateData { world, .. } = data;
+        let world = &mut data.world;
 
         // this cannot happen in 'on_start', as the entity might not be fully
         // initialized/registered/created yet.

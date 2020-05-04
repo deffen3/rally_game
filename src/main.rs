@@ -59,48 +59,7 @@ fn main() -> amethyst::Result<()> {
         //     "ui_event_handler",
         //     &[],
         // )
-        .with_bundle(FpsCounterBundle)?
-        .with(
-            systems::VehicleTrackingSystem,
-            "vehicle_tracking_system",
-            &[],
-        )
-        .with(
-            systems::VehicleMoveSystem,
-            "vehicle_move_system",
-            &["input_system", "vehicle_tracking_system"],
-        )
-        .with(
-            systems::VehicleWeaponsSystem,
-            "vehicle_weapons_system",
-            &["input_system"],
-        )
-        .with(
-            systems::MoveWeaponFireSystem,
-            "move_weapon_fire_system",
-            &["vehicle_weapons_system"],
-        )
-        .with(
-            systems::CollisionVehToVehSystem,
-            "collision_vehicle_vehicle_system",
-            &["vehicle_move_system"],
-        )
-        .with(
-            systems::CollisionVehicleWeaponFireSystem::default(),
-            "collision_vehicle_weapon_fire_system",
-            &["vehicle_move_system"],
-        )
-        .with(
-            systems::VehicleShieldArmorHealthSystem,
-            "vehicle_shield_armor_health_system",
-            &["input_system"],
-        )
-        .with(
-            systems::VehicleStatusSystem::default(),
-            "vehicle_status_system",
-            &["input_system"],
-        )
-        
+        .with_bundle(FpsCounterBundle)?        
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 // The RenderToWindow plugin provides all the scaffolding for opening a window and drawing on it

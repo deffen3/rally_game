@@ -12,7 +12,8 @@ use amethyst::{
 use crate::audio::initialize_audio;
 
 use crate::components::{
-    Hitbox, PlayerWeaponIcon, WeaponNames
+    Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, Weapon, WeaponFire,
+    PlayerWeaponIcon, WeaponNames,
 };
 
 use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
@@ -35,6 +36,20 @@ impl SimpleState for WelcomeScreen {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let StateData { world, .. } = data;
 
+        world.register::<UiText>();
+        world.register::<UiTransform>();
+
+        world.register::<Armor>();
+        world.register::<Health>();
+        world.register::<Hitbox>();
+        world.register::<Player>();
+        world.register::<Repair>();
+        world.register::<Shield>();
+        world.register::<Vehicle>();
+        world.register::<Weapon>();
+        world.register::<WeaponFire>();
+        
+
         self.sprite_sheet_handle.replace(load_sprite_sheet(
             world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
         ));
@@ -50,8 +65,6 @@ impl SimpleState for WelcomeScreen {
         initialize_audio(world);
 
         let player_status_texts = initialize_ui(world);
-        world.register::<UiText>(); // <- add this line temporarily
-        world.register::<UiTransform>();
 
         initialize_arena_walls(
             world,
