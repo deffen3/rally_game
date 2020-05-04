@@ -69,8 +69,6 @@ pub struct GameplayState {
     ui_root: Option<Entity>,
     // A reference to the FPS display, which we want to interact with
     fps_display: Option<Entity>,
-    // A reference to the random text, which we want to modify during updates
-    random_text: Option<Entity>,
 }
 
 
@@ -102,7 +100,6 @@ impl SimpleState for GameplayState {
 
         self.ui_root = None;
         self.fps_display = None;
-        self.random_text = None;
     }
 
     fn handle_event(
@@ -151,14 +148,6 @@ impl SimpleState for GameplayState {
             });
         }
 
-        if self.random_text.is_none() {
-            world.exec(|finder: UiFinder| {
-                if let Some(entity) = finder.find("random_text") {
-                    self.random_text = Some(entity);
-                }
-            });
-        }
-
         // it is important that the 'paused' field is actually pausing your game.
         // Make sure to also pause your running systems.
         if !self.paused {
@@ -168,18 +157,6 @@ impl SimpleState for GameplayState {
                 if world.read_resource::<Time>().frame_number() % 20 == 0 && !self.paused {
                     let fps = world.read_resource::<FpsCounter>().sampled_fps();
                     fps_display.text = format!("FPS: {:.*}", 2, fps);
-                }
-            }
-
-            if let Some(random_text) = self.random_text.and_then(|entity| ui_text.get_mut(entity)) {
-                if let Ok(value) = random_text.text.parse::<i32>() {
-                    let mut new_value = value * 10;
-                    if new_value > 100_000 {
-                        new_value = 1;
-                    }
-                    random_text.text = new_value.to_string();
-                } else {
-                    random_text.text = String::from("1");
                 }
             }
         }
