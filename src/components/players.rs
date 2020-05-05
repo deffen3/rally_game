@@ -10,7 +10,7 @@ pub enum BotMode {
     Mining,
     Chasing,
     Swording,
-    BecomeKing,
+    TakeTheHill,
 }
 
 pub struct Player {

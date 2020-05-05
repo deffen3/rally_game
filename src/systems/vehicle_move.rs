@@ -111,8 +111,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 player.bot_move_cooldown -= dt;
 
                 if player.is_bot {
-                    if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
-
+                    if player.bot_mode == BotMode::Running || 
+                            player.bot_mode == BotMode::TakeTheHill || 
+                            player.bot_mode == BotMode::Mining {
+                            
                         if vehicle.dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE && player.bot_move_cooldown < 0.0
                         {
                             //change modes to attack
@@ -130,7 +132,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             }
                         } 
                         
-                        if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
+                        if player.bot_mode == BotMode::TakeTheHill {
+                            
+                        } else if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
                             //continue with Running or Mining mode
                             if player.bot_move_cooldown < 0.0 {
                                 //issue new move command

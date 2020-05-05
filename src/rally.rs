@@ -62,7 +62,7 @@ pub const GAME_MODE: GameModes = GameModes::KingOfTheHill;
 
 pub const MATCH_TIME_LIMIT: f32 = -1.0 * 60.0; //In seconds. Applies to all games modes. Typically set negative for non Timed matches.
 
-pub const POINTS_TO_WIN: i32 = 100; //Applies to all games modes. Typically set negative for Stock or Timed_KD.
+pub const POINTS_TO_WIN: i32 = 30; //Applies to all games modes. Typically set negative for Stock or Timed_KD.
 
 pub const STOCK_LIVES: i32 = -1; //Applies to all games modes. Typically set negative for non Stock battles.
 

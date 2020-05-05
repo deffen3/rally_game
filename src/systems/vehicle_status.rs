@@ -99,7 +99,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                             .text = text_out;
                     }
                 }
-                else if POINTS_TO_WIN > 0 && player.kills >= POINTS_TO_WIN {
+                else if POINTS_TO_WIN > 0 && player_score >= POINTS_TO_WIN {
                     if !self.winners.contains(&player.id) {
                         self.winners.push(player.id.clone());
 
