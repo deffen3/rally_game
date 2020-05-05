@@ -11,7 +11,7 @@ pub struct PlayerStatusText {
     pub shield: Entity,
     pub armor: Entity,
     pub health: Entity,
-    pub kills: Entity,
+    pub points: Entity,
 }
 
 
@@ -51,7 +51,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         200.,
         50.,
     );
-    let p1_kills_transform = UiTransform::new(
+    let p1_points_transform = UiTransform::new(
         "P1".to_string(),
         Anchor::TopMiddle,
         Anchor::TopMiddle,
@@ -94,7 +94,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         200.,
         50.,
     );
-    let p2_kills_transform = UiTransform::new(
+    let p2_points_transform = UiTransform::new(
         "P2".to_string(),
         Anchor::TopMiddle,
         Anchor::TopMiddle,
@@ -137,7 +137,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         200.,
         50.,
     );
-    let p3_kills_transform = UiTransform::new(
+    let p3_points_transform = UiTransform::new(
         "P3".to_string(),
         Anchor::TopMiddle,
         Anchor::TopMiddle,
@@ -180,7 +180,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         200.,
         50.,
     );
-    let p4_kills_transform = UiTransform::new(
+    let p4_points_transform = UiTransform::new(
         "P3".to_string(),
         Anchor::TopMiddle,
         Anchor::TopMiddle,
@@ -235,9 +235,9 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         ))
         .build();
 
-    let p1_kills = world
+    let p1_points = world
         .create_entity()
-        .with(p1_kills_transform)
+        .with(p1_points_transform)
         .with(UiText::new(
             font.clone(),
             "0".to_string(),
@@ -279,9 +279,9 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         ))
         .build();
 
-    let p2_kills = world
+    let p2_points = world
         .create_entity()
-        .with(p2_kills_transform)
+        .with(p2_points_transform)
         .with(UiText::new(
             font.clone(),
             "0".to_string(),
@@ -323,9 +323,9 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         ))
         .build();
 
-    let p3_kills = world
+    let p3_points = world
         .create_entity()
-        .with(p3_kills_transform)
+        .with(p3_points_transform)
         .with(UiText::new(
             font.clone(),
             "0".to_string(),
@@ -367,9 +367,9 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         ))
         .build();
 
-    let p4_kills = world
+    let p4_points = world
         .create_entity()
-        .with(p4_kills_transform)
+        .with(p4_points_transform)
         .with(UiText::new(
             font,
             "0".to_string(),
@@ -383,25 +383,25 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
             shield: p1_shield,
             armor: p1_armor,
             health: p1_health,
-            kills: p1_kills,
+            points: p1_points,
         },
         PlayerStatusText {
             shield: p2_shield,
             armor: p2_armor,
             health: p2_health,
-            kills: p2_kills,
+            points: p2_points,
         },
         PlayerStatusText {
             shield: p3_shield,
             armor: p3_armor,
             health: p3_health,
-            kills: p3_kills,
+            points: p3_points,
         },
         PlayerStatusText {
             shield: p4_shield,
             armor: p4_armor,
             health: p4_health,
-            kills: p4_kills,
+            points: p4_points,
         },
     ]
 }

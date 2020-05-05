@@ -94,7 +94,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                         };
 
                         ui_text
-                            .get_mut(vehicle.player_status_text.kills)
+                            .get_mut(vehicle.player_status_text.points)
                             .unwrap()
                             .text = text_out;
                     }
@@ -112,14 +112,14 @@ impl<'s> System<'s> for VehicleStatusSystem {
                         };
 
                         ui_text
-                            .get_mut(vehicle.player_status_text.kills)
+                            .get_mut(vehicle.player_status_text.points)
                             .unwrap()
                             .text = text_out;
                     }
                 }
                 else {
                     ui_text
-                        .get_mut(vehicle.player_status_text.kills)
+                        .get_mut(vehicle.player_status_text.points)
                         .unwrap()
                         .text = format!("{:.0}", player_score);
                 }
