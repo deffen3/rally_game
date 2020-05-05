@@ -13,7 +13,7 @@ use crate::audio::initialize_audio;
 
 use crate::components::{
     Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, Weapon, WeaponFire,
-    PlayerWeaponIcon, WeaponNames,
+    PlayerWeaponIcon,
 };
 
 use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};

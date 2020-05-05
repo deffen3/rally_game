@@ -1,9 +1,9 @@
 use amethyst::{
     ecs::prelude::Entity,
-    input::{is_close_requested, is_key_down},
+    input::{is_close_requested}, //is_key_down},
     prelude::*,
     ui::{UiCreator, UiEvent, UiEventType, UiFinder},
-    winit::VirtualKeyCode,
+    //winit::VirtualKeyCode,
 };
 
 //use crate::{credits::CreditsScreen, game::Game, welcome::WelcomeScreen};

@@ -1,8 +1,11 @@
 use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteStorage};
+use amethyst::ecs::{Entities, Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteStorage};
 use amethyst::input::{InputHandler, StringBindings};
-
+use amethyst::renderer::{
+    palette::Srgba,
+    resources::Tint,
+};
 use amethyst::{
     assets::AssetStorage,
     audio::{output::Output, Source},
@@ -22,6 +25,7 @@ use crate::rally::{
     BASE_COLLISION_DAMAGE,
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT,
     COLLISION_SHIELD_DAMAGE_PCT, UI_HEIGHT,
+    GAME_MODE, GameModes,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -39,6 +43,7 @@ pub struct VehicleMoveSystem;
 
 impl<'s> System<'s> for VehicleMoveSystem {
     type SystemData = (
+        Entities<'s>,
         ReadStorage<'s, Hitbox>,
         WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
@@ -49,11 +54,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
+        WriteStorage<'s, Tint>,
     );
 
     fn run(
         &mut self,
         (
+            entities,
             hitboxes,
             mut players,
             mut transforms,
@@ -64,6 +71,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             storage,
             sounds,
             audio_output,
+            mut tints,
         ): Self::SystemData,
     ) {
         let mut rng = rand::thread_rng();
@@ -108,7 +116,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if vehicle.dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE && player.bot_move_cooldown < 0.0
                         {
                             //change modes to attack
-
                             if weapon.stats.attached { //Typically just LaserSword
                                 player.bot_mode = BotMode::Swording;
                                 debug!("{} Swording", player.id);
@@ -411,6 +418,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut player_destroyed: Vec<usize> = Vec::new();
         let mut player_arena_bounce: Vec<usize> = Vec::new();
 
+        let mut players_on_hill: Vec<usize> = Vec::new();
+        let mut color_for_hill: Vec<(f32,f32,f32)> = Vec::new();
+
         for (hitbox, hitbox_transform) in (&hitboxes, &transforms).join() {
             let hitbox_x = hitbox_transform.translation().x;
             let hitbox_y = hitbox_transform.translation().y;
@@ -422,58 +432,77 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let vehicle_x = transform.translation().x;
                 let vehicle_y = transform.translation().y;
 
-                let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
-                let abs_vel = sq_vel.sqrt();
-
                 if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
-                    < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2)
-                {
-                    vehicle.dx *= wall_hit_bounce_decel_pct;
-                    vehicle.dy *= wall_hit_bounce_decel_pct;
-
-                    player_arena_bounce.push(player.id.clone());
-
-                    if player.is_bot
-                        && (player.bot_mode != BotMode::CollisionTurn)
-                        && (player.bot_mode != BotMode::CollisionMove)
+                        < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2)
                     {
-                        player.bot_mode = BotMode::CollisionTurn;
-                        debug!("{} CollisionTurn", player.id);
-                        player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
-                    }
+                    if hitbox.is_wall {
+                        let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+                        let abs_vel = sq_vel.sqrt();
 
-                    if vehicle.collision_cooldown_timer <= 0.0 {
-                        let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel;
-                        debug!("Player {} has collided with {} damage", player.id, damage);
+                        vehicle.dx *= wall_hit_bounce_decel_pct;
+                        vehicle.dy *= wall_hit_bounce_decel_pct;
 
-                        let vehicle_destroyed: bool = vehicle_damage_model(
-                            vehicle,
-                            damage,
-                            COLLISION_PIERCING_DAMAGE_PCT,
-                            COLLISION_SHIELD_DAMAGE_PCT,
-                            COLLISION_ARMOR_DAMAGE_PCT,
-                            COLLISION_HEALTH_DAMAGE_PCT,
-                        );
+                        player_arena_bounce.push(player.id.clone());
 
-                        if vehicle_destroyed {
-                            player_destroyed.push(player.id.clone());
+                        if player.is_bot
+                            && (player.bot_mode != BotMode::CollisionTurn)
+                            && (player.bot_mode != BotMode::CollisionMove)
+                        {
+                            player.bot_mode = BotMode::CollisionTurn;
+                            debug!("{} CollisionTurn", player.id);
+                            player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
                         }
 
-                        if abs_vel > 0.5 {
-                            play_bounce_sound(
-                                &*sounds,
-                                &storage,
-                                audio_output.as_deref(),
+                        if vehicle.collision_cooldown_timer <= 0.0 {
+                            let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel;
+                            debug!("Player {} has collided with {} damage", player.id, damage);
+
+                            let vehicle_destroyed: bool = vehicle_damage_model(
+                                vehicle,
+                                damage,
+                                COLLISION_PIERCING_DAMAGE_PCT,
+                                COLLISION_SHIELD_DAMAGE_PCT,
+                                COLLISION_ARMOR_DAMAGE_PCT,
+                                COLLISION_HEALTH_DAMAGE_PCT,
                             );
-                        }
 
-                        vehicle.collision_cooldown_timer = 1.0;
+                            if vehicle_destroyed {
+                                player_destroyed.push(player.id.clone());
+                            }
+
+                            if abs_vel > 0.5 {
+                                play_bounce_sound(
+                                    &*sounds,
+                                    &storage,
+                                    audio_output.as_deref(),
+                                );
+                            }
+
+                            vehicle.collision_cooldown_timer = 1.0;
+                        }
+                    } else if hitbox.is_hill {
+                        players_on_hill.push(player.id.clone());
+
+                        let (r, g, b) = match player.id.clone() {
+                            0 => (1.0, 0.3, 0.3),
+                            1 => (0.3, 0.3, 1.0),
+                            2 => (0.3, 1.0, 0.3),
+                            3 => (1.0, 0.8, 0.3),
+                            _ => (1.0, 1.0, 1.0),
+                        };
+
+                        color_for_hill.push((r, g, b));
                     }
                 }
             }
         }
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
+            if players_on_hill.len() == 1 && players_on_hill.contains(&player.id) {
+                player.objective_points += dt;
+
+            }
+
             if player_destroyed.contains(&player.id) {
                 kill_restart_vehicle(player, vehicle, transform);
             }
@@ -484,6 +513,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 transform.set_translation_x(vehicle_x + vehicle.dx);
                 transform.set_translation_y(vehicle_y + vehicle.dy);
+            }
+        }
+
+        for (entity, _hitbox) in (&*entities, &hitboxes).join() {
+            if let Some(tint) = tints.get_mut(entity) {
+                if players_on_hill.len() == 1 {
+                    *tint = Tint(Srgba::new(color_for_hill[0].0, color_for_hill[0].1, color_for_hill[0].2, 1.0));
+                }
+                else {
+                    *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+                }
             }
         }
     }

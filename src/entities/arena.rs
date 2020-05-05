@@ -6,11 +6,16 @@ use amethyst::{
     prelude::*,
     renderer::{SpriteRender, SpriteSheet},
 };
+use amethyst::renderer::{
+    Transparent,
+    palette::Srgba,
+    resources::Tint,
+};
 
 use std::f32::consts::PI;
 
 use crate::components::{Hitbox, HitboxShape};
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, GAME_MODE, GameModes};
 
 pub fn initialize_arena_walls(
         world: &mut World, 
@@ -22,7 +27,7 @@ pub fn initialize_arena_walls(
 
     //arena floor
     let mut floor_transform = Transform::default();
-    floor_transform.set_translation_xyz(ARENA_WIDTH/2.0, arena_ui_height/2.0, -0.01);
+    floor_transform.set_translation_xyz(ARENA_WIDTH/2.0, arena_ui_height/2.0, -0.05);
     floor_transform.set_scale(Vector3::new(6.25, 5.75, 0.0));
 
     let floor_texture_render = SpriteRender {
@@ -48,7 +53,7 @@ pub fn initialize_arena_walls(
 
     world
         .create_entity()
-        .with(Hitbox::new(20.0, 2.0, 0.0, HitboxShape::Rectangle))
+        .with(Hitbox::new(20.0, 2.0, 0.0, HitboxShape::Rectangle, true, false))
         .with(wall_transform)
         .with(wall_sprite_render)
         .build();
@@ -99,31 +104,70 @@ pub fn initialize_arena_walls(
             .build();
     }
 
-    //central circle
-    let mut circle_transform = Transform::default();
-    let scale = 4.0;
 
-    circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, 0.38);
-    circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
+    if GAME_MODE == GameModes::KingOfTheHill {
+        //the "hill"
+        let mut circle_transform = Transform::default();
+        let scale = 4.0;
 
-    let circle_sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 14,
-    };
+        circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, -0.02);
+        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
-    world
-        .create_entity()
-        .with(circle_transform)
-        .with(circle_sprite_render)
-        .with(Hitbox::new(
-            20.0 * scale,
-            20.0 * scale,
-            0.0,
-            HitboxShape::Circle,
-        ))
-        .build();
+        let circle_sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 29,
+        };
 
-    //outer circles
+
+        // White shows the sprite as normal.
+        // You can change the color at any point to modify the sprite's tint.
+        let king_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+
+        world
+            .create_entity()
+            .with(circle_transform)
+            .with(circle_sprite_render)
+            .with(Hitbox::new(
+                20.0 * scale,
+                20.0 * scale,
+                0.0,
+                HitboxShape::Circle,
+                false,
+                true,
+            ))
+            .with(Transparent)
+            .with(king_tint)
+            .build();
+
+    } else {
+        //central arena wall circle
+        let mut circle_transform = Transform::default();
+        let scale = 4.0;
+
+        circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, 0.38);
+        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
+
+        let circle_sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 14,
+        };
+
+        world
+            .create_entity()
+            .with(circle_transform)
+            .with(circle_sprite_render)
+            .with(Hitbox::new(
+                20.0 * scale,
+                20.0 * scale,
+                0.0,
+                HitboxShape::Circle,
+                true,
+                false,
+            ))
+            .build();
+    }
+
+    //outer arena wall circles
     let spacing_factor = 5.0;
     let scale = 2.0;
 
@@ -163,6 +207,8 @@ pub fn initialize_arena_walls(
                 20.0 * scale,
                 0.0,
                 HitboxShape::Circle,
+                true,
+                false,
             ))
             .build();
     }

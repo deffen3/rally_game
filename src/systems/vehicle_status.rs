@@ -74,7 +74,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 } else if GAME_MODE == GameModes::Deathmatch_Timed_KD {
                     player_score = player.kills - player.deaths;
                 } else if GAME_MODE == GameModes::KingOfTheHill {
-                    player_score = 0;
+                    player_score = player.objective_points.floor() as i32;
                 } else {
                     player_score = 0;
                 }

@@ -72,20 +72,22 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         let dt = time.delta_seconds();
 
         for (hitbox, transform) in (&hitboxes, &transforms).join() {
-            let hitbox_x = transform.translation().x;
-            let hitbox_y = transform.translation().y;
+            if hitbox.is_wall {
+                let hitbox_x = transform.translation().x;
+                let hitbox_y = transform.translation().y;
 
-            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
-                (&*entities, &weapon_fires, &transforms).join()
-            {
-                let fire_x = weapon_fire_transform.translation().x;
-                let fire_y = weapon_fire_transform.translation().y;
-
-                if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2)
-                    < (hitbox.width / 2.0).powi(2)
+                for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
+                    (&*entities, &weapon_fires, &transforms).join()
                 {
-                    if !weapon_fire.attached {
-                        let _ = entities.delete(weapon_fire_entity);
+                    let fire_x = weapon_fire_transform.translation().x;
+                    let fire_y = weapon_fire_transform.translation().y;
+
+                    if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2)
+                        < (hitbox.width / 2.0).powi(2)
+                    {
+                        if !weapon_fire.attached {
+                            let _ = entities.delete(weapon_fire_entity);
+                        }
                     }
                 }
             }
