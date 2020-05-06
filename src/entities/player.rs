@@ -20,7 +20,7 @@ use crate::components::{
 };
 use crate::resources::WeaponFireResource;
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, GAME_MODE, GameModes};
 
 pub fn intialize_player(
     world: &mut World,
@@ -37,37 +37,76 @@ pub fn intialize_player(
 
     let height = ARENA_HEIGHT + UI_HEIGHT;
 
-    let (starting_rotation, starting_x, starting_y) = match player_index {
-        0 => (
-            -PI / 4.0,
-            ARENA_WIDTH / spacing_factor,
-            height / spacing_factor,
-        ),
-        1 => (
-            PI / 2.0 + PI / 4.0,
-            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-            height - (height / spacing_factor),
-        ),
-        2 => (
-            PI + PI / 4.0,
-            ARENA_WIDTH / spacing_factor,
-            height - (height / spacing_factor),
-        ),
-        3 => (
-            PI / 2.0 - PI / 4.0,
-            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-            height / spacing_factor,
-        ),
-        _ => (
-            -PI / 4.0,
-            ARENA_WIDTH / spacing_factor,
-            height / spacing_factor,
-        ),
-    };
+
+    let starting_rotation;
+    let starting_x;
+    let starting_y;
+
+    if GAME_MODE == GameModes::Race {
+        let (x, y) = match player_index {
+            0 => (
+                ARENA_WIDTH - 70.0,
+                height / 2.0 - 14.0,
+            ),
+            1 => (
+                ARENA_WIDTH - 50.0,
+                height / 2.0 - 14.0,
+            ),
+            2 => (
+                ARENA_WIDTH - 30.0,
+                height / 2.0 - 14.0,
+            ),
+            3 => (
+                ARENA_WIDTH - 10.0,
+                height / 2.0 - 14.0,
+            ),
+            _ => (
+                ARENA_WIDTH - 40.0,
+                height / 2.0 - 14.0,
+            ),
+        };
+
+        starting_rotation = 0.0;
+        starting_x = x;
+        starting_y = y;
+    }
+    else {
+        let (rotation, x, y) = match player_index {
+            0 => (
+                -PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height / spacing_factor,
+            ),
+            1 => (
+                PI / 2.0 + PI / 4.0,
+                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                height - (height / spacing_factor),
+            ),
+            2 => (
+                PI + PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height - (height / spacing_factor),
+            ),
+            3 => (
+                PI / 2.0 - PI / 4.0,
+                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                height / spacing_factor,
+            ),
+            _ => (
+                -PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height / spacing_factor,
+            ),
+        };
+
+        starting_rotation = rotation;
+        starting_x = x;
+        starting_y = y;
+    }
 
     vehicle_transform.set_rotation_2d(starting_rotation as f32);
     vehicle_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
-
+    
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
         sprite_number: player_index,

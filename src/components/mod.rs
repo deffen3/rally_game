@@ -1,4 +1,4 @@
-pub use self::hitbox::{Hitbox, HitboxShape};
+pub use self::hitbox::{Hitbox, HitboxShape, RaceCheckpointType};
 pub use self::players::{BotMode, Player, PlayerWeaponIcon};
 pub use self::vehicles::{check_respawn_vehicle, kill_restart_vehicle, Vehicle, VehicleState};
 pub use self::weapons::{

@@ -6,6 +6,15 @@ pub enum HitboxShape {
     Circle,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum RaceCheckpointType {
+    NotCheckpoint,
+    CheckpointStart,
+    CheckpointFinish,
+    LapStart,
+    LapFinish
+}
+
 #[derive(Clone)]
 pub struct Hitbox {
     pub width: f32,
@@ -14,6 +23,8 @@ pub struct Hitbox {
     pub shape: HitboxShape,
     pub is_wall: bool,
     pub is_hill: bool,
+    pub checkpoint: RaceCheckpointType,
+    pub checkpoint_id: i32,
 }
 
 impl Component for Hitbox {
@@ -21,7 +32,11 @@ impl Component for Hitbox {
 }
 
 impl Hitbox {
-    pub fn new(width: f32, height: f32, angle: f32, shape: HitboxShape, is_wall: bool, is_hill: bool) -> Hitbox {
+    pub fn new(width: f32, height: f32, angle: f32, 
+            shape: HitboxShape,
+            is_wall: bool, is_hill: bool,
+            checkpoint: RaceCheckpointType, checkpoint_id: i32,
+        ) -> Hitbox {
         Hitbox {
             width,
             height,
@@ -29,6 +44,8 @@ impl Hitbox {
             shape,
             is_wall,
             is_hill,
+            checkpoint,
+            checkpoint_id,
         }
     }
 }

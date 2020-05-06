@@ -45,8 +45,8 @@ pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 25.0;
 pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
-pub const MAX_PLAYERS: usize = 4;
-pub const BOT_PLAYERS: usize = MAX_PLAYERS - 4;
+pub const MAX_PLAYERS: usize = 1;
+pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -55,16 +55,19 @@ pub enum GameModes {
     Deathmatch_Kills, //First to a certain number of kills. New weapons can be picked up from arena.
     Deathmatch_Stock, //If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
     Deathmatch_Timed_KD, //Match ends after set time. Kills-Deaths is winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
+    Race,
     KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
 }
 
-pub const GAME_MODE: GameModes = GameModes::KingOfTheHill;
+pub const GAME_MODE: GameModes = GameModes::Race;
 
 pub const MATCH_TIME_LIMIT: f32 = -1.0 * 60.0; //In seconds. Applies to all games modes. Typically set negative for non Timed matches.
 
-pub const POINTS_TO_WIN: i32 = 30; //Applies to all games modes. Typically set negative for Stock or Timed_KD.
+pub const POINTS_TO_WIN: i32 = 5; //Applies to all games modes. Typically set negative for Stock or Timed_KD.
 
 pub const STOCK_LIVES: i32 = -1; //Applies to all games modes. Typically set negative for non Stock battles.
+
+pub const CHECKPOINT_COUNT: i32 = 1;
 
 pub const STARTER_WEAPON: WeaponNames = WeaponNames::LaserDoubleGimballed;
 

@@ -16,7 +16,9 @@ use rand::Rng;
 use std::f32::consts::PI;
 
 use crate::components::{
-    check_respawn_vehicle, kill_restart_vehicle, BotMode, Hitbox, Player, Vehicle, Weapon, VehicleState,
+    check_respawn_vehicle, kill_restart_vehicle, 
+    BotMode, Hitbox, HitboxShape, RaceCheckpointType,
+    Player, Vehicle, Weapon, VehicleState,
 };
 
 use crate::rally::{
@@ -26,6 +28,7 @@ use crate::rally::{
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT,
     COLLISION_SHIELD_DAMAGE_PCT, UI_HEIGHT,
     GAME_MODE, GameModes,
+    CHECKPOINT_COUNT,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -274,10 +277,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 debug!("{}",abs_vel);
 
-                //Transform on vehicle velocity
-                transform.prepend_translation_x(vehicle.dx);
 
-                transform.prepend_translation_y(vehicle.dy);
+
+                //Transform on vehicle velocity
+                if vehicle.dx.abs() > 0.001 {
+                    transform.prepend_translation_x(vehicle.dx);
+                } 
+                
+                if vehicle.dy.abs() > 0.001 {
+                    transform.prepend_translation_y(vehicle.dy);
+                } 
+                
 
                 //Apply vehicle rotation from turn input
                 if let Some(turn_amount) = vehicle_turn {
@@ -313,31 +323,31 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let vehicle_x = transform.translation().x;
                 let vehicle_y = transform.translation().y;
 
-                let yaw_width = vehicle.height * 0.5 * yaw_x_comp.abs()
+                let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
                     + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
-                let yaw_height = vehicle.height * 0.5 * yaw_y_comp.abs()
+                let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
                     + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
 
                 let mut x_collision = false;
                 let mut y_collision = false;
 
-                if vehicle_x > (ARENA_WIDTH - yaw_width) {
+                if vehicle_x > (ARENA_WIDTH - veh_rect_width) {
                     //hit the right wall
-                    transform.set_translation_x(ARENA_WIDTH - yaw_width);
+                    transform.set_translation_x(ARENA_WIDTH - veh_rect_width);
                     x_collision = true;
-                } else if vehicle_x < (yaw_width) {
+                } else if vehicle_x < (veh_rect_width) {
                     //hit the left wall
-                    transform.set_translation_x(yaw_width);
+                    transform.set_translation_x(veh_rect_width);
                     x_collision = true;
                 }
 
-                if vehicle_y > (ARENA_HEIGHT - yaw_height) {
+                if vehicle_y > (ARENA_HEIGHT - veh_rect_height) {
                     //hit the top wall
-                    transform.set_translation_y(ARENA_HEIGHT - yaw_height);
+                    transform.set_translation_y(ARENA_HEIGHT - veh_rect_height);
                     y_collision = true;
-                } else if vehicle_y < (UI_HEIGHT + yaw_height) {
+                } else if vehicle_y < (UI_HEIGHT + veh_rect_height) {
                     //hit the bottom wall
-                    transform.set_translation_y(UI_HEIGHT + yaw_height);
+                    transform.set_translation_y(UI_HEIGHT + veh_rect_height);
                     y_collision = true;
                 }
 
@@ -436,9 +446,63 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let vehicle_x = transform.translation().x;
                 let vehicle_y = transform.translation().y;
 
-                if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
-                        < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2)
-                    {
+                let vehicle_rotation = transform.rotation();
+                let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
+
+                let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
+                let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
+
+                let hit;
+                if hitbox.shape == HitboxShape::Circle {
+                    if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
+                            < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2) {
+                        hit = true;
+                    }
+                    else {
+                        hit = false;
+                    }
+                } else if hitbox.shape == HitboxShape::Rectangle {
+                    let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
+                        + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
+
+                    let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
+                        + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
+
+                    let mut interferences = 0;
+
+                    let left_hitbox_wall = vehicle_x + veh_rect_width/2.0 > hitbox_x - hitbox.width/2.0;
+                    let right_hitbox_wall = vehicle_x - veh_rect_width/2.0 < hitbox_x + hitbox.width/2.0;
+
+                    let top_hitbox_wall = vehicle_y - veh_rect_height/2.0 < hitbox_y + hitbox.height/2.0;
+                    let bottom_hitbox_wall = vehicle_y + veh_rect_height/2.0 > hitbox_y - hitbox.height/2.0;
+
+                    if left_hitbox_wall {
+                        interferences += 1;
+                    }
+                    if right_hitbox_wall {
+                        interferences += 1;
+                    }
+                    if top_hitbox_wall {
+                        interferences += 1;
+                    }
+                    if bottom_hitbox_wall {
+                        interferences += 1;
+                    }
+
+                    if interferences >= 4 {
+                        hit = true;
+                    }
+                    else {
+                        hit = false;
+                    }
+                }
+                else {
+                    hit = false;
+                }
+
+                
+                
+                if hit {
                     if hitbox.is_wall {
                         let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
                         let abs_vel = sq_vel.sqrt();
@@ -496,6 +560,32 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         };
 
                         color_for_hill.push((r, g, b));
+                    } else if hitbox.checkpoint == RaceCheckpointType::CheckpointStart {
+                        if !player.hit_checkpoint_start {
+                            player.hit_checkpoint_start = true;
+                            println!("checkpoint_start");
+                        }
+                    } else if hitbox.checkpoint == RaceCheckpointType::CheckpointFinish {
+                        if player.hit_checkpoint_start {
+                            player.hit_checkpoint_start = false;
+
+                            player.checkpoint_completed = hitbox.checkpoint_id;
+                            println!("checkpoint_finish");
+                        }
+                    } else if hitbox.checkpoint == RaceCheckpointType::LapStart {
+                        if !player.hit_lap_start {
+                            player.hit_lap_start = true;
+
+                            println!("lap_start");
+                        }
+                    } else if hitbox.checkpoint == RaceCheckpointType::LapFinish {
+                        if player.hit_lap_start && player.checkpoint_completed == CHECKPOINT_COUNT {
+                            player.hit_lap_start = false;
+                            
+                            player.laps_completed += 1;
+                            player.checkpoint_completed = 0;
+                            println!("lap_finish");
+                        }
                     }
                 }
             }

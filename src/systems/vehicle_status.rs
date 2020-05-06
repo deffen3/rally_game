@@ -73,6 +73,8 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     player_score = STOCK_LIVES - player.deaths;
                 } else if GAME_MODE == GameModes::Deathmatch_Timed_KD {
                     player_score = player.kills - player.deaths;
+                } else if GAME_MODE == GameModes::Race {
+                    player_score = player.laps_completed;
                 } else if GAME_MODE == GameModes::KingOfTheHill {
                     player_score = player.objective_points.floor() as i32;
                 } else {
