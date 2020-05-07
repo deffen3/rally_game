@@ -15,7 +15,8 @@ use amethyst::renderer::{
 use std::f32::consts::PI;
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, GAME_MODE, GameModes};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, GAME_MODE};
+use crate::resources::{GameModes};
 
 pub fn initialize_arena_walls(
         world: &mut World, 

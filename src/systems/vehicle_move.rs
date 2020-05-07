@@ -20,6 +20,7 @@ use crate::components::{
     BotMode, Hitbox, HitboxShape, RaceCheckpointType,
     Player, Vehicle, Weapon, VehicleState,
 };
+use crate::resources::{GameModes,};
 
 use crate::rally::{
     vehicle_damage_model, 
@@ -27,7 +28,6 @@ use crate::rally::{
     BASE_COLLISION_DAMAGE,
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT,
     COLLISION_SHIELD_DAMAGE_PCT, UI_HEIGHT,
-    GAME_MODE, GameModes,
     CHECKPOINT_COUNT,
 };
 

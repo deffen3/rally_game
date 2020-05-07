@@ -16,8 +16,8 @@ use crate::components::{
     Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
 };
 
-use crate::rally::{vehicle_damage_model, GAME_MODE, GameModes};
-use crate::resources::WeaponFireResource;
+use crate::rally::{vehicle_damage_model, GAME_MODE,};
+use crate::resources::{WeaponFireResource, GameModes,};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 

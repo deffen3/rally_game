@@ -1,5 +1,8 @@
-use crate::components::WeaponTypes;
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
+
+use crate::components::WeaponTypes;
+
+
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BotMode {

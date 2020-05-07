@@ -6,7 +6,8 @@ use amethyst::{
 };
 
 use crate::components::{Player, Vehicle};
-use crate::rally::{POINTS_TO_WIN, STOCK_LIVES, GAME_MODE, GameModes, MAX_PLAYERS, MATCH_TIME_LIMIT};
+use crate::rally::{POINTS_TO_WIN, STOCK_LIVES, GAME_MODE, MAX_PLAYERS, MATCH_TIME_LIMIT};
+use crate::resources::{GameModes,};
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleStatusSystem {

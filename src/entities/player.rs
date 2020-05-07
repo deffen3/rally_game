@@ -18,9 +18,9 @@ use crate::components::{
     build_named_weapon, Player, PlayerWeaponIcon, Vehicle, 
     Weapon, WeaponNames, get_weapon_icon,
 };
-use crate::resources::WeaponFireResource;
+use crate::resources::{GameModes, WeaponFireResource};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, GAME_MODE, GameModes};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, GAME_MODE,};
 
 pub fn intialize_player(
     world: &mut World,
