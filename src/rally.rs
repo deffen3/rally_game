@@ -67,7 +67,7 @@ pub const POINTS_TO_WIN: i32 = 5; //Applies to all games modes. Typically set ne
 
 pub const STOCK_LIVES: i32 = -1; //Applies to all games modes. Typically set negative for non Stock battles.
 
-pub const CHECKPOINT_COUNT: i32 = 1;
+pub const CHECKPOINT_COUNT: i32 = 2; //Applies only to Race mode. Must be set equal to the number of checkpoints on the racetrack.
 
 pub const STARTER_WEAPON: WeaponNames = WeaponNames::LaserDoubleGimballed;
 

@@ -435,22 +435,35 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut players_on_hill: Vec<usize> = Vec::new();
         let mut color_for_hill: Vec<(f32,f32,f32)> = Vec::new();
 
-        for (hitbox, hitbox_transform) in (&hitboxes, &transforms).join() {
-            let hitbox_x = hitbox_transform.translation().x;
-            let hitbox_y = hitbox_transform.translation().y;
 
-            for (player, vehicle, transform) in (&mut players, &mut vehicles, &transforms).join() {
-                let wall_hit_non_bounce_decel_pct: f32 = 0.65;
-                let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
+        for (player, vehicle, transform) in (&mut players, &mut vehicles, &transforms).join() {
+            let wall_hit_non_bounce_decel_pct: f32 = 0.65;
+            let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
 
-                let vehicle_x = transform.translation().x;
-                let vehicle_y = transform.translation().y;
+            let vehicle_x = transform.translation().x;
+            let vehicle_y = transform.translation().y;
 
-                let vehicle_rotation = transform.rotation();
-                let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
+            let vehicle_rotation = transform.rotation();
+            let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
 
-                let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
-                let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
+            let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
+            let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
+
+            let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
+                + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
+
+            let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
+                + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
+
+
+            let mut checkpoint_id: i32 = 0;
+            let mut checkpoint_stages: [bool; 2] = [false; 2];
+            let mut lap_stages: [bool; 2] = [false; 2];
+
+
+            for (hitbox, hitbox_transform) in (&hitboxes, &transforms).join() {
+                let hitbox_x = hitbox_transform.translation().x;
+                let hitbox_y = hitbox_transform.translation().y;
 
                 let hit;
                 if hitbox.shape == HitboxShape::Circle {
@@ -462,12 +475,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         hit = false;
                     }
                 } else if hitbox.shape == HitboxShape::Rectangle {
-                    let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
-                        + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
-
-                    let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
-                        + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
-
                     let mut interferences = 0;
 
                     let left_hitbox_wall = vehicle_x + veh_rect_width/2.0 > hitbox_x - hitbox.width/2.0;
@@ -499,8 +506,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 else {
                     hit = false;
                 }
-
-                
                 
                 if hit {
                     if hitbox.is_wall {
@@ -560,35 +565,59 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         };
 
                         color_for_hill.push((r, g, b));
-                    } else if hitbox.checkpoint == RaceCheckpointType::CheckpointStart {
-                        if !player.hit_checkpoint_start {
-                            player.hit_checkpoint_start = true;
-                            println!("checkpoint_start");
-                        }
-                    } else if hitbox.checkpoint == RaceCheckpointType::CheckpointFinish {
-                        if player.hit_checkpoint_start {
-                            player.hit_checkpoint_start = false;
-
-                            player.checkpoint_completed = hitbox.checkpoint_id;
-                            println!("checkpoint_finish");
-                        }
+                    } else if (hitbox.checkpoint == RaceCheckpointType::CheckpointStart) && 
+                            (hitbox.checkpoint_id == player.checkpoint_completed + 1) {
+                        checkpoint_stages[0] = true;
+                        checkpoint_id = hitbox.checkpoint_id;
+                    } else if hitbox.checkpoint == RaceCheckpointType::CheckpointFinish && 
+                            (hitbox.checkpoint_id == player.checkpoint_completed + 1) {
+                        checkpoint_stages[1] = true;
+                        checkpoint_id = hitbox.checkpoint_id;
                     } else if hitbox.checkpoint == RaceCheckpointType::LapStart {
-                        if !player.hit_lap_start {
-                            player.hit_lap_start = true;
-
-                            println!("lap_start");
-                        }
+                        lap_stages[0] = true;
                     } else if hitbox.checkpoint == RaceCheckpointType::LapFinish {
-                        if player.hit_lap_start && player.checkpoint_completed == CHECKPOINT_COUNT {
-                            player.hit_lap_start = false;
-                            
-                            player.laps_completed += 1;
-                            player.checkpoint_completed = 0;
-                            println!("lap_finish");
-                        }
+                        lap_stages[1] = true;
                     }
                 }
             }
+
+            // println!("C: {} {}",checkpoint_stages[0], checkpoint_stages[1]);
+            // println!("L: {} {}",lap_stages[0], lap_stages[1]);
+
+            if checkpoint_stages[0] == true && checkpoint_stages[1] == false {
+                player.hit_checkpoint_start = true;
+            } else if checkpoint_stages[0] == true && checkpoint_stages[1] == true && player.hit_checkpoint_start {
+                player.hit_checkpoint_middle = true;
+            } else if checkpoint_stages[0] == false && checkpoint_stages[1] == true &&
+                    player.hit_checkpoint_middle {
+                player.checkpoint_completed = checkpoint_id;
+                player.hit_checkpoint_start = false;
+                player.hit_checkpoint_middle = false;
+            } else {
+                player.hit_checkpoint_start = false;
+                player.hit_checkpoint_middle = false;
+            }
+
+            if lap_stages[0] == true && lap_stages[1] == false {
+                player.hit_lap_start = true;
+            } else if lap_stages[0] == true && lap_stages[1] == true && player.hit_lap_start {
+                player.hit_lap_middle = true;
+            } else if lap_stages[0] == false && lap_stages[1] == true {
+                if player.hit_lap_middle && (player.checkpoint_completed == CHECKPOINT_COUNT) {
+                    player.laps_completed += 1;
+                    player.hit_lap_start = false;
+                    player.hit_lap_middle = false;
+                } else { //wrong-way detection
+                    player.hit_lap_start = false;
+                    player.hit_lap_middle = false;
+                    player.checkpoint_completed = 0;
+                }
+            } else {
+                player.hit_lap_start = false;
+            }
+
+            
+
         }
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
