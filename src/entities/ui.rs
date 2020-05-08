@@ -3,6 +3,7 @@ use amethyst::{
     ecs::prelude::Entity,
     prelude::*,
     ui::{Anchor, TtfFormat, UiText, UiTransform},
+    utils::removal::Removal,
 };
 
 ///contains the ui text components that display the player vehicle status
@@ -204,6 +205,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p1_shield = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p1_shield_transform)
         .with(UiText::new(
             font.clone(),
@@ -215,6 +217,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p1_armor = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p1_armor_transform)
         .with(UiText::new(
             font.clone(),
@@ -226,6 +229,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p1_health = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p1_health_transform)
         .with(UiText::new(
             font.clone(),
@@ -237,6 +241,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p1_points = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p1_points_transform)
         .with(UiText::new(
             font.clone(),
@@ -248,6 +253,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p2_shield = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p2_shield_transform)
         .with(UiText::new(
             font.clone(),
@@ -259,6 +265,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p2_armor = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p2_armor_transform)
         .with(UiText::new(
             font.clone(),
@@ -270,6 +277,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p2_health = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p2_health_transform)
         .with(UiText::new(
             font.clone(),
@@ -281,6 +289,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p2_points = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p2_points_transform)
         .with(UiText::new(
             font.clone(),
@@ -292,6 +301,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p3_shield = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p3_shield_transform)
         .with(UiText::new(
             font.clone(),
@@ -303,6 +313,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p3_armor = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p3_armor_transform)
         .with(UiText::new(
             font.clone(),
@@ -314,6 +325,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p3_health = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p3_health_transform)
         .with(UiText::new(
             font.clone(),
@@ -325,6 +337,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p3_points = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p3_points_transform)
         .with(UiText::new(
             font.clone(),
@@ -336,6 +349,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p4_shield = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p4_shield_transform)
         .with(UiText::new(
             font.clone(),
@@ -347,6 +361,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p4_armor = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p4_armor_transform)
         .with(UiText::new(
             font.clone(),
@@ -358,6 +373,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p4_health = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p4_health_transform)
         .with(UiText::new(
             font.clone(),
@@ -369,6 +385,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
 
     let p4_points = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(p4_points_transform)
         .with(UiText::new(
             font,

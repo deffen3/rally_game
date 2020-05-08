@@ -8,6 +8,7 @@ use amethyst::{
         palette::Srgba,
         resources::Tint,
     },
+    utils::removal::Removal,
 };
 
 use ron::de::from_reader;
@@ -331,6 +332,7 @@ pub fn update_weapon_icon(
     lazy_update.insert(weapon_entity, icon_weapon_transform);
     lazy_update.insert(weapon_entity, icon_tint);
     lazy_update.insert(weapon_entity, Transparent);
+    lazy_update.insert(weapon_entity, Removal::new(0 as u32));
 }
 
 

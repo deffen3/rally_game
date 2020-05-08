@@ -7,19 +7,17 @@ use amethyst::{
     prelude::*,
     ui::{UiText, UiFinder, UiTransform, UiCreator},
     input::{is_close_requested, is_key_down},
-    utils::fps_counter::FpsCounter,
+    utils::{fps_counter::FpsCounter, removal::{Removal, exec_removal}},
     winit::VirtualKeyCode,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
     assets::{AssetStorage, Handle, Loader},
 };
 
-use crate::audio::initialize_audio;
-
 use crate::pause::PauseMenuState;
 
 use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup};
 
-use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
+use crate::entities::{initialize_arena_walls, initialize_ui, intialize_player};
 
 use crate::components::{
     Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, 
@@ -88,6 +86,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         
         world.register::<PlayerWeaponIcon>();
 
+        world.register::<Removal<u32>>();
+
 
         self.sprite_sheet_handle.replace(load_sprite_sheet(
             world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
@@ -96,21 +96,16 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             world, "texture/rally_texture_sheet.png".to_string(), "texture/rally_texture_sheet.ron".to_string()
         ));
 
-        initialize_camera(world);
 
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
-        initialize_audio(world);
-
+    
         let player_status_texts = initialize_ui(world);
-
-
 
         
         let max_players;
         let bot_players;
-
         {
             let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
@@ -128,7 +123,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             world,
             self.sprite_sheet_handle.clone().unwrap(),
             self.texture_sheet_handle.clone().unwrap(),
-            //game_mode_setup.game_mode.clone(),
         );
 
         for player_index in 0..max_players {
@@ -138,11 +132,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
-                //game_mode_setup.starter_weapon.clone(),
                 weapon_fire_resource.clone(),
                 is_bot,
                 player_status_texts[player_index],
-                //game_mode_setup.game_mode.clone(),
             );
         }
 
@@ -193,6 +185,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 .delete_entity(root_entity)
                 .expect("Failed to remove Game Screen");
         }
+
+        exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
 
         self.ui_root = None;
         self.fps_display = None;
@@ -356,6 +350,8 @@ pub fn fire_weapon(
 
     lazy_update.insert(fire_entity, weapon_sprite);
     lazy_update.insert(fire_entity, local_transform);
+
+    lazy_update.insert(fire_entity, Removal::new(0 as u32));
 }
 
 pub fn vehicle_damage_model(

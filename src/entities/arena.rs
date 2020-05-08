@@ -5,6 +5,7 @@ use amethyst::{
     ecs::prelude::{World},
     prelude::*,
     renderer::{SpriteRender, SpriteSheet},
+    utils::removal::Removal,
 };
 use amethyst::renderer::{
     Transparent,
@@ -51,6 +52,7 @@ pub fn initialize_arena_walls(
 
     world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(floor_transform)
         .with(floor_texture_render)
         .build();
@@ -67,6 +69,7 @@ pub fn initialize_arena_walls(
 
     world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(Hitbox::new(
             20.0,
             2.0,
@@ -94,6 +97,7 @@ pub fn initialize_arena_walls(
 
     world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(ui_back_transform)
         .with(ui_back_sprite_render)
         .build();
@@ -122,6 +126,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(ui_div_wall_transform)
             .with(wall_sprite_render)
             .build();
@@ -144,6 +149,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(finsh_line_transform)
             .with(finish_line_sprite_render)
             .with(Hitbox::new(
@@ -168,6 +174,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(finsh_line_transform)
             .with(Hitbox::new(
                 20.0 * scale,
@@ -191,6 +198,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(finsh_line_transform)
             .with(Hitbox::new(
                 20.0 * scale,
@@ -214,6 +222,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(finsh_line_transform)
             .with(Hitbox::new(
                 20.0 * scale,
@@ -242,6 +251,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(finsh_line_transform)
             .with(finish_line_sprite_render)
             .with(Hitbox::new(
@@ -266,6 +276,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(finsh_line_transform)
             .with(Hitbox::new(
                 20.0 * scale,
@@ -296,6 +307,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(track_transform)
             .with(track_sprite_render)
             .with(Hitbox::new(
@@ -326,6 +338,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(track_transform)
             .with(track_sprite_render)
             .with(Hitbox::new(
@@ -356,6 +369,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(track_transform)
             .with(track_sprite_render)
             .with(Hitbox::new(
@@ -386,6 +400,7 @@ pub fn initialize_arena_walls(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(track_transform)
             .with(track_sprite_render)
             .with(Hitbox::new(
@@ -421,6 +436,7 @@ pub fn initialize_arena_walls(
     
             world
                 .create_entity()
+                .with(Removal::new(0 as u32))
                 .with(circle_transform)
                 .with(circle_sprite_render)
                 .with(Hitbox::new(
@@ -451,6 +467,7 @@ pub fn initialize_arena_walls(
     
             world
                 .create_entity()
+                .with(Removal::new(0 as u32))
                 .with(circle_transform)
                 .with(circle_sprite_render)
                 .with(Hitbox::new(
@@ -500,6 +517,7 @@ pub fn initialize_arena_walls(
 
             world
                 .create_entity()
+                .with(Removal::new(0 as u32))
                 .with(circle_transform)
                 .with(circle_sprite_render)
                 .with(Hitbox::new(

@@ -8,6 +8,7 @@ use amethyst::{
         palette::Srgba,
         resources::Tint,
     },
+    utils::removal::Removal,
 };
 
 use crate::entities::ui::PlayerStatusText;
@@ -149,6 +150,7 @@ pub fn intialize_player(
 
     let health_entity = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(health_transform)
         .with(health_sprite_render)
         .with(Transparent)
@@ -172,6 +174,7 @@ pub fn intialize_player(
 
     let repair_entity = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(repair_transform)
         .with(repair_sprite_render)
         .with(Transparent)
@@ -195,6 +198,7 @@ pub fn intialize_player(
 
     let armor_entity = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(armor_transform)
         .with(armor_sprite_render)
         .with(Transparent)
@@ -218,6 +222,7 @@ pub fn intialize_player(
 
     let shield_entity = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(shield_transform)
         .with(shield_sprite_render)
         .with(Transparent)
@@ -248,6 +253,7 @@ pub fn intialize_player(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(icon_transform)
             .with(vehicle_sprite_render.clone())
             .build();
@@ -283,6 +289,7 @@ pub fn intialize_player(
 
     let weapon_icon = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(PlayerWeaponIcon::new(player_index, weapon_stats.weapon_type))
         .with(weapon_sprite)
         .with(icon_weapon_transform)
@@ -294,6 +301,7 @@ pub fn intialize_player(
     //Create actual Player with Vehicle and Weapon
     world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(vehicle_transform)
         .with(vehicle_sprite_render)
         .with(Vehicle::new(player_status_text, 
