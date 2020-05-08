@@ -3,24 +3,8 @@ use amethyst::{
     input::{is_close_requested, is_key_down, is_mouse_button_down},
     prelude::*,
     winit::{MouseButton, VirtualKeyCode},
-    renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
-    assets::{AssetStorage, Handle, Loader},
-    ui::{UiText, UiTransform, UiCreator},
+    ui::{UiCreator},
 };
-
-
-use crate::audio::initialize_audio;
-
-use crate::components::{
-    Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, 
-    Weapon, WeaponFire, WeaponNames,
-    PlayerWeaponIcon,
-};
-
-
-use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
-
-use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup, GameModes};
 
 
 
