@@ -18,7 +18,7 @@ use crate::components::{
     build_named_weapon, Player, PlayerWeaponIcon, Vehicle, 
     Weapon, WeaponNames, get_weapon_icon,
 };
-use crate::resources::{GameModes, GameModeSetup, WeaponFireResource};
+use crate::resources::{GameModes, WeaponFireResource};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT,};
 
@@ -30,7 +30,7 @@ pub fn intialize_player(
     weapon_fire_resource: WeaponFireResource,
     is_bot: bool,
     player_status_text: PlayerStatusText,
-    game_mode_setup: GameModeSetup,
+    game_mode: GameModes,
 ) {
     let mut vehicle_transform = Transform::default();
 
@@ -43,7 +43,7 @@ pub fn intialize_player(
     let starting_x;
     let starting_y;
 
-    if game_mode_setup.game_mode == GameModes::Race {
+    if game_mode == GameModes::Race {
         let (x, y) = match player_index {
             0 => (
                 ARENA_WIDTH - 70.0,

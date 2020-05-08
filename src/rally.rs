@@ -17,13 +17,13 @@ use crate::audio::initialize_audio;
 
 use crate::pause::PauseMenuState;
 
-use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup, GameModes};
+use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup};
 
 use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
 
 use crate::components::{
     Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, 
-    Weapon, WeaponFire, WeaponNames,
+    Weapon, WeaponFire,
     PlayerWeaponIcon, get_weapon_icon,
 };
 
@@ -73,22 +73,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
     fn on_start(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
         let world = &mut data.world;
 
-        //Start off with default classic gun game mode
-        let game_mode_setup = GameModeSetup {
-            game_mode: GameModes::ClassicGunGame,
-            match_time_limit: -1.0,
-            points_to_win: 15,
-            stock_lives: -1,
-            checkpoint_count: 0,
-            starter_weapon: WeaponNames::LaserDoubleGimballed,
-            random_weapon_spawns: false,
-            max_players: 4,
-            bot_players: 3,
-        };
-
-        world.insert(game_mode_setup.clone());
-
-
         world.register::<UiText>();
         world.register::<UiTransform>();
 
@@ -121,26 +105,32 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         let player_status_texts = initialize_ui(world);
 
-        initialize_arena_walls(
-            world,
-            self.sprite_sheet_handle.clone().unwrap(),
-            self.texture_sheet_handle.clone().unwrap(),
-            game_mode_setup.clone(),
-        );
 
-        for player_index in 0..game_mode_setup.max_players {
-            let is_bot = player_index >= game_mode_setup.max_players - game_mode_setup.bot_players;
+        
+        let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
-            intialize_player(
+        if let Some(game_mode_setup) = fetched_game_mode_setup {
+            initialize_arena_walls(
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
-                player_index,
-                game_mode_setup.starter_weapon.clone(),
-                weapon_fire_resource.clone(),
-                is_bot,
-                player_status_texts[player_index],
-                game_mode_setup.clone(),
+                self.texture_sheet_handle.clone().unwrap(),
+                game_mode_setup.game_mode.clone(),
             );
+
+            for player_index in 0..game_mode_setup.max_players {
+                let is_bot = player_index >= game_mode_setup.max_players - game_mode_setup.bot_players;
+
+                intialize_player(
+                    world,
+                    self.sprite_sheet_handle.clone().unwrap(),
+                    player_index,
+                    game_mode_setup.starter_weapon.clone(),
+                    weapon_fire_resource.clone(),
+                    is_bot,
+                    player_status_texts[player_index],
+                    game_mode_setup.game_mode.clone(),
+                );
+            }
         }
 
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.

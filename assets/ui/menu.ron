@@ -24,7 +24,7 @@ Container(
 
                 Button(
                     transform: (
-                        id: "start",
+                        id: "classic_gun_game",
                         width: 450.,
                         height: 90.,
                         tab_order: 1,
@@ -208,41 +208,6 @@ Container(
                     ),
                     button: (
                         text: "COMBAT RACE",
-                        font: File("font/square.ttf", ("TTF", ())),
-                        font_size: 40.,
-                        normal_text_color: (.20, 0.20, 0.65, 1.0),
-                        normal_image: SolidColor(0., 0., 0., 1.),
-                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
-                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
-                    )
-                ),
-            ]
-        ),
-
-
-        Container(
-            transform: (
-                id: "container_race",
-                y: -310,
-                width: 460.,
-                height: 100.,
-                anchor: Middle,
-            ),
-            background: SolidColor(.20, 0.20, 0.65, 1.0),
-            children: [
-
-                // Complex Button
-                Button(
-                    transform: (
-                        id: "race",
-                        width: 450.,
-                        height: 90.,
-                        tab_order: 4,
-                        anchor: Middle,
-                        mouse_reactive: true,
-                    ),
-                    button: (
-                        text: "RACE",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
                         normal_text_color: (.20, 0.20, 0.65, 1.0),
