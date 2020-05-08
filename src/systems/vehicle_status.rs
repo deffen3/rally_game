@@ -1,13 +1,13 @@
 use amethyst::{
-    ecs::{Join, ReadStorage, System, SystemData, WriteStorage, Read, World},
+    ecs::{Join, ReadStorage, ReadExpect, System, SystemData, WriteStorage, Read, World},
     derive::SystemDesc,
     ui::UiText,
     core::Time,
 };
 
 use crate::components::{Player, Vehicle};
-use crate::rally::{POINTS_TO_WIN, STOCK_LIVES, GAME_MODE, MAX_PLAYERS, MATCH_TIME_LIMIT};
-use crate::resources::{GameModes,};
+
+use crate::resources::{GameModes, GameModeSetup};
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleStatusSystem {
@@ -22,6 +22,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
         ReadStorage<'s, Vehicle>,
         WriteStorage<'s, UiText>,
         Read<'s, Time>,
+        ReadExpect<'s, GameModeSetup>,
     );
 
     fn setup(&mut self, _world: &mut World) {
@@ -30,7 +31,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
         self.match_timer = 0.0;
     }
 
-    fn run(&mut self, (players, vehicles, mut ui_text, time): Self::SystemData) {
+    fn run(&mut self, (players, vehicles, mut ui_text, time, game_mode_setup): Self::SystemData) {
         let dt = time.delta_seconds();
 
         self.match_timer += dt;
@@ -56,34 +57,34 @@ impl<'s> System<'s> for VehicleStatusSystem {
             /*
             pub enum GameModes {
                 ClassicGunGame, //First to get a kill with each weapon. Weapons are hot-swapped after kills.
-                Deathmatch_Kills, //First to a certain number of kills. New weapons can be picked up from arena.
-                Deathmatch_Stock, //If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
-                Deathmatch_Timed_KD, //Match ends after set time. Kills-Deaths is winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
+                DeathmatchKills, //First to a certain number of kills. New weapons can be picked up from arena.
+                DeathmatchStock, //If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
+                DeathmatchTimedKD, //Match ends after set time. Kills-Deaths is winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
                 KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
             }*/
 
             //Scoring logic
-            if MATCH_TIME_LIMIT < 0.0 || self.match_timer <= MATCH_TIME_LIMIT {
+            if game_mode_setup.match_time_limit < 0.0 || self.match_timer <= game_mode_setup.match_time_limit {
                 let player_score;
 
-                if GAME_MODE == GameModes::ClassicGunGame {
+                if game_mode_setup.game_mode == GameModes::ClassicGunGame {
                     player_score = player.kills; //in this mode only the kills with the current weapon are counted.
-                } else if GAME_MODE == GameModes::Deathmatch_Kills {
+                } else if game_mode_setup.game_mode == GameModes::DeathmatchKills {
                     player_score = player.kills;
-                } else if GAME_MODE == GameModes::Deathmatch_Stock {
-                    player_score = STOCK_LIVES - player.deaths;
-                } else if GAME_MODE == GameModes::Deathmatch_Timed_KD {
+                } else if game_mode_setup.game_mode == GameModes::DeathmatchStock {
+                    player_score = game_mode_setup.stock_lives - player.deaths;
+                } else if game_mode_setup.game_mode == GameModes::DeathmatchTimedKD {
                     player_score = player.kills - player.deaths;
-                } else if GAME_MODE == GameModes::Race {
+                } else if game_mode_setup.game_mode == GameModes::Race {
                     player_score = player.laps_completed;
-                } else if GAME_MODE == GameModes::KingOfTheHill {
+                } else if game_mode_setup.game_mode == GameModes::KingOfTheHill {
                     player_score = player.objective_points.floor() as i32;
                 } else {
                     player_score = 0;
                 }
 
-                if GAME_MODE == GameModes::Deathmatch_Stock && (
-                        player.deaths >= STOCK_LIVES || self.losers.len() > MAX_PLAYERS-1
+                if game_mode_setup.game_mode == GameModes::DeathmatchStock && (
+                        player.deaths >= game_mode_setup.stock_lives || self.losers.len() > game_mode_setup.max_players-1
                     ) {
                     if !self.losers.contains(&player.id) {
                         self.losers.push(player.id.clone());
@@ -102,7 +103,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                             .text = text_out;
                     }
                 }
-                else if POINTS_TO_WIN > 0 && player_score >= POINTS_TO_WIN {
+                else if game_mode_setup.points_to_win > 0 && player_score >= game_mode_setup.points_to_win {
                     if !self.winners.contains(&player.id) {
                         self.winners.push(player.id.clone());
 

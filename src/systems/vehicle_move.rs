@@ -20,7 +20,7 @@ use crate::components::{
     BotMode, Hitbox, HitboxShape, RaceCheckpointType,
     Player, Vehicle, Weapon, VehicleState,
 };
-use crate::resources::{GameModes,};
+use crate::resources::{GameModeSetup};
 
 use crate::rally::{
     vehicle_damage_model, 
@@ -28,7 +28,6 @@ use crate::rally::{
     BASE_COLLISION_DAMAGE,
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT,
     COLLISION_SHIELD_DAMAGE_PCT, UI_HEIGHT,
-    CHECKPOINT_COUNT,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -58,6 +57,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
         WriteStorage<'s, Tint>,
+        ReadExpect<'s, GameModeSetup>,
     );
 
     fn run(
@@ -75,6 +75,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             sounds,
             audio_output,
             mut tints,
+            game_mode_setup,
         ): Self::SystemData,
     ) {
         let mut rng = rand::thread_rng();
@@ -369,7 +370,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         );
 
                         if vehicle_destroyed {
-                            kill_restart_vehicle(player, vehicle, transform);
+                            kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
                         }
 
                         if abs_vel > 0.5 {
@@ -400,7 +401,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         );
 
                         if vehicle_destroyed {
-                            kill_restart_vehicle(player, vehicle, transform);
+                            kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
                         }
 
                         if abs_vel > 0.5 {
@@ -603,7 +604,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             } else if lap_stages[0] == true && lap_stages[1] == true && player.hit_lap_start {
                 player.hit_lap_middle = true;
             } else if lap_stages[0] == false && lap_stages[1] == true {
-                if player.hit_lap_middle && (player.checkpoint_completed == CHECKPOINT_COUNT) {
+                if player.hit_lap_middle && (player.checkpoint_completed == game_mode_setup.checkpoint_count) {
                     player.laps_completed += 1;
                     player.hit_lap_start = false;
                     player.hit_lap_middle = false;
@@ -627,7 +628,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
 
             if player_destroyed.contains(&player.id) {
-                kill_restart_vehicle(player, vehicle, transform);
+                kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
             }
 
             if player_arena_bounce.contains(&player.id) {

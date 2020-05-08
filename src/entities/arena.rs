@@ -1,8 +1,8 @@
 use amethyst::core::math::Vector3;
 use amethyst::{
     assets::Handle,
-    core::transform::Transform,
-    ecs::prelude::World,
+    core::transform::{Transform},
+    ecs::prelude::{World},
     prelude::*,
     renderer::{SpriteRender, SpriteSheet},
 };
@@ -15,13 +15,14 @@ use amethyst::renderer::{
 use std::f32::consts::PI;
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, GAME_MODE};
-use crate::resources::{GameModes};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::resources::{GameModes, GameModeSetup};
 
 pub fn initialize_arena_walls(
         world: &mut World, 
         sprite_sheet_handle: Handle<SpriteSheet>,
-        texture_sheet_handle: Handle<SpriteSheet>
+        texture_sheet_handle: Handle<SpriteSheet>,
+        game_mode_setup: GameModeSetup,
     ) {
     
     let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
@@ -116,7 +117,7 @@ pub fn initialize_arena_walls(
     
     
 
-    if GAME_MODE == GameModes::Race {
+    if game_mode_setup.game_mode == GameModes::Race {
         //the "start/finish line"
         let mut finsh_line_transform = Transform::default();
         let scale = 4.0;
@@ -388,7 +389,7 @@ pub fn initialize_arena_walls(
             .build();
 
     } else {
-        if GAME_MODE == GameModes::KingOfTheHill {
+        if game_mode_setup.game_mode == GameModes::KingOfTheHill {
             //the "hill"
             let mut circle_transform = Transform::default();
             let scale = 4.0;

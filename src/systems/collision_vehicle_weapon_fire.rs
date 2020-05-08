@@ -16,8 +16,8 @@ use crate::components::{
     Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
 };
 
-use crate::rally::{vehicle_damage_model, GAME_MODE,};
-use crate::resources::{WeaponFireResource, GameModes,};
+use crate::rally::{vehicle_damage_model,};
+use crate::resources::{WeaponFireResource, GameModes, GameModeSetup};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 
@@ -44,6 +44,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         Option<Read<'s, Output>>,
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
+        ReadExpect<'s, GameModeSetup>
     );
 
     fn setup(&mut self, _world: &mut World) {
@@ -67,6 +68,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             audio_output,
             weapon_fire_resource,
             lazy_update,
+            game_mode_setup,
         ): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
@@ -186,7 +188,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 let weapon_name = killer_data;
 
                 //classic gun-game rules: hot-swap upgrade weapon type for player who got the kill
-                if GAME_MODE == GameModes::ClassicGunGame && *weapon_name == weapon.name { //if kill was using player's current weapon
+                if game_mode_setup.game_mode == GameModes::ClassicGunGame && *weapon_name == weapon.name { //if kill was using player's current weapon
                     player.kills += 1;
                     let new_weapon_name = get_next_weapon_name(weapon.name.clone());
                     
@@ -212,7 +214,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             if let Some(_killed_data) = killed_data {
                 player.deaths += 1;
 
-                kill_restart_vehicle(player, vehicle, transform);
+                kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
             }
         }
 

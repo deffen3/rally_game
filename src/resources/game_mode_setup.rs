@@ -6,13 +6,12 @@ use crate::components::{
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GameModes {
     ClassicGunGame, //First to get a kill with each weapon. Weapons are hot-swapped after kills.
-    Deathmatch_Kills, //First to a certain number of kills. New weapons can be picked up from arena.
-    Deathmatch_Stock, //If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
-    Deathmatch_Timed_KD, //Match ends after set time. Kills-Deaths is winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
+    DeathmatchKills, //First to a certain number of kills. New weapons can be picked up from arena.
+    DeathmatchStock, //If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
+    DeathmatchTimedKD, //Match ends after set time. Kills-Deaths is winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
     Race,
     KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
 }
-
 
 /*
 pub const GAME_MODE: GameModes = GameModes::KingOfTheHill;
@@ -29,15 +28,22 @@ pub const CHECKPOINT_COUNT: i32 = 2; //Applies only to Race mode. Must be set eq
 pub const STARTER_WEAPON: WeaponNames = WeaponNames::LaserDoubleGimballed;
 
 pub const RANDOM_WEAPON_SPAWNS: bool = true; //Applies to all game modes except GunGame
+
+
+pub const MAX_PLAYERS: usize = 4;
+pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
 */
+
 
 #[derive(Clone)]
 pub struct GameModeSetup {
-    game_mode: GameModes,
-    match_time_limit: f32,
-    points_to_win: i32,
-    stock_lives: i32,
-    checkpoint_count: i32,
-    starter_weapon: WeaponNames,
-    random_weapon_spawns: bool,
+    pub game_mode: GameModes,
+    pub match_time_limit: f32,
+    pub points_to_win: i32,
+    pub stock_lives: i32,
+    pub checkpoint_count: i32,
+    pub starter_weapon: WeaponNames,
+    pub random_weapon_spawns: bool,
+    pub max_players: usize,
+    pub bot_players: usize,
 }

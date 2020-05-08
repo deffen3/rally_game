@@ -12,16 +12,15 @@ use amethyst::{
 use crate::audio::initialize_audio;
 
 use crate::components::{
-    Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, Weapon, WeaponFire,
+    Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, 
+    Weapon, WeaponFire, WeaponNames,
     PlayerWeaponIcon,
 };
 
+
 use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
 
-use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource};
-
-use crate::rally::{MAX_PLAYERS, BOT_PLAYERS, STARTER_WEAPON};
-
+use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup, GameModes};
 
 
 
@@ -36,6 +35,23 @@ impl SimpleState for WelcomeScreen {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let StateData { world, .. } = data;
 
+
+        //Start off with default classic gun game mode
+        let game_mode_setup = GameModeSetup {
+            game_mode: GameModes::ClassicGunGame,
+            match_time_limit: -1.0,
+            points_to_win: 15,
+            stock_lives: -1,
+            checkpoint_count: 0,
+            starter_weapon: WeaponNames::LaserDoubleGimballed,
+            random_weapon_spawns: false,
+            max_players: 4,
+            bot_players: 3,
+        };
+
+        world.insert(game_mode_setup.clone());
+
+
         world.register::<UiText>();
         world.register::<UiTransform>();
 
@@ -49,6 +65,8 @@ impl SimpleState for WelcomeScreen {
         world.register::<Weapon>();
         world.register::<WeaponFire>();
         
+        world.register::<PlayerWeaponIcon>();
+
 
         self.sprite_sheet_handle.replace(load_sprite_sheet(
             world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
@@ -70,23 +88,21 @@ impl SimpleState for WelcomeScreen {
             world,
             self.sprite_sheet_handle.clone().unwrap(),
             self.texture_sheet_handle.clone().unwrap(),
+            game_mode_setup.clone(),
         );
 
-        world.register::<Hitbox>();
-
-        world.register::<PlayerWeaponIcon>();
-
-        for player_index in 0..MAX_PLAYERS {
-            let is_bot = player_index >= MAX_PLAYERS - BOT_PLAYERS;
+        for player_index in 0..game_mode_setup.max_players {
+            let is_bot = player_index >= game_mode_setup.max_players - game_mode_setup.bot_players;
 
             intialize_player(
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
-                STARTER_WEAPON,
+                game_mode_setup.starter_weapon.clone(),
                 weapon_fire_resource.clone(),
                 is_bot,
                 player_status_texts[player_index],
+                game_mode_setup.clone(),
             );
         }
 

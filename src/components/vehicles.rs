@@ -5,7 +5,7 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 use rand::Rng;
 use std::f32::consts::PI;
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, STOCK_LIVES};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 use crate::components::{Shield, Armor, Health, Repair, Player};
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
@@ -100,11 +100,16 @@ impl Vehicle {
     }
 }
 
-pub fn kill_restart_vehicle(player: &Player, vehicle: &mut Vehicle, transform: &mut Transform) {
+pub fn kill_restart_vehicle(
+        player: &Player, 
+        vehicle: &mut Vehicle, 
+        transform: &mut Transform,
+        stock_lives: i32,
+    ) {
     transform.set_translation_x(10.0 * ARENA_WIDTH);
     transform.set_translation_y(10.0 * ARENA_HEIGHT);
 
-    if STOCK_LIVES > 0 && player.deaths >= STOCK_LIVES {
+    if stock_lives > 0 && player.deaths >= stock_lives {
         vehicle.state = VehicleState::InActive;
     }
     else {

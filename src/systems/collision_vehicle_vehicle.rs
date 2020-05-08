@@ -16,6 +16,7 @@ use crate::rally::{
     vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
     COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
 };
+use crate::resources::{GameModeSetup};
 
 
 
@@ -31,12 +32,13 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
+        ReadExpect<'s, GameModeSetup>,
     );
 
     fn run(
         &mut self,
         (mut transforms, players, mut vehicles,
-            time, storage, sounds, audio_output): Self::SystemData,
+            time, storage, sounds, audio_output, game_mode_setup): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
@@ -111,7 +113,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                     );
 
                     if vehicle_destroyed {
-                        kill_restart_vehicle(player, vehicle, transform);
+                        kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
                     }
 
                 //vehicle_1.dx *= veh_hit_bounce_decel_pct * velocity_1_x_comp.abs();
