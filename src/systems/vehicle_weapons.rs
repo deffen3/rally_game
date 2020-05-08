@@ -95,34 +95,27 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                             let standard_angle = vehicle_angle + weapon.stats.mounted_angle;
 
                             //result angle the weapon fires at, after adding any auto-aim or spread modifiers
-                            let mut fire_angle;
+                            let mut fire_angle: f32;
 
-                            if vehicle.dist_to_closest_vehicle <= 200.0 {
-                                if weapon.stats.tracking_angle <= 0.001 {
-                                    fire_angle = standard_angle;
-                                } else if weapon.stats.tracking_angle >= PI {
-                                    fire_angle = vehicle.angle_to_closest_vehicle;
-                                } else {
 
-                                    let mut angle_diff = standard_angle - vehicle.angle_to_closest_vehicle;
+                            if let Some(angle_to_closest_targetable_vehicle) = vehicle.angle_to_closest_targetable_vehicle {
+                                let angle_to_selected_vehicle = angle_to_closest_targetable_vehicle;
+                                let dist_to_selected_vehicle = vehicle.dist_to_closest_targetable_vehicle.unwrap();
 
-                                    if angle_diff > PI {
-                                        angle_diff = -(2.0*PI - angle_diff);
-                                    } else if angle_diff < -PI {
-                                        angle_diff = -(-2.0*PI - angle_diff);
-                                    }
-                                    
+                                fire_angle = calc_tracking_fire_angle(dist_to_selected_vehicle, angle_to_selected_vehicle,
+                                    standard_angle, weapon.stats.tracking_angle);
+                            }
+                            else if let Some(angle_to_closest_targetable_vehicle) = vehicle.angle_to_closest_targetable_vehicle {
+                                let angle_to_selected_vehicle = angle_to_closest_targetable_vehicle;
+                                let dist_to_selected_vehicle = vehicle.dist_to_closest_targetable_vehicle.unwrap();
 
-                                    if angle_diff.abs() < weapon.stats.tracking_angle {
-                                        fire_angle = vehicle.angle_to_closest_vehicle;
-                                    } else {
-                                        fire_angle = standard_angle - weapon.stats.tracking_angle * angle_diff/angle_diff.abs();
-                                    }
-                                }
+                                fire_angle = calc_tracking_fire_angle(dist_to_selected_vehicle, angle_to_selected_vehicle,
+                                    standard_angle, weapon.stats.tracking_angle);
                             }
                             else {
-                                fire_angle = standard_angle; //no tracking, distance too far
+                                fire_angle = standard_angle; //no tracking, no vehicles
                             }
+
 
                             if weapon.stats.spread_angle >= 0.001 {
                                 let spread_angle_modifier = rng.gen_range(-1.0, 1.0) * weapon.stats.spread_angle;
@@ -172,4 +165,39 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             }
         }
     }
+}
+
+
+fn calc_tracking_fire_angle(dist_to_selected_vehicle: f32, angle_to_selected_vehicle: f32,
+        standard_angle: f32, weapon_tracking_angle: f32) -> f32 {
+    let fire_angle;
+
+    if dist_to_selected_vehicle <= 200.0 {
+        if weapon_tracking_angle <= 0.001 {
+            fire_angle = standard_angle;
+        } else if weapon_tracking_angle >= PI {
+            fire_angle = angle_to_selected_vehicle;
+        } else {
+
+            let mut angle_diff = standard_angle - angle_to_selected_vehicle;
+
+            if angle_diff > PI {
+                angle_diff = -(2.0*PI - angle_diff);
+            } else if angle_diff < -PI {
+                angle_diff = -(-2.0*PI - angle_diff);
+            }
+            
+
+            if angle_diff.abs() < weapon_tracking_angle {
+                fire_angle = angle_to_selected_vehicle;
+            } else {
+                fire_angle = standard_angle - weapon_tracking_angle * angle_diff/angle_diff.abs();
+            }
+        }
+    }
+    else {
+        fire_angle = standard_angle; //no tracking, distance too far
+    }
+
+    fire_angle 
 }
