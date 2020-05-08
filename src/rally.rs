@@ -106,31 +106,44 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         let player_status_texts = initialize_ui(world);
 
 
-        
-        let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
-        if let Some(game_mode_setup) = fetched_game_mode_setup {
-            initialize_arena_walls(
+        
+        let max_players;
+        let bot_players;
+
+        {
+            let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+
+            if let Some(game_mode_setup) = fetched_game_mode_setup {
+                max_players = game_mode_setup.max_players;
+                bot_players = game_mode_setup.bot_players;
+            }
+            else {
+                max_players = 4;
+                bot_players = 3;
+            }
+        }
+
+        initialize_arena_walls(
+            world,
+            self.sprite_sheet_handle.clone().unwrap(),
+            self.texture_sheet_handle.clone().unwrap(),
+            //game_mode_setup.game_mode.clone(),
+        );
+
+        for player_index in 0..max_players {
+            let is_bot = player_index >= max_players - bot_players;
+            
+            intialize_player(
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
-                self.texture_sheet_handle.clone().unwrap(),
-                game_mode_setup.game_mode.clone(),
+                player_index,
+                //game_mode_setup.starter_weapon.clone(),
+                weapon_fire_resource.clone(),
+                is_bot,
+                player_status_texts[player_index],
+                //game_mode_setup.game_mode.clone(),
             );
-
-            for player_index in 0..game_mode_setup.max_players {
-                let is_bot = player_index >= game_mode_setup.max_players - game_mode_setup.bot_players;
-
-                intialize_player(
-                    world,
-                    self.sprite_sheet_handle.clone().unwrap(),
-                    player_index,
-                    game_mode_setup.starter_weapon.clone(),
-                    weapon_fire_resource.clone(),
-                    is_bot,
-                    player_status_texts[player_index],
-                    game_mode_setup.game_mode.clone(),
-                );
-            }
         }
 
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.

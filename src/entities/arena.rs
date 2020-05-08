@@ -16,14 +16,26 @@ use std::f32::consts::PI;
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
-use crate::resources::{GameModes};
+use crate::resources::{GameModes, GameModeSetup};
 
 pub fn initialize_arena_walls(
         world: &mut World, 
         sprite_sheet_handle: Handle<SpriteSheet>,
         texture_sheet_handle: Handle<SpriteSheet>,
-        game_mode: GameModes,
+        //game_mode: GameModes,
     ) {
+
+    let game_mode;
+    {
+        let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+
+        if let Some(game_mode_setup) = fetched_game_mode_setup {
+            game_mode = game_mode_setup.game_mode.clone();
+        }
+        else {
+            game_mode = GameModes::ClassicGunGame;
+        }
+    }
     
     let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
 

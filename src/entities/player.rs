@@ -18,7 +18,7 @@ use crate::components::{
     build_named_weapon, Player, PlayerWeaponIcon, Vehicle, 
     Weapon, WeaponNames, get_weapon_icon,
 };
-use crate::resources::{GameModes, WeaponFireResource};
+use crate::resources::{GameModes, GameModeSetup, WeaponFireResource};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT,};
 
@@ -26,12 +26,28 @@ pub fn intialize_player(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>,
     player_index: usize,
-    weapon_name: WeaponNames,
+    //weapon_name: WeaponNames,
     weapon_fire_resource: WeaponFireResource,
     is_bot: bool,
     player_status_text: PlayerStatusText,
-    game_mode: GameModes,
+    //game_mode: GameModes,
 ) {
+    let game_mode;
+    let weapon_name;
+    {
+        let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+
+        if let Some(game_mode_setup) = fetched_game_mode_setup {
+            game_mode = game_mode_setup.game_mode.clone();
+            weapon_name = game_mode_setup.starter_weapon.clone();
+        }
+        else {
+            game_mode = GameModes::ClassicGunGame;
+            weapon_name = WeaponNames::LaserDoubleGimballed;
+        }
+    }
+
+
     let mut vehicle_transform = Transform::default();
 
     let spacing_factor = 5.0;
