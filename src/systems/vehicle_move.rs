@@ -86,7 +86,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             (&mut players, &mut vehicles, &mut transforms, &weapons).join()
         {
             if vehicle.state == VehicleState::InRespawn {
-                check_respawn_vehicle(vehicle, transform, dt);
+                check_respawn_vehicle(vehicle, transform, dt, game_mode_setup.game_mode.clone());
             } else if vehicle.state == VehicleState::Active {
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power / 100.0;
                 let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_power / 100.0;

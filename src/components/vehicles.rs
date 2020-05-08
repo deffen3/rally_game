@@ -7,6 +7,7 @@ use std::f32::consts::PI;
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 use crate::components::{Shield, Armor, Health, Repair, Player};
+use crate::resources::{GameModes};
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 7.0;
@@ -37,6 +38,9 @@ pub struct Vehicle {
     pub engine_power: f32,
     pub max_velocity: f32,
     pub respawn_timer: f32,
+    pub death_x: f32,
+    pub death_y: f32,
+    pub death_angle: f32,
     pub state: VehicleState,
     pub player_status_text: PlayerStatusText,
     
@@ -94,6 +98,9 @@ impl Vehicle {
             engine_power: 100.0,
             max_velocity: 1.0,
             respawn_timer: 5.0,
+            death_x: 0.0,
+            death_y: 0.0,
+            death_angle: 0.0,
             state: VehicleState::Active,
             player_status_text,
         }
@@ -106,6 +113,13 @@ pub fn kill_restart_vehicle(
         transform: &mut Transform,
         stock_lives: i32,
     ) {
+
+    vehicle.death_x = transform.translation().x;
+    vehicle.death_y = transform.translation().y;
+
+    let (_, _, vehicle_angle) = transform.rotation().euler_angles();
+    vehicle.death_angle = vehicle_angle;
+
     transform.set_translation_x(10.0 * ARENA_WIDTH);
     transform.set_translation_y(10.0 * ARENA_HEIGHT);
 
@@ -118,7 +132,12 @@ pub fn kill_restart_vehicle(
 }
 
 
-pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, dt: f32) {
+pub fn check_respawn_vehicle(
+        vehicle: &mut Vehicle,
+        transform: &mut Transform,
+        dt: f32,
+        game_mode: GameModes
+    ) {
     let mut rng = rand::thread_rng();
 
     if vehicle.state == VehicleState::InRespawn {
@@ -139,41 +158,47 @@ pub fn check_respawn_vehicle(vehicle: &mut Vehicle, transform: &mut Transform, d
             vehicle.armor.value = vehicle.armor.max;
             vehicle.health.value = vehicle.health.max;
 
-            let spawn_index = rng.gen_range(0, 4);
+            if game_mode == GameModes::Race {
+                transform.set_rotation_2d(vehicle.death_angle);
+                transform.set_translation_xyz(vehicle.death_x, vehicle.death_y, 0.0);
+            }
+            else {
+                let spawn_index = rng.gen_range(0, 4);
 
-            let spacing_factor = 5.0;
-            let height = ARENA_HEIGHT + UI_HEIGHT;
+                let spacing_factor = 5.0;
+                let height = ARENA_HEIGHT + UI_HEIGHT;
 
-            let (starting_rotation, starting_x, starting_y) = match spawn_index {
-                0 => (
-                    -PI / 4.0,
-                    ARENA_WIDTH / spacing_factor,
-                    height / spacing_factor,
-                ),
-                1 => (
-                    PI + PI / 4.0,
-                    ARENA_WIDTH / spacing_factor,
-                    height - (height / spacing_factor),
-                ),
-                2 => (
-                    PI / 2.0 - PI / 4.0,
-                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    height / spacing_factor,
-                ),
-                3 => (
-                    PI / 2.0 + PI / 4.0,
-                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    height - (height / spacing_factor),
-                ),
-                _ => (
-                    -PI / 4.0,
-                    ARENA_WIDTH / spacing_factor,
-                    height / spacing_factor,
-                ),
-            };
+                let (starting_rotation, starting_x, starting_y) = match spawn_index {
+                    0 => (
+                        -PI / 4.0,
+                        ARENA_WIDTH / spacing_factor,
+                        height / spacing_factor,
+                    ),
+                    1 => (
+                        PI + PI / 4.0,
+                        ARENA_WIDTH / spacing_factor,
+                        height - (height / spacing_factor),
+                    ),
+                    2 => (
+                        PI / 2.0 - PI / 4.0,
+                        ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                        height / spacing_factor,
+                    ),
+                    3 => (
+                        PI / 2.0 + PI / 4.0,
+                        ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                        height - (height / spacing_factor),
+                    ),
+                    _ => (
+                        -PI / 4.0,
+                        ARENA_WIDTH / spacing_factor,
+                        height / spacing_factor,
+                    ),
+                };
 
-            transform.set_rotation_2d(starting_rotation as f32);
-            transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+                transform.set_rotation_2d(starting_rotation as f32);
+                transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+            }
         }
     }
 }
