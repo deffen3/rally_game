@@ -1,6 +1,5 @@
 use amethyst::{
     core::math::Vector3,
-    assets::{AssetStorage, Handle, Loader},
     core::transform::Transform,
     core::Time,
     ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect, 
@@ -38,7 +37,6 @@ use crate::systems::{
 };
 
 
-use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource};
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -98,11 +96,13 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             world, "texture/rally_texture_sheet.png".to_string(), "texture/rally_texture_sheet.ron".to_string()
         ));
 
+
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
     
         let player_status_texts = initialize_ui(world);
+
         
         let max_players;
         let bot_players;
@@ -171,12 +171,20 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/game_fps.ron", ())));
     }
 
-        initialize_camera(world);
+    fn on_pause(&mut self, _data: StateData<'_, GameData<'_, '_>>) {
+        self.paused = true;
+    }
 
-        let weapon_fire_resource: WeaponFireResource =
-            initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
+    fn on_resume(&mut self, _data: StateData<'_, GameData<'_, '_>>) {
+        self.paused = false;
+    }
 
-        initialize_audio(world);
+    fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        if let Some(root_entity) = self.ui_root {
+            data.world
+                .delete_entity(root_entity)
+                .expect("Failed to remove Game Screen");
+        }
 
         exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
 
@@ -222,8 +230,15 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         let world = &mut data.world;
 
-        for player_index in 0..MAX_PLAYERS {
-            let is_bot = player_index >= MAX_PLAYERS - BOT_PLAYERS;
+        // this cannot happen in 'on_start', as the entity might not be fully
+        // initialized/registered/created yet.
+        if self.fps_display.is_none() {
+            world.exec(|finder: UiFinder<'_>| {
+                if let Some(entity) = finder.find("fps") {
+                    self.fps_display = Some(entity);
+                }
+            });
+        }
 
         // it is important that the 'paused' field is actually pausing your game.
         // Make sure to also pause your running systems.
@@ -272,34 +287,6 @@ fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handl
 
 
 
-
-
-
-
-fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handle<SpriteSheet> {
-    // Load the sprite sheet necessary to render the graphics.
-    // The texture is the pixel data
-    // `texture_handle` is a cloneable reference to the texture
-    let texture_handle = {
-        let loader = world.read_resource::<Loader>();
-        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-        loader.load(
-            storage,
-            ImageFormat::default(),
-            (),
-            &texture_storage,
-        )
-    };
-
-    let loader = world.read_resource::<Loader>();
-    let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
-    loader.load(
-        store, // Here we load the associated ron file
-        SpriteSheetFormat(texture_handle),
-        (),
-        &sprite_sheet_store,
-    )
-}
 
 pub fn fire_weapon(
     entities: &Entities,
