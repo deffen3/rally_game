@@ -2,6 +2,7 @@ use amethyst::{
     ecs::prelude::Entity,
     input::{is_close_requested, is_key_down, is_mouse_button_down},
     prelude::*,
+    ui::UiCreator,
     winit::{MouseButton, VirtualKeyCode},
     ui::{UiCreator},
 };
