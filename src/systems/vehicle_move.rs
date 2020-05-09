@@ -88,12 +88,20 @@ impl<'s> System<'s> for VehicleMoveSystem {
             if vehicle.state == VehicleState::InRespawn {
                 check_respawn_vehicle(vehicle, transform, dt, game_mode_setup.game_mode.clone());
             } else if vehicle.state == VehicleState::Active {
-                let rotate_accel_rate: f32 = 1.0 * vehicle.engine_power / 100.0;
-                let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_power / 100.0;
 
-                let thrust_accel_rate: f32 = 0.9 * vehicle.engine_power / 100.0;
-                let thrust_decel_rate: f32 = 0.6 * vehicle.engine_power / 100.0;
-                let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_power / 100.0;
+                //lost armor does not contribute to weight
+                let vehicle_weight = (30.0 + vehicle.health.max*10./100.) + 
+                    (vehicle.armor.value*25./100.) + 
+                    (vehicle.shield.max*15./100.) + 
+                    vehicle.engine_weight +
+                    vehicle.weapon_weight;
+
+                let rotate_accel_rate: f32 = 1.0 * vehicle.engine_force / vehicle_weight;
+                let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_force / vehicle_weight;
+
+                let thrust_accel_rate: f32 = 0.9 * vehicle.engine_force / vehicle_weight;
+                let thrust_decel_rate: f32 = 0.6 * vehicle.engine_force / vehicle_weight;
+                let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_force / vehicle_weight;
 
                 let wall_hit_non_bounce_decel_pct: f32 = 0.35;
                 let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;

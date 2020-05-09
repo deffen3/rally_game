@@ -18,6 +18,7 @@
     shield_damage_pct: 120.0,
     armor_damage_pct: 60.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   LaserDouble : WeaponStats (
     weapon_type: LaserDouble,
@@ -38,6 +39,7 @@
     shield_damage_pct: 120.0,
     armor_damage_pct: 60.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   LaserDoubleBurstSide : WeaponStats (
     weapon_type: LaserDouble,
@@ -58,6 +60,7 @@
     shield_damage_pct: 120.0,
     armor_damage_pct: 60.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   LaserBeam : WeaponStats (
     weapon_type: LaserBeam,
@@ -78,6 +81,7 @@
     shield_damage_pct: 120.0,
     armor_damage_pct: 60.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   LaserPulse : WeaponStats (
     weapon_type: LaserPulse,
@@ -98,6 +102,7 @@
     shield_damage_pct: 120.0,
     armor_damage_pct: 60.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   LaserPulseGimballed : WeaponStats (
     weapon_type: LaserPulse,
@@ -118,6 +123,7 @@
     shield_damage_pct: 120.0,
     armor_damage_pct: 60.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   ProjectileBurstFire : WeaponStats (
     weapon_type: ProjectileBurstFire,
@@ -138,6 +144,7 @@
     shield_damage_pct: 80.0,
     armor_damage_pct: 90.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   Shotgun : WeaponStats (
     weapon_type: ProjectileRapidFire,
@@ -158,6 +165,7 @@
     shield_damage_pct: 80.0,
     armor_damage_pct: 90.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   ProjectileSteadyFire : WeaponStats (
     weapon_type: ProjectileBurstFire,
@@ -178,6 +186,7 @@
     shield_damage_pct: 80.0,
     armor_damage_pct: 90.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   ProjectileRapidFireTurret : WeaponStats (
     weapon_type: ProjectileRapidFire,
@@ -198,6 +207,7 @@
     shield_damage_pct: 80.0,
     armor_damage_pct: 90.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   ProjectileRapidFire : WeaponStats (
     weapon_type: ProjectileRapidFire,
@@ -218,6 +228,7 @@
     shield_damage_pct: 80.0,
     armor_damage_pct: 90.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   ProjectileCannonFire : WeaponStats (
     weapon_type: ProjectileCannonFire,
@@ -238,6 +249,7 @@
     shield_damage_pct: 80.0,
     armor_damage_pct: 90.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   Missile : WeaponStats (
     weapon_type: Missile,
@@ -258,6 +270,7 @@
     shield_damage_pct: 75.0,
     armor_damage_pct: 75.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   Rockets : WeaponStats (
     weapon_type: Rockets,
@@ -278,6 +291,7 @@
     shield_damage_pct: 75.0,
     armor_damage_pct: 75.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   Mine : WeaponStats (
     weapon_type: Mine,
@@ -298,6 +312,7 @@
     shield_damage_pct: 75.0,
     armor_damage_pct: 75.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   Trap : WeaponStats (
     weapon_type: Trap,
@@ -318,6 +333,7 @@
     shield_damage_pct: 75.0,
     armor_damage_pct: 75.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   SuperRocketGrenades : WeaponStats (
     weapon_type: Mine,
@@ -338,6 +354,7 @@
     shield_damage_pct: 75.0,
     armor_damage_pct: 75.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   LaserSword : WeaponStats (
     weapon_type: LaserSword,
@@ -358,6 +375,7 @@
     shield_damage_pct: 75.0,
     armor_damage_pct: 75.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
   BackwardsLaserSword : WeaponStats (
     weapon_type: LaserSword,
@@ -378,5 +396,6 @@
     shield_damage_pct: 75.0,
     armor_damage_pct: 75.0,
     health_damage_pct: 100.0,
+    weight: 10.0,
   ),
 }

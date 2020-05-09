@@ -200,6 +200,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             player.id,
                             &lazy_update,
                         );
+
+                        vehicle.weapon_weight = weapon.stats.weight;
+
                     } //else, keep current weapon installed, no kill in this mode
                 } else {
                     player.kills += 1; //in all other modes the kill always counts

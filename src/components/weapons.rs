@@ -96,6 +96,7 @@ pub struct WeaponStats {
     pub armor_damage_pct: f32,
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
+    pub weight: f32,
 }
 
 pub fn build_weapon_store() -> HashMap<WeaponNames, WeaponStats> {
@@ -283,6 +284,7 @@ pub fn build_named_weapon(
             armor_damage_pct: 0.0,
             piercing_damage_pct: 0.0,
             health_damage_pct: 0.0,
+            weight: 0.0,
         }
     }
 }

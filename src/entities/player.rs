@@ -27,11 +27,9 @@ pub fn intialize_player(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>,
     player_index: usize,
-    //weapon_name: WeaponNames,
     weapon_fire_resource: WeaponFireResource,
     is_bot: bool,
     player_status_text: PlayerStatusText,
-    //game_mode: GameModes,
 ) -> Entity {
     let game_mode;
     let weapon_name;
@@ -298,6 +296,29 @@ pub fn intialize_player(
         .build();
 
 
+
+    
+    
+    let max_health = 100.0;
+    let max_armor = 100.0;
+    let max_shield = 100.0;
+
+    let engine_force = 100.0;
+    let engine_efficiency = 1.0;
+    let engine_weight = engine_force / engine_efficiency * 20./100.;
+    
+    //stock vehicle weight at 100/100/100 with normal engine efficiency is 100
+
+    //health makes up the main hull of the vehicle, and contributes 30 base + 10per health weight
+    //shields make up 15 weight
+    //armor another 25 weight
+    //engine another 20 weight
+
+    //typical weapon weight adds about 10.0
+
+    let max_velocity = 1.0;
+
+
     //Create actual Player with Vehicle and Weapon
     world
         .create_entity()
@@ -309,6 +330,13 @@ pub fn intialize_player(
             armor_entity,
             shield_entity,
             repair_entity,
+            max_shield,
+            max_armor,
+            max_health,
+            engine_force,
+            engine_weight,
+            max_velocity,
+            weapon_stats.weight,
         ))
         .with(Weapon::new(
             weapon_name,
