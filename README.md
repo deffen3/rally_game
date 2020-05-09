@@ -7,6 +7,11 @@ For now I am prioritizing the goal of *having fun making a game* higher than the
 Currently this is a 2D overhead-view vehicle combat game where the goal is to get a kill with all of the weapons. Once you get a kill with a weapon then it will automatically switch to your next weapon.
 
 
+![Imgur](https://i.imgur.com/nNXtVhu.png)
+---
+
+# Vehicles
+
 __Vehicles__ can accelerate, decelerate, and turn with its __Engines__.
 
 __Vehicles__ can also shoot or deploy its __Weapons__.
@@ -20,7 +25,9 @@ __Armor__ is permanently lost. Armor will only be removed after your __Shields__
 __Health__ is lost after you at hit with no __Shields__ and no __Armor__. __Health__ is also lost if hit by a piercing damage weapon. __Health__ can be repaired by holding the __Repair__ button. 
 After fully repairing all __Health__, the __Shields__ will eventually re-boot if you continue holding __Repair__.
 Note that using __Repair__ will disable all use of __Engines__ and __Weapons__.
+---
 
+# Weapons
 
 There are various weapons with various properties, including:
 * Lasers
@@ -38,32 +45,29 @@ There are various weapons with various properties, including:
 * armor damage multiplier
     (bullets are more effective against armor)
 * health damage multiplier
+---
 
-
-
-![Imgur](https://i.imgur.com/nNXtVhu.png)
-
+# Game Modes
+__Classic Gun Game__: First to get a kill with each weapon wins. Weapons are hot-swapped after each kill.
+__Deathmatch: Kills__: First to a certain number of kills wins. New weapons can be picked up from arena.
+__Deathmatch: Stock__: If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
+__Deathmatch: Timed KD__: Match ends after set time. Highest score of Kills minus Deaths is the winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
+__KingOfTheHill__: Players gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
+__Combat Race__: It's a race with weapons active. First player to complete the required number of laps wins. New weapons can be picked up from race track.
 ---
 
 
-TODO:
+# TODO:
+1. What happens when you die from collision.
+    - Lose a gun-level? If another player recently hit you then they get the kill?
+    - In TimedKD mode need to have self destruct collisions count as minus 2 deaths.
 1. Create a Hitbox component, and create a hitbox detection function - in progress
 1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
 1. Improve collision algorithms
-1. What happens when you die from collision? Lose a gun-level? If another player recently hit you then they get the kill?
 1. Vehicle mass should affect physics
 1. Weapon type should affect vehicle mass
 1. UI Transform works different on Mac? UI is in the middle of the screen.
 1. Red laser weapon can go through opponents on computers with potato frame rate
-
-RECENTLY DONE:
-1. Fixed gimballed/turret/auto-aim feature
-1. Add simple AI opponents
-1. Add current weapon type icon into UI
-1. AI sword mode seems to not work very well, bad target tracking when in reverse? - FIXED
-1. Put weapon properties into a .ron config file
-1. Visible Shield and Armor icons. Shield should be a faint bubble over top vehicle. Armor can be some grey stuff surrounding your vehicles sides.
-1. Weapon icon goes transparent when on cooldown
 
 
 ---
