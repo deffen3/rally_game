@@ -135,7 +135,7 @@ impl SimpleState for MainMenu {
 
                         game_mode_setup.game_mode = GameModes::DeathmatchKills;
                         game_mode_setup.match_time_limit = -1.0;
-                        game_mode_setup.points_to_win = 10;
+                        game_mode_setup.points_to_win = 5;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
@@ -149,7 +149,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.game_mode = GameModes::DeathmatchStock;
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = -1;
-                        game_mode_setup.stock_lives = 10;
+                        game_mode_setup.stock_lives = 5;
                         game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
