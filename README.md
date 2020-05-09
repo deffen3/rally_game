@@ -4,7 +4,7 @@ This is my first attempt at using rust, my first attempt to use an Entity-Compon
 
 For now I am prioritizing the goal of *having fun making a game* higher than the goal of *writing good rust code*. I know some of the code is pretty crap for now, lots of code duplication and poor ECS architecture!
 
-Currently this is a 2D overhead-view vehicle combat game where the goal is to get a kill with all of the weapons. Once you get a kill with a weapon then it will automatically switch to your next weapon.
+This is a 2D overhead-view vehicle combat game with a few different game modes.
 
 
 ![Imgur](https://i.imgur.com/nNXtVhu.png)
