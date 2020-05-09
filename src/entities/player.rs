@@ -8,6 +8,7 @@ use amethyst::{
         palette::Srgba,
         resources::Tint,
     },
+    utils::removal::Removal,
 };
 
 use crate::entities::ui::PlayerStatusText;
@@ -18,56 +19,112 @@ use crate::components::{
     build_named_weapon, Player, PlayerWeaponIcon, Vehicle, 
     Weapon, WeaponNames, get_weapon_icon,
 };
-use crate::resources::WeaponFireResource;
+use crate::resources::{GameModes, GameModeSetup, WeaponFireResource};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT,};
 
 pub fn intialize_player(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>,
     player_index: usize,
-    weapon_name: WeaponNames,
+    //weapon_name: WeaponNames,
     weapon_fire_resource: WeaponFireResource,
     is_bot: bool,
     player_status_text: PlayerStatusText,
+    //game_mode: GameModes,
 ) {
+    let game_mode;
+    let weapon_name;
+    {
+        let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+
+        if let Some(game_mode_setup) = fetched_game_mode_setup {
+            game_mode = game_mode_setup.game_mode.clone();
+            weapon_name = game_mode_setup.starter_weapon.clone();
+        }
+        else {
+            game_mode = GameModes::ClassicGunGame;
+            weapon_name = WeaponNames::LaserDoubleGimballed;
+        }
+    }
+
+
     let mut vehicle_transform = Transform::default();
 
     let spacing_factor = 5.0;
 
     let height = ARENA_HEIGHT + UI_HEIGHT;
 
-    let (starting_rotation, starting_x, starting_y) = match player_index {
-        0 => (
-            -PI / 4.0,
-            ARENA_WIDTH / spacing_factor,
-            height / spacing_factor,
-        ),
-        1 => (
-            PI / 2.0 + PI / 4.0,
-            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-            height - (height / spacing_factor),
-        ),
-        2 => (
-            PI + PI / 4.0,
-            ARENA_WIDTH / spacing_factor,
-            height - (height / spacing_factor),
-        ),
-        3 => (
-            PI / 2.0 - PI / 4.0,
-            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-            height / spacing_factor,
-        ),
-        _ => (
-            -PI / 4.0,
-            ARENA_WIDTH / spacing_factor,
-            height / spacing_factor,
-        ),
-    };
+
+    let starting_rotation;
+    let starting_x;
+    let starting_y;
+
+    if game_mode == GameModes::Race {
+        let (x, y) = match player_index {
+            0 => (
+                ARENA_WIDTH - 70.0,
+                height / 2.0 - 14.0,
+            ),
+            1 => (
+                ARENA_WIDTH - 50.0,
+                height / 2.0 - 14.0,
+            ),
+            2 => (
+                ARENA_WIDTH - 30.0,
+                height / 2.0 - 14.0,
+            ),
+            3 => (
+                ARENA_WIDTH - 10.0,
+                height / 2.0 - 14.0,
+            ),
+            _ => (
+                ARENA_WIDTH - 40.0,
+                height / 2.0 - 14.0,
+            ),
+        };
+
+        starting_rotation = 0.0;
+        starting_x = x;
+        starting_y = y;
+    }
+    else {
+        let (rotation, x, y) = match player_index {
+            0 => (
+                -PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height / spacing_factor,
+            ),
+            1 => (
+                PI / 2.0 + PI / 4.0,
+                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                height - (height / spacing_factor),
+            ),
+            2 => (
+                PI + PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height - (height / spacing_factor),
+            ),
+            3 => (
+                PI / 2.0 - PI / 4.0,
+                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                height / spacing_factor,
+            ),
+            _ => (
+                -PI / 4.0,
+                ARENA_WIDTH / spacing_factor,
+                height / spacing_factor,
+            ),
+        };
+
+        starting_rotation = rotation;
+        starting_x = x;
+        starting_y = y;
+    }
 
     vehicle_transform.set_rotation_2d(starting_rotation as f32);
     vehicle_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
-
+    
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
         sprite_number: player_index,
@@ -93,6 +150,7 @@ pub fn intialize_player(
 
     let health_entity = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(health_transform)
         .with(health_sprite_render)
         .with(Transparent)
@@ -116,6 +174,7 @@ pub fn intialize_player(
 
     let repair_entity = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(repair_transform)
         .with(repair_sprite_render)
         .with(Transparent)
@@ -139,6 +198,7 @@ pub fn intialize_player(
 
     let armor_entity = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(armor_transform)
         .with(armor_sprite_render)
         .with(Transparent)
@@ -162,6 +222,7 @@ pub fn intialize_player(
 
     let shield_entity = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(shield_transform)
         .with(shield_sprite_render)
         .with(Transparent)
@@ -192,6 +253,7 @@ pub fn intialize_player(
 
         world
             .create_entity()
+            .with(Removal::new(0 as u32))
             .with(icon_transform)
             .with(vehicle_sprite_render.clone())
             .build();
@@ -227,6 +289,7 @@ pub fn intialize_player(
 
     let weapon_icon = world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(PlayerWeaponIcon::new(player_index, weapon_stats.weapon_type))
         .with(weapon_sprite)
         .with(icon_weapon_transform)
@@ -238,6 +301,7 @@ pub fn intialize_player(
     //Create actual Player with Vehicle and Weapon
     world
         .create_entity()
+        .with(Removal::new(0 as u32))
         .with(vehicle_transform)
         .with(vehicle_sprite_render)
         .with(Vehicle::new(player_status_text, 

@@ -18,7 +18,6 @@ mod rally;
 mod welcome;
 mod menu;
 mod credits;
-mod events;
 mod pause;
 
 mod components;
@@ -55,53 +54,12 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(UiBundle::<StringBindings>::new())?
         .with_bundle(HotReloadBundle::default())?
         .with_bundle(AudioBundle::default())?
-        .with_system_desc(
-            crate::events::UiEventHandlerSystemDesc::default(),
-            "ui_event_handler",
-            &[],
-        )
-        .with_bundle(FpsCounterBundle)?
-        .with(
-            systems::VehicleTrackingSystem,
-            "vehicle_tracking_system",
-            &[],
-        )
-        .with(
-            systems::VehicleMoveSystem,
-            "vehicle_move_system",
-            &["input_system", "vehicle_tracking_system"],
-        )
-        .with(
-            systems::VehicleWeaponsSystem,
-            "vehicle_weapons_system",
-            &["input_system"],
-        )
-        .with(
-            systems::MoveWeaponFireSystem,
-            "move_weapon_fire_system",
-            &["vehicle_weapons_system"],
-        )
-        .with(
-            systems::CollisionVehToVehSystem,
-            "collision_vehicle_vehicle_system",
-            &["vehicle_move_system"],
-        )
-        .with(
-            systems::CollisionVehicleWeaponFireSystem::default(),
-            "collision_vehicle_weapon_fire_system",
-            &["vehicle_move_system"],
-        )
-        .with(
-            systems::VehicleShieldArmorHealthSystem,
-            "vehicle_shield_armor_health_system",
-            &["input_system"],
-        )
-        .with(
-            systems::VehicleStatusSystem::default(),
-            "vehicle_status_system",
-            &["input_system"],
-        )
-        
+        // .with_system_desc(
+        //     crate::events::UiEventHandlerSystemDesc::default(),
+        //     "ui_event_handler",
+        //     &[],
+        // )
+        .with_bundle(FpsCounterBundle)?        
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 // The RenderToWindow plugin provides all the scaffolding for opening a window and drawing on it
@@ -114,8 +72,8 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderUi::default()),
         )?;
 
-    let mut game = Application::new(assets_dir, GameplayState::default(), game_data)?;
-    //let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
+    let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
+
 
     game.run();
 

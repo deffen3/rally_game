@@ -4,7 +4,12 @@ use amethyst::{
     prelude::*,
     ui::UiCreator,
     winit::{MouseButton, VirtualKeyCode},
+    ui::{UiCreator},
 };
+
+use crate::audio::initialize_audio;
+use crate::entities::{initialize_camera};
+
 
 #[derive(Default, Debug)]
 pub struct WelcomeScreen {
@@ -13,7 +18,10 @@ pub struct WelcomeScreen {
 
 impl SimpleState for WelcomeScreen {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let world = data.world;
+        let StateData { world, .. } = data;
+
+        initialize_camera(world);
+        initialize_audio(world);
 
         self.ui_handle =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/welcome.ron", ())));

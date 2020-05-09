@@ -13,8 +13,8 @@ Container(
         Image(
             transform: (
                 id: "background",
-                width: 1024.,
-                height: 768.,
+                width: 200.,
+                height: 200.,
                 tab_order: 1,
                 anchor: Middle,
             ),

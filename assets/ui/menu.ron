@@ -14,28 +14,28 @@ Container(
         Container(
             transform: (
                 id: "container_start",
-                y: 210,
-                width: 755.,
-                height: 150.,
+                y: 350,
+                width: 460.,
+                height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(1.0, 0.65, 0.0, 1.0),
+            background: SolidColor(.20, 0.20, 0.65, 1.0),
             children: [
 
                 Button(
                     transform: (
-                        id: "start",
-                        width: 750.,
-                        height: 145.,
+                        id: "classic_gun_game",
+                        width: 450.,
+                        height: 90.,
                         tab_order: 1,
                         anchor: Middle,
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "START GAME",
+                        text: "CLASSIC GUNGAME",
                         font: File("font/square.ttf", ("TTF", ())),
-                        font_size: 75.,
-                        normal_text_color: (1.0, 0.65, 0., 1.0), // ffa500
+                        font_size: 40.,
+                        normal_text_color: (.20, 0.20, 0.65, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -47,30 +47,30 @@ Container(
 
         Container(
             transform: (
-                id: "container_load",
-                y: 50,
-                width: 755.,
-                height: 150.,
+                id: "container_deathmatch_kills",
+                y: 240,
+                width: 460.,
+                height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(1.0, 0.65, 0.0, 1.0),
+            background: SolidColor(.20, 0.20, 0.65, 1.0),
             children: [
 
                 // Complex Button
                 Button(
                     transform: (
-                        id: "load",
-                        width: 750.,
-                        height: 145.,
-                        tab_order: 3,
+                        id: "deathmatch_kills",
+                        width: 450.,
+                        height: 90.,
+                        tab_order: 2,
                         anchor: Middle,
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "LOAD GAME",
+                        text: "DEATHMATCH - KILLS",
                         font: File("font/square.ttf", ("TTF", ())),
-                        font_size: 75.,
-                        normal_text_color: (1.0, 0.65, 0., 1.0), // ffa500
+                        font_size: 40.,
+                        normal_text_color: (.20, 0.20, 0.65, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -82,30 +82,30 @@ Container(
 
         Container(
             transform: (
-                id: "container_options",
-                y: -110,
-                width: 755.,
-                height: 150.,
+                id: "container_deathmatch_stock",
+                y: 130,
+                width: 460.,
+                height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(1.0, 0.65, 0.0, 1.0),
+            background: SolidColor(.20, 0.20, 0.65, 1.0),
             children: [
 
                 // Complex Button
                 Button(
                     transform: (
-                        id: "options",
-                        width: 750.,
-                        height: 145.,
-                        tab_order: 3,
+                        id: "deathmatch_stock",
+                        width: 450.,
+                        height: 90.,
+                        tab_order: 2,
                         anchor: Middle,
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "OPTIONS",
+                        text: "DEATHMATCH - STOCK",
                         font: File("font/square.ttf", ("TTF", ())),
-                        font_size: 75.,
-                        normal_text_color: (1.0, 0.65, 0., 1.0), // ffa500
+                        font_size: 40.,
+                        normal_text_color: (.20, 0.20, 0.65, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -117,30 +117,30 @@ Container(
 
         Container(
             transform: (
-                id: "container_credits",
-                y: -270,
-                width: 755.,
-                height: 150.,
+                id: "container_deathmatch_time",
+                y: 20,
+                width: 460.,
+                height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(1.0, 0.65, 0.0, 1.0),
+            background: SolidColor(.20, 0.20, 0.65, 1.0),
             children: [
 
                 // Complex Button
                 Button(
                     transform: (
-                        id: "credits",
-                        width: 750.,
-                        height: 145.,
+                        id: "deathmatch_time",
+                        width: 450.,
+                        height: 90.,
                         tab_order: 3,
                         anchor: Middle,
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "CREDITS",
+                        text: "DEATHMATCH - TIME",
                         font: File("font/square.ttf", ("TTF", ())),
-                        font_size: 75.,
-                        normal_text_color: (1.0, 0.65, 0., 1.0), // ffa500
+                        font_size: 40.,
+                        normal_text_color: (.20, 0.20, 0.65, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -149,5 +149,74 @@ Container(
             ]
         ),
 
+
+        Container(
+            transform: (
+                id: "container_king_of_the_hill",
+                y: -90,
+                width: 460.,
+                height: 100.,
+                anchor: Middle,
+            ),
+            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            children: [
+
+                // Complex Button
+                Button(
+                    transform: (
+                        id: "king_of_the_hill",
+                        width: 450.,
+                        height: 90.,
+                        tab_order: 4,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "KING OF THE HILL",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 40.,
+                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+        Container(
+            transform: (
+                id: "container_combat_race",
+                y: -200,
+                width: 460.,
+                height: 100.,
+                anchor: Middle,
+            ),
+            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            children: [
+
+                // Complex Button
+                Button(
+                    transform: (
+                        id: "combat_race",
+                        width: 450.,
+                        height: 90.,
+                        tab_order: 4,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "COMBAT RACE",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 40.,
+                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
     ],
 )

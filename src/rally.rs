@@ -2,24 +2,41 @@ use amethyst::{
     core::math::Vector3,
     assets::{AssetStorage, Handle, Loader},
     core::transform::Transform,
-    ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
+    core::Time,
+    ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect, 
+        DispatcherBuilder, Dispatcher},
     prelude::*,
+    ui::{UiText, UiFinder, UiTransform, UiCreator},
+    input::{is_close_requested, is_key_down},
+    utils::{fps_counter::FpsCounter, removal::{Removal, exec_removal}},
+    winit::VirtualKeyCode,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
-    ui::{UiText, UiTransform, UiCreator},
-    audio::output::init_output,
-    utils::fps_counter::FpsCounter,
+    assets::{AssetStorage, Handle, Loader},
 };
 
-use crate::audio::initialize_audio;
+use crate::pause::PauseMenuState;
 
-//use rand::Rng;
+use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup};
+
+use crate::entities::{initialize_arena_walls, initialize_ui, intialize_player};
 
 use crate::components::{
-    Hitbox, PlayerWeaponIcon, Vehicle, 
-    Weapon, WeaponFire, WeaponNames, get_weapon_icon
+    Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, 
+    Weapon, WeaponFire,
+    PlayerWeaponIcon, get_weapon_icon,
 };
 
-use crate::entities::{initialize_arena_walls, initialize_camera, initialize_ui, intialize_player};
+use crate::systems::{
+    VehicleTrackingSystem,
+    VehicleMoveSystem,
+    VehicleWeaponsSystem,
+    MoveWeaponFireSystem,
+    CollisionVehToVehSystem,
+    CollisionVehicleWeaponFireSystem,
+    VehicleShieldArmorHealthSystem,
+    VehicleStatusSystem,
+};
+
 
 use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource};
 
@@ -33,54 +50,46 @@ pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 25.0;
 pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
-pub const MAX_PLAYERS: usize = 4;
-pub const BOT_PLAYERS: usize = MAX_PLAYERS - 1;
-
-pub const KILLS_TO_WIN: i32 = 15;
-
-pub const GUN_GAME_MODE: bool = true;
-
-// #[derive(Clone, Debug, PartialEq, Eq)]
-// pub enum GameModes {
-//     ClassicGunGame, //First to get a kill with each weapon, and weapons are hot-swapped after kills.
-//     Deathmatch, //First to a certain number of kills. New weapons can be picked up from arena.
-//     StockBattle, //Last player alive wins, with a set number of starting lives. New weapons can be picked up from arena.
-//     KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins.
-// }
-
-// pub struct GameRules {
-//     pub game_mode: Option<GameModes>,
-//     pub kills_to_win: i32,
-//     pub starting_lives: i32,
-//     pub points_to_win: i32,
-// }
-
-
-
-
 
 
 #[derive(Default)]
-pub struct GameplayState {
+pub struct GameplayState<'a, 'b> {
+    // // If the Game is paused or not
+    pub paused: bool,
+    // The UI root entity. Deleting this should remove the complete UI
+    ui_root: Option<Entity>,
+    // A reference to the FPS display, which we want to interact with
+    fps_display: Option<Entity>,
+
+    /// The `State` specific `Dispatcher`, containing `System`s only relevant for this `State`.
+    dispatcher: Option<Dispatcher<'a, 'b>>,
+
     sprite_sheet_handle: Option<Handle<SpriteSheet>>, // Load the spritesheet necessary to render the graphics.
     texture_sheet_handle: Option<Handle<SpriteSheet>>,
-
-    // // If the Game is paused or not
-    // paused: bool,
-    // // The UI root entity. Deleting this should remove the complete UI
-    // ui_root: Option<Entity>,
-    // // A reference to the FPS display, which we want to interact with
-    // fps_display: Option<Entity>,
-    // // A reference to the random text, which we want to modify during updates
-    // random_text: Option<Entity>,
 }
 
 
-impl SimpleState for GameplayState {
-    fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let StateData { mut world, .. } = data;
+impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
+    fn on_start(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
+        let world = &mut data.world;
 
-        init_output(&mut world);
+        world.register::<UiText>();
+        world.register::<UiTransform>();
+
+        world.register::<Armor>();
+        world.register::<Health>();
+        world.register::<Hitbox>();
+        world.register::<Player>();
+        world.register::<Repair>();
+        world.register::<Shield>();
+        world.register::<Vehicle>();
+        world.register::<Weapon>();
+        world.register::<WeaponFire>();
+        
+        world.register::<PlayerWeaponIcon>();
+
+        world.register::<Removal<u32>>();
+
 
         self.sprite_sheet_handle.replace(load_sprite_sheet(
             world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
@@ -89,16 +98,26 @@ impl SimpleState for GameplayState {
             world, "texture/rally_texture_sheet.png".to_string(), "texture/rally_texture_sheet.ron".to_string()
         ));
 
-        initialize_camera(world);
-
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
-        initialize_audio(world);
-
+    
         let player_status_texts = initialize_ui(world);
-        world.register::<UiText>(); // <- add this line temporarily
-        world.register::<UiTransform>();
+        
+        let max_players;
+        let bot_players;
+        {
+            let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+
+            if let Some(game_mode_setup) = fetched_game_mode_setup {
+                max_players = game_mode_setup.max_players;
+                bot_players = game_mode_setup.bot_players;
+            }
+            else {
+                max_players = 4;
+                bot_players = 3;
+            }
+        }
 
         initialize_arena_walls(
             world,
@@ -106,34 +125,150 @@ impl SimpleState for GameplayState {
             self.texture_sheet_handle.clone().unwrap(),
         );
 
-        world.register::<Hitbox>();
-
-        world.register::<PlayerWeaponIcon>();
-
-        for player_index in 0..MAX_PLAYERS {
-            let is_bot = player_index >= MAX_PLAYERS - BOT_PLAYERS;
-
+        for player_index in 0..max_players {
+            let is_bot = player_index >= max_players - bot_players;
+            
             intialize_player(
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
-                WeaponNames::LaserDoubleGimballed,
                 weapon_fire_resource.clone(),
                 is_bot,
                 player_status_texts[player_index],
             );
         }
 
-        // self.ui_root =
-        //     Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/example.ron", ())));
+        // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
+        let mut dispatcher_builder = DispatcherBuilder::new();
+        dispatcher_builder.add(VehicleTrackingSystem, 
+            "vehicle_tracking_system", &[]);
+        dispatcher_builder.add(VehicleMoveSystem, 
+            "vehicle_move_system", &[]);
+
+        dispatcher_builder.add(VehicleWeaponsSystem, 
+            "vehicle_weapons_system", &[]);
+        dispatcher_builder.add(MoveWeaponFireSystem, 
+            "move_weapon_fire_system", &["vehicle_weapons_system"]);
+
+        dispatcher_builder.add(CollisionVehToVehSystem,
+            "collision_vehicle_vehicle_system", &["vehicle_move_system"]);
+        dispatcher_builder.add(CollisionVehicleWeaponFireSystem::default(),
+            "collision_vehicle_weapon_fire_system", &["vehicle_move_system"]);
+
+        dispatcher_builder.add(VehicleShieldArmorHealthSystem,
+            "vehicle_shield_armor_health_system", &[]);
+        dispatcher_builder.add(VehicleStatusSystem::default(),
+            "vehicle_status_system", &[]);
+
+
+        // Build and setup the `Dispatcher`.
+        let mut dispatcher = dispatcher_builder.build();
+        dispatcher.setup(world);
+ 
+        self.dispatcher = Some(dispatcher);
+
+        self.ui_root =
+            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/game_fps.ron", ())));
+    }
+
+        initialize_camera(world);
+
+        let weapon_fire_resource: WeaponFireResource =
+            initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
+
+        initialize_audio(world);
+
+        exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
+
+        self.ui_root = None;
+        self.fps_display = None;
+    }
+
+    fn handle_event(
+        &mut self,
+        _: StateData<'_, GameData<'_, '_>>,
+        event: StateEvent,
+    ) -> SimpleTrans {
+        match &event {
+            StateEvent::Window(event) => {
+                if is_close_requested(&event) {
+                    log::info!("[Trans::Quit] Quitting Application!");
+                    Trans::Quit
+                } else if is_key_down(&event, VirtualKeyCode::Escape) {
+                    log::info!("[Trans::Push] Pausing Game!");
+                    Trans::Push(Box::new(PauseMenuState::default()))
+                } else {
+                    Trans::None
+                }
+            }
+            StateEvent::Ui(_ui_event) => {
+                // log::info!(
+                //     "[HANDLE_EVENT] You just interacted with a ui element: {:?}",
+                //     ui_event
+                // );
+                Trans::None
+            }
+            StateEvent::Input(_input) => {
+                //log::info!("Input Event detected: {:?}.", input);
+                Trans::None
+            }
+        }
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        data.world.maintain();
+        if let Some(dispatcher) = self.dispatcher.as_mut() {
+            dispatcher.dispatch(&data.world);
+        }
+
+        let world = &mut data.world;
+
+        for player_index in 0..MAX_PLAYERS {
+            let is_bot = player_index >= MAX_PLAYERS - BOT_PLAYERS;
+
+        // it is important that the 'paused' field is actually pausing your game.
+        // Make sure to also pause your running systems.
+        if !self.paused {
+            let mut ui_text = world.write_storage::<UiText>();
+
+            if let Some(fps_display) = self.fps_display.and_then(|entity| ui_text.get_mut(entity)) {
+                if world.read_resource::<Time>().frame_number() % 20 == 0 && !self.paused {
+                    let fps = world.read_resource::<FpsCounter>().sampled_fps();
+                    fps_display.text = format!("FPS: {:.*}", 2, fps);
+                }
+            }
+        }
 
         Trans::None
     }
 }
+
+
+
+fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handle<SpriteSheet> {
+    // Load the sprite sheet necessary to render the graphics.
+    // The texture is the pixel data
+    // `texture_handle` is a cloneable reference to the texture
+    let texture_handle = {
+        let loader = world.read_resource::<Loader>();
+        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+        loader.load(
+            storage,
+            ImageFormat::default(),
+            (),
+            &texture_storage,
+        )
+    };
+
+    let loader = world.read_resource::<Loader>();
+    let sprite_sheet_store = world.read_resource::<AssetStorage<SpriteSheet>>();
+    loader.load(
+        store, // Here we load the associated ron file
+        SpriteSheetFormat(texture_handle),
+        (),
+        &sprite_sheet_store,
+    )
+}
+
 
 
 
@@ -228,6 +363,8 @@ pub fn fire_weapon(
 
     lazy_update.insert(fire_entity, weapon_sprite);
     lazy_update.insert(fire_entity, local_transform);
+
+    lazy_update.insert(fire_entity, Removal::new(0 as u32));
 }
 
 pub fn vehicle_damage_model(

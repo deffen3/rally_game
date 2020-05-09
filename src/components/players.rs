@@ -1,5 +1,8 @@
-use crate::components::WeaponTypes;
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
+
+use crate::components::WeaponTypes;
+
+
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BotMode {
@@ -10,6 +13,7 @@ pub enum BotMode {
     Mining,
     Chasing,
     Swording,
+    TakeTheHill,
 }
 
 pub struct Player {
@@ -17,6 +21,13 @@ pub struct Player {
     pub kills: i32,
     pub deaths: i32,
     pub earned_kill: bool,
+    pub objective_points: f32,
+    pub hit_checkpoint_start: bool,
+    pub hit_checkpoint_middle: bool,
+    pub checkpoint_completed: i32,
+    pub hit_lap_start: bool,
+    pub hit_lap_middle: bool,
+    pub laps_completed: i32,
     pub is_bot: bool,
     pub bot_mode: BotMode,
     pub bot_move_cooldown: f32,
@@ -38,6 +49,13 @@ impl Player {
             kills: 0,
             deaths: 0,
             earned_kill: false,
+            objective_points: 0.0,
+            hit_checkpoint_start: false,
+            hit_checkpoint_middle: false,
+            checkpoint_completed: 0, 
+            hit_lap_start: false,
+            hit_lap_middle: false,
+            laps_completed: 0,
             is_bot,
             bot_mode: BotMode::StopAim,
             bot_move_cooldown: -1.0,

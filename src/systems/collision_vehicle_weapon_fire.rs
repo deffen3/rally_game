@@ -16,8 +16,8 @@ use crate::components::{
     Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
 };
 
-use crate::rally::{vehicle_damage_model, GUN_GAME_MODE};
-use crate::resources::WeaponFireResource;
+use crate::rally::{vehicle_damage_model,};
+use crate::resources::{WeaponFireResource, GameModes, GameModeSetup};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 
@@ -44,6 +44,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         Option<Read<'s, Output>>,
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
+        ReadExpect<'s, GameModeSetup>
     );
 
     fn setup(&mut self, _world: &mut World) {
@@ -67,25 +68,28 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             audio_output,
             weapon_fire_resource,
             lazy_update,
+            game_mode_setup,
         ): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
         for (hitbox, transform) in (&hitboxes, &transforms).join() {
-            let hitbox_x = transform.translation().x;
-            let hitbox_y = transform.translation().y;
+            if hitbox.is_wall {
+                let hitbox_x = transform.translation().x;
+                let hitbox_y = transform.translation().y;
 
-            for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
-                (&*entities, &weapon_fires, &transforms).join()
-            {
-                let fire_x = weapon_fire_transform.translation().x;
-                let fire_y = weapon_fire_transform.translation().y;
-
-                if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2)
-                    < (hitbox.width / 2.0).powi(2)
+                for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
+                    (&*entities, &weapon_fires, &transforms).join()
                 {
-                    if !weapon_fire.attached {
-                        let _ = entities.delete(weapon_fire_entity);
+                    let fire_x = weapon_fire_transform.translation().x;
+                    let fire_y = weapon_fire_transform.translation().y;
+
+                    if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2)
+                        < (hitbox.width / 2.0).powi(2)
+                    {
+                        if !weapon_fire.attached {
+                            let _ = entities.delete(weapon_fire_entity);
+                        }
                     }
                 }
             }
@@ -183,26 +187,25 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             if let Some(killer_data) = killer_data {
                 let weapon_name = killer_data;
 
-                if *weapon_name == weapon.name { //if kill was using player's current weapon
+                //classic gun-game rules: hot-swap upgrade weapon type for player who got the kill
+                if game_mode_setup.game_mode == GameModes::ClassicGunGame && *weapon_name == weapon.name { //if kill was using player's current weapon
                     player.kills += 1;
+                    let new_weapon_name = get_next_weapon_name(weapon.name.clone());
+                    
+                    if let Some(new_weapon_name) = new_weapon_name.clone() {
+                        weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
-                    if GUN_GAME_MODE {
-                        //classic gun-game rules: upgrade weapon type for player who got the kill
-                        let new_weapon_name = get_next_weapon_name(weapon.name.clone());
-                        
-                        if let Some(new_weapon_name) = new_weapon_name.clone() {
-                            weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
-
-                            update_weapon_properties(weapon, new_weapon_name);
-                            update_weapon_icon(
-                                &entities,
-                                &mut weapon,
-                                &weapon_fire_resource,
-                                player.id,
-                                &lazy_update,
-                            );
-                        }
-                    }
+                        update_weapon_properties(weapon, new_weapon_name);
+                        update_weapon_icon(
+                            &entities,
+                            &mut weapon,
+                            &weapon_fire_resource,
+                            player.id,
+                            &lazy_update,
+                        );
+                    } //else, keep current weapon installed, no kill in this mode
+                } else {
+                    player.kills += 1; //in all other modes the kill always counts
                 }
             }
 
@@ -211,7 +214,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             if let Some(_killed_data) = killed_data {
                 player.deaths += 1;
 
-                kill_restart_vehicle(vehicle, transform);
+                kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
             }
         }
 
