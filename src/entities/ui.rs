@@ -6,6 +6,47 @@ use amethyst::{
     utils::removal::Removal,
 };
 
+use crate::resources::MatchTimer;
+
+pub fn initialize_timer_ui(world: &mut World) {
+    let font = world.read_resource::<Loader>().load(
+        "font/square.ttf",
+        TtfFormat,
+        (),
+        &world.read_resource(),
+    );
+
+    
+    //Match Timer
+    let match_timer_transform = UiTransform::new(
+        "MatchTimer".to_string(),
+        Anchor::TopMiddle,
+        Anchor::TopMiddle,
+        0.0,
+        -10.0,
+        1.,
+        200.,
+        50.,
+    );
+
+    let ui_entity = world.create_entity()
+        .with(Removal::new(0 as u32))
+        .with(match_timer_transform)
+        .with(UiText::new(
+            font.clone(),
+            "0:00".to_string(),
+            [1., 1., 1., 1.],
+            50.,
+        ))
+        .build();
+
+
+    world.insert(MatchTimer {time: 0.0, ui_entity});
+}
+
+
+
+
 ///contains the ui text components that display the player vehicle status
 #[derive(Clone, Copy)]
 pub struct PlayerStatusText {
@@ -24,6 +65,8 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         (),
         &world.read_resource(),
     );
+
+    //Player status
 
     let mut x = -450.;
     let y = -960.;

@@ -22,7 +22,8 @@ use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, Game
 
 use crate::entities::{
     initialize_camera, initialize_camera_to_player,
-    initialize_arena_walls, initialize_ui, intialize_player
+    initialize_arena_walls, initialize_ui, initialize_timer_ui, 
+    intialize_player,
 };
 
 use crate::components::{
@@ -109,7 +110,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
-    
+
+        initialize_timer_ui(world);
+
         let player_status_texts = initialize_ui(world);
 
         
@@ -405,7 +408,7 @@ pub fn spawn_weapon_box(
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
-    let weapon_name = get_random_weapon_name(0);
+    let _weapon_name = get_random_weapon_name(0);
 
     let box_entity: Entity = entities.create();
 
@@ -445,6 +448,7 @@ pub fn spawn_weapon_box(
 
     let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
 
+    lazy_update.insert(box_entity, Removal::new(0 as u32));
     lazy_update.insert(box_entity, box_sprite);
     lazy_update.insert(box_entity, local_transform);
 }

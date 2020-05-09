@@ -1,5 +1,5 @@
 use amethyst::{
-    ecs::{Join, ReadStorage, ReadExpect, System, SystemData, WriteStorage, Read, World},
+    ecs::{Join, ReadStorage, ReadExpect, WriteExpect, System, SystemData, WriteStorage, Read, World},
     derive::SystemDesc,
     ui::UiText,
     core::Time,
@@ -7,13 +7,12 @@ use amethyst::{
 
 use crate::components::{Player, Vehicle};
 
-use crate::resources::{GameModes, GameModeSetup};
+use crate::resources::{GameModes, GameModeSetup, MatchTimer};
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleStatusSystem {
     pub winners: Vec<usize>,
     pub losers: Vec<usize>,
-    pub match_timer: f32,
 }
 
 impl<'s> System<'s> for VehicleStatusSystem {
@@ -23,18 +22,45 @@ impl<'s> System<'s> for VehicleStatusSystem {
         WriteStorage<'s, UiText>,
         Read<'s, Time>,
         ReadExpect<'s, GameModeSetup>,
+        WriteExpect<'s, MatchTimer>,
     );
 
     fn setup(&mut self, _world: &mut World) {
         self.winners = vec![];
         self.losers = vec![];
-        self.match_timer = 0.0;
     }
 
-    fn run(&mut self, (players, vehicles, mut ui_text, time, game_mode_setup): Self::SystemData) {
+    fn run(&mut self, (
+            players,
+            vehicles,
+            mut ui_text,
+            time,
+            game_mode_setup,
+            mut match_timer,
+        ): Self::SystemData) {
+
         let dt = time.delta_seconds();
 
-        self.match_timer += dt;
+        //if no match time limit exists, or it does exist and timer is within the limit
+        if game_mode_setup.match_time_limit < 0.0 || match_timer.time < game_mode_setup.match_time_limit {
+            match_timer.time += dt;
+        }
+
+        //if match has a time limit, display time remaining
+        if game_mode_setup.match_time_limit > 0.0  {
+            ui_text
+                .get_mut(match_timer.ui_entity)
+                .unwrap()
+                .text = format!("{:.0}", game_mode_setup.match_time_limit - match_timer.time);
+        }
+        else { //else display timer counting up
+            ui_text
+                .get_mut(match_timer.ui_entity)
+                .unwrap()
+                .text = format!("{:.0}", match_timer.time);
+        }
+
+
 
         //for (player, vehicle) in (players, vehicles).join() {
         for (player, vehicle) in (&players, &vehicles).join() {
@@ -64,7 +90,9 @@ impl<'s> System<'s> for VehicleStatusSystem {
             }*/
 
             //Scoring logic
-            if game_mode_setup.match_time_limit < 0.0 || self.match_timer <= game_mode_setup.match_time_limit {
+
+            //if no match time limit exists, or it does exist and timer is within the limit
+            if game_mode_setup.match_time_limit < 0.0 || match_timer.time <= game_mode_setup.match_time_limit {
                 let player_score;
 
                 if game_mode_setup.game_mode == GameModes::ClassicGunGame {

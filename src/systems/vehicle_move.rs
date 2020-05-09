@@ -466,185 +466,186 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &transforms).join() {
-            let wall_hit_non_bounce_decel_pct: f32 = 0.65;
-            let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
+            if vehicle.state == VehicleState::Active {
+                let wall_hit_non_bounce_decel_pct: f32 = 0.65;
+                let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
 
-            let vehicle_x = transform.translation().x;
-            let vehicle_y = transform.translation().y;
+                let vehicle_x = transform.translation().x;
+                let vehicle_y = transform.translation().y;
 
-            let vehicle_rotation = transform.rotation();
-            let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
+                let vehicle_rotation = transform.rotation();
+                let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
 
-            let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
-            let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
+                let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
+                let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
 
-            let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
-                + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
+                let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
+                    + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
 
-            let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
-                + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
-
-
-            let mut checkpoint_id: i32 = 0;
-            let mut checkpoint_stages: [bool; 2] = [false; 2];
-            let mut lap_stages: [bool; 2] = [false; 2];
+                let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
+                    + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
 
 
-            for (hitbox, hitbox_transform) in (&hitboxes, &transforms).join() {
-                let hitbox_x = hitbox_transform.translation().x;
-                let hitbox_y = hitbox_transform.translation().y;
+                let mut checkpoint_id: i32 = 0;
+                let mut checkpoint_stages: [bool; 2] = [false; 2];
+                let mut lap_stages: [bool; 2] = [false; 2];
 
-                let hit;
-                if hitbox.shape == HitboxShape::Circle {
-                    if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
-                            < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2) {
-                        hit = true;
+
+                for (hitbox, hitbox_transform) in (&hitboxes, &transforms).join() {
+                    let hitbox_x = hitbox_transform.translation().x;
+                    let hitbox_y = hitbox_transform.translation().y;
+
+                    let hit;
+                    if hitbox.shape == HitboxShape::Circle {
+                        if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
+                                < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2) {
+                            hit = true;
+                        }
+                        else {
+                            hit = false;
+                        }
+                    } else if hitbox.shape == HitboxShape::Rectangle {
+                        let mut interferences = 0;
+
+                        let left_hitbox_wall = vehicle_x + veh_rect_width/2.0 > hitbox_x - hitbox.width/2.0;
+                        let right_hitbox_wall = vehicle_x - veh_rect_width/2.0 < hitbox_x + hitbox.width/2.0;
+
+                        let top_hitbox_wall = vehicle_y - veh_rect_height/2.0 < hitbox_y + hitbox.height/2.0;
+                        let bottom_hitbox_wall = vehicle_y + veh_rect_height/2.0 > hitbox_y - hitbox.height/2.0;
+
+                        if left_hitbox_wall {
+                            interferences += 1;
+                        }
+                        if right_hitbox_wall {
+                            interferences += 1;
+                        }
+                        if top_hitbox_wall {
+                            interferences += 1;
+                        }
+                        if bottom_hitbox_wall {
+                            interferences += 1;
+                        }
+
+                        if interferences >= 4 {
+                            hit = true;
+                        }
+                        else {
+                            hit = false;
+                        }
                     }
                     else {
                         hit = false;
                     }
-                } else if hitbox.shape == HitboxShape::Rectangle {
-                    let mut interferences = 0;
+                    
+                    if hit {
+                        if hitbox.is_wall {
+                            let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+                            let abs_vel = sq_vel.sqrt();
 
-                    let left_hitbox_wall = vehicle_x + veh_rect_width/2.0 > hitbox_x - hitbox.width/2.0;
-                    let right_hitbox_wall = vehicle_x - veh_rect_width/2.0 < hitbox_x + hitbox.width/2.0;
+                            vehicle.dx *= wall_hit_bounce_decel_pct;
+                            vehicle.dy *= wall_hit_bounce_decel_pct;
 
-                    let top_hitbox_wall = vehicle_y - veh_rect_height/2.0 < hitbox_y + hitbox.height/2.0;
-                    let bottom_hitbox_wall = vehicle_y + veh_rect_height/2.0 > hitbox_y - hitbox.height/2.0;
+                            player_arena_bounce.push(player.id.clone());
 
-                    if left_hitbox_wall {
-                        interferences += 1;
-                    }
-                    if right_hitbox_wall {
-                        interferences += 1;
-                    }
-                    if top_hitbox_wall {
-                        interferences += 1;
-                    }
-                    if bottom_hitbox_wall {
-                        interferences += 1;
-                    }
+                            if player.is_bot
+                                && (player.bot_mode != BotMode::CollisionTurn)
+                                && (player.bot_mode != BotMode::CollisionMove)
+                            {
+                                player.bot_mode = BotMode::CollisionTurn;
+                                debug!("{} CollisionTurn", player.id);
+                                player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
+                            }
 
-                    if interferences >= 4 {
-                        hit = true;
+                            if vehicle.collision_cooldown_timer <= 0.0 {
+                                let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel;
+                                debug!("Player {} has collided with {} damage", player.id, damage);
+
+                                let vehicle_destroyed: bool = vehicle_damage_model(
+                                    vehicle,
+                                    damage,
+                                    COLLISION_PIERCING_DAMAGE_PCT,
+                                    COLLISION_SHIELD_DAMAGE_PCT,
+                                    COLLISION_ARMOR_DAMAGE_PCT,
+                                    COLLISION_HEALTH_DAMAGE_PCT,
+                                );
+
+                                if vehicle_destroyed {
+                                    player_destroyed.push(player.id.clone());
+                                }
+
+                                if abs_vel > 0.5 {
+                                    play_bounce_sound(
+                                        &*sounds,
+                                        &storage,
+                                        audio_output.as_deref(),
+                                    );
+                                }
+
+                                vehicle.collision_cooldown_timer = 1.0;
+                            }
+                        } else if hitbox.is_hill {
+                            players_on_hill.push(player.id.clone());
+
+                            let (r, g, b) = match player.id.clone() {
+                                0 => (1.0, 0.3, 0.3),
+                                1 => (0.3, 0.3, 1.0),
+                                2 => (0.3, 1.0, 0.3),
+                                3 => (1.0, 0.8, 0.3),
+                                _ => (1.0, 1.0, 1.0),
+                            };
+
+                            color_for_hill.push((r, g, b));
+                        } else if (hitbox.checkpoint == RaceCheckpointType::CheckpointStart) && 
+                                (hitbox.checkpoint_id == player.checkpoint_completed + 1) {
+                            checkpoint_stages[0] = true;
+                            checkpoint_id = hitbox.checkpoint_id;
+                        } else if hitbox.checkpoint == RaceCheckpointType::CheckpointFinish && 
+                                (hitbox.checkpoint_id == player.checkpoint_completed + 1) {
+                            checkpoint_stages[1] = true;
+                            checkpoint_id = hitbox.checkpoint_id;
+                        } else if hitbox.checkpoint == RaceCheckpointType::LapStart {
+                            lap_stages[0] = true;
+                        } else if hitbox.checkpoint == RaceCheckpointType::LapFinish {
+                            lap_stages[1] = true;
+                        }
                     }
-                    else {
-                        hit = false;
-                    }
-                }
-                else {
-                    hit = false;
                 }
                 
-                if hit {
-                    if hitbox.is_wall {
-                        let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
-                        let abs_vel = sq_vel.sqrt();
+                // println!("C: {} {}",checkpoint_stages[0], checkpoint_stages[1]);
+                // println!("L: {} {}",lap_stages[0], lap_stages[1]);
 
-                        vehicle.dx *= wall_hit_bounce_decel_pct;
-                        vehicle.dy *= wall_hit_bounce_decel_pct;
+                if checkpoint_stages[0] == true && checkpoint_stages[1] == false {
+                    player.hit_checkpoint_start = true;
+                } else if checkpoint_stages[0] == true && checkpoint_stages[1] == true && player.hit_checkpoint_start {
+                    player.hit_checkpoint_middle = true;
+                } else if checkpoint_stages[0] == false && checkpoint_stages[1] == true &&
+                        player.hit_checkpoint_middle {
+                    player.checkpoint_completed = checkpoint_id;
+                    player.hit_checkpoint_start = false;
+                    player.hit_checkpoint_middle = false;
+                } else {
+                    player.hit_checkpoint_start = false;
+                    player.hit_checkpoint_middle = false;
+                }
 
-                        player_arena_bounce.push(player.id.clone());
-
-                        if player.is_bot
-                            && (player.bot_mode != BotMode::CollisionTurn)
-                            && (player.bot_mode != BotMode::CollisionMove)
-                        {
-                            player.bot_mode = BotMode::CollisionTurn;
-                            debug!("{} CollisionTurn", player.id);
-                            player.bot_move_cooldown = BOT_COLLISION_TURN_COOLDOWN_RESET;
-                        }
-
-                        if vehicle.collision_cooldown_timer <= 0.0 {
-                            let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel;
-                            debug!("Player {} has collided with {} damage", player.id, damage);
-
-                            let vehicle_destroyed: bool = vehicle_damage_model(
-                                vehicle,
-                                damage,
-                                COLLISION_PIERCING_DAMAGE_PCT,
-                                COLLISION_SHIELD_DAMAGE_PCT,
-                                COLLISION_ARMOR_DAMAGE_PCT,
-                                COLLISION_HEALTH_DAMAGE_PCT,
-                            );
-
-                            if vehicle_destroyed {
-                                player_destroyed.push(player.id.clone());
-                            }
-
-                            if abs_vel > 0.5 {
-                                play_bounce_sound(
-                                    &*sounds,
-                                    &storage,
-                                    audio_output.as_deref(),
-                                );
-                            }
-
-                            vehicle.collision_cooldown_timer = 1.0;
-                        }
-                    } else if hitbox.is_hill {
-                        players_on_hill.push(player.id.clone());
-
-                        let (r, g, b) = match player.id.clone() {
-                            0 => (1.0, 0.3, 0.3),
-                            1 => (0.3, 0.3, 1.0),
-                            2 => (0.3, 1.0, 0.3),
-                            3 => (1.0, 0.8, 0.3),
-                            _ => (1.0, 1.0, 1.0),
-                        };
-
-                        color_for_hill.push((r, g, b));
-                    } else if (hitbox.checkpoint == RaceCheckpointType::CheckpointStart) && 
-                            (hitbox.checkpoint_id == player.checkpoint_completed + 1) {
-                        checkpoint_stages[0] = true;
-                        checkpoint_id = hitbox.checkpoint_id;
-                    } else if hitbox.checkpoint == RaceCheckpointType::CheckpointFinish && 
-                            (hitbox.checkpoint_id == player.checkpoint_completed + 1) {
-                        checkpoint_stages[1] = true;
-                        checkpoint_id = hitbox.checkpoint_id;
-                    } else if hitbox.checkpoint == RaceCheckpointType::LapStart {
-                        lap_stages[0] = true;
-                    } else if hitbox.checkpoint == RaceCheckpointType::LapFinish {
-                        lap_stages[1] = true;
+                if lap_stages[0] == true && lap_stages[1] == false {
+                    player.hit_lap_start = true;
+                } else if lap_stages[0] == true && lap_stages[1] == true && player.hit_lap_start {
+                    player.hit_lap_middle = true;
+                } else if lap_stages[0] == false && lap_stages[1] == true {
+                    if player.hit_lap_middle && (player.checkpoint_completed == game_mode_setup.checkpoint_count) {
+                        player.laps_completed += 1;
+                        player.hit_lap_start = false;
+                        player.hit_lap_middle = false;
+                    } else { //wrong-way detection
+                        player.hit_lap_start = false;
+                        player.hit_lap_middle = false;
+                        player.checkpoint_completed = 0;
                     }
+                } else {
+                    player.hit_lap_start = false;
                 }
             }
-
-            // println!("C: {} {}",checkpoint_stages[0], checkpoint_stages[1]);
-            // println!("L: {} {}",lap_stages[0], lap_stages[1]);
-
-            if checkpoint_stages[0] == true && checkpoint_stages[1] == false {
-                player.hit_checkpoint_start = true;
-            } else if checkpoint_stages[0] == true && checkpoint_stages[1] == true && player.hit_checkpoint_start {
-                player.hit_checkpoint_middle = true;
-            } else if checkpoint_stages[0] == false && checkpoint_stages[1] == true &&
-                    player.hit_checkpoint_middle {
-                player.checkpoint_completed = checkpoint_id;
-                player.hit_checkpoint_start = false;
-                player.hit_checkpoint_middle = false;
-            } else {
-                player.hit_checkpoint_start = false;
-                player.hit_checkpoint_middle = false;
-            }
-
-            if lap_stages[0] == true && lap_stages[1] == false {
-                player.hit_lap_start = true;
-            } else if lap_stages[0] == true && lap_stages[1] == true && player.hit_lap_start {
-                player.hit_lap_middle = true;
-            } else if lap_stages[0] == false && lap_stages[1] == true {
-                if player.hit_lap_middle && (player.checkpoint_completed == game_mode_setup.checkpoint_count) {
-                    player.laps_completed += 1;
-                    player.hit_lap_start = false;
-                    player.hit_lap_middle = false;
-                } else { //wrong-way detection
-                    player.hit_lap_start = false;
-                    player.hit_lap_middle = false;
-                    player.checkpoint_completed = 0;
-                }
-            } else {
-                player.hit_lap_start = false;
-            }
-
             
 
         }
