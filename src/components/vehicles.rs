@@ -124,8 +124,8 @@ pub fn kill_restart_vehicle(
     let (_, _, vehicle_angle) = transform.rotation().euler_angles();
     vehicle.death_angle = vehicle_angle;
 
-    transform.set_translation_x(10.0 * ARENA_WIDTH);
-    transform.set_translation_y(10.0 * ARENA_HEIGHT);
+    //transform.set_translation_x(10.0 * ARENA_WIDTH);
+    //transform.set_translation_y(10.0 * ARENA_HEIGHT);
 
     if stock_lives > 0 && player.deaths >= stock_lives {
         vehicle.state = VehicleState::InActive;

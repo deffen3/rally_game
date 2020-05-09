@@ -2,7 +2,7 @@ use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage};
 
-use crate::components::{Player, Vehicle, Weapon, WeaponFire};
+use crate::components::{Player, Vehicle, Weapon, WeaponFire, VehicleState};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 use log::debug;
@@ -49,23 +49,25 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     let mut closest_vehicle_y_diff = 0.0;
                     let mut closest_vehicle_dist = 1_000_000_000.0;
 
-                    for (_vehicle, vehicle_transform, player) in
+                    for (vehicle, vehicle_transform, player) in
                         (&vehicles, &transforms, &players).join()
                     {
-                        if weapon_fire.owner_player_id != player.id {
-                            let vehicle_x = vehicle_transform.translation().x;
-                            let vehicle_y = vehicle_transform.translation().y;
+                        if vehicle.state == VehicleState::Active {
+                            if weapon_fire.owner_player_id != player.id {
+                                let vehicle_x = vehicle_transform.translation().x;
+                                let vehicle_y = vehicle_transform.translation().y;
 
-                            // let weapon_rotation = transform.rotation();
-                            // let (_, _, weapon_angle) = weapon_rotation.euler_angles();
+                                // let weapon_rotation = transform.rotation();
+                                // let (_, _, weapon_angle) = weapon_rotation.euler_angles();
 
-                            let dist =
-                                ((vehicle_x - fire_x).powi(2) + (vehicle_y - fire_y).powi(2)).sqrt();
+                                let dist =
+                                    ((vehicle_x - fire_x).powi(2) + (vehicle_y - fire_y).powi(2)).sqrt();
 
-                            if dist < closest_vehicle_dist {
-                                closest_vehicle_dist = dist;
-                                closest_vehicle_x_diff = fire_x - vehicle_x;
-                                closest_vehicle_y_diff = fire_y - vehicle_y;
+                                if dist < closest_vehicle_dist {
+                                    closest_vehicle_dist = dist;
+                                    closest_vehicle_x_diff = fire_x - vehicle_x;
+                                    closest_vehicle_y_diff = fire_y - vehicle_y;
+                                }
                             }
                         }
                     }

@@ -166,7 +166,9 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                     transform.set_rotation_2d(*angle);
 
                     let tint = tints.get_mut(vehicle.health.entity).unwrap();
-                    if *health_pct < (4./5.) {
+                    if *health_pct <= 0.0 {
+                        *tint = Tint(Srgba::new(0.0, 0.0, 0.0, 1.0));
+                    } else if *health_pct < (4./5.) {
                         *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0-((*health_pct) * (5./4.))));
                     } else {
                         *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
