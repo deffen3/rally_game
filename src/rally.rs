@@ -418,29 +418,29 @@ pub fn spawn_weapon_box(
     let spawn_index = rng.gen_range(0, 4) as u32;
     
 
-    let spacing_factor = 5.0;
-    let height = ARENA_HEIGHT + UI_HEIGHT;
+    let spacing_factor = 3.0;
+    let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
 
     let (x, y) = match spawn_index {
         0 => (
             ARENA_WIDTH / spacing_factor,
-            height / spacing_factor,
+            arena_ui_height / 2.0
         ),
         1 => (
-            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-            height - (height / spacing_factor),
+            ARENA_WIDTH / 2.0,
+            arena_ui_height / spacing_factor
         ),
         2 => (
-            ARENA_WIDTH / spacing_factor,
-            height - (height / spacing_factor),
+            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+            arena_ui_height / 2.0,
         ),
         3 => (
-            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-            height / spacing_factor,
+            ARENA_WIDTH / 2.0,
+            arena_ui_height - (arena_ui_height / spacing_factor),
         ),
         _ => (
             ARENA_WIDTH / spacing_factor,
-            height / spacing_factor,
+            arena_ui_height / spacing_factor,
         ),
     };
 
