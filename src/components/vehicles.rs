@@ -149,9 +149,12 @@ pub fn check_respawn_vehicle(
         vehicle: &mut Vehicle,
         transform: &mut Transform,
         dt: f32,
-        game_mode: GameModes
-    ) {
+        game_mode: GameModes,
+        last_spawn_index: u32,
+    ) -> u32 {
     let mut rng = rand::thread_rng();
+
+    let mut spawn_index = last_spawn_index;
 
     if vehicle.state == VehicleState::InRespawn {
         vehicle.respawn_timer -= dt;
@@ -176,7 +179,12 @@ pub fn check_respawn_vehicle(
                 transform.set_translation_xyz(vehicle.death_x, vehicle.death_y, 0.0);
             }
             else {
-                let spawn_index = rng.gen_range(0, 4);
+                //Ensure that the spawn_index != last_spawn_index
+                spawn_index = rng.gen_range(0, 3) as u32;
+
+                if spawn_index >= last_spawn_index {
+                    spawn_index += 1;
+                }
 
                 let spacing_factor = 5.0;
                 let height = ARENA_HEIGHT + UI_HEIGHT;
@@ -214,4 +222,6 @@ pub fn check_respawn_vehicle(
             }
         }
     }
+
+    spawn_index
 }

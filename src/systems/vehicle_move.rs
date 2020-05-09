@@ -1,6 +1,6 @@
 use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Entities, Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteStorage};
+use amethyst::ecs::{World, Entities, Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteStorage};
 use amethyst::input::{InputHandler, StringBindings};
 use amethyst::renderer::{
     palette::Srgba,
@@ -40,8 +40,10 @@ const BOT_ENGAGE_DISTANCE: f32 = 160.0;
 const BOT_DISENGAGE_DISTANCE: f32 = 240.0;
 
 
-#[derive(SystemDesc)]
-pub struct VehicleMoveSystem;
+#[derive(SystemDesc, Default)]
+pub struct VehicleMoveSystem {
+    pub last_spawn_index: u32,
+}
 
 impl<'s> System<'s> for VehicleMoveSystem {
     type SystemData = (
@@ -59,6 +61,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
         WriteStorage<'s, Tint>,
         ReadExpect<'s, GameModeSetup>,
     );
+
+    fn setup(&mut self, _world: &mut World) {
+        let mut rng = rand::thread_rng();
+        self.last_spawn_index = rng.gen_range(0, 4);
+    }
 
     fn run(
         &mut self,
@@ -86,7 +93,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
             (&mut players, &mut vehicles, &mut transforms, &weapons).join()
         {
             if vehicle.state == VehicleState::InRespawn {
-                check_respawn_vehicle(vehicle, transform, dt, game_mode_setup.game_mode.clone());
+                self.last_spawn_index = check_respawn_vehicle(
+                    vehicle, transform, dt, game_mode_setup.game_mode.clone(), self.last_spawn_index
+                );
             } else if vehicle.state == VehicleState::Active {
 
                 //lost armor does not contribute to weight

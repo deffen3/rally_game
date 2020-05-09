@@ -183,7 +183,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         let mut dispatcher_builder = DispatcherBuilder::new();
         dispatcher_builder.add(VehicleTrackingSystem, 
             "vehicle_tracking_system", &[]);
-        dispatcher_builder.add(VehicleMoveSystem, 
+        dispatcher_builder.add(VehicleMoveSystem::default(), 
             "vehicle_move_system", &[]);
 
         dispatcher_builder.add(VehicleWeaponsSystem, 
