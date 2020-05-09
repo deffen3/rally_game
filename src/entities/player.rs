@@ -30,6 +30,12 @@ pub fn intialize_player(
     weapon_fire_resource: WeaponFireResource,
     is_bot: bool,
     player_status_text: PlayerStatusText,
+    max_health: f32,
+    max_armor: f32,
+    max_shield: f32,
+    engine_force: f32,
+    engine_weight: f32,
+    max_velocity: f32,
 ) -> Entity {
     let game_mode;
     let weapon_name;
@@ -294,29 +300,6 @@ pub fn intialize_player(
         .with(icon_tint)
         .with(Transparent)
         .build();
-
-
-
-    
-    
-    let max_health = 100.0;
-    let max_armor = 100.0;
-    let max_shield = 100.0;
-
-    let engine_force = 100.0;
-    let engine_efficiency = 1.0;
-    let engine_weight = engine_force / engine_efficiency * 20./100.;
-    
-    //stock vehicle weight at 100/100/100 with normal engine efficiency is 100
-
-    //health makes up the main hull of the vehicle, and contributes 30 base + 10per health weight
-    //shields make up 15 weight
-    //armor another 25 weight
-    //engine another 20 weight
-
-    //typical weapon weight adds about 10.0
-
-    let max_velocity = 1.0;
 
 
     //Create actual Player with Vehicle and Weapon

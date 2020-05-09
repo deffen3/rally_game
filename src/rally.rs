@@ -133,7 +133,27 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         for player_index in 0..max_players {
             let is_bot = player_index >= max_players - bot_players;
+
+            let max_health = 100.0;
+            let max_armor = 100.0;
+            let max_shield = 100.0;
+
+            let engine_force = 100.0;
+            let engine_efficiency = 1.0;
+            let engine_weight = engine_force / engine_efficiency * 20./100.;
             
+            //stock vehicle weight at 100/100/100 with normal engine efficiency is 100
+
+            //health makes up the main hull of the vehicle, and contributes 30 base + 10per health weight
+            //shields make up 15 weight
+            //armor another 25 weight
+            //engine another 20 weight
+
+            //typical weapon weight adds about 10.0
+
+            let max_velocity = 1.0;
+
+
             let player = intialize_player(
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
@@ -141,6 +161,12 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 weapon_fire_resource.clone(),
                 is_bot,
                 player_status_texts[player_index],
+                max_health,
+                max_armor,
+                max_shield,
+                engine_force,
+                engine_weight,
+                max_velocity,
             );
 
             if PLAYER_CAMERA && !is_bot {
