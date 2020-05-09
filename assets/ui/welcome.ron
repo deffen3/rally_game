@@ -13,12 +13,12 @@ Container(
         Image(
             transform: (
                 id: "background",
-                width: 200.,
-                height: 200.,
+                width: 1000.,
+                height: 1000.,
                 tab_order: 1,
                 anchor: Middle,
             ),
-            image: Texture(File("texture/logo.png", ("IMAGE", ()))),
+            image: Texture(File("texture/game_logo.png", ("IMAGE", ()))),
         ),
     ],
 )
