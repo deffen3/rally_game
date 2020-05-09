@@ -206,5 +206,11 @@ List((
             width: 5,
             height: 10,
         ),
+        ( //flame #34
+            x: 25,
+            y: 19,
+            width: 6,
+            height: 4,
+        ),
     ],
 ))

@@ -25,6 +25,7 @@ pub struct WeaponFireResource {
     pub missile_sprite_render: SpriteRender,
     pub rockets_sprite_render: SpriteRender,
     pub laser_sword_sprite_render: SpriteRender,
+    pub flame_sprite_render: SpriteRender,
 }
 
 pub fn initialize_weapon_fire_resource(
@@ -101,8 +102,12 @@ pub fn initialize_weapon_fire_resource(
             sprite_number: 27,
         },
         trap_p4_sprite_render: SpriteRender {
-            sprite_sheet: sprite_sheet_handle,
+            sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 28,
+        },
+        flame_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle,
+            sprite_number: 34,
         },
     };
     world.insert(weapon_fire_resource.clone());

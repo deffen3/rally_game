@@ -46,6 +46,7 @@ pub enum WeaponNames {
     LaserSword,
     BackwardsLaserSword,
     SuperRocketGrenades,
+    Flamethrower,
 }
 
 
@@ -53,7 +54,8 @@ pub enum WeaponNames {
 pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
     match weapon_name {
         WeaponNames::LaserDoubleGimballed => Some(WeaponNames::ProjectileRapidFireTurret),
-        WeaponNames::ProjectileRapidFireTurret => Some(WeaponNames::Missile),
+        WeaponNames::ProjectileRapidFireTurret => Some(WeaponNames::Flamethrower),
+        WeaponNames::Flamethrower => Some(WeaponNames::Missile),
         WeaponNames::Missile => Some(WeaponNames::LaserBeam),
         WeaponNames::LaserBeam => Some(WeaponNames::Shotgun),
         WeaponNames::Shotgun => Some(WeaponNames::ProjectileCannonFire),
@@ -70,7 +72,7 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::ProjectileSteadyFire => None,
         WeaponNames::LaserDouble => None,
         WeaponNames::ProjectileRapidFire => None,
-        WeaponNames::LaserPulse => None
+        WeaponNames::LaserPulse => None,
     }
 }
 
@@ -121,6 +123,7 @@ pub enum WeaponTypes {
     Missile,
     Rockets,
     LaserSword,
+    Flame,
 }
 
 
@@ -210,15 +213,16 @@ impl WeaponFire {
         let (width, height) = match weapon_type {
             WeaponTypes::LaserDouble => (3.0, 6.0),
             WeaponTypes::LaserBeam => (1.0, 12.0),
-            WeaponTypes::LaserPulse => (1.0, 3.0),
+            WeaponTypes::LaserPulse => (2.0, 5.0),
             WeaponTypes::ProjectileBurstFire => (1.0, 4.0),
             WeaponTypes::ProjectileRapidFire => (1.0, 2.0),
-            WeaponTypes::ProjectileCannonFire => (2.0, 3.0),
-            WeaponTypes::Missile => (3.0, 5.0),
-            WeaponTypes::Rockets => (5.0, 3.0),
-            WeaponTypes::Mine => (3.0, 3.0),
+            WeaponTypes::ProjectileCannonFire => (3.0, 3.0),
+            WeaponTypes::Missile => (5.0, 6.0),
+            WeaponTypes::Rockets => (5.0, 4.0),
+            WeaponTypes::Mine => (4.0, 4.0),
             WeaponTypes::Trap => (2.0, 4.0),
-            WeaponTypes::LaserSword => (3.0, 4.0),
+            WeaponTypes::LaserSword => (3.0, 15.0),
+            WeaponTypes::Flame => (6.0, 4.0),
         };
 
         WeaponFire {
@@ -361,6 +365,7 @@ pub fn get_weapon_icon(player_id: usize,
         WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
         WeaponTypes::Trap => (3.0, weapon_fire_resource.trap_p1_sprite_render.clone()),
         WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
+        WeaponTypes::Flame => (2.0, weapon_fire_resource.flame_sprite_render.clone()),
     };
 
     if weapon_stats.weapon_type == WeaponTypes::Mine {
