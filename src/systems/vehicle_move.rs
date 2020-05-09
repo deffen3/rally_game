@@ -257,16 +257,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     }
                 }
 
-                debug!("accel_input:{}, turn_input:{}", vehicle_accel.unwrap(), vehicle_turn.unwrap());
-
-                if player.id == 0 {
-                    debug!("vehicle_angle:{}", vehicle_angle);
-                }
-
                 let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
                 let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
-
-                debug!("yaw_x_comp:{0:>6.3}, yaw_y_comp:{1:>6.3}", yaw_x_comp, yaw_y_comp);
 
                 //Update vehicle velocity from vehicle speed accel input
                 if let Some(move_amount) = vehicle_accel {
@@ -282,23 +274,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     vehicle.dy += scaled_amount * yaw_y_comp * dt;
                 }
 
-                debug!("vel_x:{}, vel_y:{}", vehicle.dx, vehicle.dy);
-
                 //Apply friction
                 //this needs to be applied to vehicle momentum angle, not vehicle_angle angle
                 let velocity_angle = vehicle.dy.atan2(vehicle.dx) - (PI / 2.0); //rotate by PI/2 to line up with vehicle_angle angle
-
-                debug!("vel_angle:{}", velocity_angle);
-
                 let velocity_x_comp = -velocity_angle.sin(); //left is -, right is +
                 let velocity_y_comp = velocity_angle.cos(); //up is +, down is -
 
-                debug!("vel_angle_sin:{0:>6.3}, vel_angle_cos:{1:>6.3}", velocity_x_comp, velocity_y_comp);
-
                 vehicle.dx -= thrust_friction_decel_rate * velocity_x_comp * dt;
                 vehicle.dy -= thrust_friction_decel_rate * velocity_y_comp * dt;
-
-                debug!("vel_x:{0:>6.3}, vel_y:{1:>6.3}", vehicle.dx, vehicle.dy);
 
                 let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
                 let abs_vel = sq_vel.sqrt();
@@ -307,10 +290,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     vehicle.dx *= vehicle.max_velocity / abs_vel;
                     vehicle.dy *= vehicle.max_velocity / abs_vel;
                 }
-
-                debug!("{}",abs_vel);
-
-
 
                 //Transform on vehicle velocity
                 if vehicle.dx.abs() > 0.001 {

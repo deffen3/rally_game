@@ -66,11 +66,19 @@ impl<'s> System<'s> for VehicleTrackingSystem {
                     let y_diff = vehicle1_y - vehicle2_y;
 
                     let mut target_angle =
-                        x_diff.atan2(y_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
+                        y_diff.atan2(x_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
+                        
                     if target_angle > PI {
                         target_angle -= 2.0 * PI;
                     }
 
+                    //Save closest vehicle, ...
+                    if closest_vehicle_dist.is_none() || dist < closest_vehicle_dist.unwrap() {
+                        closest_vehicle_dist = Some(dist);
+                        closest_vehicle_target_angle = Some(target_angle);
+                    }
+
+                    //...and closest targetable vehicle
                     let mut angle_diff = standard_angle - target_angle;
 
                     if angle_diff > PI {
@@ -84,12 +92,6 @@ impl<'s> System<'s> for VehicleTrackingSystem {
                         targetable = true;
                     } else {
                         targetable = false;
-                    }
-
-                    //Save closest vehicle, and closest targetable vehicle
-                    if closest_vehicle_dist.is_none() || dist < closest_vehicle_dist.unwrap() {
-                        closest_vehicle_dist = Some(dist);
-                        closest_vehicle_target_angle = Some(target_angle);
                     }
 
                     if targetable {
@@ -118,8 +120,8 @@ impl<'s> System<'s> for VehicleTrackingSystem {
                 vehicle.angle_to_closest_vehicle = *closest_vehicle_target_angle;
                 vehicle.dist_to_closest_vehicle = *closest_vehicle_dist;
 
-                vehicle.angle_to_closest_vehicle = *closest_targetable_vehicle_target_angle;
-                vehicle.dist_to_closest_vehicle = *closest_targetable_vehicle_dist;
+                vehicle.angle_to_closest_targetable_vehicle = *closest_targetable_vehicle_target_angle;
+                vehicle.dist_to_closest_targetable_vehicle = *closest_targetable_vehicle_dist;
             }
         }
     }
