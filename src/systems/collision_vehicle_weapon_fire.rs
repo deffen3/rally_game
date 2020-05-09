@@ -16,7 +16,7 @@ use crate::components::{
     Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
 };
 
-use crate::rally::{vehicle_damage_model,};
+use crate::rally::{vehicle_damage_model, spawn_weapon_box};
 use crate::resources::{WeaponFireResource, GameModes, GameModeSetup};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
@@ -26,6 +26,7 @@ pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.25;
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehicleWeaponFireSystem {
     pub hit_sound_cooldown_timer: f32,
+    pub weapon_spawner_cooldown_timer: f32,
 }
 
 impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
@@ -49,6 +50,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
     fn setup(&mut self, _world: &mut World) {
         self.hit_sound_cooldown_timer = -1.0;
+        self.weapon_spawner_cooldown_timer = 20.0;
     }
 
     fn run(
@@ -72,6 +74,28 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         ): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
+
+
+        if game_mode_setup.random_weapon_spawns && game_mode_setup.game_mode != GameModes::ClassicGunGame {
+            self.weapon_spawner_cooldown_timer -= dt;
+
+            if self.weapon_spawner_cooldown_timer <= 0.0 {
+                self.weapon_spawner_cooldown_timer = 20.0;
+                
+                spawn_weapon_box(
+                    &entities,
+                    &weapon_fire_resource,
+                    &lazy_update,
+                );
+
+                spawn_weapon_box(
+                    &entities,
+                    &weapon_fire_resource,
+                    &lazy_update,
+                );
+            }
+        }
+
 
         for (hitbox, transform) in (&hitboxes, &transforms).join() {
             if hitbox.is_wall {

@@ -4,7 +4,7 @@ pub use self::vehicles::{check_respawn_vehicle, kill_restart_vehicle, Vehicle, V
 pub use self::weapons::{
     build_named_weapon, get_next_weapon_name, update_weapon_icon, update_weapon_properties,
     Weapon, WeaponFire, WeaponTypes, build_weapon_store, WeaponStats, WeaponNames, 
-    get_mine_sprite, get_trap_sprite, get_weapon_icon,
+    get_mine_sprite, get_trap_sprite, get_weapon_icon, get_random_weapon_name,
 };
 pub use self::shields::Shield;
 pub use self::armor::Armor;

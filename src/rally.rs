@@ -13,6 +13,9 @@ use amethyst::{
     assets::{AssetStorage, Handle, Loader},
 };
 
+use rand::Rng;
+
+
 use crate::pause::PauseMenuState;
 
 use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup};
@@ -25,7 +28,7 @@ use crate::entities::{
 use crate::components::{
     Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, 
     Weapon, WeaponFire,
-    PlayerWeaponIcon, get_weapon_icon,
+    PlayerWeaponIcon, get_weapon_icon, get_random_weapon_name,
 };
 
 use crate::systems::{
@@ -394,6 +397,59 @@ pub fn fire_weapon(
 
     lazy_update.insert(fire_entity, Removal::new(0 as u32));
 }
+
+
+
+pub fn spawn_weapon_box(
+    entities: &Entities,
+    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
+    lazy_update: &ReadExpect<LazyUpdate>,
+) {
+    let weapon_name = get_random_weapon_name(0);
+
+    let box_entity: Entity = entities.create();
+
+    let mut local_transform = Transform::default();
+
+    let mut rng = rand::thread_rng();
+    let spawn_index = rng.gen_range(0, 4) as u32;
+    
+
+    let spacing_factor = 5.0;
+    let height = ARENA_HEIGHT + UI_HEIGHT;
+
+    let (x, y) = match spawn_index {
+        0 => (
+            ARENA_WIDTH / spacing_factor,
+            height / spacing_factor,
+        ),
+        1 => (
+            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+            height - (height / spacing_factor),
+        ),
+        2 => (
+            ARENA_WIDTH / spacing_factor,
+            height - (height / spacing_factor),
+        ),
+        3 => (
+            ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+            height / spacing_factor,
+        ),
+        _ => (
+            ARENA_WIDTH / spacing_factor,
+            height / spacing_factor,
+        ),
+    };
+
+    local_transform.set_translation_xyz(x, y, 0.0);
+
+    let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
+
+    lazy_update.insert(box_entity, box_sprite);
+    lazy_update.insert(box_entity, local_transform);
+}
+
+
 
 pub fn vehicle_damage_model(
     vehicle: &mut Vehicle,

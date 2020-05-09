@@ -212,5 +212,11 @@ List((
             width: 6,
             height: 4,
         ),
+        ( //weapon pickup box #35
+            x: 53,
+            y: 35,
+            width: 11,
+            height: 11,
+        ),
     ],
 ))

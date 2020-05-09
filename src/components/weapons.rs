@@ -50,6 +50,35 @@ pub enum WeaponNames {
 }
 
 
+pub fn get_random_weapon_name(index: u32) -> WeaponNames {
+    match index {
+        0 => WeaponNames::LaserDoubleGimballed,
+        1 => WeaponNames::LaserDoubleGimballed,
+        2 => WeaponNames::ProjectileRapidFireTurret,
+        3 => WeaponNames::Flamethrower,
+        4 => WeaponNames::Missile,
+        5 => WeaponNames::LaserBeam,
+        6 => WeaponNames::Shotgun,
+        7 => WeaponNames::ProjectileCannonFire,
+        8 => WeaponNames::LaserPulseGimballed,
+        9 => WeaponNames::Rockets,
+        10 => WeaponNames::ProjectileBurstFire,
+        11 => WeaponNames::LaserDoubleBurstSide,
+        12 => WeaponNames::SuperRocketGrenades,
+        13 => WeaponNames::Mine,
+        14 => WeaponNames::LaserSword,
+        15 => WeaponNames::Trap,
+        16 => WeaponNames::BackwardsLaserSword,
+        17 => WeaponNames::ProjectileSteadyFire,
+        18 => WeaponNames::LaserDouble,
+        19 => WeaponNames::ProjectileRapidFire,
+        20 => WeaponNames::LaserPulse,
+        _ => WeaponNames::LaserDoubleGimballed,
+    }
+}
+
+
+
 //For Gun-Game mode rules
 pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
     match weapon_name {
