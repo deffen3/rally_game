@@ -7,8 +7,6 @@ use amethyst::{
 };
 
 use crate::audio::initialize_audio;
-use crate::entities::{initialize_camera};
-
 
 #[derive(Default, Debug)]
 pub struct WelcomeScreen {
@@ -19,7 +17,6 @@ impl SimpleState for WelcomeScreen {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let StateData { world, .. } = data;
 
-        initialize_camera(world);
         initialize_audio(world);
 
         self.ui_handle =

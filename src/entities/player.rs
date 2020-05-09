@@ -1,7 +1,7 @@
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
-    ecs::prelude::World,
+    ecs::prelude::{World, Entity},
     prelude::*,
     renderer::{
         SpriteRender, SpriteSheet, Transparent,
@@ -32,7 +32,7 @@ pub fn intialize_player(
     is_bot: bool,
     player_status_text: PlayerStatusText,
     //game_mode: GameModes,
-) {
+) -> Entity {
     let game_mode;
     let weapon_name;
     {
@@ -316,6 +316,5 @@ pub fn intialize_player(
             weapon_stats,
         ))
         .with(Player::new(player_index, is_bot))
-        .build();
-    
+        .build()
 }

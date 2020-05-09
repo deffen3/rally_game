@@ -17,7 +17,10 @@ use crate::pause::PauseMenuState;
 
 use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup};
 
-use crate::entities::{initialize_arena_walls, initialize_ui, intialize_player};
+use crate::entities::{
+    initialize_camera, initialize_camera_to_player,
+    initialize_arena_walls, initialize_ui, intialize_player
+};
 
 use crate::components::{
     Armor, Health, Hitbox, Player, Repair, Shield, Vehicle, 
@@ -35,6 +38,9 @@ use crate::systems::{
     VehicleShieldArmorHealthSystem,
     VehicleStatusSystem,
 };
+
+
+pub const PLAYER_CAMERA: bool = false;
 
 
 
@@ -128,7 +134,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         for player_index in 0..max_players {
             let is_bot = player_index >= max_players - bot_players;
             
-            intialize_player(
+            let player = intialize_player(
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
@@ -136,7 +142,16 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 is_bot,
                 player_status_texts[player_index],
             );
+
+            if PLAYER_CAMERA && !is_bot {
+                initialize_camera_to_player(world, player);
+            }
         }
+
+        if !PLAYER_CAMERA {
+            initialize_camera(world);
+        }
+
 
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
         let mut dispatcher_builder = DispatcherBuilder::new();
@@ -153,7 +168,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         dispatcher_builder.add(CollisionVehToVehSystem,
             "collision_vehicle_vehicle_system", &["vehicle_move_system"]);
         dispatcher_builder.add(CollisionVehicleWeaponFireSystem::default(),
-            "collision_vehicle_weapon_fire_system", &["vehicle_move_system"]);
+            "collision_vehicle_weapon_fire_system", &["vehicle_move_system", "move_weapon_fire_system"]);
 
         dispatcher_builder.add(VehicleShieldArmorHealthSystem,
             "vehicle_shield_armor_health_system", &[]);

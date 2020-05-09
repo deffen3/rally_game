@@ -120,9 +120,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                     if ((fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
                         < vehicle.width.powi(2))
-                        || ((fire_x + fire_x_comp * weapon_fire.height / 2.0 - vehicle_x).powi(2)
-                            + (fire_y + fire_y_comp * weapon_fire.height / 2.0 - vehicle_y).powi(2)
-                            < vehicle.width.powi(2))
                         || ((fire_x - fire_x_comp * weapon_fire.height / 2.0 - vehicle_x).powi(2)
                             + (fire_y - fire_y_comp * weapon_fire.height / 2.0 - vehicle_y).powi(2)
                             < vehicle.width.powi(2))
