@@ -24,11 +24,11 @@ mod components;
 mod entities;
 mod resources;
 mod systems;
+mod audio;
 
-use crate::rally::GameplayState;
 use crate::welcome::WelcomeScreen;
 
-mod audio;
+
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -73,7 +73,6 @@ fn main() -> amethyst::Result<()> {
         )?;
 
     let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
-
 
     game.run();
 
