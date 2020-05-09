@@ -1,4 +1,4 @@
-# Rally!
+# Rocket Rally!
 
 This is my first attempt at using rust, my first attempt to use an Entity-Component-System, and my first attempt to make an actual game.
 
@@ -10,7 +10,7 @@ Currently this is a 2D overhead-view vehicle combat game where the goal is to ge
 ![Imgur](https://i.imgur.com/nNXtVhu.png)
 ---
 
-# Vehicles
+## Vehicles
 
 __Vehicles__ can accelerate, decelerate, and turn with its __Engines__.
 
@@ -25,9 +25,10 @@ __Armor__ is permanently lost. Armor will only be removed after your __Shields__
 __Health__ is lost after you at hit with no __Shields__ and no __Armor__. __Health__ is also lost if hit by a piercing damage weapon. __Health__ can be repaired by holding the __Repair__ button. 
 After fully repairing all __Health__, the __Shields__ will eventually re-boot if you continue holding __Repair__.
 Note that using __Repair__ will disable all use of __Engines__ and __Weapons__.
+
 ---
 
-# Weapons
+## Weapons
 
 There are various weapons with various properties, including:
 * Lasers
@@ -47,7 +48,7 @@ There are various weapons with various properties, including:
 * health damage multiplier
 ---
 
-# Game Modes
+## Game Modes
 - __Classic Gun Game__: First to get a kill with each weapon wins. Weapons are hot-swapped after each kill.
 - __Deathmatch: Kills__: First to a certain number of kills wins. New weapons can be picked up from arena.
 - __Deathmatch: Stock__: If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
@@ -57,7 +58,7 @@ There are various weapons with various properties, including:
 ---
 
 
-# TODO:
+## TODO:
 1. What happens when you die from collision.
     - Lose a gun-level? If another player recently hit you then they get the kill?
     - In TimedKD mode need to have self destruct collisions count as minus 2 deaths.
