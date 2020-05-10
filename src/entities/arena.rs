@@ -79,6 +79,7 @@ pub fn initialize_arena_walls(
             false, 
             RaceCheckpointType::NotCheckpoint,
             0,
+            false,
         ))
         .with(wall_transform)
         .with(wall_sprite_render)
@@ -161,6 +162,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::LapStart,
                 0,
+                false,
             ))
             .build();
 
@@ -185,6 +187,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::LapFinish,
                 0,
+                false,
             ))
             .build();
 
@@ -209,6 +212,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::CheckpointStart,
                 1,
+                false,
             ))
             .build();
 
@@ -233,6 +237,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::CheckpointFinish,
                 1,
+                false,
             ))
             .build();
 
@@ -263,6 +268,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::CheckpointStart,
                 2,
+                false,
             ))
             .build();
 
@@ -287,6 +293,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::CheckpointFinish,
                 2,
+                false,
             ))
             .build();
 
@@ -319,6 +326,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::NotCheckpoint,
                 0,
+                false,
             ))
             .build();
 
@@ -350,6 +358,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::NotCheckpoint,
                 0,
+                false,
             ))
             .build();
 
@@ -381,6 +390,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::NotCheckpoint,
                 0,
+                false,
             ))
             .build();
 
@@ -412,6 +422,7 @@ pub fn initialize_arena_walls(
                 false,
                 RaceCheckpointType::NotCheckpoint,
                 0,
+                false,
             ))
             .build();
 
@@ -448,6 +459,7 @@ pub fn initialize_arena_walls(
                     true,
                     RaceCheckpointType::NotCheckpoint,
                     0,
+                    false,
                 ))
                 .with(Transparent)
                 .with(king_tint)
@@ -479,6 +491,7 @@ pub fn initialize_arena_walls(
                     false,
                     RaceCheckpointType::NotCheckpoint,
                     0,
+                    false,
                 ))
                 .build();
         }
@@ -529,6 +542,7 @@ pub fn initialize_arena_walls(
                     false,
                     RaceCheckpointType::NotCheckpoint,
                     0,
+                    false,
                 ))
                 .build();
         }

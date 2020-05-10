@@ -16,7 +16,7 @@ use crate::components::{
     Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
 };
 
-use crate::rally::{vehicle_damage_model, spawn_weapon_box};
+use crate::rally::{vehicle_damage_model, spawn_weapon_boxes};
 use crate::resources::{WeaponFireResource, GameModes, GameModeSetup};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
@@ -75,29 +75,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
     ) {
         let dt = time.delta_seconds();
 
-
         if game_mode_setup.random_weapon_spawns && game_mode_setup.game_mode != GameModes::ClassicGunGame {
             self.weapon_spawner_cooldown_timer -= dt;
-
-            if self.weapon_spawner_cooldown_timer <= 0.0 {
-                self.weapon_spawner_cooldown_timer = 20.0;
-                
-                spawn_weapon_box(
-                    &entities,
-                    &weapon_fire_resource,
-                    &lazy_update,
-                );
-
-                spawn_weapon_box(
-                    &entities,
-                    &weapon_fire_resource,
-                    &lazy_update,
-                );
-            }
         }
 
-
-        for (hitbox, transform) in (&hitboxes, &transforms).join() {
+        for (entity, hitbox, transform) in (&*entities, &hitboxes, &transforms).join() {
             if hitbox.is_wall {
                 let hitbox_x = transform.translation().x;
                 let hitbox_y = transform.translation().y;
@@ -117,7 +99,28 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     }
                 }
             }
+            else if hitbox.is_weapon_box { //delete old weapon_boxes
+                if self.weapon_spawner_cooldown_timer <= 0.0 {
+                    let _ = entities.delete(entity);
+                }
+            }
         }
+
+
+        if game_mode_setup.random_weapon_spawns && game_mode_setup.game_mode != GameModes::ClassicGunGame {
+            if self.weapon_spawner_cooldown_timer <= 0.0 {
+                self.weapon_spawner_cooldown_timer = game_mode_setup.weapon_spawn_timer;
+
+                spawn_weapon_boxes(
+                    2,
+                    &entities,
+                    &weapon_fire_resource,
+                    &lazy_update,
+                );
+            }
+        }
+
+
 
         let mut player_makes_kill_map = HashMap::new();
         let mut player_got_killed_map = HashMap::new();

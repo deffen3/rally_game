@@ -45,6 +45,8 @@ impl SimpleState for MainMenu {
             checkpoint_count: 0,
             starter_weapon: WeaponNames::LaserDoubleGimballed,
             random_weapon_spawns: false,
+            weapon_spawn_count: 2,
+            weapon_spawn_timer: 20.0,
             max_players: 4,
             bot_players: 3,
         });

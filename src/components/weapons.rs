@@ -15,6 +15,7 @@ use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
 use std::f32::consts::PI;
+use rand::Rng;
 
 use crate::components::{PlayerWeaponIcon};
 use crate::rally::UI_HEIGHT;
@@ -50,7 +51,10 @@ pub enum WeaponNames {
 }
 
 
-pub fn get_random_weapon_name(index: u32) -> WeaponNames {
+pub fn get_random_weapon_name() -> WeaponNames {
+    let mut rng = rand::thread_rng();
+    let index = rng.gen_range(0, 21);
+
     match index {
         0 => WeaponNames::LaserDoubleGimballed,
         1 => WeaponNames::LaserDoubleGimballed,

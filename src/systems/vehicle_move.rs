@@ -1,6 +1,9 @@
 use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
-use amethyst::ecs::{World, Entities, Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteStorage};
+use amethyst::ecs::{
+    World, LazyUpdate, Entities, Join, 
+    Read, ReadExpect, ReadStorage, 
+    System, SystemData, WriteStorage};
 use amethyst::input::{InputHandler, StringBindings};
 use amethyst::renderer::{
     palette::Srgba,
@@ -15,12 +18,15 @@ use log::debug;
 use rand::Rng;
 use std::f32::consts::PI;
 
+use std::collections::HashMap;
+
 use crate::components::{
     check_respawn_vehicle, kill_restart_vehicle, 
     BotMode, Hitbox, HitboxShape, RaceCheckpointType,
-    Player, Vehicle, Weapon, VehicleState,
+    Player, Vehicle, Weapon, VehicleState, PlayerWeaponIcon,
+    get_random_weapon_name, update_weapon_properties, update_weapon_icon,
 };
-use crate::resources::{GameModeSetup};
+use crate::resources::{GameModeSetup, WeaponFireResource};
 
 use crate::rally::{
     vehicle_damage_model, 
@@ -52,7 +58,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
-        ReadStorage<'s, Weapon>,
+        WriteStorage<'s, Weapon>,
         Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>,
         Read<'s, AssetStorage<Source>>,
@@ -60,6 +66,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
         Option<Read<'s, Output>>,
         WriteStorage<'s, Tint>,
         ReadExpect<'s, GameModeSetup>,
+        ReadStorage<'s, PlayerWeaponIcon>,
+        ReadExpect<'s, WeaponFireResource>,
+        ReadExpect<'s, LazyUpdate>,
     );
 
     fn setup(&mut self, _world: &mut World) {
@@ -75,7 +84,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             mut players,
             mut transforms,
             mut vehicles,
-            weapons,
+            mut weapons,
             time,
             input,
             storage,
@@ -83,6 +92,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
             audio_output,
             mut tints,
             game_mode_setup,
+            player_weapon_icons,
+            weapon_fire_resource,
+            lazy_update,
         ): Self::SystemData,
     ) {
         let mut rng = rand::thread_rng();
@@ -457,15 +469,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
         }
 
-        //hitbox collision logic, right now only applied to circular arena obstacles
+        //hitbox collision logic
         let mut player_destroyed: Vec<usize> = Vec::new();
         let mut player_arena_bounce: Vec<usize> = Vec::new();
 
         let mut players_on_hill: Vec<usize> = Vec::new();
         let mut color_for_hill: Vec<(f32,f32,f32)> = Vec::new();
 
+        let mut weapon_icons_old_map = HashMap::new();
 
-        for (player, vehicle, transform) in (&mut players, &mut vehicles, &transforms).join() {
+
+        for (player, vehicle, mut weapon, transform) in (&mut players, &mut vehicles, &mut weapons, &transforms).join() {
             if vehicle.state == VehicleState::Active {
                 let wall_hit_non_bounce_decel_pct: f32 = 0.65;
                 let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
@@ -491,7 +505,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let mut lap_stages: [bool; 2] = [false; 2];
 
 
-                for (hitbox, hitbox_transform) in (&hitboxes, &transforms).join() {
+                for (hitbox_entity, hitbox, hitbox_transform) in (&*entities, &hitboxes, &transforms).join() {
                     let hitbox_x = hitbox_transform.translation().x;
                     let hitbox_y = hitbox_transform.translation().y;
 
@@ -583,6 +597,23 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                 vehicle.collision_cooldown_timer = 1.0;
                             }
+                        } else if hitbox.is_weapon_box {
+                            let _ = entities.delete(hitbox_entity);
+
+                            let new_weapon_name = get_random_weapon_name();
+
+                            weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
+
+                            update_weapon_properties(weapon, new_weapon_name);
+                            update_weapon_icon(
+                                &entities,
+                                &mut weapon,
+                                &weapon_fire_resource,
+                                player.id,
+                                &lazy_update,
+                            );
+
+                            vehicle.weapon_weight = weapon.stats.weight;
                         } else if hitbox.is_hill {
                             players_on_hill.push(player.id.clone());
 
@@ -676,6 +707,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 }
                 else {
                     *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+                }
+            }
+        }
+
+        for (entity, player_icon) in (&*entities, &player_weapon_icons).join() {
+            let weapon_icons_old = weapon_icons_old_map.get(&player_icon.id);
+
+            if let Some(weapon_icons_old) = weapon_icons_old {
+                let weapon_type = weapon_icons_old;
+                if *weapon_type == player_icon.weapon_type {
+                    let _ = entities.delete(entity);
                 }
             }
         }

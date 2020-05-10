@@ -44,6 +44,8 @@ pub struct GameModeSetup {
     pub checkpoint_count: i32,
     pub starter_weapon: WeaponNames,
     pub random_weapon_spawns: bool,
+    pub weapon_spawn_count: u32,
+    pub weapon_spawn_timer: f32,
     pub max_players: usize,
     pub bot_players: usize,
 }

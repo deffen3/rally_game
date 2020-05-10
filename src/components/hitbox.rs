@@ -25,6 +25,7 @@ pub struct Hitbox {
     pub is_hill: bool,
     pub checkpoint: RaceCheckpointType,
     pub checkpoint_id: i32,
+    pub is_weapon_box: bool,
 }
 
 impl Component for Hitbox {
@@ -36,6 +37,7 @@ impl Hitbox {
             shape: HitboxShape,
             is_wall: bool, is_hill: bool,
             checkpoint: RaceCheckpointType, checkpoint_id: i32,
+            is_weapon_box: bool,
         ) -> Hitbox {
         Hitbox {
             width,
@@ -46,6 +48,7 @@ impl Hitbox {
             is_hill,
             checkpoint,
             checkpoint_id,
+            is_weapon_box,
         }
     }
 }
