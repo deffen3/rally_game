@@ -70,8 +70,6 @@ impl SimpleState for MainMenu {
             chance_aggregate += (*value as f32) / (chance_total as f32);
         }
 
-        log::info!("{:?}", weapon_spawn_chances);
-
         //Start off with default classic gun game mode
         world.insert(GameModeSetup {
             game_mode: GameModes::ClassicGunGame,

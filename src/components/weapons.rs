@@ -48,8 +48,6 @@ pub fn get_random_weapon_name(game_mode_setup: &ReadExpect<GameModeSetup>) -> We
 
     let mut weapon_selector = game_mode_setup.starter_weapon.clone();
 
-    log::info!("{}", chance_selector);
-
     for (weapon_name, chance) in game_mode_setup.weapon_spawn_chances.iter() {
         if *chance >= chance_selector {
             weapon_selector = weapon_name.clone();
