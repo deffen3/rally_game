@@ -45,15 +45,21 @@ impl<'s> System<'s> for VehicleStatusSystem {
             match_timer.time += dt;
         }
 
+        let match_time: f32;
+
         //if match has a time limit, display time remaining
         if game_mode_setup.match_time_limit > 0.0 {
-            ui_text.get_mut(match_timer.ui_entity).unwrap().text =
-                format!("{:.0}", game_mode_setup.match_time_limit - match_timer.time);
+            match_time = game_mode_setup.match_time_limit - match_timer.time;
         } else {
             //else display timer counting up
-            ui_text.get_mut(match_timer.ui_entity).unwrap().text =
-                format!("{:.0}", match_timer.time);
+            match_time = match_timer.time;
         }
+
+        let match_time_seconds: i32 = match_time.floor() as i32 % 60;
+        let match_time_minutes: i32 = match_time.floor() as i32 / 60;
+
+        ui_text.get_mut(match_timer.ui_entity).unwrap().text =
+            format!("{:.0}:{:0>2.0}", match_time_minutes, match_time_seconds);
 
         //for (player, vehicle) in (players, vehicles).join() {
         for (player, vehicle) in (&players, &vehicles).join() {

@@ -13,7 +13,7 @@ use std::collections::HashMap;
 
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
-    Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
+    Hitbox, Player, PlayerWeaponIcon, Vehicle, VehicleState, Weapon, WeaponFire,
 };
 
 use crate::rally::{spawn_weapon_boxes, vehicle_damage_model};
@@ -170,7 +170,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             weapon_fire.health_damage_pct,
                         );
 
-                        if vehicle_destroyed {
+                        if vehicle_destroyed && vehicle.state == VehicleState::Active {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
 
                             player_makes_kill_map.insert(
