@@ -120,6 +120,9 @@ impl SimpleState for MainMenu {
                 let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
 
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
+                    game_mode_setup.max_players = 4;
+                    game_mode_setup.bot_players = 3;
+
                     if Some(target) == self.button_classic_gun_game {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
 
