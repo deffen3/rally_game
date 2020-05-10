@@ -1,48 +1,42 @@
 use amethyst::core::math::Vector3;
+use amethyst::renderer::{palette::Srgba, resources::Tint, Transparent};
 use amethyst::{
     assets::Handle,
-    core::transform::{Transform},
-    ecs::prelude::{World},
+    core::transform::Transform,
+    ecs::prelude::World,
     prelude::*,
     renderer::{SpriteRender, SpriteSheet},
     utils::removal::Removal,
-};
-use amethyst::renderer::{
-    Transparent,
-    palette::Srgba,
-    resources::Tint,
 };
 
 use std::f32::consts::PI;
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
-use crate::resources::{GameModes, GameModeSetup};
+use crate::resources::{GameModeSetup, GameModes};
 
 pub fn initialize_arena_walls(
-        world: &mut World, 
-        sprite_sheet_handle: Handle<SpriteSheet>,
-        texture_sheet_handle: Handle<SpriteSheet>,
-        //game_mode: GameModes,
-    ) {
-
+    world: &mut World,
+    sprite_sheet_handle: Handle<SpriteSheet>,
+    texture_sheet_handle: Handle<SpriteSheet>,
+    //game_mode: GameModes,
+) {
     let game_mode;
     {
         let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
         if let Some(game_mode_setup) = fetched_game_mode_setup {
             game_mode = game_mode_setup.game_mode.clone();
-        }
-        else {
+        } else {
             game_mode = GameModes::ClassicGunGame;
         }
     }
-    
+
     let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
 
     //arena floor
     let mut floor_transform = Transform::default();
-    floor_transform.set_translation_xyz(ARENA_WIDTH/2.0, arena_ui_height/2.0, -0.05);
+    floor_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, -0.05);
     floor_transform.set_scale(Vector3::new(6.25, 5.75, 0.0));
 
     let floor_texture_render = SpriteRender {
@@ -74,9 +68,9 @@ pub fn initialize_arena_walls(
             20.0,
             2.0,
             0.0,
-            HitboxShape::Rectangle, 
-            true, 
-            false, 
+            HitboxShape::Rectangle,
+            true,
+            false,
             RaceCheckpointType::NotCheckpoint,
             0,
             false,
@@ -85,10 +79,9 @@ pub fn initialize_arena_walls(
         .with(wall_sprite_render)
         .build();
 
-
     //bottom UI background
     let mut ui_back_transform = Transform::default();
-    ui_back_transform.set_translation_xyz(0.0, UI_HEIGHT/2.0 - 1.0, 0.35);
+    ui_back_transform.set_translation_xyz(0.0, UI_HEIGHT / 2.0 - 1.0, 0.35);
     ui_back_transform.set_scale(Vector3::new(40.0, 9.0, 0.0));
 
     let ui_back_sprite_render = SpriteRender {
@@ -102,8 +95,6 @@ pub fn initialize_arena_walls(
         .with(ui_back_transform)
         .with(ui_back_sprite_render)
         .build();
-    
-
 
     //UI divider walls
 
@@ -132,15 +123,17 @@ pub fn initialize_arena_walls(
             .with(wall_sprite_render)
             .build();
     }
-    
-    
 
     if game_mode == GameModes::Race {
         //the "start/finish line"
         let mut finsh_line_transform = Transform::default();
         let scale = 4.0;
 
-        finsh_line_transform.set_translation_xyz(ARENA_WIDTH - 10.0*scale, arena_ui_height / 2.0, -0.02);
+        finsh_line_transform.set_translation_xyz(
+            ARENA_WIDTH - 10.0 * scale,
+            arena_ui_height / 2.0,
+            -0.02,
+        );
         finsh_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let finish_line_sprite_render = SpriteRender {
@@ -166,12 +159,15 @@ pub fn initialize_arena_walls(
             ))
             .build();
 
-
         //the crossed "start/finish line" hitbox
         let mut finsh_line_transform = Transform::default();
         let scale = 4.0;
 
-        finsh_line_transform.set_translation_xyz(ARENA_WIDTH - 10.0*scale, arena_ui_height / 2.0 + 2.0*scale, -0.02);
+        finsh_line_transform.set_translation_xyz(
+            ARENA_WIDTH - 10.0 * scale,
+            arena_ui_height / 2.0 + 2.0 * scale,
+            -0.02,
+        );
         finsh_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         world
@@ -191,12 +187,15 @@ pub fn initialize_arena_walls(
             ))
             .build();
 
-
         //hidden checkpoint
         let mut finsh_line_transform = Transform::default();
         let scale = 4.0;
 
-        finsh_line_transform.set_translation_xyz(ARENA_WIDTH - 10.0*scale, arena_ui_height / 2.0 + 6.0 * scale, -0.02);
+        finsh_line_transform.set_translation_xyz(
+            ARENA_WIDTH - 10.0 * scale,
+            arena_ui_height / 2.0 + 6.0 * scale,
+            -0.02,
+        );
         finsh_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         world
@@ -216,12 +215,15 @@ pub fn initialize_arena_walls(
             ))
             .build();
 
-
         //hidden checkpoint crossed
         let mut finsh_line_transform = Transform::default();
         let scale = 4.0;
 
-        finsh_line_transform.set_translation_xyz(ARENA_WIDTH - 10.0*scale, arena_ui_height / 2.0 + 8.0*scale, -0.02);
+        finsh_line_transform.set_translation_xyz(
+            ARENA_WIDTH - 10.0 * scale,
+            arena_ui_height / 2.0 + 8.0 * scale,
+            -0.02,
+        );
         finsh_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         world
@@ -241,12 +243,11 @@ pub fn initialize_arena_walls(
             ))
             .build();
 
-
         //a visual "checkpoint line"
         let mut finsh_line_transform = Transform::default();
         let scale = 4.0;
 
-        finsh_line_transform.set_translation_xyz(10.0*scale, arena_ui_height / 2.0, -0.02);
+        finsh_line_transform.set_translation_xyz(10.0 * scale, arena_ui_height / 2.0, -0.02);
         finsh_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let finish_line_sprite_render = SpriteRender {
@@ -272,12 +273,15 @@ pub fn initialize_arena_walls(
             ))
             .build();
 
-
         //visual crossed "checkpoint line" hitbox
         let mut finsh_line_transform = Transform::default();
         let scale = 4.0;
 
-        finsh_line_transform.set_translation_xyz(10.0*scale, arena_ui_height / 2.0 - 2.0*scale, -0.02);
+        finsh_line_transform.set_translation_xyz(
+            10.0 * scale,
+            arena_ui_height / 2.0 - 2.0 * scale,
+            -0.02,
+        );
         finsh_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         world
@@ -297,12 +301,15 @@ pub fn initialize_arena_walls(
             ))
             .build();
 
-
         //track layout
         let mut track_transform = Transform::default();
         let scale = 4.0;
 
-        track_transform.set_translation_xyz(ARENA_WIDTH - 20.0*scale - 5.0/2.0*scale, arena_ui_height / 2.0, -0.02);
+        track_transform.set_translation_xyz(
+            ARENA_WIDTH - 20.0 * scale - 5.0 / 2.0 * scale,
+            arena_ui_height / 2.0,
+            -0.02,
+        );
         track_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let track_sprite_render = SpriteRender {
@@ -329,12 +336,15 @@ pub fn initialize_arena_walls(
                 false,
             ))
             .build();
-
 
         let mut track_transform = Transform::default();
         let scale = 4.0;
 
-        track_transform.set_translation_xyz(ARENA_WIDTH - 20.0*scale - 5.0/2.0*scale, arena_ui_height / 2.0 + 10.0*scale, -0.02);
+        track_transform.set_translation_xyz(
+            ARENA_WIDTH - 20.0 * scale - 5.0 / 2.0 * scale,
+            arena_ui_height / 2.0 + 10.0 * scale,
+            -0.02,
+        );
         track_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let track_sprite_render = SpriteRender {
@@ -361,12 +371,15 @@ pub fn initialize_arena_walls(
                 false,
             ))
             .build();
-
 
         let mut track_transform = Transform::default();
         let scale = 4.0;
 
-        track_transform.set_translation_xyz(ARENA_WIDTH - 20.0*scale - 5.0/2.0*scale, arena_ui_height / 2.0 - 10.0*scale, -0.02);
+        track_transform.set_translation_xyz(
+            ARENA_WIDTH - 20.0 * scale - 5.0 / 2.0 * scale,
+            arena_ui_height / 2.0 - 10.0 * scale,
+            -0.02,
+        );
         track_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let track_sprite_render = SpriteRender {
@@ -393,12 +406,15 @@ pub fn initialize_arena_walls(
                 false,
             ))
             .build();
-
 
         let mut track_transform = Transform::default();
         let scale = 4.0;
 
-        track_transform.set_translation_xyz(20.0*scale + 5.0/2.0*scale, arena_ui_height / 2.0, -0.02);
+        track_transform.set_translation_xyz(
+            20.0 * scale + 5.0 / 2.0 * scale,
+            arena_ui_height / 2.0,
+            -0.02,
+        );
         track_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let track_sprite_render = SpriteRender {
@@ -425,26 +441,24 @@ pub fn initialize_arena_walls(
                 false,
             ))
             .build();
-
     } else {
         if game_mode == GameModes::KingOfTheHill {
             //the "hill"
             let mut circle_transform = Transform::default();
             let scale = 4.0;
-    
+
             circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, -0.02);
             circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
-    
+
             let circle_sprite_render = SpriteRender {
                 sprite_sheet: sprite_sheet_handle.clone(),
                 sprite_number: 29,
             };
-    
-    
+
             // White shows the sprite as normal.
             // You can change the color at any point to modify the sprite's tint.
             let king_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
-    
+
             world
                 .create_entity()
                 .with(Removal::new(0 as u32))
@@ -468,15 +482,15 @@ pub fn initialize_arena_walls(
             //central arena wall circle
             let mut circle_transform = Transform::default();
             let scale = 4.0;
-    
+
             circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, 0.38);
             circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
-    
+
             let circle_sprite_render = SpriteRender {
                 sprite_sheet: sprite_sheet_handle.clone(),
                 sprite_number: 14,
             };
-    
+
             world
                 .create_entity()
                 .with(Removal::new(0 as u32))
@@ -495,7 +509,6 @@ pub fn initialize_arena_walls(
                 ))
                 .build();
         }
-
 
         //outer arena wall circles
         let spacing_factor = 5.0;

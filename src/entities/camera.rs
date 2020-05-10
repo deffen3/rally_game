@@ -1,6 +1,6 @@
 use amethyst::{
-    core::transform::{Transform, Parent},
-    ecs::prelude::{World, Entity},
+    core::transform::{Parent, Transform},
+    ecs::prelude::{Entity, World},
     prelude::*,
     renderer::Camera,
 };
@@ -26,7 +26,7 @@ pub fn initialize_camera_to_player(world: &mut World, parent: Entity) {
 
     world
         .create_entity()
-        .with(Parent {entity: parent})
+        .with(Parent { entity: parent })
         .with(Camera::standard_2d(ARENA_WIDTH, ARENA_HEIGHT))
         .with(transform)
         .build();

@@ -5,13 +5,12 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 use rand::Rng;
 use std::f32::consts::PI;
 
+use crate::components::{Armor, Health, Player, Repair, Shield};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
-use crate::components::{Shield, Armor, Health, Repair, Player};
-use crate::resources::{GameModes};
+use crate::resources::GameModes;
 
 pub const VEHICLE_HEIGHT: f32 = 12.0;
 pub const VEHICLE_WIDTH: f32 = 7.0;
-
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum VehicleState {
@@ -19,7 +18,6 @@ pub enum VehicleState {
     InActive,
     InRespawn,
 }
-
 
 pub struct Vehicle {
     pub width: f32,
@@ -46,7 +44,6 @@ pub struct Vehicle {
     pub death_angle: f32,
     pub state: VehicleState,
     pub player_status_text: PlayerStatusText,
-    
 }
 
 impl Component for Vehicle {
@@ -54,18 +51,19 @@ impl Component for Vehicle {
 }
 
 impl Vehicle {
-    pub fn new(player_status_text: PlayerStatusText,
-            health_entity: Entity,
-            armor_entity: Entity,
-            shield_entity: Entity,
-            repair_entity: Entity,
-            max_shield: f32,
-            max_armor: f32,
-            max_health: f32,
-            engine_force: f32,
-            engine_weight: f32,
-            max_velocity: f32,
-            weapon_weight: f32,
+    pub fn new(
+        player_status_text: PlayerStatusText,
+        health_entity: Entity,
+        armor_entity: Entity,
+        shield_entity: Entity,
+        repair_entity: Entity,
+        max_shield: f32,
+        max_armor: f32,
+        max_health: f32,
+        engine_force: f32,
+        engine_weight: f32,
+        max_velocity: f32,
+        weapon_weight: f32,
     ) -> Vehicle {
         Vehicle {
             width: VEHICLE_WIDTH,
@@ -121,12 +119,11 @@ impl Vehicle {
 }
 
 pub fn kill_restart_vehicle(
-        player: &Player, 
-        vehicle: &mut Vehicle, 
-        transform: &mut Transform,
-        stock_lives: i32,
-    ) {
-
+    player: &Player,
+    vehicle: &mut Vehicle,
+    transform: &mut Transform,
+    stock_lives: i32,
+) {
     vehicle.death_x = transform.translation().x;
     vehicle.death_y = transform.translation().y;
 
@@ -138,20 +135,18 @@ pub fn kill_restart_vehicle(
 
     if stock_lives > 0 && player.deaths >= stock_lives {
         vehicle.state = VehicleState::InActive;
-    }
-    else {
+    } else {
         vehicle.state = VehicleState::InRespawn;
-    }    
+    }
 }
 
-
 pub fn check_respawn_vehicle(
-        vehicle: &mut Vehicle,
-        transform: &mut Transform,
-        dt: f32,
-        game_mode: GameModes,
-        last_spawn_index: u32,
-    ) -> u32 {
+    vehicle: &mut Vehicle,
+    transform: &mut Transform,
+    dt: f32,
+    game_mode: GameModes,
+    last_spawn_index: u32,
+) -> u32 {
     let mut rng = rand::thread_rng();
 
     let mut spawn_index = last_spawn_index;
@@ -177,8 +172,7 @@ pub fn check_respawn_vehicle(
             if game_mode == GameModes::Race {
                 transform.set_rotation_2d(vehicle.death_angle);
                 transform.set_translation_xyz(vehicle.death_x, vehicle.death_y, 0.0);
-            }
-            else {
+            } else {
                 //Ensure that the spawn_index != last_spawn_index
                 spawn_index = rng.gen_range(0, 3) as u32;
 

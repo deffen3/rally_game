@@ -1,30 +1,22 @@
 use amethyst::{
-    core::transform::Transform,
     core::math::Vector3,
-    ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect, Component, DenseVecStorage},
-    renderer::{
-        Transparent,
-        SpriteRender,
-        palette::Srgba,
-        resources::Tint,
-    },
+    core::transform::Transform,
+    ecs::prelude::{Component, DenseVecStorage, Entities, Entity, LazyUpdate, ReadExpect},
+    renderer::{palette::Srgba, resources::Tint, SpriteRender, Transparent},
     utils::removal::Removal,
 };
 
+use rand::Rng;
 use ron::de::from_reader;
 use serde::Deserialize;
-use std::{collections::HashMap, fs::File};
 use std::f32::consts::PI;
-use rand::Rng;
+use std::{collections::HashMap, fs::File};
 
-use crate::components::{PlayerWeaponIcon};
+use crate::components::PlayerWeaponIcon;
 use crate::rally::UI_HEIGHT;
 use crate::resources::WeaponFireResource;
 
-
 //pub const WEAPON_CONFIGS: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
-
-
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
 pub enum WeaponNames {
@@ -49,7 +41,6 @@ pub enum WeaponNames {
     SuperRocketGrenades,
     Flamethrower,
 }
-
 
 pub fn get_random_weapon_name() -> WeaponNames {
     let mut rng = rand::thread_rng();
@@ -81,8 +72,6 @@ pub fn get_random_weapon_name() -> WeaponNames {
     }
 }
 
-
-
 //For Gun-Game mode rules
 pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
     match weapon_name {
@@ -108,8 +97,6 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::LaserPulse => None,
     }
 }
-
-
 
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct WeaponStats {
@@ -137,11 +124,9 @@ pub struct WeaponStats {
 pub fn build_weapon_store() -> HashMap<WeaponNames, WeaponStats> {
     let input_path = format!("{}/config/weapons.ron", env!("CARGO_MANIFEST_DIR"));
     let f = File::open(&input_path).expect("Failed opening file");
-    
+
     from_reader(f).expect("Failed to load config")
 }
-
-
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum WeaponTypes {
@@ -158,7 +143,6 @@ pub enum WeaponTypes {
     LaserSword,
     Flame,
 }
-
 
 #[derive(Clone)]
 pub struct Weapon {
@@ -177,11 +161,7 @@ impl Component for Weapon {
 }
 
 impl Weapon {
-    pub fn new(
-        name: WeaponNames,
-        icon_entity: Entity,
-        stats: WeaponStats,
-    ) -> Weapon {
+    pub fn new(name: WeaponNames, icon_entity: Entity, stats: WeaponStats) -> Weapon {
         Weapon {
             name,
             icon_entity,
@@ -285,19 +265,12 @@ impl WeaponFire {
     }
 }
 
-
-
-
 pub fn update_weapon_properties(weapon: &mut Weapon, weapon_name: WeaponNames) {
     weapon.name = weapon_name.clone();
     weapon.stats = build_named_weapon(weapon_name);
 }
 
-
-pub fn build_named_weapon(
-    weapon_name: WeaponNames,
-) -> WeaponStats {
-
+pub fn build_named_weapon(weapon_name: WeaponNames) -> WeaponStats {
     let weapon_configs_map: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
 
     match weapon_configs_map.get(&weapon_name) {
@@ -322,10 +295,9 @@ pub fn build_named_weapon(
             piercing_damage_pct: 0.0,
             health_damage_pct: 0.0,
             weight: 0.0,
-        }
+        },
     }
 }
-
 
 pub fn update_weapon_icon(
     entities: &Entities,
@@ -348,8 +320,9 @@ pub fn update_weapon_icon(
 
     let weapon_icon_dx = 70.0;
 
-    let (icon_scale, weapon_sprite) = get_weapon_icon(player_id, weapon.stats, weapon_fire_resource);
-    
+    let (icon_scale, weapon_sprite) =
+        get_weapon_icon(player_id, weapon.stats, weapon_fire_resource);
+
     let mut icon_weapon_transform = Transform::default();
 
     let starting_x = match player_id {
@@ -374,11 +347,11 @@ pub fn update_weapon_icon(
     lazy_update.insert(weapon_entity, Removal::new(0 as u32));
 }
 
-
-pub fn get_weapon_icon(player_id: usize,
-        weapon_stats: WeaponStats, 
-        weapon_fire_resource: &WeaponFireResource,
-    ) -> (f32, SpriteRender) {
+pub fn get_weapon_icon(
+    player_id: usize,
+    weapon_stats: WeaponStats,
+    weapon_fire_resource: &WeaponFireResource,
+) -> (f32, SpriteRender) {
     let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type {
         WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
@@ -403,26 +376,21 @@ pub fn get_weapon_icon(player_id: usize,
 
     if weapon_stats.weapon_type == WeaponTypes::Mine {
         weapon_sprite = get_mine_sprite(player_id, weapon_stats.shot_speed, weapon_fire_resource);
-    }
-    else if weapon_stats.weapon_type == WeaponTypes::Trap {
+    } else if weapon_stats.weapon_type == WeaponTypes::Trap {
         weapon_sprite = get_trap_sprite(player_id, weapon_fire_resource);
     }
 
     (icon_scale, weapon_sprite)
 }
 
-
-
-
-pub fn get_mine_sprite(player_id: usize,
-        shot_speed: f32,
-        weapon_fire_resource: &WeaponFireResource,
-    ) -> SpriteRender
-{
+pub fn get_mine_sprite(
+    player_id: usize,
+    shot_speed: f32,
+    weapon_fire_resource: &WeaponFireResource,
+) -> SpriteRender {
     if shot_speed > 0.0 {
         weapon_fire_resource.mine_neutral_sprite_render.clone()
-    }
-    else {
+    } else {
         match player_id {
             0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
             1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
@@ -433,10 +401,10 @@ pub fn get_mine_sprite(player_id: usize,
     }
 }
 
-pub fn get_trap_sprite(player_id: usize,
+pub fn get_trap_sprite(
+    player_id: usize,
     weapon_fire_resource: &WeaponFireResource,
-) -> SpriteRender
-{
+) -> SpriteRender {
     match player_id {
         0 => weapon_fire_resource.trap_p1_sprite_render.clone(),
         1 => weapon_fire_resource.trap_p2_sprite_render.clone(),

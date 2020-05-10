@@ -1,13 +1,15 @@
 use amethyst::{
-    ecs::{Join, ReadStorage, ReadExpect, WriteExpect, System, SystemData, WriteStorage, Read, World},
-    derive::SystemDesc,
-    ui::UiText,
     core::Time,
+    derive::SystemDesc,
+    ecs::{
+        Join, Read, ReadExpect, ReadStorage, System, SystemData, World, WriteExpect, WriteStorage,
+    },
+    ui::UiText,
 };
 
 use crate::components::{Player, Vehicle};
 
-use crate::resources::{GameModes, GameModeSetup, MatchTimer};
+use crate::resources::{GameModeSetup, GameModes, MatchTimer};
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleStatusSystem {
@@ -30,37 +32,28 @@ impl<'s> System<'s> for VehicleStatusSystem {
         self.losers = vec![];
     }
 
-    fn run(&mut self, (
-            players,
-            vehicles,
-            mut ui_text,
-            time,
-            game_mode_setup,
-            mut match_timer,
-        ): Self::SystemData) {
-
+    fn run(
+        &mut self,
+        (players, vehicles, mut ui_text, time, game_mode_setup, mut match_timer): Self::SystemData,
+    ) {
         let dt = time.delta_seconds();
 
         //if no match time limit exists, or it does exist and timer is within the limit
-        if game_mode_setup.match_time_limit < 0.0 || match_timer.time < game_mode_setup.match_time_limit {
+        if game_mode_setup.match_time_limit < 0.0
+            || match_timer.time < game_mode_setup.match_time_limit
+        {
             match_timer.time += dt;
         }
 
         //if match has a time limit, display time remaining
-        if game_mode_setup.match_time_limit > 0.0  {
-            ui_text
-                .get_mut(match_timer.ui_entity)
-                .unwrap()
-                .text = format!("{:.0}", game_mode_setup.match_time_limit - match_timer.time);
+        if game_mode_setup.match_time_limit > 0.0 {
+            ui_text.get_mut(match_timer.ui_entity).unwrap().text =
+                format!("{:.0}", game_mode_setup.match_time_limit - match_timer.time);
+        } else {
+            //else display timer counting up
+            ui_text.get_mut(match_timer.ui_entity).unwrap().text =
+                format!("{:.0}", match_timer.time);
         }
-        else { //else display timer counting up
-            ui_text
-                .get_mut(match_timer.ui_entity)
-                .unwrap()
-                .text = format!("{:.0}", match_timer.time);
-        }
-
-
 
         //for (player, vehicle) in (players, vehicles).join() {
         for (player, vehicle) in (&players, &vehicles).join() {
@@ -68,7 +61,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 .get_mut(vehicle.player_status_text.shield)
                 .unwrap()
                 .text = format!("{:.0}", vehicle.shield.value.ceil());
-                
+
             ui_text
                 .get_mut(vehicle.player_status_text.armor)
                 .unwrap()
@@ -78,7 +71,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 .get_mut(vehicle.player_status_text.health)
                 .unwrap()
                 .text = format!("{:.0}", vehicle.health.value.ceil());
-
 
             /*
             pub enum GameModes {
@@ -92,7 +84,9 @@ impl<'s> System<'s> for VehicleStatusSystem {
             //Scoring logic
 
             //if no match time limit exists, or it does exist and timer is within the limit
-            if game_mode_setup.match_time_limit < 0.0 || match_timer.time <= game_mode_setup.match_time_limit {
+            if game_mode_setup.match_time_limit < 0.0
+                || match_timer.time <= game_mode_setup.match_time_limit
+            {
                 let player_score;
 
                 if game_mode_setup.game_mode == GameModes::ClassicGunGame {
@@ -111,9 +105,10 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     player_score = 0;
                 }
 
-                if game_mode_setup.game_mode == GameModes::DeathmatchStock && (
-                        player.deaths >= game_mode_setup.stock_lives || self.losers.len() > game_mode_setup.max_players-1
-                    ) {
+                if game_mode_setup.game_mode == GameModes::DeathmatchStock
+                    && (player.deaths >= game_mode_setup.stock_lives
+                        || self.losers.len() > game_mode_setup.max_players - 1)
+                {
                     if !self.losers.contains(&player.id) {
                         self.losers.push(player.id.clone());
 
@@ -130,8 +125,9 @@ impl<'s> System<'s> for VehicleStatusSystem {
                             .unwrap()
                             .text = text_out;
                     }
-                }
-                else if game_mode_setup.points_to_win > 0 && player_score >= game_mode_setup.points_to_win {
+                } else if game_mode_setup.points_to_win > 0
+                    && player_score >= game_mode_setup.points_to_win
+                {
                     if !self.winners.contains(&player.id) {
                         self.winners.push(player.id.clone());
 
@@ -148,8 +144,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                             .unwrap()
                             .text = text_out;
                     }
-                }
-                else {
+                } else {
                     ui_text
                         .get_mut(vehicle.player_status_text.points)
                         .unwrap()

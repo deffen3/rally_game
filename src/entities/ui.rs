@@ -16,7 +16,6 @@ pub fn initialize_timer_ui(world: &mut World) {
         &world.read_resource(),
     );
 
-    
     //Match Timer
     let match_timer_transform = UiTransform::new(
         "MatchTimer".to_string(),
@@ -29,7 +28,8 @@ pub fn initialize_timer_ui(world: &mut World) {
         50.,
     );
 
-    let ui_entity = world.create_entity()
+    let ui_entity = world
+        .create_entity()
         .with(Removal::new(0 as u32))
         .with(match_timer_transform)
         .with(UiText::new(
@@ -40,12 +40,11 @@ pub fn initialize_timer_ui(world: &mut World) {
         ))
         .build();
 
-
-    world.insert(MatchTimer {time: 0.0, ui_entity});
+    world.insert(MatchTimer {
+        time: 0.0,
+        ui_entity,
+    });
 }
-
-
-
 
 ///contains the ui text components that display the player vehicle status
 #[derive(Clone, Copy)]
@@ -55,7 +54,6 @@ pub struct PlayerStatusText {
     pub health: Entity,
     pub points: Entity,
 }
-
 
 /// Initialises the UI
 pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
@@ -430,12 +428,7 @@ pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
         .create_entity()
         .with(Removal::new(0 as u32))
         .with(p4_points_transform)
-        .with(UiText::new(
-            font,
-            "0".to_string(),
-            [1., 1., 1., 1.],
-            50.,
-        ))
+        .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
         .build();
 
     [

@@ -6,11 +6,11 @@ use amethyst::{
     winit::VirtualKeyCode,
 };
 
-use crate::{rally::GameplayState};
-use crate::{welcome::WelcomeScreen};
+use crate::rally::GameplayState;
+use crate::welcome::WelcomeScreen;
 
+use crate::components::WeaponNames;
 use crate::resources::{GameModeSetup, GameModes};
-use crate::components::{WeaponNames};
 
 const BUTTON_CLASSIC_GUN_GAME: &str = "classic_gun_game";
 const BUTTON_DEATHMATCH_KILLS: &str = "deathmatch_kills";
@@ -18,7 +18,6 @@ const BUTTON_DEATHMATCH_STOCK: &str = "deathmatch_stock";
 const BUTTON_DEATHMATCH_TIME: &str = "deathmatch_time";
 const BUTTON_KING_OF_THE_HILL: &str = "king_of_the_hill";
 const BUTTON_COMBAT_RACE: &str = "combat_race";
-
 
 #[derive(Default, Debug)]
 pub struct MainMenu {
@@ -136,7 +135,6 @@ impl SimpleState for MainMenu {
                         game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
-
                     } else if Some(target) == self.button_deathmatch_kills {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
 
@@ -150,7 +148,6 @@ impl SimpleState for MainMenu {
                         game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
-
                     } else if Some(target) == self.button_deathmatch_stock {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
 
@@ -164,7 +161,6 @@ impl SimpleState for MainMenu {
                         game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
-
                     } else if Some(target) == self.button_deathmatch_time {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
 
@@ -178,12 +174,11 @@ impl SimpleState for MainMenu {
                         game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
-
                     } else if Some(target) == self.button_king_of_the_hill {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
 
                         game_mode_setup.game_mode = GameModes::KingOfTheHill;
-                        game_mode_setup.match_time_limit = -1.0; 
+                        game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 100;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
@@ -192,12 +187,11 @@ impl SimpleState for MainMenu {
                         game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
-                        
                     } else if Some(target) == self.button_combat_race {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
 
                         game_mode_setup.game_mode = GameModes::Race;
-                        game_mode_setup.match_time_limit = -1.0; 
+                        game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;

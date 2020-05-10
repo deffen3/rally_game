@@ -1,8 +1,8 @@
 use amethyst::{
     assets::HotReloadBundle,
     audio::AudioBundle,
-    input::{InputBundle, StringBindings},
     core::transform::TransformBundle,
+    input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -13,22 +13,19 @@ use amethyst::{
     utils::{application_root_dir, fps_counter::FpsCounterBundle},
 };
 
-
+mod credits;
+mod menu;
+mod pause;
 mod rally;
 mod welcome;
-mod menu;
-mod credits;
-mod pause;
 
+mod audio;
 mod components;
 mod entities;
 mod resources;
 mod systems;
-mod audio;
 
 use crate::welcome::WelcomeScreen;
-
-
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -59,7 +56,7 @@ fn main() -> amethyst::Result<()> {
         //     "ui_event_handler",
         //     &[],
         // )
-        .with_bundle(FpsCounterBundle)?        
+        .with_bundle(FpsCounterBundle)?
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 // The RenderToWindow plugin provides all the scaffolding for opening a window and drawing on it

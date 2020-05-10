@@ -1,18 +1,15 @@
 use amethyst::{
     core::{Time, Transform},
     derive::SystemDesc,
-    ecs::{Join, Read, System, SystemData, WriteStorage, ReadStorage},
+    ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
-    renderer::{
-        palette::Srgba,
-        resources::Tint,
-    },
+    renderer::{palette::Srgba, resources::Tint},
 };
 
 use rand::Rng;
 use std::collections::HashMap;
 
-use crate::components::{Vehicle, Player};
+use crate::components::{Player, Vehicle};
 
 #[derive(SystemDesc)]
 pub struct VehicleShieldArmorHealthSystem;
@@ -27,7 +24,10 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
         Read<'s, InputHandler<StringBindings>>,
     );
 
-    fn run(&mut self, (players, mut vehicles, mut transforms, mut tints, time, input): Self::SystemData) {
+    fn run(
+        &mut self,
+        (players, mut vehicles, mut transforms, mut tints, time, input): Self::SystemData,
+    ) {
         let dt = time.delta_seconds();
 
         let mut owner_data_map = HashMap::new();
@@ -54,7 +54,6 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
-
             let vehicle_repair = match player.id {
                 0 => input.action_is_down("p1_repair"),
                 1 => input.action_is_down("p2_repair"),
@@ -65,11 +64,12 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
 
             if let Some(repair) = vehicle_repair {
                 if repair {
-                    if vehicle.health.value < vehicle.health.max || vehicle.shield.value == 0.0{
+                    if vehicle.health.value < vehicle.health.max || vehicle.shield.value == 0.0 {
                         //repair initiated
                         vehicle.repair.activated = true;
                         vehicle.repair.init_timer += dt;
-                    } else { //cancel
+                    } else {
+                        //cancel
                         vehicle.repair.activated = false;
                         vehicle.repair.init_timer = 0.0;
                         vehicle.shield.repair_timer = 0.0;
@@ -85,50 +85,61 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                             if vehicle.shield.repair_timer > vehicle.shield.repair_threshold {
                                 vehicle.shield.value = 1.0;
                             }
-                        } else { //completed
+                        } else {
+                            //completed
                             vehicle.repair.activated = false;
                             vehicle.repair.init_timer = 0.0;
                             vehicle.shield.repair_timer = 0.0;
                         }
                     }
-                }
-                else { //cancel
+                } else {
+                    //cancel
                     vehicle.repair.activated = false;
                     vehicle.repair.init_timer = 0.0;
                     vehicle.shield.repair_timer = 0.0;
                 }
-            }
-            else { //cancel
+            } else {
+                //cancel
                 vehicle.repair.activated = false;
                 vehicle.repair.init_timer = 0.0;
                 vehicle.shield.repair_timer = 0.0;
             }
 
-            owner_data_map.insert(player.id,
-                (vehicle_x, vehicle_y, yaw,
-                vehicle.shield.value / vehicle.shield.max,
-                vehicle.armor.value / vehicle.armor.max,
-                vehicle.health.value / vehicle.health.max,
-                vehicle.repair.init_timer / vehicle.repair.init_threshold,
-                vehicle.shield.repair_timer / vehicle.shield.repair_threshold));
+            owner_data_map.insert(
+                player.id,
+                (
+                    vehicle_x,
+                    vehicle_y,
+                    yaw,
+                    vehicle.shield.value / vehicle.shield.max,
+                    vehicle.armor.value / vehicle.armor.max,
+                    vehicle.health.value / vehicle.health.max,
+                    vehicle.repair.init_timer / vehicle.repair.init_threshold,
+                    vehicle.shield.repair_timer / vehicle.shield.repair_threshold,
+                ),
+            );
         }
-
-
 
         //visual updates
         for (player, vehicle) in (&players, &mut vehicles).join() {
-
             let owner_data = owner_data_map.get(&player.id);
 
             if let Some(owner_data) = owner_data {
-                let (x, y, angle,
-                    shield_pct, armor_pct, health_pct,
-                    health_repair_pct, shield_repair_pct) = owner_data;
+                let (
+                    x,
+                    y,
+                    angle,
+                    shield_pct,
+                    armor_pct,
+                    health_pct,
+                    health_repair_pct,
+                    shield_repair_pct,
+                ) = owner_data;
 
                 //Shield update
                 {
                     let transform = transforms.get_mut(vehicle.shield.entity).unwrap();
-                    
+
                     transform.set_translation_x(*x);
                     transform.set_translation_y(*y);
                     transform.set_rotation_2d(*angle);
@@ -144,7 +155,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 //Armor update
                 {
                     let transform = transforms.get_mut(vehicle.armor.entity).unwrap();
-                    
+
                     transform.set_translation_x(*x);
                     transform.set_translation_y(*y);
                     transform.set_rotation_2d(*angle);
@@ -160,7 +171,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 //Health update
                 {
                     let transform = transforms.get_mut(vehicle.health.entity).unwrap();
-                
+
                     transform.set_translation_x(*x);
                     transform.set_translation_y(*y);
                     transform.set_rotation_2d(*angle);
@@ -168,25 +179,22 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                     let tint = tints.get_mut(vehicle.health.entity).unwrap();
                     if *health_pct <= 0.0 {
                         *tint = Tint(Srgba::new(0.0, 0.0, 0.0, 1.0));
-                    } else if *health_pct < (4./5.) {
-                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0-((*health_pct) * (5./4.))));
+                    } else if *health_pct < (4. / 5.) {
+                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0 - ((*health_pct) * (5. / 4.))));
                     } else {
                         *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.0));
                     }
                 }
 
-
                 //Repair update
                 {
                     let transform = transforms.get_mut(vehicle.repair.entity).unwrap();
-                
+
                     transform.set_translation_x(*x);
                     transform.set_translation_y(*y);
                     transform.set_rotation_2d(*angle);
 
                     let mut rng = rand::thread_rng();
-                    
-                    
 
                     let tint = tints.get_mut(vehicle.repair.entity).unwrap();
                     if *shield_repair_pct > 0.01 {

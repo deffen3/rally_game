@@ -1,16 +1,18 @@
 use amethyst::{
+    assets::{AssetStorage, Handle, Loader},
     core::math::Vector3,
     core::transform::Transform,
     core::Time,
-    ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect, 
-        DispatcherBuilder, Dispatcher},
-    prelude::*,
-    ui::{UiText, UiFinder, UiTransform, UiCreator},
+    ecs::prelude::{Dispatcher, DispatcherBuilder, Entities, Entity, LazyUpdate, ReadExpect},
     input::{is_close_requested, is_key_down},
-    utils::{fps_counter::FpsCounter, removal::{Removal, exec_removal}},
-    winit::VirtualKeyCode,
+    prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
-    assets::{AssetStorage, Handle, Loader},
+    ui::{UiCreator, UiFinder, UiText, UiTransform},
+    utils::{
+        fps_counter::FpsCounter,
+        removal::{exec_removal, Removal},
+    },
+    winit::VirtualKeyCode,
 };
 
 use rand::Rng;
@@ -18,35 +20,25 @@ use std::f32::consts::PI;
 
 use crate::pause::PauseMenuState;
 
-use crate::resources::{initialize_weapon_fire_resource, WeaponFireResource, GameModeSetup};
+use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, WeaponFireResource};
 
 use crate::entities::{
-    initialize_camera, initialize_camera_to_player,
-    initialize_arena_walls, initialize_ui, initialize_timer_ui, 
-    intialize_player,
+    initialize_arena_walls, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
+    initialize_ui, intialize_player,
 };
 
 use crate::components::{
-    Armor, Health, Hitbox, HitboxShape, Player, Repair, Shield, Vehicle, 
-    Weapon, WeaponFire, RaceCheckpointType,
-    PlayerWeaponIcon, get_weapon_icon,
+    get_weapon_icon, Armor, Health, Hitbox, HitboxShape, Player, PlayerWeaponIcon,
+    RaceCheckpointType, Repair, Shield, Vehicle, Weapon, WeaponFire,
 };
 
 use crate::systems::{
-    VehicleTrackingSystem,
-    VehicleMoveSystem,
+    CollisionVehToVehSystem, CollisionVehicleWeaponFireSystem, MoveWeaponFireSystem,
+    VehicleMoveSystem, VehicleShieldArmorHealthSystem, VehicleStatusSystem, VehicleTrackingSystem,
     VehicleWeaponsSystem,
-    MoveWeaponFireSystem,
-    CollisionVehToVehSystem,
-    CollisionVehicleWeaponFireSystem,
-    VehicleShieldArmorHealthSystem,
-    VehicleStatusSystem,
 };
 
-
 pub const PLAYER_CAMERA: bool = false;
-
-
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -57,8 +49,6 @@ pub const COLLISION_PIERCING_DAMAGE_PCT: f32 = 0.0;
 pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 25.0;
 pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
-
-
 
 #[derive(Default)]
 pub struct GameplayState<'a, 'b> {
@@ -76,7 +66,6 @@ pub struct GameplayState<'a, 'b> {
     texture_sheet_handle: Option<Handle<SpriteSheet>>,
 }
 
-
 impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
     fn on_start(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
         let world = &mut data.world;
@@ -93,29 +82,29 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         world.register::<Vehicle>();
         world.register::<Weapon>();
         world.register::<WeaponFire>();
-        
+
         world.register::<PlayerWeaponIcon>();
 
         world.register::<Removal<u32>>();
 
-
         self.sprite_sheet_handle.replace(load_sprite_sheet(
-            world, "texture/rally_spritesheet.png".to_string(), "texture/rally_spritesheet.ron".to_string()
+            world,
+            "texture/rally_spritesheet.png".to_string(),
+            "texture/rally_spritesheet.ron".to_string(),
         ));
         self.texture_sheet_handle.replace(load_sprite_sheet(
-            world, "texture/rally_texture_sheet.png".to_string(), "texture/rally_texture_sheet.ron".to_string()
+            world,
+            "texture/rally_texture_sheet.png".to_string(),
+            "texture/rally_texture_sheet.ron".to_string(),
         ));
-
 
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
-
 
         initialize_timer_ui(world);
 
         let player_status_texts = initialize_ui(world);
 
-        
         let max_players;
         let bot_players;
         {
@@ -124,8 +113,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             if let Some(game_mode_setup) = fetched_game_mode_setup {
                 max_players = game_mode_setup.max_players;
                 bot_players = game_mode_setup.bot_players;
-            }
-            else {
+            } else {
                 max_players = 4;
                 bot_players = 3;
             }
@@ -146,8 +134,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
             let engine_force = 100.0;
             let engine_efficiency = 1.0;
-            let engine_weight = engine_force / engine_efficiency * 20./100.;
-            
+            let engine_weight = engine_force / engine_efficiency * 20. / 100.;
+
             //stock vehicle weight at 100/100/100 with normal engine efficiency is 100
 
             //health makes up the main hull of the vehicle, and contributes 30 base + 10per health weight
@@ -158,7 +146,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             //typical weapon weight adds about 10.0
 
             let max_velocity = 1.0;
-
 
             let player = intialize_player(
                 world,
@@ -184,34 +171,40 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             initialize_camera(world);
         }
 
-
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
         let mut dispatcher_builder = DispatcherBuilder::new();
-        dispatcher_builder.add(VehicleTrackingSystem, 
-            "vehicle_tracking_system", &[]);
-        dispatcher_builder.add(VehicleMoveSystem::default(), 
-            "vehicle_move_system", &[]);
+        dispatcher_builder.add(VehicleTrackingSystem, "vehicle_tracking_system", &[]);
+        dispatcher_builder.add(VehicleMoveSystem::default(), "vehicle_move_system", &[]);
 
-        dispatcher_builder.add(VehicleWeaponsSystem, 
-            "vehicle_weapons_system", &[]);
-        dispatcher_builder.add(MoveWeaponFireSystem, 
-            "move_weapon_fire_system", &["vehicle_weapons_system"]);
+        dispatcher_builder.add(VehicleWeaponsSystem, "vehicle_weapons_system", &[]);
+        dispatcher_builder.add(
+            MoveWeaponFireSystem,
+            "move_weapon_fire_system",
+            &["vehicle_weapons_system"],
+        );
 
-        dispatcher_builder.add(CollisionVehToVehSystem,
-            "collision_vehicle_vehicle_system", &["vehicle_move_system"]);
-        dispatcher_builder.add(CollisionVehicleWeaponFireSystem::default(),
-            "collision_vehicle_weapon_fire_system", &["vehicle_move_system", "move_weapon_fire_system"]);
+        dispatcher_builder.add(
+            CollisionVehToVehSystem,
+            "collision_vehicle_vehicle_system",
+            &["vehicle_move_system"],
+        );
+        dispatcher_builder.add(
+            CollisionVehicleWeaponFireSystem::default(),
+            "collision_vehicle_weapon_fire_system",
+            &["vehicle_move_system", "move_weapon_fire_system"],
+        );
 
-        dispatcher_builder.add(VehicleShieldArmorHealthSystem,
-            "vehicle_shield_armor_health_system", &[]);
-        dispatcher_builder.add(VehicleStatusSystem::default(),
-            "vehicle_status_system", &[]);
-
+        dispatcher_builder.add(
+            VehicleShieldArmorHealthSystem,
+            "vehicle_shield_armor_health_system",
+            &[],
+        );
+        dispatcher_builder.add(VehicleStatusSystem::default(), "vehicle_status_system", &[]);
 
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();
         dispatcher.setup(world);
- 
+
         self.dispatcher = Some(dispatcher);
 
         self.ui_root =
@@ -304,8 +297,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
     }
 }
 
-
-
 fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handle<SpriteSheet> {
     // Load the sprite sheet necessary to render the graphics.
     // The texture is the pixel data
@@ -313,12 +304,7 @@ fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handl
     let texture_handle = {
         let loader = world.read_resource::<Loader>();
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
-        loader.load(
-            storage,
-            ImageFormat::default(),
-            (),
-            &texture_storage,
-        )
+        loader.load(storage, ImageFormat::default(), (), &texture_storage)
     };
 
     let loader = world.read_resource::<Loader>();
@@ -330,10 +316,6 @@ fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handl
         &sprite_sheet_store,
     )
 }
-
-
-
-
 
 pub fn fire_weapon(
     entities: &Entities,
@@ -392,8 +374,8 @@ pub fn fire_weapon(
     };
     lazy_update.insert(fire_entity, weapon_fire);
 
-
-    let (_icon_scale, weapon_sprite) = get_weapon_icon(player_id, weapon.stats, weapon_fire_resource);
+    let (_icon_scale, weapon_sprite) =
+        get_weapon_icon(player_id, weapon.stats, weapon_fire_resource);
 
     lazy_update.insert(fire_entity, weapon_sprite);
     lazy_update.insert(fire_entity, local_transform);
@@ -401,23 +383,20 @@ pub fn fire_weapon(
     lazy_update.insert(fire_entity, Removal::new(0 as u32));
 }
 
-
-
 pub fn spawn_weapon_boxes(
     box_count: u32,
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     lazy_update: &ReadExpect<LazyUpdate>,
+    game_mode_setup: &ReadExpect<GameModeSetup>,
 ) {
     let mut rng = rand::thread_rng();
-    let mut spawn_index = 5;
-    
+    let mut spawn_index;
+
     let mut previous_indices = vec![];
-    
 
     for _idx in 0..box_count {
         spawn_index = rng.gen_range(0, 4) as u32;
-
 
         while previous_indices.contains(&spawn_index) {
             spawn_index = rng.gen_range(0, 4) as u32;
@@ -431,14 +410,8 @@ pub fn spawn_weapon_boxes(
         let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
 
         let (x, y) = match spawn_index {
-            0 => (
-                ARENA_WIDTH / spacing_factor,
-                arena_ui_height / 2.0
-            ),
-            1 => (
-                ARENA_WIDTH / 2.0,
-                arena_ui_height / spacing_factor
-            ),
+            0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
+            1 => (ARENA_WIDTH / 2.0, arena_ui_height / spacing_factor),
             2 => (
                 ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
                 arena_ui_height / 2.0,
@@ -454,14 +427,24 @@ pub fn spawn_weapon_boxes(
         };
 
         local_transform.set_translation_xyz(x, y, 0.3);
-        local_transform.set_rotation_2d(PI/8.0);
+        local_transform.set_rotation_2d(PI / 8.0);
 
         let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
 
-        lazy_update.insert(box_entity, Hitbox::new(
-            11.0, 11.0, 0.0, HitboxShape::Rectangle, 
-            false, false, RaceCheckpointType::NotCheckpoint, 0, true,
-        ));
+        lazy_update.insert(
+            box_entity,
+            Hitbox::new(
+                11.0,
+                11.0,
+                0.0,
+                HitboxShape::Rectangle,
+                false,
+                false,
+                RaceCheckpointType::NotCheckpoint,
+                0,
+                true,
+            ),
+        );
         lazy_update.insert(box_entity, Removal::new(0 as u32));
         lazy_update.insert(box_entity, box_sprite);
         lazy_update.insert(box_entity, local_transform);
@@ -469,8 +452,6 @@ pub fn spawn_weapon_boxes(
         previous_indices.push(spawn_index.clone());
     }
 }
-
-
 
 pub fn vehicle_damage_model(
     vehicle: &mut Vehicle,
@@ -516,7 +497,8 @@ pub fn vehicle_damage_model(
 
     let mut vehicle_destroyed = false;
 
-    if vehicle.health.value > 0.0 { //only destroy once
+    if vehicle.health.value > 0.0 {
+        //only destroy once
         if vehicle.health.value <= health_damage {
             vehicle_destroyed = true;
             vehicle.health.value = 0.0;

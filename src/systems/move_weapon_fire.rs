@@ -2,12 +2,12 @@ use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage};
 
-use crate::components::{Player, Vehicle, Weapon, WeaponFire, VehicleState};
+use crate::components::{Player, Vehicle, VehicleState, Weapon, WeaponFire};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 use log::debug;
-use std::f32::consts::PI;
 use std::collections::HashMap;
+use std::f32::consts::PI;
 
 #[derive(SystemDesc)]
 pub struct MoveWeaponFireSystem;
@@ -33,14 +33,13 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         let mut heat_seeking_angle_map = HashMap::new();
 
         for (entity, weapon_fire, transform) in (&entities, &mut weapon_fires, &transforms).join() {
-
             weapon_fire.shot_life_timer += dt;
 
-            if weapon_fire.shot_life_limit >= 0.0 &&
-                    weapon_fire.shot_life_timer >= weapon_fire.shot_life_limit {
+            if weapon_fire.shot_life_limit >= 0.0
+                && weapon_fire.shot_life_timer >= weapon_fire.shot_life_limit
+            {
                 let _ = entities.delete(entity);
-            }
-            else {
+            } else {
                 let fire_x = transform.translation().x;
                 let fire_y = transform.translation().y;
 
@@ -60,8 +59,9 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                 // let weapon_rotation = transform.rotation();
                                 // let (_, _, weapon_angle) = weapon_rotation.euler_angles();
 
-                                let dist =
-                                    ((vehicle_x - fire_x).powi(2) + (vehicle_y - fire_y).powi(2)).sqrt();
+                                let dist = ((vehicle_x - fire_x).powi(2)
+                                    + (vehicle_y - fire_y).powi(2))
+                                .sqrt();
 
                                 if dist < closest_vehicle_dist {
                                     closest_vehicle_dist = dist;
@@ -74,7 +74,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
                     let target_angle =
                         closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0); //rotate by PI/2 to line up with yaw angle
-                    //let velocity_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
+                                                                                           //let velocity_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
 
                     heat_seeking_angle_map.insert(entity.id(), target_angle);
                 }
@@ -91,10 +91,14 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                 weapon_fire.deployed = false;
                             }
 
-                            vehicle_owner_map.insert(weapon_fire.owner_player_id,
-                                (vehicle_transform.translation().x,
-                                vehicle_transform.translation().y,
-                                yaw));
+                            vehicle_owner_map.insert(
+                                weapon_fire.owner_player_id,
+                                (
+                                    vehicle_transform.translation().x,
+                                    vehicle_transform.translation().y,
+                                    yaw,
+                                ),
+                            );
                         }
                     }
                 }
@@ -131,19 +135,18 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
                     //let sq_vel2 = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                     //let abs_vel2 = sq_vel2.sqrt();
-                }            
+                }
             }
 
             if weapon_fire.attached {
                 if weapon_fire.deployed {
-
                     let vehicle_owner_data = vehicle_owner_map.get(&weapon_fire.owner_player_id);
 
                     if let Some(vehicle_owner_data) = vehicle_owner_data {
                         let (x, y, vehicle_angle) = vehicle_owner_data;
 
                         let angle = vehicle_angle + weapon_fire.spawn_angle;
-                        
+
                         let yaw_x_comp = -angle.sin(); //left is -, right is +
                         let yaw_y_comp = angle.cos(); //up is +, down is -
 
@@ -153,8 +156,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         transform.set_translation_x(x + yaw_x_comp * 14.0);
                         transform.set_translation_y(y + yaw_y_comp * 14.0);
                     }
-                }
-                else {
+                } else {
                     let _ = entities.delete(entity);
                 }
             } else {

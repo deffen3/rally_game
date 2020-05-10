@@ -1,7 +1,4 @@
-use crate::components::{
-    WeaponNames,
-};
-
+use crate::components::WeaponNames;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GameModes {

@@ -16,8 +16,8 @@ use crate::components::{
     Hitbox, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponFire,
 };
 
-use crate::rally::{vehicle_damage_model, spawn_weapon_boxes};
-use crate::resources::{WeaponFireResource, GameModes, GameModeSetup};
+use crate::rally::{spawn_weapon_boxes, vehicle_damage_model};
+use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 
@@ -45,7 +45,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         Option<Read<'s, Output>>,
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
-        ReadExpect<'s, GameModeSetup>
+        ReadExpect<'s, GameModeSetup>,
     );
 
     fn setup(&mut self, _world: &mut World) {
@@ -75,7 +75,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
     ) {
         let dt = time.delta_seconds();
 
-        if game_mode_setup.random_weapon_spawns && game_mode_setup.game_mode != GameModes::ClassicGunGame {
+        if game_mode_setup.random_weapon_spawns
+            && game_mode_setup.game_mode != GameModes::ClassicGunGame
+        {
             self.weapon_spawner_cooldown_timer -= dt;
         }
 
@@ -98,16 +100,17 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         }
                     }
                 }
-            }
-            else if hitbox.is_weapon_box { //delete old weapon_boxes
+            } else if hitbox.is_weapon_box {
+                //delete old weapon_boxes
                 if self.weapon_spawner_cooldown_timer <= 0.0 {
                     let _ = entities.delete(entity);
                 }
             }
         }
 
-
-        if game_mode_setup.random_weapon_spawns && game_mode_setup.game_mode != GameModes::ClassicGunGame {
+        if game_mode_setup.random_weapon_spawns
+            && game_mode_setup.game_mode != GameModes::ClassicGunGame
+        {
             if self.weapon_spawner_cooldown_timer <= 0.0 {
                 self.weapon_spawner_cooldown_timer = game_mode_setup.weapon_spawn_timer;
 
@@ -116,11 +119,10 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     &entities,
                     &weapon_fire_resource,
                     &lazy_update,
+                    &game_mode_setup,
                 );
             }
         }
-
-
 
         let mut player_makes_kill_map = HashMap::new();
         let mut player_got_killed_map = HashMap::new();
@@ -170,29 +172,19 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         );
 
                         if vehicle_destroyed {
-                            play_bounce_sound(
-                                &*sounds,
-                                &storage,
-                                audio_output.as_deref(),
-                            );
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
 
                             player_makes_kill_map.insert(
                                 weapon_fire.owner_player_id.clone(),
                                 weapon_fire.weapon_name.clone(),
                             );
 
-                            player_got_killed_map.insert(
-                                player.id.clone(),
-                                weapon_fire.owner_player_id.clone(),
-                            );
+                            player_got_killed_map
+                                .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
                         }
 
                         if self.hit_sound_cooldown_timer < 0.0 {
-                            play_score_sound(
-                                &*sounds,
-                                &storage,
-                                audio_output.as_deref(),
-                            );
+                            play_score_sound(&*sounds, &storage, audio_output.as_deref());
                             self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
                         }
                     }
@@ -205,17 +197,19 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         for (player, mut weapon, vehicle, transform) in
             (&mut players, &mut weapons, &mut vehicles, &mut transforms).join()
         {
-
             let killer_data = player_makes_kill_map.get(&player.id);
 
             if let Some(killer_data) = killer_data {
                 let weapon_name = killer_data;
 
                 //classic gun-game rules: hot-swap upgrade weapon type for player who got the kill
-                if game_mode_setup.game_mode == GameModes::ClassicGunGame && *weapon_name == weapon.name { //if kill was using player's current weapon
+                if game_mode_setup.game_mode == GameModes::ClassicGunGame
+                    && *weapon_name == weapon.name
+                {
+                    //if kill was using player's current weapon
                     player.kills += 1;
                     let new_weapon_name = get_next_weapon_name(weapon.name.clone());
-                    
+
                     if let Some(new_weapon_name) = new_weapon_name.clone() {
                         weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
@@ -229,7 +223,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         );
 
                         vehicle.weapon_weight = weapon.stats.weight;
-
                     } //else, keep current weapon installed, no kill in this mode
                 } else {
                     player.kills += 1; //in all other modes the kill always counts

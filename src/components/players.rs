@@ -2,8 +2,6 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
 use crate::components::WeaponTypes;
 
-
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum BotMode {
     Running,
@@ -52,7 +50,7 @@ impl Player {
             objective_points: 0.0,
             hit_checkpoint_start: false,
             hit_checkpoint_middle: false,
-            checkpoint_completed: 0, 
+            checkpoint_completed: 0,
             hit_lap_start: false,
             hit_lap_middle: false,
             laps_completed: 0,
@@ -63,7 +61,7 @@ impl Player {
             last_accel_input: Some(0.0),
             last_turn_input: Some(0.0),
             last_hit_by_id: None,
-            last_hit_timer: 0.0
+            last_hit_timer: 0.0,
         }
     }
 }

@@ -1,14 +1,11 @@
 use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{
-    World, LazyUpdate, Entities, Join, 
-    Read, ReadExpect, ReadStorage, 
-    System, SystemData, WriteStorage};
-use amethyst::input::{InputHandler, StringBindings};
-use amethyst::renderer::{
-    palette::Srgba,
-    resources::Tint,
+    Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
+    WriteStorage,
 };
+use amethyst::input::{InputHandler, StringBindings};
+use amethyst::renderer::{palette::Srgba, resources::Tint};
 use amethyst::{
     assets::AssetStorage,
     audio::{output::Output, Source},
@@ -21,30 +18,25 @@ use std::f32::consts::PI;
 use std::collections::HashMap;
 
 use crate::components::{
-    check_respawn_vehicle, kill_restart_vehicle, 
-    BotMode, Hitbox, HitboxShape, RaceCheckpointType,
-    Player, Vehicle, Weapon, VehicleState, PlayerWeaponIcon,
-    get_random_weapon_name, update_weapon_properties, update_weapon_icon,
+    check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle, update_weapon_icon,
+    update_weapon_properties, BotMode, Hitbox, HitboxShape, Player, PlayerWeaponIcon,
+    RaceCheckpointType, Vehicle, VehicleState, Weapon,
 };
 use crate::resources::{GameModeSetup, WeaponFireResource};
 
 use crate::rally::{
-    vehicle_damage_model, 
-    ARENA_HEIGHT, ARENA_WIDTH, 
-    BASE_COLLISION_DAMAGE,
+    vehicle_damage_model, ARENA_HEIGHT, ARENA_WIDTH, BASE_COLLISION_DAMAGE,
     COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT,
     COLLISION_SHIELD_DAMAGE_PCT, UI_HEIGHT,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
 
-
 const BOT_COLLISION_TURN_COOLDOWN_RESET: f32 = 0.7;
 const BOT_COLLISION_MOVE_COOLDOWN_RESET: f32 = 0.7;
 
 const BOT_ENGAGE_DISTANCE: f32 = 160.0;
 const BOT_DISENGAGE_DISTANCE: f32 = 240.0;
-
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleMoveSystem {
@@ -108,7 +100,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
         {
             if vehicle.state == VehicleState::InRespawn {
                 self.last_spawn_index = check_respawn_vehicle(
-                    vehicle, transform, dt, game_mode_setup.game_mode.clone(), self.last_spawn_index
+                    vehicle,
+                    transform,
+                    dt,
+                    game_mode_setup.game_mode.clone(),
+                    self.last_spawn_index,
                 );
 
                 if game_mode_setup.random_weapon_spawns && !game_mode_setup.keep_picked_up_weapons {
@@ -127,17 +123,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     vehicle.weapon_weight = weapon.stats.weight;
                 }
-
-
-
             } else if vehicle.state == VehicleState::Active {
-
                 //lost armor does not contribute to weight
-                let vehicle_weight = (30.0 + vehicle.health.max*10./100.) + 
-                    (vehicle.armor.value*25./100.) + 
-                    (vehicle.shield.max*15./100.) + 
-                    vehicle.engine_weight +
-                    vehicle.weapon_weight;
+                let vehicle_weight = (30.0 + vehicle.health.max * 10. / 100.)
+                    + (vehicle.armor.value * 25. / 100.)
+                    + (vehicle.shield.max * 15. / 100.)
+                    + vehicle.engine_weight
+                    + vehicle.weapon_weight;
 
                 let rotate_accel_rate: f32 = 1.0 * vehicle.engine_force / vehicle_weight;
                 let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_force / vehicle_weight;
@@ -166,19 +158,22 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 player.bot_move_cooldown -= dt;
 
                 if player.is_bot {
-                    if player.bot_mode == BotMode::Running || 
-                            player.bot_mode == BotMode::TakeTheHill || 
-                            player.bot_mode == BotMode::Mining {
-                            
+                    if player.bot_mode == BotMode::Running
+                        || player.bot_mode == BotMode::TakeTheHill
+                        || player.bot_mode == BotMode::Mining
+                    {
                         if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-                            if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE && player.bot_move_cooldown < 0.0
+                            if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
+                                && player.bot_move_cooldown < 0.0
                             {
                                 //change modes to attack
-                                if weapon.stats.attached { //Typically just LaserSword
+                                if weapon.stats.attached {
+                                    //Typically just LaserSword
                                     player.bot_mode = BotMode::Swording;
                                     debug!("{} Swording", player.id);
                                     player.bot_move_cooldown = 5.0;
-                                } else if weapon.stats.shot_speed <= 0.0 { //Typically just Mines or Traps
+                                } else if weapon.stats.shot_speed <= 0.0 {
+                                    //Typically just Mines or Traps
                                     player.bot_mode = BotMode::Mining;
                                     debug!("{} Mining", player.id);
                                 } else {
@@ -188,10 +183,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 }
                             }
                         }
-                        
+
                         if player.bot_mode == BotMode::TakeTheHill {
-                            
-                        } else if player.bot_mode == BotMode::Running || player.bot_mode == BotMode::Mining {
+                        } else if player.bot_mode == BotMode::Running
+                            || player.bot_mode == BotMode::Mining
+                        {
                             //continue with Running or Mining mode
                             if player.bot_move_cooldown < 0.0 {
                                 //issue new move command
@@ -212,11 +208,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         || player.bot_mode == BotMode::Chasing
                         || player.bot_mode == BotMode::Swording
                     {
-
-                        let continue_with_attacking_mode; 
+                        let continue_with_attacking_mode;
 
                         if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-                            if dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE || player.bot_move_cooldown < 0.0 {
+                            if dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE
+                                || player.bot_move_cooldown < 0.0
+                            {
                                 continue_with_attacking_mode = false;
 
                                 player.bot_move_cooldown = player.bot_move_cooldown_reset;
@@ -230,12 +227,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     player.bot_mode = BotMode::Chasing;
                                     debug!("{} Chasing", player.id);
                                 }
-                            }
-                            else {
+                            } else {
                                 continue_with_attacking_mode = true;
                             }
-                        }
-                        else {
+                        } else {
                             continue_with_attacking_mode = false;
 
                             player.bot_move_cooldown = player.bot_move_cooldown_reset;
@@ -250,8 +245,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 debug!("{} Chasing", player.id);
                             }
                         }
-                        
-                        
+
                         if continue_with_attacking_mode {
                             //continue with Attacking mode
 
@@ -260,10 +254,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                 //Prepare magnitude of Turning and Acceleration input
                                 if player.bot_mode == BotMode::Swording {
-                                    if weapon.stats.mounted_angle > PI/2.0 || weapon.stats.mounted_angle < -PI/2.0 {
+                                    if weapon.stats.mounted_angle > PI / 2.0
+                                        || weapon.stats.mounted_angle < -PI / 2.0
+                                    {
                                         vehicle_accel = Some(-1.0); //drive backwards sword fighting
-                                    }
-                                    else {
+                                    } else {
                                         vehicle_accel = Some(1.0); //drive forwards sword fighting
                                     }
                                 } else if player.bot_mode == BotMode::Chasing {
@@ -271,12 +266,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 }
 
                                 //Solve for Angle and Direction to turn
-                                let mut angle_diff = vehicle_angle + weapon.stats.mounted_angle - attack_angle;
+                                let mut angle_diff =
+                                    vehicle_angle + weapon.stats.mounted_angle - attack_angle;
 
                                 if angle_diff > PI {
-                                    angle_diff = -(2.0*PI - angle_diff);
+                                    angle_diff = -(2.0 * PI - angle_diff);
                                 } else if angle_diff < -PI {
-                                    angle_diff = -(-2.0*PI - angle_diff);
+                                    angle_diff = -(-2.0 * PI - angle_diff);
                                 }
 
                                 if angle_diff > 0.001 {
@@ -345,19 +341,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 //Transform on vehicle velocity
                 if vehicle.dx.abs() > 0.001 {
                     transform.prepend_translation_x(vehicle.dx);
-                } 
-                
+                }
+
                 if vehicle.dy.abs() > 0.001 {
                     transform.prepend_translation_y(vehicle.dy);
-                } 
-                
+                }
 
                 //Apply vehicle rotation from turn input
                 if let Some(turn_amount) = vehicle_turn {
                     let scaled_amount: f32 = if vehicle.repair.activated == true {
                         0.0 as f32
-                    }
-                    else {
+                    } else {
                         rotate_accel_rate * turn_amount as f32
                     };
 
@@ -432,15 +426,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         );
 
                         if vehicle_destroyed {
-                            kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
+                            kill_restart_vehicle(
+                                player,
+                                vehicle,
+                                transform,
+                                game_mode_setup.stock_lives,
+                            );
                         }
 
                         if abs_vel > 0.5 {
-                            play_bounce_sound(
-                                &*sounds,
-                                &storage,
-                                audio_output.as_deref(),
-                            );
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                         }
                         vehicle.collision_cooldown_timer = 1.0;
                     }
@@ -463,15 +458,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         );
 
                         if vehicle_destroyed {
-                            kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
+                            kill_restart_vehicle(
+                                player,
+                                vehicle,
+                                transform,
+                                game_mode_setup.stock_lives,
+                            );
                         }
 
                         if abs_vel > 0.5 {
-                            play_bounce_sound(
-                                &*sounds,
-                                &storage,
-                                audio_output.as_deref(),
-                            );
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                         }
                         vehicle.collision_cooldown_timer = 1.0;
                     }
@@ -496,10 +492,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut player_arena_bounce: Vec<usize> = Vec::new();
 
         let mut players_on_hill: Vec<usize> = Vec::new();
-        let mut color_for_hill: Vec<(f32,f32,f32)> = Vec::new();
+        let mut color_for_hill: Vec<(f32, f32, f32)> = Vec::new();
 
-
-        for (player, vehicle, mut weapon, transform) in (&mut players, &mut vehicles, &mut weapons, &transforms).join() {
+        for (player, vehicle, mut weapon, transform) in
+            (&mut players, &mut vehicles, &mut weapons, &transforms).join()
+        {
             if vehicle.state == VehicleState::Active {
                 let wall_hit_non_bounce_decel_pct: f32 = 0.65;
                 let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
@@ -519,33 +516,37 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
                     + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
 
-
                 let mut checkpoint_id: i32 = 0;
                 let mut checkpoint_stages: [bool; 2] = [false; 2];
                 let mut lap_stages: [bool; 2] = [false; 2];
 
-
-                for (hitbox_entity, hitbox, hitbox_transform) in (&*entities, &hitboxes, &transforms).join() {
+                for (hitbox_entity, hitbox, hitbox_transform) in
+                    (&*entities, &hitboxes, &transforms).join()
+                {
                     let hitbox_x = hitbox_transform.translation().x;
                     let hitbox_y = hitbox_transform.translation().y;
 
                     let hit;
                     if hitbox.shape == HitboxShape::Circle {
                         if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
-                                < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2) {
+                            < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2)
+                        {
                             hit = true;
-                        }
-                        else {
+                        } else {
                             hit = false;
                         }
                     } else if hitbox.shape == HitboxShape::Rectangle {
                         let mut interferences = 0;
 
-                        let left_hitbox_wall = vehicle_x + veh_rect_width/2.0 > hitbox_x - hitbox.width/2.0;
-                        let right_hitbox_wall = vehicle_x - veh_rect_width/2.0 < hitbox_x + hitbox.width/2.0;
+                        let left_hitbox_wall =
+                            vehicle_x + veh_rect_width / 2.0 > hitbox_x - hitbox.width / 2.0;
+                        let right_hitbox_wall =
+                            vehicle_x - veh_rect_width / 2.0 < hitbox_x + hitbox.width / 2.0;
 
-                        let top_hitbox_wall = vehicle_y - veh_rect_height/2.0 < hitbox_y + hitbox.height/2.0;
-                        let bottom_hitbox_wall = vehicle_y + veh_rect_height/2.0 > hitbox_y - hitbox.height/2.0;
+                        let top_hitbox_wall =
+                            vehicle_y - veh_rect_height / 2.0 < hitbox_y + hitbox.height / 2.0;
+                        let bottom_hitbox_wall =
+                            vehicle_y + veh_rect_height / 2.0 > hitbox_y - hitbox.height / 2.0;
 
                         if left_hitbox_wall {
                             interferences += 1;
@@ -562,15 +563,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         if interferences >= 4 {
                             hit = true;
-                        }
-                        else {
+                        } else {
                             hit = false;
                         }
-                    }
-                    else {
+                    } else {
                         hit = false;
                     }
-                    
+
                     if hit {
                         if hitbox.is_wall {
                             let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
@@ -608,11 +607,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 }
 
                                 if abs_vel > 0.5 {
-                                    play_bounce_sound(
-                                        &*sounds,
-                                        &storage,
-                                        audio_output.as_deref(),
-                                    );
+                                    play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                                 }
 
                                 vehicle.collision_cooldown_timer = 1.0;
@@ -634,7 +629,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             );
 
                             vehicle.weapon_weight = weapon.stats.weight;
-
                         } else if hitbox.is_hill {
                             players_on_hill.push(player.id.clone());
 
@@ -647,12 +641,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             };
 
                             color_for_hill.push((r, g, b));
-                        } else if (hitbox.checkpoint == RaceCheckpointType::CheckpointStart) && 
-                                (hitbox.checkpoint_id == player.checkpoint_completed + 1) {
+                        } else if (hitbox.checkpoint == RaceCheckpointType::CheckpointStart)
+                            && (hitbox.checkpoint_id == player.checkpoint_completed + 1)
+                        {
                             checkpoint_stages[0] = true;
                             checkpoint_id = hitbox.checkpoint_id;
-                        } else if hitbox.checkpoint == RaceCheckpointType::CheckpointFinish && 
-                                (hitbox.checkpoint_id == player.checkpoint_completed + 1) {
+                        } else if hitbox.checkpoint == RaceCheckpointType::CheckpointFinish
+                            && (hitbox.checkpoint_id == player.checkpoint_completed + 1)
+                        {
                             checkpoint_stages[1] = true;
                             checkpoint_id = hitbox.checkpoint_id;
                         } else if hitbox.checkpoint == RaceCheckpointType::LapStart {
@@ -662,16 +658,21 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         }
                     }
                 }
-                
+
                 // println!("C: {} {}",checkpoint_stages[0], checkpoint_stages[1]);
                 // println!("L: {} {}",lap_stages[0], lap_stages[1]);
 
                 if checkpoint_stages[0] == true && checkpoint_stages[1] == false {
                     player.hit_checkpoint_start = true;
-                } else if checkpoint_stages[0] == true && checkpoint_stages[1] == true && player.hit_checkpoint_start {
+                } else if checkpoint_stages[0] == true
+                    && checkpoint_stages[1] == true
+                    && player.hit_checkpoint_start
+                {
                     player.hit_checkpoint_middle = true;
-                } else if checkpoint_stages[0] == false && checkpoint_stages[1] == true &&
-                        player.hit_checkpoint_middle {
+                } else if checkpoint_stages[0] == false
+                    && checkpoint_stages[1] == true
+                    && player.hit_checkpoint_middle
+                {
                     player.checkpoint_completed = checkpoint_id;
                     player.hit_checkpoint_start = false;
                     player.hit_checkpoint_middle = false;
@@ -685,11 +686,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 } else if lap_stages[0] == true && lap_stages[1] == true && player.hit_lap_start {
                     player.hit_lap_middle = true;
                 } else if lap_stages[0] == false && lap_stages[1] == true {
-                    if player.hit_lap_middle && (player.checkpoint_completed == game_mode_setup.checkpoint_count) {
+                    if player.hit_lap_middle
+                        && (player.checkpoint_completed == game_mode_setup.checkpoint_count)
+                    {
                         player.laps_completed += 1;
                         player.hit_lap_start = false;
                         player.hit_lap_middle = false;
-                    } else { //wrong-way detection
+                    } else {
+                        //wrong-way detection
                         player.hit_lap_start = false;
                         player.hit_lap_middle = false;
                         player.checkpoint_completed = 0;
@@ -698,14 +702,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     player.hit_lap_start = false;
                 }
             }
-            
-
         }
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
             if players_on_hill.len() == 1 && players_on_hill.contains(&player.id) {
                 player.objective_points += dt;
-
             }
 
             if player_destroyed.contains(&player.id) {
@@ -724,9 +725,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (entity, _hitbox) in (&*entities, &hitboxes).join() {
             if let Some(tint) = tints.get_mut(entity) {
                 if players_on_hill.len() == 1 {
-                    *tint = Tint(Srgba::new(color_for_hill[0].0, color_for_hill[0].1, color_for_hill[0].2, 1.0));
-                }
-                else {
+                    *tint = Tint(Srgba::new(
+                        color_for_hill[0].0,
+                        color_for_hill[0].1,
+                        color_for_hill[0].2,
+                        1.0,
+                    ));
+                } else {
                     *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
                 }
             }

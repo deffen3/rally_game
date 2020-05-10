@@ -12,7 +12,7 @@ pub enum RaceCheckpointType {
     CheckpointStart,
     CheckpointFinish,
     LapStart,
-    LapFinish
+    LapFinish,
 }
 
 #[derive(Clone)]
@@ -33,12 +33,17 @@ impl Component for Hitbox {
 }
 
 impl Hitbox {
-    pub fn new(width: f32, height: f32, angle: f32, 
-            shape: HitboxShape,
-            is_wall: bool, is_hill: bool,
-            checkpoint: RaceCheckpointType, checkpoint_id: i32,
-            is_weapon_box: bool,
-        ) -> Hitbox {
+    pub fn new(
+        width: f32,
+        height: f32,
+        angle: f32,
+        shape: HitboxShape,
+        is_wall: bool,
+        is_hill: bool,
+        checkpoint: RaceCheckpointType,
+        checkpoint_id: i32,
+        is_weapon_box: bool,
+    ) -> Hitbox {
         Hitbox {
             width,
             height,

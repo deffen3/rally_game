@@ -1,13 +1,9 @@
 use amethyst::{
     assets::Handle,
     core::transform::Transform,
-    ecs::prelude::{World, Entity},
+    ecs::prelude::{Entity, World},
     prelude::*,
-    renderer::{
-        SpriteRender, SpriteSheet, Transparent,
-        palette::Srgba,
-        resources::Tint,
-    },
+    renderer::{palette::Srgba, resources::Tint, SpriteRender, SpriteSheet, Transparent},
     utils::removal::Removal,
 };
 
@@ -16,12 +12,11 @@ use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
 use crate::components::{
-    build_named_weapon, Player, PlayerWeaponIcon, Vehicle, 
-    Weapon, WeaponNames, get_weapon_icon,
+    build_named_weapon, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponNames,
 };
-use crate::resources::{GameModes, GameModeSetup, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT,};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 pub fn intialize_player(
     world: &mut World,
@@ -45,13 +40,11 @@ pub fn intialize_player(
         if let Some(game_mode_setup) = fetched_game_mode_setup {
             game_mode = game_mode_setup.game_mode.clone();
             weapon_name = game_mode_setup.starter_weapon.clone();
-        }
-        else {
+        } else {
             game_mode = GameModes::ClassicGunGame;
             weapon_name = WeaponNames::LaserDoubleGimballed;
         }
     }
-
 
     let mut vehicle_transform = Transform::default();
 
@@ -59,40 +52,23 @@ pub fn intialize_player(
 
     let height = ARENA_HEIGHT + UI_HEIGHT;
 
-
     let starting_rotation;
     let starting_x;
     let starting_y;
 
     if game_mode == GameModes::Race {
         let (x, y) = match player_index {
-            0 => (
-                ARENA_WIDTH - 70.0,
-                height / 2.0 - 14.0,
-            ),
-            1 => (
-                ARENA_WIDTH - 50.0,
-                height / 2.0 - 14.0,
-            ),
-            2 => (
-                ARENA_WIDTH - 30.0,
-                height / 2.0 - 14.0,
-            ),
-            3 => (
-                ARENA_WIDTH - 10.0,
-                height / 2.0 - 14.0,
-            ),
-            _ => (
-                ARENA_WIDTH - 40.0,
-                height / 2.0 - 14.0,
-            ),
+            0 => (ARENA_WIDTH - 70.0, height / 2.0 - 14.0),
+            1 => (ARENA_WIDTH - 50.0, height / 2.0 - 14.0),
+            2 => (ARENA_WIDTH - 30.0, height / 2.0 - 14.0),
+            3 => (ARENA_WIDTH - 10.0, height / 2.0 - 14.0),
+            _ => (ARENA_WIDTH - 40.0, height / 2.0 - 14.0),
         };
 
         starting_rotation = 0.0;
         starting_x = x;
         starting_y = y;
-    }
-    else {
+    } else {
         let (rotation, x, y) = match player_index {
             0 => (
                 -PI / 4.0,
@@ -128,15 +104,13 @@ pub fn intialize_player(
 
     vehicle_transform.set_rotation_2d(starting_rotation as f32);
     vehicle_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
-    
+
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
         sprite_number: player_index,
     };
 
     let weapon_stats = build_named_weapon(weapon_name.clone());
-
-
 
     //Create Health Entity
     let mut health_transform = Transform::default();
@@ -161,7 +135,6 @@ pub fn intialize_player(
         .with(health_tint)
         .build();
 
-
     //Create Repair Lines Entity
     let mut repair_transform = Transform::default();
     repair_transform.set_rotation_2d(starting_rotation as f32);
@@ -184,7 +157,6 @@ pub fn intialize_player(
         .with(Transparent)
         .with(repair_tint)
         .build();
-
 
     //Create Armor Entity
     let mut armor_transform = Transform::default();
@@ -209,7 +181,6 @@ pub fn intialize_player(
         .with(armor_tint)
         .build();
 
-
     //Create Shield Entity
     let mut shield_transform = Transform::default();
     shield_transform.set_rotation_2d(starting_rotation as f32);
@@ -232,9 +203,6 @@ pub fn intialize_player(
         .with(Transparent)
         .with(shield_tint)
         .build();
-
-
-
 
     //UI vehicle icons
     let x = 20.;
@@ -271,7 +239,8 @@ pub fn intialize_player(
 
     let weapon_icon_dx = 70.0;
 
-    let (icon_scale, weapon_sprite) = get_weapon_icon(player_index, weapon_stats, &weapon_fire_resource);
+    let (icon_scale, weapon_sprite) =
+        get_weapon_icon(player_index, weapon_stats, &weapon_fire_resource);
 
     let mut icon_weapon_transform = Transform::default();
 
@@ -294,13 +263,15 @@ pub fn intialize_player(
     let weapon_icon = world
         .create_entity()
         .with(Removal::new(0 as u32))
-        .with(PlayerWeaponIcon::new(player_index, weapon_stats.weapon_type))
+        .with(PlayerWeaponIcon::new(
+            player_index,
+            weapon_stats.weapon_type,
+        ))
         .with(weapon_sprite)
         .with(icon_weapon_transform)
         .with(icon_tint)
         .with(Transparent)
         .build();
-
 
     //Create actual Player with Vehicle and Weapon
     world
@@ -308,7 +279,8 @@ pub fn intialize_player(
         .with(Removal::new(0 as u32))
         .with(vehicle_transform)
         .with(vehicle_sprite_render)
-        .with(Vehicle::new(player_status_text, 
+        .with(Vehicle::new(
+            player_status_text,
             health_entity,
             armor_entity,
             shield_entity,
@@ -321,11 +293,7 @@ pub fn intialize_player(
             max_velocity,
             weapon_stats.weight,
         ))
-        .with(Weapon::new(
-            weapon_name,
-            weapon_icon,
-            weapon_stats,
-        ))
+        .with(Weapon::new(weapon_name, weapon_icon, weapon_stats))
         .with(Player::new(player_index, is_bot))
         .build()
 }
