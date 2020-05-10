@@ -115,11 +115,10 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 self.weapon_spawner_cooldown_timer = game_mode_setup.weapon_spawn_timer;
 
                 spawn_weapon_boxes(
-                    2,
                     &entities,
                     &weapon_fire_resource,
                     &lazy_update,
-                    &game_mode_setup,
+                    game_mode_setup.weapon_spawn_count.clone(),
                 );
             }
         }

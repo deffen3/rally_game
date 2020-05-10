@@ -14,7 +14,7 @@ use std::{collections::HashMap, fs::File};
 
 use crate::components::PlayerWeaponIcon;
 use crate::rally::UI_HEIGHT;
-use crate::resources::WeaponFireResource;
+use crate::resources::{GameModeSetup, WeaponFireResource};
 
 //pub const WEAPON_CONFIGS: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
 
@@ -42,34 +42,47 @@ pub enum WeaponNames {
     Flamethrower,
 }
 
-pub fn get_random_weapon_name() -> WeaponNames {
+pub fn get_random_weapon_name(game_mode_setup: &ReadExpect<GameModeSetup>) -> WeaponNames {
     let mut rng = rand::thread_rng();
-    let index = rng.gen_range(0, 21);
+    let chance_selector = rng.gen_range(0.0, 1.0);
 
-    match index {
-        0 => WeaponNames::LaserDoubleGimballed,
-        1 => WeaponNames::LaserDoubleGimballed,
-        2 => WeaponNames::ProjectileRapidFireTurret,
-        3 => WeaponNames::Flamethrower,
-        4 => WeaponNames::Missile,
-        5 => WeaponNames::LaserBeam,
-        6 => WeaponNames::Shotgun,
-        7 => WeaponNames::ProjectileCannonFire,
-        8 => WeaponNames::LaserPulseGimballed,
-        9 => WeaponNames::Rockets,
-        10 => WeaponNames::ProjectileBurstFire,
-        11 => WeaponNames::LaserDoubleBurstSide,
-        12 => WeaponNames::SuperRocketGrenades,
-        13 => WeaponNames::Mine,
-        14 => WeaponNames::LaserSword,
-        15 => WeaponNames::Trap,
-        16 => WeaponNames::BackwardsLaserSword,
-        17 => WeaponNames::ProjectileSteadyFire,
-        18 => WeaponNames::LaserDouble,
-        19 => WeaponNames::ProjectileRapidFire,
-        20 => WeaponNames::LaserPulse,
-        _ => WeaponNames::LaserDoubleGimballed,
+    let mut weapon_selector = game_mode_setup.starter_weapon.clone();
+
+    log::info!("{}", chance_selector);
+
+    for (weapon_name, chance) in game_mode_setup.weapon_spawn_chances.iter() {
+        if *chance >= chance_selector {
+            weapon_selector = weapon_name.clone();
+            break;
+        }
     }
+
+    // match index {
+    //     0 => WeaponNames::LaserDoubleGimballed,
+    //     1 => WeaponNames::LaserDoubleGimballed,
+    //     2 => WeaponNames::ProjectileRapidFireTurret,
+    //     3 => WeaponNames::Flamethrower,
+    //     4 => WeaponNames::Missile,
+    //     5 => WeaponNames::LaserBeam,
+    //     6 => WeaponNames::Shotgun,
+    //     7 => WeaponNames::ProjectileCannonFire,
+    //     8 => WeaponNames::LaserPulseGimballed,
+    //     9 => WeaponNames::Rockets,
+    //     10 => WeaponNames::ProjectileBurstFire,
+    //     11 => WeaponNames::LaserDoubleBurstSide,
+    //     12 => WeaponNames::SuperRocketGrenades,
+    //     13 => WeaponNames::Mine,
+    //     14 => WeaponNames::LaserSword,
+    //     15 => WeaponNames::Trap,
+    //     16 => WeaponNames::BackwardsLaserSword,
+    //     17 => WeaponNames::ProjectileSteadyFire,
+    //     18 => WeaponNames::LaserDouble,
+    //     19 => WeaponNames::ProjectileRapidFire,
+    //     20 => WeaponNames::LaserPulse,
+    //     _ => WeaponNames::LaserDoubleGimballed,
+    // }
+
+    weapon_selector
 }
 
 //For Gun-Game mode rules

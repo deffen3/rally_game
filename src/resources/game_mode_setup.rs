@@ -22,6 +22,7 @@ pub struct GameModeSetup {
     pub keep_picked_up_weapons: bool,
     pub weapon_spawn_count: u32,
     pub weapon_spawn_timer: f32,
+    pub weapon_spawn_chances: Vec<(WeaponNames, f32)>,
     pub max_players: usize,
     pub bot_players: usize,
 }

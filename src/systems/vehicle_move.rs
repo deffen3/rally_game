@@ -615,7 +615,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         } else if hitbox.is_weapon_box {
                             let _ = entities.delete(hitbox_entity);
 
-                            let new_weapon_name = get_random_weapon_name();
+                            let new_weapon_name = get_random_weapon_name(&game_mode_setup);
 
                             weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 

@@ -6,6 +6,8 @@ use amethyst::{
     winit::VirtualKeyCode,
 };
 
+use std::collections::HashMap;
+
 use crate::rally::GameplayState;
 use crate::welcome::WelcomeScreen;
 
@@ -35,6 +37,41 @@ impl SimpleState for MainMenu {
         // create UI from prefab and save the reference.
         let world = data.world;
 
+        let mut weapon_spawn_relative_chance_map = HashMap::new();
+        //weapon_spawn_relative_chance_map.insert(WeaponNames::LaserDoubleGimballed, 8);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserDoubleBurstSide, 4);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserPulseGimballed, 8);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserBeam, 8);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::Shotgun, 8);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileCannonFire, 8);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileRapidFireTurret, 4);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileBurstFire, 5);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::Flamethrower, 4);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::Missile, 3);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::Rockets, 3);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::SuperRocketGrenades, 2);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::Mine, 3);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::Trap, 2);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserSword, 3);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::BackwardsLaserSword, 1);
+
+        let mut chance_total: u32 = 0;
+
+        for (_key, value) in weapon_spawn_relative_chance_map.iter() {
+            chance_total += value;
+        }
+
+        let mut chance_aggregate: f32 = 0.0;
+        let mut weapon_spawn_chances: Vec<(WeaponNames, f32)> = Vec::new();
+
+        for (key, value) in weapon_spawn_relative_chance_map.iter() {
+            weapon_spawn_chances.push((key.clone(), chance_aggregate));
+
+            chance_aggregate += (*value as f32) / (chance_total as f32);
+        }
+
+        log::info!("{:?}", weapon_spawn_chances);
+
         //Start off with default classic gun game mode
         world.insert(GameModeSetup {
             game_mode: GameModes::ClassicGunGame,
@@ -47,6 +84,7 @@ impl SimpleState for MainMenu {
             keep_picked_up_weapons: false,
             weapon_spawn_count: 2,
             weapon_spawn_timer: 20.0,
+            weapon_spawn_chances: weapon_spawn_chances,
             max_players: 4,
             bot_players: 3,
         });

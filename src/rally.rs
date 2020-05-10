@@ -384,18 +384,17 @@ pub fn fire_weapon(
 }
 
 pub fn spawn_weapon_boxes(
-    box_count: u32,
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     lazy_update: &ReadExpect<LazyUpdate>,
-    game_mode_setup: &ReadExpect<GameModeSetup>,
+    weapon_box_count: u32,
 ) {
     let mut rng = rand::thread_rng();
     let mut spawn_index;
 
     let mut previous_indices = vec![];
 
-    for _idx in 0..box_count {
+    for _idx in 0..weapon_box_count {
         spawn_index = rng.gen_range(0, 4) as u32;
 
         while previous_indices.contains(&spawn_index) {
