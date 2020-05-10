@@ -100,14 +100,36 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut rng = rand::thread_rng();
         let dt = time.delta_seconds();
 
+        let mut weapon_icons_old_map = HashMap::new();
+
         //Turn and Accel
-        for (player, vehicle, transform, weapon) in
-            (&mut players, &mut vehicles, &mut transforms, &weapons).join()
+        for (player, vehicle, transform, mut weapon) in
+            (&mut players, &mut vehicles, &mut transforms, &mut weapons).join()
         {
             if vehicle.state == VehicleState::InRespawn {
                 self.last_spawn_index = check_respawn_vehicle(
                     vehicle, transform, dt, game_mode_setup.game_mode.clone(), self.last_spawn_index
                 );
+
+                if game_mode_setup.random_weapon_spawns && !game_mode_setup.keep_picked_up_weapons {
+                    let restart_weapon_name = game_mode_setup.starter_weapon.clone();
+
+                    weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
+
+                    update_weapon_properties(weapon, restart_weapon_name);
+                    update_weapon_icon(
+                        &entities,
+                        &mut weapon,
+                        &weapon_fire_resource,
+                        player.id,
+                        &lazy_update,
+                    );
+
+                    vehicle.weapon_weight = weapon.stats.weight;
+                }
+
+
+
             } else if vehicle.state == VehicleState::Active {
 
                 //lost armor does not contribute to weight
@@ -476,8 +498,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut players_on_hill: Vec<usize> = Vec::new();
         let mut color_for_hill: Vec<(f32,f32,f32)> = Vec::new();
 
-        let mut weapon_icons_old_map = HashMap::new();
-
 
         for (player, vehicle, mut weapon, transform) in (&mut players, &mut vehicles, &mut weapons, &transforms).join() {
             if vehicle.state == VehicleState::Active {
@@ -614,6 +634,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             );
 
                             vehicle.weapon_weight = weapon.stats.weight;
+
                         } else if hitbox.is_hill {
                             players_on_hill.push(player.id.clone());
 

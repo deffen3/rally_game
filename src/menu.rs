@@ -45,6 +45,7 @@ impl SimpleState for MainMenu {
             checkpoint_count: 0,
             starter_weapon: WeaponNames::LaserDoubleGimballed,
             random_weapon_spawns: false,
+            keep_picked_up_weapons: false,
             weapon_spawn_count: 2,
             weapon_spawn_timer: 20.0,
             max_players: 4,
@@ -129,6 +130,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = false;
+                        game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
 
@@ -140,8 +142,9 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 5;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
-                        game_mode_setup.starter_weapon = WeaponNames::Flamethrower;
+                        game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
+                        game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
 
@@ -155,6 +158,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
+                        game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
 
@@ -168,6 +172,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
+                        game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
 
@@ -181,6 +186,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
+                        game_mode_setup.keep_picked_up_weapons = false;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
                         
@@ -194,6 +200,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
+                        game_mode_setup.keep_picked_up_weapons = true;
 
                         return Trans::Switch(Box::new(GameplayState::default()));
                     }
