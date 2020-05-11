@@ -49,7 +49,11 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
         //if match has a time limit, display time remaining
         if game_mode_setup.match_time_limit > 0.0 {
-            match_time = game_mode_setup.match_time_limit - match_timer.time;
+            if game_mode_setup.match_time_limit - match_timer.time < 0.0 {
+                match_time = 0.0;
+            } else {
+                match_time = game_mode_setup.match_time_limit - match_timer.time;
+            }
         } else {
             //else display timer counting up
             match_time = match_timer.time;
