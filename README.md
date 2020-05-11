@@ -65,8 +65,6 @@ There are various weapons with various properties, including:
 1. Create a Hitbox component, and create a hitbox detection function - in progress
 1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
 1. Improve collision algorithms
-1. Vehicle mass should affect physics
-1. Weapon type should affect vehicle mass
 1. UI Transform works different on Mac? UI is in the middle of the screen.
 1. Red laser weapon can go through opponents on computers with potato frame rate
 
