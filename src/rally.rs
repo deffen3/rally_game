@@ -136,6 +136,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             let engine_efficiency = 1.0;
             let engine_weight = engine_force / engine_efficiency * 20. / 100.;
 
+            let vehicle_width: f32 = 12.0;
+            let vehicle_height: f32 = 7.0;
+
             //stock vehicle weight at 100/100/100 with normal engine efficiency is 100
 
             //health makes up the main hull of the vehicle, and contributes 30 base + 10per health weight
@@ -160,6 +163,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 engine_force,
                 engine_weight,
                 max_velocity,
+                vehicle_width,
+                vehicle_height,
             );
 
             if PLAYER_CAMERA && !is_bot {

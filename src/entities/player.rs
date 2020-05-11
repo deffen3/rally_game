@@ -31,6 +31,8 @@ pub fn intialize_player(
     engine_force: f32,
     engine_weight: f32,
     max_velocity: f32,
+    vehicle_width: f32,
+    vehicle_height: f32,
 ) -> Entity {
     let game_mode;
     let weapon_name;
@@ -292,6 +294,8 @@ pub fn intialize_player(
             engine_weight,
             max_velocity,
             weapon_stats.weight,
+            vehicle_width,
+            vehicle_height,
         ))
         .with(Weapon::new(weapon_name, weapon_icon, weapon_stats))
         .with(Player::new(player_index, is_bot))

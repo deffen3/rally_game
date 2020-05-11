@@ -9,9 +9,6 @@ use crate::components::{Armor, Health, Player, Repair, Shield};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 use crate::resources::GameModes;
 
-pub const VEHICLE_HEIGHT: f32 = 12.0;
-pub const VEHICLE_WIDTH: f32 = 7.0;
-
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum VehicleState {
     Active,
@@ -64,10 +61,12 @@ impl Vehicle {
         engine_weight: f32,
         max_velocity: f32,
         weapon_weight: f32,
+        width: f32,
+        height: f32,
     ) -> Vehicle {
         Vehicle {
-            width: VEHICLE_WIDTH,
-            height: VEHICLE_HEIGHT,
+            width,
+            height,
             dx: 0.0,
             dy: 0.0,
             dr: 0.0,

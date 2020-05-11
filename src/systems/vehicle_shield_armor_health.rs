@@ -9,7 +9,7 @@ use amethyst::{
 use rand::Rng;
 use std::collections::HashMap;
 
-use crate::components::{Player, Vehicle};
+use crate::components::{Player, Vehicle, VehicleState};
 
 #[derive(SystemDesc)]
 pub struct VehicleShieldArmorHealthSystem;
@@ -63,7 +63,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
             };
 
             if let Some(repair) = vehicle_repair {
-                if repair {
+                if repair && vehicle.state == VehicleState::Active {
                     if vehicle.health.value < vehicle.health.max || vehicle.shield.value == 0.0 {
                         //repair initiated
                         vehicle.repair.activated = true;
