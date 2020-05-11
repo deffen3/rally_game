@@ -182,7 +182,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                                 .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
                         }
 
-                        if self.hit_sound_cooldown_timer < 0.0 {
+                        if self.hit_sound_cooldown_timer < 0.0 && vehicle.state == VehicleState::Active {
                             play_score_sound(&*sounds, &storage, audio_output.as_deref());
                             self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
                         }
