@@ -22,7 +22,7 @@ use crate::components::{
     update_weapon_properties, BotMode, Hitbox, HitboxShape, Player, PlayerWeaponIcon,
     RaceCheckpointType, Vehicle, VehicleState, Weapon,
 };
-use crate::resources::{GameModeSetup, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
 use crate::rally::{
     vehicle_damage_model, ARENA_HEIGHT, ARENA_WIDTH, BASE_COLLISION_DAMAGE,
@@ -93,6 +93,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let dt = time.delta_seconds();
 
         let mut weapon_icons_old_map = HashMap::new();
+
+        let mut earned_collision_kills: Vec<usize> = Vec::new();
 
         //Turn and Accel
         for (player, vehicle, transform, mut weapon) in
@@ -426,6 +428,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         );
 
                         if vehicle_destroyed {
+                            player.deaths += 2; //self-destruct counts for 2
+
+                            if player.last_hit_timer <= game_mode_setup.last_hit_threshold {
+                                if let Some(last_hit_by_id) = player.last_hit_by_id {
+                                    earned_collision_kills.push(last_hit_by_id);
+                                }
+                            }
+
                             kill_restart_vehicle(
                                 player,
                                 vehicle,
@@ -458,6 +468,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         );
 
                         if vehicle_destroyed {
+                            player.deaths += 2; //self-destruct counts for 2
+
+                            if player.last_hit_timer <= game_mode_setup.last_hit_threshold {
+                                if let Some(last_hit_by_id) = player.last_hit_by_id {
+                                    earned_collision_kills.push(last_hit_by_id);
+                                }
+                            }
+
                             kill_restart_vehicle(
                                 player,
                                 vehicle,
@@ -604,6 +622,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                 if vehicle_destroyed {
                                     player_destroyed.push(player.id.clone());
+
+                                    player.deaths += 2; //self-destruct counts for 2
+
+                                    if player.last_hit_timer <= game_mode_setup.last_hit_threshold {
+                                        if let Some(last_hit_by_id) = player.last_hit_by_id {
+                                            earned_collision_kills.push(last_hit_by_id);
+                                        }
+                                    }
                                 }
 
                                 if abs_vel > 0.5 {
@@ -711,6 +737,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             if player_destroyed.contains(&player.id) {
                 kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
+            }
+
+            if game_mode_setup.game_mode != GameModes::ClassicGunGame {
+                player.kills += earned_collision_kills
+                    .iter()
+                    .filter(|&n| *n == player.id)
+                    .count() as i32;
             }
 
             if player_arena_bounce.contains(&player.id) {

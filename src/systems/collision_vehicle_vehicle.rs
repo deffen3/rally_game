@@ -3,7 +3,7 @@ use amethyst::{
     audio::{output::Output, Source},
     core::{Time, Transform},
     derive::SystemDesc,
-    ecs::{Join, Read, ReadExpect, ReadStorage, System, SystemData, WriteStorage},
+    ecs::{Join, Read, ReadExpect, System, SystemData, WriteStorage},
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -15,7 +15,7 @@ use crate::rally::{
     vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
     COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
 };
-use crate::resources::GameModeSetup;
+use crate::resources::{GameModeSetup, GameModes};
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
@@ -23,7 +23,7 @@ pub struct CollisionVehToVehSystem;
 impl<'s> System<'s> for CollisionVehToVehSystem {
     type SystemData = (
         WriteStorage<'s, Transform>,
-        ReadStorage<'s, Player>,
+        WriteStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         Read<'s, Time>,
         Read<'s, AssetStorage<Source>>,
@@ -36,7 +36,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
         &mut self,
         (
             mut transforms,
-            players,
+            mut players,
             mut vehicles,
             time,
             storage,
@@ -88,7 +88,9 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             }
         }
 
-        for (vehicle, player, transform) in (&mut vehicles, &players, &mut transforms).join() {
+        let mut earned_collision_kills: Vec<usize> = Vec::new();
+
+        for (vehicle, player, transform) in (&mut vehicles, &mut players, &mut transforms).join() {
             let collision_ids = collision_ids_map.get(&player.id);
 
             if let Some(collision_ids) = collision_ids {
@@ -113,6 +115,14 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                     );
 
                     if vehicle_destroyed {
+                        player.deaths += 1;
+
+                        if player.last_hit_timer <= game_mode_setup.last_hit_threshold {
+                            if let Some(last_hit_by_id) = player.last_hit_by_id {
+                                earned_collision_kills.push(last_hit_by_id);
+                            }
+                        }
+
                         kill_restart_vehicle(
                             player,
                             vehicle,
@@ -129,6 +139,15 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                 } else {
                     vehicle.collision_cooldown_timer -= dt;
                 }
+            }
+        }
+
+        for player in (&mut players).join() {
+            if game_mode_setup.game_mode != GameModes::ClassicGunGame {
+                player.kills += earned_collision_kills
+                    .iter()
+                    .filter(|&n| *n == player.id)
+                    .count() as i32;
             }
         }
     }

@@ -85,6 +85,7 @@ impl SimpleState for MainMenu {
             weapon_spawn_chances: weapon_spawn_chances,
             max_players: 4,
             bot_players: 3,
+            last_hit_threshold: 5.0,
         });
 
         self.ui_root =

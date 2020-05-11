@@ -25,4 +25,5 @@ pub struct GameModeSetup {
     pub weapon_spawn_chances: Vec<(WeaponNames, f32)>,
     pub max_players: usize,
     pub bot_players: usize,
+    pub last_hit_threshold: f32,
 }
