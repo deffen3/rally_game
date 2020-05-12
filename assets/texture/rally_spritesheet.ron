@@ -195,18 +195,18 @@ List((
             height: 2,
         ),
         ( //90deg turn track wall inner #32
-            x: 42,
-            y: 36,
+            x: 0,
+            y: 107,
             width: 10,
             height: 10,
         ),
         ( //straight track wall #33
-            x: 47,
-            y: 47,
+            x: 5,
+            y: 118,
             width: 5,
             height: 10,
         ),
-        ( //flame #34
+        ( //flame - flamethrower #34
             x: 25,
             y: 19,
             width: 6,
@@ -217,6 +217,12 @@ List((
             y: 35,
             width: 11,
             height: 11,
+        ),
+        ( //90deg turn track wall outer #36
+            x: 11,
+            y: 93,
+            width: 35,
+            height: 35,
         ),
     ],
 ))
