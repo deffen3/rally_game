@@ -4,6 +4,8 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 pub enum HitboxShape {
     Rectangle,
     Circle,
+    InnerQuarterCircle,
+    OuterQuarterCircle,
 }
 
 #[derive(Clone, Debug, PartialEq)]
