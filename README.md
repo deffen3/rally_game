@@ -53,20 +53,20 @@ There are various weapons with various properties, including:
 - __Deathmatch: Kills__: First to a certain number of kills wins. New weapons can be picked up from arena.
 - __Deathmatch: Stock__: If you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.
 - __Deathmatch: Timed KD__: Match ends after set time. Highest score of Kills minus Deaths is the winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
-- __KingOfTheHill__: Players gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
+- __King of the Hill__: Players gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
 - __Combat Race__: It's a race with weapons active. First player to complete the required number of laps wins. New weapons can be picked up from race track.
 ---
 
 
 ## TODO:
-1. What happens when you die from collision.
-    - Lose a gun-level? If another player recently hit you then they get the kill?
-    - In TimedKD mode need to have self destruct collisions count as minus 2 deaths.
 1. Create a Hitbox component, and create a hitbox detection function - in progress
 1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
 1. Improve collision algorithms
 1. UI Transform works different on Mac? UI is in the middle of the screen.
 1. Red laser weapon can go through opponents on computers with potato frame rate
+1. Load race tracks from config file
+1. Better weapon dps/skill balance
+1. New bot modes to comprehend Racing, King of the Hill, repairing, and picking up new weapon boxes
 
 
 ---
