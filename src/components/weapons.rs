@@ -1,7 +1,7 @@
 use amethyst::{
     core::math::Vector3,
     core::transform::Transform,
-    ecs::prelude::{Component, DenseVecStorage, Entities, Entity, LazyUpdate, ReadExpect},
+    ecs::prelude::{Component, DenseVecStorage, Entities, Entity, LazyUpdate, ReadExpect, World},
     renderer::{palette::Srgba, resources::Tint, SpriteRender, Transparent},
     utils::removal::Removal,
 };
@@ -55,31 +55,6 @@ pub fn get_random_weapon_name(game_mode_setup: &ReadExpect<GameModeSetup>) -> We
         }
     }
 
-    // match index {
-    //     0 => WeaponNames::LaserDoubleGimballed,
-    //     1 => WeaponNames::LaserDoubleGimballed,
-    //     2 => WeaponNames::ProjectileRapidFireTurret,
-    //     3 => WeaponNames::Flamethrower,
-    //     4 => WeaponNames::Missile,
-    //     5 => WeaponNames::LaserBeam,
-    //     6 => WeaponNames::Shotgun,
-    //     7 => WeaponNames::ProjectileCannonFire,
-    //     8 => WeaponNames::LaserPulseGimballed,
-    //     9 => WeaponNames::Rockets,
-    //     10 => WeaponNames::ProjectileBurstFire,
-    //     11 => WeaponNames::LaserDoubleBurstSide,
-    //     12 => WeaponNames::SuperRocketGrenades,
-    //     13 => WeaponNames::Mine,
-    //     14 => WeaponNames::LaserSword,
-    //     15 => WeaponNames::Trap,
-    //     16 => WeaponNames::BackwardsLaserSword,
-    //     17 => WeaponNames::ProjectileSteadyFire,
-    //     18 => WeaponNames::LaserDouble,
-    //     19 => WeaponNames::ProjectileRapidFire,
-    //     20 => WeaponNames::LaserPulse,
-    //     _ => WeaponNames::LaserDoubleGimballed,
-    // }
-
     weapon_selector
 }
 
@@ -132,11 +107,24 @@ pub struct WeaponStats {
     pub weight: f32,
 }
 
-pub fn build_weapon_store() -> HashMap<WeaponNames, WeaponStats> {
+#[derive(Clone)]
+pub struct WeaponStoreResource {
+    pub store: HashMap<WeaponNames, WeaponStats>,
+}
+
+pub fn build_weapon_store(world: &mut World) -> WeaponStoreResource {
     let input_path = format!("{}/config/weapons.ron", env!("CARGO_MANIFEST_DIR"));
     let f = File::open(&input_path).expect("Failed opening file");
 
-    from_reader(f).expect("Failed to load config")
+    let weapon_configs_map: HashMap<WeaponNames, WeaponStats> =
+        from_reader(f).expect("Failed to load config");
+
+    let weapon_store = WeaponStoreResource {
+        store: weapon_configs_map,
+    };
+    world.insert(weapon_store.clone());
+
+    weapon_store
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
@@ -276,13 +264,52 @@ impl WeaponFire {
     }
 }
 
-pub fn update_weapon_properties(weapon: &mut Weapon, weapon_name: WeaponNames) {
+pub fn update_weapon_properties(
+    weapon: &mut Weapon,
+    weapon_name: WeaponNames,
+    weapon_store: &ReadExpect<WeaponStoreResource>,
+) {
     weapon.name = weapon_name.clone();
-    weapon.stats = build_named_weapon(weapon_name);
+    weapon.stats = build_named_weapon(weapon_name, weapon_store);
 }
 
-pub fn build_named_weapon(weapon_name: WeaponNames) -> WeaponStats {
-    let weapon_configs_map: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
+pub fn build_named_weapon(
+    weapon_name: WeaponNames,
+    weapon_store: &ReadExpect<WeaponStoreResource>,
+) -> WeaponStats {
+    let weapon_configs_map: &HashMap<WeaponNames, WeaponStats> = &weapon_store.store;
+
+    match weapon_configs_map.get(&weapon_name) {
+        Some(weapon_config) => *weapon_config,
+        _ => WeaponStats {
+            weapon_type: WeaponTypes::LaserDouble,
+            heat_seeking: false,
+            heat_seeking_agility: 0.0,
+            attached: false,
+            deployed: false,
+            tracking_angle: 0.0,
+            spread_angle: 0.0,
+            mounted_angle: 0.0,
+            cooldown_reset: 100.0,
+            burst_shot_limit: 0,
+            burst_cooldown_reset: 100.0,
+            shot_life_limit: 0.1,
+            damage: 0.0,
+            shot_speed: 0.0,
+            shield_damage_pct: 0.0,
+            armor_damage_pct: 0.0,
+            piercing_damage_pct: 0.0,
+            health_damage_pct: 0.0,
+            weight: 0.0,
+        },
+    }
+}
+
+pub fn build_named_weapon2(
+    weapon_name: WeaponNames,
+    weapon_store: WeaponStoreResource,
+) -> WeaponStats {
+    let weapon_configs_map: HashMap<WeaponNames, WeaponStats> = weapon_store.store;
 
     match weapon_configs_map.get(&weapon_name) {
         Some(weapon_config) => *weapon_config,

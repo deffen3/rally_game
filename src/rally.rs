@@ -28,8 +28,9 @@ use crate::entities::{
 };
 
 use crate::components::{
-    get_weapon_icon, Armor, Health, Hitbox, HitboxShape, Player, PlayerWeaponIcon,
-    RaceCheckpointType, Repair, Shield, Vehicle, Weapon, WeaponFire,
+    build_weapon_store, get_weapon_icon, Armor, Health, Hitbox, HitboxShape, Player,
+    PlayerWeaponIcon, RaceCheckpointType, Repair, Shield, Vehicle, Weapon, WeaponFire,
+    WeaponStoreResource,
 };
 
 use crate::systems::{
@@ -101,6 +102,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
+        let weapon_store = build_weapon_store(world);
+
         initialize_timer_ui(world);
 
         let player_status_texts = initialize_ui(world);
@@ -155,6 +158,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
                 weapon_fire_resource.clone(),
+                weapon_store.clone(),
                 is_bot,
                 player_status_texts[player_index],
                 max_health,

@@ -14,6 +14,7 @@ use std::collections::HashMap;
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
     Hitbox, Player, PlayerWeaponIcon, Vehicle, VehicleState, Weapon, WeaponFire,
+    WeaponStoreResource,
 };
 
 use crate::rally::{spawn_weapon_boxes, vehicle_damage_model};
@@ -46,6 +47,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
         ReadExpect<'s, GameModeSetup>,
+        ReadExpect<'s, WeaponStoreResource>,
     );
 
     fn setup(&mut self, _world: &mut World) {
@@ -71,6 +73,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             weapon_fire_resource,
             lazy_update,
             game_mode_setup,
+            weapon_store_resource,
         ): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
@@ -214,7 +217,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     if let Some(new_weapon_name) = new_weapon_name.clone() {
                         weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
-                        update_weapon_properties(weapon, new_weapon_name);
+                        update_weapon_properties(weapon, new_weapon_name, &weapon_store_resource);
                         update_weapon_icon(
                             &entities,
                             &mut weapon,

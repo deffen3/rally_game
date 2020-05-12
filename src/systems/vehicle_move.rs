@@ -20,7 +20,7 @@ use std::collections::HashMap;
 use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle, update_weapon_icon,
     update_weapon_properties, BotMode, Hitbox, HitboxShape, Player, PlayerWeaponIcon,
-    RaceCheckpointType, Vehicle, VehicleState, Weapon,
+    RaceCheckpointType, Vehicle, VehicleState, Weapon, WeaponStoreResource,
 };
 use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
@@ -61,6 +61,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         ReadStorage<'s, PlayerWeaponIcon>,
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
+        ReadExpect<'s, WeaponStoreResource>,
     );
 
     fn setup(&mut self, _world: &mut World) {
@@ -87,6 +88,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             player_weapon_icons,
             weapon_fire_resource,
             lazy_update,
+            weapon_store_resource,
         ): Self::SystemData,
     ) {
         let mut rng = rand::thread_rng();
@@ -114,7 +116,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
-                    update_weapon_properties(weapon, restart_weapon_name);
+                    update_weapon_properties(weapon, restart_weapon_name, &weapon_store_resource);
                     update_weapon_icon(
                         &entities,
                         &mut weapon,
@@ -646,7 +648,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             vehicle.collision_cooldown_timer = 1.0;
                         }
-                    } else if vehicle.state == VehicleState::Active { //Non-collision related actions can only occur on Active vehicles
+                    } else if vehicle.state == VehicleState::Active {
+                        //Non-collision related actions can only occur on Active vehicles
                         if hitbox.is_weapon_box {
                             let _ = entities.delete(hitbox_entity);
 
@@ -654,7 +657,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
-                            update_weapon_properties(weapon, new_weapon_name);
+                            update_weapon_properties(
+                                weapon,
+                                new_weapon_name,
+                                &weapon_store_resource,
+                            );
                             update_weapon_icon(
                                 &entities,
                                 &mut weapon,
