@@ -4,7 +4,7 @@ pub use self::move_weapon_fire::MoveWeaponFireSystem;
 pub use self::ui_events::UiEventHandlerSystem;
 pub use self::vehicle_move::VehicleMoveSystem;
 pub use self::vehicle_shield_armor_health::VehicleShieldArmorHealthSystem;
-pub use self::vehicle_status::VehicleStatusSystem;
+pub use self::game_objective_status::VehicleStatusSystem;
 pub use self::vehicle_tracking::VehicleTrackingSystem;
 pub use self::vehicle_weapons::VehicleWeaponsSystem;
 
@@ -14,6 +14,6 @@ mod move_weapon_fire;
 mod ui_events;
 mod vehicle_move;
 mod vehicle_shield_armor_health;
-mod vehicle_status;
+mod game_objective_status;
 mod vehicle_tracking;
 mod vehicle_weapons;
