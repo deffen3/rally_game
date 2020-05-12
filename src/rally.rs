@@ -1,9 +1,7 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
-    core::math::Vector3,
-    core::transform::Transform,
     core::Time,
-    ecs::prelude::{Dispatcher, DispatcherBuilder, Entities, Entity, LazyUpdate, ReadExpect},
+    ecs::prelude::{Dispatcher, DispatcherBuilder, Entity},
     input::{is_close_requested, is_key_down},
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
@@ -15,9 +13,6 @@ use amethyst::{
     winit::VirtualKeyCode,
 };
 
-use rand::Rng;
-use std::f32::consts::PI;
-
 use crate::pause::PauseMenuState;
 
 use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, WeaponFireResource};
@@ -28,9 +23,8 @@ use crate::entities::{
 };
 
 use crate::components::{
-    build_weapon_store, get_weapon_icon, Armor, Health, Hitbox, HitboxShape, Player,
-    PlayerWeaponIcon, RaceCheckpointType, Repair, Shield, Vehicle, Weapon, WeaponFire,
-    WeaponStoreResource,
+    build_weapon_store, Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
+    Weapon, WeaponFire,
 };
 
 use crate::systems::{
@@ -324,200 +318,6 @@ fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handl
         (),
         &sprite_sheet_store,
     )
-}
-
-pub fn fire_weapon(
-    entities: &Entities,
-    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
-    weapon: Weapon,
-    fire_position: Vector3<f32>,
-    fire_angle: f32,
-    player_id: usize,
-    lazy_update: &ReadExpect<LazyUpdate>,
-) {
-    let fire_entity: Entity = entities.create();
-
-    let mut weapon_fire = WeaponFire::new(
-        weapon.name.clone(),
-        weapon.stats.weapon_type,
-        player_id,
-        weapon.stats.heat_seeking,
-        weapon.stats.heat_seeking_agility,
-        weapon.stats.attached,
-        weapon.stats.deployed,
-        weapon.stats.mounted_angle,
-        weapon.stats.shot_speed,
-        weapon.stats.shot_life_limit,
-        weapon.stats.damage,
-        weapon.stats.shield_damage_pct,
-        weapon.stats.armor_damage_pct,
-        weapon.stats.piercing_damage_pct,
-        weapon.stats.health_damage_pct,
-    );
-
-    let local_transform = {
-        let mut local_transform = Transform::default();
-        local_transform.set_translation(fire_position);
-
-        let angle_x_comp: f32 = -fire_angle.sin();
-        let angle_y_comp: f32 = fire_angle.cos();
-
-        local_transform.set_rotation_2d(fire_angle);
-
-        weapon_fire.dx = weapon_fire.shot_speed * angle_x_comp;
-        weapon_fire.dy = weapon_fire.shot_speed * angle_y_comp;
-
-        //adjust the first postion
-        let x = local_transform.translation().x;
-        let y = local_transform.translation().y;
-
-        //let yaw_width = weapon_fire.height*0.5 * angle_x_comp + weapon_fire.width*0.5 * (1.0-angle_x_comp);
-        //let yaw_height = weapon_fire.height*0.5 * angle_y_comp + weapon_fire.width*0.5 * (1.0-angle_y_comp);
-        let yaw_width = 0.0;
-        let yaw_height = 0.0;
-
-        local_transform.set_translation_x(x - yaw_width);
-        local_transform.set_translation_y(y + yaw_height);
-
-        local_transform
-    };
-    lazy_update.insert(fire_entity, weapon_fire);
-
-    let (_icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, weapon.stats, weapon_fire_resource);
-
-    lazy_update.insert(fire_entity, weapon_sprite);
-    lazy_update.insert(fire_entity, local_transform);
-
-    lazy_update.insert(fire_entity, Removal::new(0 as u32));
-}
-
-pub fn spawn_weapon_boxes(
-    entities: &Entities,
-    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
-    lazy_update: &ReadExpect<LazyUpdate>,
-    weapon_box_count: u32,
-) {
-    let mut rng = rand::thread_rng();
-    let mut spawn_index;
-
-    let mut previous_indices = vec![];
-
-    for _idx in 0..weapon_box_count {
-        spawn_index = rng.gen_range(0, 4) as u32;
-
-        while previous_indices.contains(&spawn_index) {
-            spawn_index = rng.gen_range(0, 4) as u32;
-        }
-
-        let box_entity: Entity = entities.create();
-
-        let mut local_transform = Transform::default();
-
-        let spacing_factor = 3.0;
-        let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
-
-        let (x, y) = match spawn_index {
-            0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
-            1 => (ARENA_WIDTH / 2.0, arena_ui_height / spacing_factor),
-            2 => (
-                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                arena_ui_height / 2.0,
-            ),
-            3 => (
-                ARENA_WIDTH / 2.0,
-                arena_ui_height - (arena_ui_height / spacing_factor),
-            ),
-            _ => (
-                ARENA_WIDTH / spacing_factor,
-                arena_ui_height / spacing_factor,
-            ),
-        };
-
-        local_transform.set_translation_xyz(x, y, 0.3);
-        local_transform.set_rotation_2d(PI / 8.0);
-
-        let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
-
-        lazy_update.insert(
-            box_entity,
-            Hitbox::new(
-                11.0,
-                11.0,
-                0.0,
-                HitboxShape::Rectangle,
-                false,
-                false,
-                RaceCheckpointType::NotCheckpoint,
-                0,
-                true,
-            ),
-        );
-        lazy_update.insert(box_entity, Removal::new(0 as u32));
-        lazy_update.insert(box_entity, box_sprite);
-        lazy_update.insert(box_entity, local_transform);
-
-        previous_indices.push(spawn_index.clone());
-    }
-}
-
-pub fn vehicle_damage_model(
-    vehicle: &mut Vehicle,
-    mut damage: f32,
-    piercing_damage_pct: f32,
-    shield_damage_pct: f32,
-    armor_damage_pct: f32,
-    health_damage_pct: f32,
-) -> bool {
-    let mut piercing_damage: f32 = 0.0;
-
-    if piercing_damage_pct > 0.0 {
-        piercing_damage = damage * piercing_damage_pct / 100.0;
-        damage -= piercing_damage;
-    }
-
-    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
-
-    if vehicle.shield.value > 0.0 {
-        vehicle.shield.value -= damage * shield_damage_pct / 100.0;
-        damage = 0.0;
-
-        if vehicle.shield.value < 0.0 {
-            damage -= vehicle.shield.value; //over damage on shields, needs taken from armor
-            vehicle.shield.value = 0.0;
-        } else {
-            //take damage to shields, but shields are still alive, reset shield recharge cooldown
-            vehicle.shield.cooldown_timer = vehicle.shield.cooldown_reset;
-        }
-    }
-
-    if vehicle.armor.value > 0.0 {
-        vehicle.armor.value -= damage * armor_damage_pct / 100.0;
-        damage = 0.0;
-
-        if vehicle.armor.value < 0.0 {
-            damage -= vehicle.armor.value; //over damage on armor, needs taken from health
-            vehicle.armor.value = 0.0;
-        }
-    }
-
-    let health_damage: f32 = (damage + piercing_damage) * health_damage_pct / 100.0;
-
-    let mut vehicle_destroyed = false;
-
-    if vehicle.health.value > 0.0 {
-        //only destroy once
-        if vehicle.health.value <= health_damage {
-            vehicle_destroyed = true;
-            vehicle.health.value = 0.0;
-        } else {
-            vehicle.health.value -= health_damage;
-        }
-    }
-
-    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
-
-    vehicle_destroyed
 }
 
 /*

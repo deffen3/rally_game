@@ -4,7 +4,9 @@ pub use self::hitbox::{Hitbox, HitboxShape, RaceCheckpointType};
 pub use self::players::{BotMode, Player, PlayerWeaponIcon};
 pub use self::repair::Repair;
 pub use self::shields::Shield;
-pub use self::vehicles::{check_respawn_vehicle, kill_restart_vehicle, Vehicle, VehicleState};
+pub use self::vehicles::{
+    check_respawn_vehicle, kill_restart_vehicle, vehicle_damage_model, Vehicle, VehicleState,
+};
 pub use self::weapons::{
     build_named_weapon, build_named_weapon2, build_weapon_store, get_mine_sprite,
     get_next_weapon_name, get_random_weapon_name, get_trap_sprite, get_weapon_icon,

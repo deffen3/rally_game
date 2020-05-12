@@ -218,3 +218,62 @@ pub fn check_respawn_vehicle(
 
     spawn_index
 }
+
+pub fn vehicle_damage_model(
+    vehicle: &mut Vehicle,
+    mut damage: f32,
+    piercing_damage_pct: f32,
+    shield_damage_pct: f32,
+    armor_damage_pct: f32,
+    health_damage_pct: f32,
+) -> bool {
+    let mut piercing_damage: f32 = 0.0;
+
+    if piercing_damage_pct > 0.0 {
+        piercing_damage = damage * piercing_damage_pct / 100.0;
+        damage -= piercing_damage;
+    }
+
+    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
+
+    if vehicle.shield.value > 0.0 {
+        vehicle.shield.value -= damage * shield_damage_pct / 100.0;
+        damage = 0.0;
+
+        if vehicle.shield.value < 0.0 {
+            damage -= vehicle.shield.value; //over damage on shields, needs taken from armor
+            vehicle.shield.value = 0.0;
+        } else {
+            //take damage to shields, but shields are still alive, reset shield recharge cooldown
+            vehicle.shield.cooldown_timer = vehicle.shield.cooldown_reset;
+        }
+    }
+
+    if vehicle.armor.value > 0.0 {
+        vehicle.armor.value -= damage * armor_damage_pct / 100.0;
+        damage = 0.0;
+
+        if vehicle.armor.value < 0.0 {
+            damage -= vehicle.armor.value; //over damage on armor, needs taken from health
+            vehicle.armor.value = 0.0;
+        }
+    }
+
+    let health_damage: f32 = (damage + piercing_damage) * health_damage_pct / 100.0;
+
+    let mut vehicle_destroyed = false;
+
+    if vehicle.health.value > 0.0 {
+        //only destroy once
+        if vehicle.health.value <= health_damage {
+            vehicle_destroyed = true;
+            vehicle.health.value = 0.0;
+        } else {
+            vehicle.health.value -= health_damage;
+        }
+    }
+
+    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
+
+    vehicle_destroyed
+}

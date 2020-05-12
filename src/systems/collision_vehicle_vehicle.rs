@@ -10,10 +10,10 @@ use crate::audio::{play_bounce_sound, Sounds};
 use log::debug;
 use std::collections::HashMap;
 
-use crate::components::{kill_restart_vehicle, Player, Vehicle};
+use crate::components::{kill_restart_vehicle, vehicle_damage_model, Player, Vehicle};
 use crate::rally::{
-    vehicle_damage_model, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
-    COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+    BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT,
+    COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
 };
 use crate::resources::{GameModeSetup, GameModes};
 

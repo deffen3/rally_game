@@ -13,11 +13,12 @@ use std::collections::HashMap;
 
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
-    Hitbox, Player, PlayerWeaponIcon, Vehicle, VehicleState, Weapon, WeaponFire,
-    WeaponStoreResource,
+    vehicle_damage_model, Hitbox, Player, PlayerWeaponIcon, Vehicle, VehicleState, Weapon,
+    WeaponFire, WeaponStoreResource,
 };
 
-use crate::rally::{spawn_weapon_boxes, vehicle_damage_model};
+use crate::entities::spawn_weapon_boxes;
+
 use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};

@@ -19,15 +19,15 @@ use std::collections::HashMap;
 
 use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle, update_weapon_icon,
-    update_weapon_properties, BotMode, Hitbox, HitboxShape, Player, PlayerWeaponIcon,
-    RaceCheckpointType, Vehicle, VehicleState, Weapon, WeaponStoreResource,
+    update_weapon_properties, vehicle_damage_model, BotMode, Hitbox, HitboxShape, Player,
+    PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, Weapon, WeaponStoreResource,
 };
 use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
 use crate::rally::{
-    vehicle_damage_model, ARENA_HEIGHT, ARENA_WIDTH, BASE_COLLISION_DAMAGE,
-    COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT,
-    COLLISION_SHIELD_DAMAGE_PCT, UI_HEIGHT,
+    ARENA_HEIGHT, ARENA_WIDTH, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
+    COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+    UI_HEIGHT,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
