@@ -11,6 +11,8 @@ rand = "0.7"
 ron = "0.5"
 serde = { version = "1", features = ["derive"] }
 specs-physics = { git = "https://github.com/paulkernfeld/specs-physics" }
+nalgebra = "0.20"
+ncollide2d = "0.22"
 
 [features]
 default = ["vulkan"]

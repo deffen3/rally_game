@@ -11,11 +11,16 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
-use log::debug;
+use log::{debug, info};
 use rand::Rng;
 use std::f32::consts::PI;
-
 use std::collections::HashMap;
+
+extern crate nalgebra as na;
+
+use na::{Isometry2, Vector2};
+use ncollide2d::query::{self, Proximity};
+use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle, update_weapon_icon,
@@ -544,6 +549,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
                 + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
 
+            let collision_margin = 5.0;
+
+            let vehicle_collider_shape = Cuboid::new(Vector2::new(vehicle.width/2.0, vehicle.height/2.0));
+            let vehicle_collider_pos = Isometry2::new(Vector2::new(vehicle_x, vehicle_y), vehicle_angle);
+
             let mut checkpoint_id: i32 = 0;
             let mut checkpoint_stages: [bool; 2] = [false; 2];
             let mut lap_stages: [bool; 2] = [false; 2];
@@ -556,13 +566,32 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 let hit;
                 if hitbox.shape == HitboxShape::Circle {
-                    if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
-                        < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2)
-                    {
+                    let hitbox_collider_shape = Ball::new(hitbox.width / 2.0);
+                    let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                    let collision = query::proximity(
+                        &vehicle_collider_pos, &vehicle_collider_shape,
+                        &hitbox_collider_pos, &hitbox_collider_shape,
+                        collision_margin,
+                    );
+
+                    if collision == Proximity::Intersecting {
                         hit = true;
-                    } else {
+                    }
+                    else if collision == Proximity::WithinMargin {
                         hit = false;
                     }
+                    else {
+                        hit = false;
+                    }
+
+                    // if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
+                    //     < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2)
+                    // {
+                    //     hit = true;
+                    // } else {
+                    //     hit = false;
+                    // }
                 } else if hitbox.shape == HitboxShape::Rectangle {
                     let mut interferences = 0;
 

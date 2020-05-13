@@ -14,6 +14,12 @@ use crate::welcome::WelcomeScreen;
 use crate::components::WeaponNames;
 use crate::resources::{GameModeSetup, GameModes};
 
+
+
+pub const PLAYER_COUNT: usize = 4;
+pub const BOT_COUNT: usize = PLAYER_COUNT-1;
+
+
 const BUTTON_CLASSIC_GUN_GAME: &str = "classic_gun_game";
 const BUTTON_DEATHMATCH_KILLS: &str = "deathmatch_kills";
 const BUTTON_DEATHMATCH_STOCK: &str = "deathmatch_stock";
@@ -83,8 +89,8 @@ impl SimpleState for MainMenu {
             weapon_spawn_count: 2,
             weapon_spawn_timer: 20.0,
             weapon_spawn_chances: weapon_spawn_chances,
-            max_players: 4,
-            bot_players: 3,
+            max_players: PLAYER_COUNT,
+            bot_players: BOT_COUNT,
             last_hit_threshold: 5.0,
         });
 
@@ -156,8 +162,8 @@ impl SimpleState for MainMenu {
                 let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
 
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
-                    game_mode_setup.max_players = 4;
-                    game_mode_setup.bot_players = 3;
+                    game_mode_setup.max_players = PLAYER_COUNT;
+                    game_mode_setup.bot_players = BOT_COUNT;
 
                     if Some(target) == self.button_classic_gun_game {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
