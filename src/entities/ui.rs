@@ -1,12 +1,17 @@
 use amethyst::{
     assets::Loader,
-    ecs::prelude::Entity,
+    ecs::prelude::{Entity, Join},
     prelude::*,
-    ui::{Anchor, TtfFormat, UiText, UiTransform},
+    ui::{Anchor, TtfFormat, UiText, UiTransform, UiFinder},
     utils::removal::Removal,
 };
 
 use crate::resources::MatchTimer;
+
+use crate::components::{Player, Vehicle};
+
+use crate::resources::GameModeSetup;
+
 
 pub fn initialize_timer_ui(world: &mut World) {
     let font = world.read_resource::<Loader>().load(
@@ -49,412 +54,96 @@ pub fn initialize_timer_ui(world: &mut World) {
 ///contains the ui text components that display the player vehicle status
 #[derive(Clone, Copy)]
 pub struct PlayerStatusText {
-    pub shield: Entity,
-    pub armor: Entity,
-    pub health: Entity,
-    pub points: Entity,
+    pub shield: Option<Entity>,
+    pub armor: Option<Entity>,
+    pub health: Option<Entity>,
+    pub points: Option<Entity>,
 }
 
 /// Initialises the UI
-pub fn initialize_ui(world: &mut World) -> [PlayerStatusText; 4] {
-    let font = world.read_resource::<Loader>().load(
-        "font/square.ttf",
-        TtfFormat,
-        (),
-        &world.read_resource(),
-    );
+pub fn connect_players_to_ui(world: &mut World) -> bool {
+    // //Player status
 
-    //Player status
+    // let mut x = 700.;
+    // let y = -960.;
+    // let dy = 42.;
+    // let dx = 80.;
+    // let dx2 = 10.;
 
-    let mut x = -450.;
-    let y = -960.;
-    let dy = 42.;
-    let dx = 80.;
-    let dx2 = 10.;
 
-    let p1_shield_transform = UiTransform::new(
-        "P1".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx;
-    let p1_armor_transform = UiTransform::new(
-        "P1".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    let p1_points_transform = UiTransform::new(
-        "P1".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y + dy,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx;
-    let p1_health_transform = UiTransform::new(
-        "P2".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx + dx2;
-    let p2_shield_transform = UiTransform::new(
-        "P2".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx;
-    let p2_armor_transform = UiTransform::new(
-        "P2".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    let p2_points_transform = UiTransform::new(
-        "P2".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y + dy,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx;
-    let p2_health_transform = UiTransform::new(
-        "P2".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx + dx2;
-    let p3_shield_transform = UiTransform::new(
-        "P3".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx;
-    let p3_armor_transform = UiTransform::new(
-        "P3".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    let p3_points_transform = UiTransform::new(
-        "P3".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y + dy,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx;
-    let p3_health_transform = UiTransform::new(
-        "P3".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx + dx2;
-    let p4_shield_transform = UiTransform::new(
-        "P4".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx;
-    let p4_armor_transform = UiTransform::new(
-        "P4".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
-    let p4_points_transform = UiTransform::new(
-        "P3".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y + dy,
-        1.,
-        200.,
-        50.,
-    );
-    x += dx;
-    let p4_health_transform = UiTransform::new(
-        "P4".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        x,
-        y,
-        1.,
-        200.,
-        50.,
-    );
+    // let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
-    let p1_shield = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p1_shield_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [0., 0., 1., 1.],
-            50.,
-        ))
-        .build();
+    // let max_players;
+    // if let Some(game_mode_setup) = fetched_game_mode_setup {
+    //     max_players = game_mode_setup.max_players;
+    // } else {
+    //     max_players = 4;
+    // }
 
-    let p1_armor = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p1_armor_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [0., 0., 0., 1.],
-            50.,
-        ))
-        .build();
-
-    let p1_health = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p1_health_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 0., 0., 1.],
-            50.,
-        ))
-        .build();
-
-    let p1_points = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p1_points_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 1., 1., 1.],
-            50.,
-        ))
-        .build();
-
-    let p2_shield = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p2_shield_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [0., 0., 1., 1.],
-            50.,
-        ))
-        .build();
-
-    let p2_armor = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p2_armor_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [0., 0., 0., 1.],
-            50.,
-        ))
-        .build();
-
-    let p2_health = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p2_health_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 0., 0., 1.],
-            50.,
-        ))
-        .build();
-
-    let p2_points = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p2_points_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 1., 1., 1.],
-            50.,
-        ))
-        .build();
-
-    let p3_shield = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p3_shield_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [0., 0., 1., 1.],
-            50.,
-        ))
-        .build();
-
-    let p3_armor = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p3_armor_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [0., 0., 0., 1.],
-            50.,
-        ))
-        .build();
-
-    let p3_health = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p3_health_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 0., 0., 1.],
-            50.,
-        ))
-        .build();
-
-    let p3_points = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p3_points_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 1., 1., 1.],
-            50.,
-        ))
-        .build();
-
-    let p4_shield = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p4_shield_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [0., 0., 1., 1.],
-            50.,
-        ))
-        .build();
-
-    let p4_armor = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p4_armor_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [0., 0., 0., 1.],
-            50.,
-        ))
-        .build();
-
-    let p4_health = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p4_health_transform)
-        .with(UiText::new(
-            font.clone(),
-            "0".to_string(),
-            [1., 0., 0., 1.],
-            50.,
-        ))
-        .build();
-
-    let p4_points = world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(p4_points_transform)
-        .with(UiText::new(font, "0".to_string(), [1., 1., 1., 1.], 50.))
-        .build();
-
-    [
+    let mut player_status_texts = [
         PlayerStatusText {
-            shield: p1_shield,
-            armor: p1_armor,
-            health: p1_health,
-            points: p1_points,
+            shield: None,
+            armor: None,
+            health: None,
+            points: None,
         },
         PlayerStatusText {
-            shield: p2_shield,
-            armor: p2_armor,
-            health: p2_health,
-            points: p2_points,
+            shield: None,
+            armor: None,
+            health: None,
+            points: None,
         },
         PlayerStatusText {
-            shield: p3_shield,
-            armor: p3_armor,
-            health: p3_health,
-            points: p3_points,
+            shield: None,
+            armor: None,
+            health: None,
+            points: None,
         },
         PlayerStatusText {
-            shield: p4_shield,
-            armor: p4_armor,
-            health: p4_health,
-            points: p4_points,
+            shield: None,
+            armor: None,
+            health: None,
+            points: None,
         },
-    ]
+    ];
+
+    for player_index in 0..4 {
+        world.exec(|finder: UiFinder<'_>| {
+            let search_string = format!("p{}_shield", player_index+1);
+
+            if let Some(entity) = finder.find(&search_string) {
+                player_status_texts[player_index].shield = Some(entity);
+            }
+        });
+        world.exec(|finder: UiFinder<'_>| {
+            let search_string = format!("p{}_armor", player_index+1);
+
+            if let Some(entity) = finder.find(&search_string) {
+                player_status_texts[player_index].armor = Some(entity);
+            }
+        });
+        world.exec(|finder: UiFinder<'_>| {
+            let search_string = format!("p{}_health", player_index+1);
+
+            if let Some(entity) = finder.find(&search_string) {
+                player_status_texts[player_index].health = Some(entity);
+            }
+        });
+        world.exec(|finder: UiFinder<'_>| {
+            let search_string = format!("p{}_points", player_index+1);
+
+            if let Some(entity) = finder.find(&search_string) {
+                player_status_texts[player_index].points = Some(entity);
+            }
+        });
+    }
+
+    let players = world.read_storage::<Player>();
+    let mut vehicles = world.write_storage::<Vehicle>();
+
+    for (player, vehicle) in (&players, &mut vehicles).join() {
+        vehicle.player_status_text = player_status_texts[player.id];
+    }
+
+    false
 }

@@ -67,20 +67,27 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
         //for (player, vehicle) in (players, vehicles).join() {
         for (player, vehicle) in (&players, &vehicles).join() {
-            ui_text
-                .get_mut(vehicle.player_status_text.shield)
-                .unwrap()
-                .text = format!("{:.0}", vehicle.shield.value.ceil());
 
-            ui_text
-                .get_mut(vehicle.player_status_text.armor)
-                .unwrap()
-                .text = format!("{:.0}", vehicle.armor.value.ceil());
+            if let Some(shield_status) = vehicle.player_status_text.shield {
+                ui_text
+                    .get_mut(shield_status)
+                    .unwrap()
+                    .text = format!("{:.0}", vehicle.shield.value.ceil());
+            }
 
-            ui_text
-                .get_mut(vehicle.player_status_text.health)
-                .unwrap()
-                .text = format!("{:.0}", vehicle.health.value.ceil());
+            if let Some(armor_status) = vehicle.player_status_text.armor {
+                ui_text
+                    .get_mut(armor_status)
+                    .unwrap()
+                    .text = format!("{:.0}", vehicle.armor.value.ceil());
+            }
+            
+            if let Some(health_status) = vehicle.player_status_text.health {
+                ui_text
+                    .get_mut(health_status)
+                    .unwrap()
+                    .text = format!("{:.0}", vehicle.health.value.ceil());
+            }
 
             /*
             pub enum GameModes {
@@ -130,10 +137,12 @@ impl<'s> System<'s> for VehicleStatusSystem {
                             _ => "???".to_string(),
                         };
 
-                        ui_text
-                            .get_mut(vehicle.player_status_text.points)
-                            .unwrap()
-                            .text = text_out;
+                        if let Some(points_status) = vehicle.player_status_text.points {
+                            ui_text
+                                .get_mut(points_status)
+                                .unwrap()
+                                .text = text_out;
+                        }
                     }
                 } else if game_mode_setup.points_to_win > 0
                     && player_score >= game_mode_setup.points_to_win
@@ -149,16 +158,20 @@ impl<'s> System<'s> for VehicleStatusSystem {
                             _ => "???".to_string(),
                         };
 
-                        ui_text
-                            .get_mut(vehicle.player_status_text.points)
-                            .unwrap()
-                            .text = text_out;
+                        if let Some(points_status) = vehicle.player_status_text.points {
+                            ui_text
+                                .get_mut(points_status)
+                                .unwrap()
+                                .text = text_out;
+                        }
                     }
                 } else {
-                    ui_text
-                        .get_mut(vehicle.player_status_text.points)
-                        .unwrap()
-                        .text = format!("{:.0}", player_score);
+                    if let Some(points_status) = vehicle.player_status_text.points {
+                        ui_text
+                            .get_mut(points_status)
+                            .unwrap()
+                            .text = format!("{:.0}", player_score);
+                    }
                 }
             }
         }

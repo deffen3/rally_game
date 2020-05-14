@@ -19,7 +19,7 @@ use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, WeaponFir
 
 use crate::entities::{
     initialize_arena_walls, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
-    initialize_ui, intialize_player,
+    connect_players_to_ui, intialize_player, PlayerStatusText,
 };
 
 use crate::components::{
@@ -47,6 +47,8 @@ pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
 
 #[derive(Default)]
 pub struct GameplayState<'a, 'b> {
+    player_ui_initialized: bool,
+
     // // If the Game is paused or not
     pub paused: bool,
     // The UI root entity. Deleting this should remove the complete UI
@@ -63,7 +65,12 @@ pub struct GameplayState<'a, 'b> {
 
 impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
     fn on_start(&mut self, mut data: StateData<'_, GameData<'_, '_>>) {
+        self.player_ui_initialized = false;
+
         let world = &mut data.world;
+
+        self.ui_root =
+            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/gameplay.ron", ())));
 
         world.register::<UiText>();
         world.register::<UiTransform>();
@@ -100,7 +107,12 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         initialize_timer_ui(world);
 
-        let player_status_texts = initialize_ui(world);
+        initialize_arena_walls(
+            world,
+            self.sprite_sheet_handle.clone().unwrap(),
+            self.texture_sheet_handle.clone().unwrap(),
+        );
+
 
         let max_players;
         let bot_players;
@@ -115,12 +127,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 bot_players = 3;
             }
         }
-
-        initialize_arena_walls(
-            world,
-            self.sprite_sheet_handle.clone().unwrap(),
-            self.texture_sheet_handle.clone().unwrap(),
-        );
+        
+        let player_status_text = PlayerStatusText { shield: None, armor: None, health: None, points: None};
 
         for player_index in 0..max_players {
             let is_bot = player_index >= max_players - bot_players;
@@ -154,7 +162,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 weapon_fire_resource.clone(),
                 weapon_store.clone(),
                 is_bot,
-                player_status_texts[player_index],
+                player_status_text.clone(),
                 max_health,
                 max_armor,
                 max_shield,
@@ -210,9 +218,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         dispatcher.setup(world);
 
         self.dispatcher = Some(dispatcher);
-
-        self.ui_root =
-            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/game_fps.ron", ())));
     }
 
     fn on_pause(&mut self, _data: StateData<'_, GameData<'_, '_>>) {
@@ -294,6 +299,15 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                     let fps = world.read_resource::<FpsCounter>().sampled_fps();
                     fps_display.text = format!("FPS: {:.*}", 2, fps);
                 }
+            }
+        }
+
+
+        if !self.player_ui_initialized {
+            let connected_success = connect_players_to_ui(world);
+
+            if connected_success {
+                self.player_ui_initialized = true;
             }
         }
 

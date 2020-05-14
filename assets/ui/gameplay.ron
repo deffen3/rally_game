@@ -1,0 +1,337 @@
+#![enable(implicit_some)]
+Container(
+    transform: (
+        id: "background",
+        anchor: Middle,
+        stretch: XY( x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+        width: 20.,
+        height: 20.,
+    ),
+    children: [
+        Label(
+            transform: (
+                id: "fps",
+                x: 100.,
+                y: -16,
+                width: 200.,
+                height: 25.,
+                tab_order: 2,
+                anchor: TopLeft,
+                transparent: true,
+            ),
+            text: (
+                text: "N/A",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 25.,
+                color: (0.498, 0.254, 0.937, 1.0),
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p1_shield",
+                x: 50.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (0.0, 0.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p1_armor",
+                x: 130.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (0.0, 0.0, 0.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p1_health",
+                x: 210.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (1.0, 0.0, 0.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p1_points",
+                x: 130.,
+                y: -940.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "0",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+
+        Label(
+            transform: (
+                id: "p2_shield",
+                x: 300.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (0.0, 0.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p2_armor",
+                x: 380.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (0.0, 0.0, 0.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p2_health",
+                x: 460.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (1.0, 0.0, 0.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p2_points",
+                x: 380.,
+                y: -940.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "0",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+
+        Label(
+            transform: (
+                id: "p3_shield",
+                x: 550.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (0.0, 0.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p3_armor",
+                x: 630.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (0.0, 0.0, 0.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p3_health",
+                x: 710.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (1.0, 0.0, 0.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p3_points",
+                x: 630.,
+                y: -940.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "0",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+
+        Label(
+            transform: (
+                id: "p4_shield",
+                x: 800.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (0.0, 0.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p4_armor",
+                x: 880.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (0.0, 0.0, 0.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p4_health",
+                x: 940.,
+                y: -980.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "100",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (1.0, 0.0, 0.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p4_points",
+                x: 880.,
+                y: -940.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: TopLeft,
+            ),
+            text: (
+                text: "0",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 40.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+    ],
+)
