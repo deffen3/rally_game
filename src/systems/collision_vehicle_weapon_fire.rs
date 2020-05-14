@@ -12,8 +12,8 @@ use amethyst::{
 use std::collections::HashMap;
 
 extern crate nalgebra as na;
-use na::{Isometry2, Vector2};
-use ncollide2d::query::{self, Proximity};
+use na::{Isometry2, Vector2, Point2};
+use ncollide2d::query::{self, Proximity, Ray, RayCast};
 use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
@@ -28,7 +28,9 @@ use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 
-pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.25;
+pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.80;
+
+pub const PRE_IMPACT_DT_STEPS: f32 = 1.2;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehicleWeaponFireSystem {
@@ -45,7 +47,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         ReadStorage<'s, PlayerWeaponIcon>,
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Weapon>,
-        ReadStorage<'s, WeaponFire>,
+        WriteStorage<'s, WeaponFire>,
         Read<'s, Time>,
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
@@ -71,7 +73,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             player_icons,
             mut vehicles,
             mut weapons,
-            weapon_fires,
+            mut weapon_fires,
             time,
             storage,
             sounds,
@@ -96,7 +98,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 let hitbox_y = transform.translation().y;
 
                 for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
-                    (&*entities, &weapon_fires, &transforms).join()
+                    (&*entities, &mut weapon_fires, &transforms).join()
                 {
                     let fire_x = weapon_fire_transform.translation().x;
                     let fire_y = weapon_fire_transform.translation().y;
@@ -107,41 +109,82 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let fire_collider_shape = Cuboid::new(Vector2::new(weapon_fire.width/2.0, weapon_fire.height/2.0));
                     let fire_collider_pos = Isometry2::new(Vector2::new(fire_x, fire_y), fire_angle);
 
-                    let collision;
-                    if hitbox.shape == HitboxShape::Circle {
-                        let hitbox_collider_shape = Ball::new(hitbox.width / 2.0);
-                        let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+                    let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                    let abs_vel = sq_vel.sqrt();
 
-                        collision = query::proximity(
-                            &fire_collider_pos, &fire_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape,
-                            0.0,
-                        );
-                    } else if hitbox.shape == HitboxShape::Rectangle {
-                        let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
-                        let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
-
-                        collision = query::proximity(
-                            &fire_collider_pos, &fire_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape,
-                            0.0,
-                        );
+                    let margin;
+                    if abs_vel > 650.0 {
+                        //use pre-impact detection if within 3 time steps of radius of target
+                        margin = abs_vel * dt * PRE_IMPACT_DT_STEPS;
                     }
                     else {
-                        let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
-                        let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+                        margin = 0.0;
+                    }
+
+                    let collision;
+                    let hitbox_collider_pos;
+                    let hitbox_collider_shape_rect;
+                    let hitbox_collider_shape_circle;
+
+                    if hitbox.shape == HitboxShape::Circle {
+                        hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0);
+                        hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0)); //unused
+                        hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                         collision = query::proximity(
                             &fire_collider_pos, &fire_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape,
-                            0.0,
+                            &hitbox_collider_pos, &hitbox_collider_shape_circle,
+                            margin,
+                        );
+                    } else { //if hitbox.shape == HitboxShape::Rectangle {
+                        hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                        hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0); //unused
+                        hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                        collision = query::proximity(
+                            &fire_collider_pos, &fire_collider_shape,
+                            &hitbox_collider_pos, &hitbox_collider_shape_rect,
+                            margin,
                         );
                     }
 
-                    //weapon fire hits
+
+                    let weapon_fire_hit;
                     if collision == Proximity::Intersecting {
+                        weapon_fire_hit = true;
+                    }
+                    else if collision == Proximity::WithinMargin {
+                        //if potentially on collision course, check time to impact
+                        let fire_ray = Ray::new(Point2::new(fire_x, fire_y), Vector2::new(weapon_fire.dx, weapon_fire.dy));
+
+                        let toi;
+                        if hitbox.shape == HitboxShape::Circle {
+                            toi = hitbox_collider_shape_circle.toi_with_ray(&hitbox_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+                        }
+                        else {
+                            toi = hitbox_collider_shape_rect.toi_with_ray(&hitbox_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+                        }
+
+                        if let Some(toi_result) = toi {
+                            if toi_result <= PRE_IMPACT_DT_STEPS*dt {
+                                weapon_fire_hit = true;
+                            }
+                            else {
+                                weapon_fire_hit = false;
+                            }
+                        }
+                        else {
+                            weapon_fire_hit = false;
+                        }
+                    }
+                    else {
+                        weapon_fire_hit = false;
+                    }
+
+                    if weapon_fire_hit {
                         if !weapon_fire.attached {
                             let _ = entities.delete(weapon_fire_entity);
+                            weapon_fire.active = false;
                         }
                     }
                 }
@@ -187,7 +230,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             player.last_hit_timer += dt;
 
             for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
-                (&*entities, &weapon_fires, &transforms).join()
+                (&*entities, &mut weapon_fires, &transforms).join()
             {
                 if weapon_fire.owner_player_id != player.id {
                     let fire_x = weapon_fire_transform.translation().x;
@@ -199,15 +242,54 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let fire_collider_shape = Cuboid::new(Vector2::new(weapon_fire.width/2.0, weapon_fire.height/2.0));
                     let fire_collider_pos = Isometry2::new(Vector2::new(fire_x, fire_y), fire_angle);
 
+                    let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                    let abs_vel = sq_vel.sqrt();
+
+                    let margin;
+                    if abs_vel > 650.0 {
+                        //use pre-impact detection if within 3 time steps of radius of target
+                        margin = abs_vel * dt * PRE_IMPACT_DT_STEPS;
+                    }
+                    else {
+                        margin = 0.0;
+                    }
+
                     let collision = query::proximity(
                         &fire_collider_pos, &fire_collider_shape,
                         &vehicle_collider_pos, &vehicle_collider_shape,
-                        0.0,
+                        margin,
                     );
 
+                    let weapon_fire_hit;
                     if collision == Proximity::Intersecting {
+                        weapon_fire_hit = true;
+                    }
+                    else if collision == Proximity::WithinMargin {
+                        //if potentially on collision course, check time to impact
+                        let fire_ray = Ray::new(Point2::new(fire_x, fire_y), Vector2::new(weapon_fire.dx, weapon_fire.dy));
+
+                        let toi = vehicle_collider_shape.toi_with_ray(&vehicle_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+
+                        if let Some(toi_result) = toi {
+                            if toi_result <= PRE_IMPACT_DT_STEPS*dt {
+                                weapon_fire_hit = true;
+                            }
+                            else {
+                                weapon_fire_hit = false;
+                            }
+                        }
+                        else {
+                            weapon_fire_hit = false;
+                        }
+                    }
+                    else {
+                        weapon_fire_hit = false;
+                    }
+
+                    if weapon_fire_hit {
                         if !weapon_fire.attached {
                             let _ = entities.delete(weapon_fire_entity);
+                            weapon_fire.active = false;
                         }
 
                         player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());

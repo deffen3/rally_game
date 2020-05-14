@@ -213,6 +213,7 @@ pub fn calculate_range(stats: WeaponStats) -> f32 {
 
 #[derive(Clone)]
 pub struct WeaponFire {
+    pub active: bool,
     pub width: f32,
     pub height: f32,
     pub dx: f32,
@@ -275,6 +276,7 @@ impl WeaponFire {
         };
 
         WeaponFire {
+            active: true,
             width,
             height,
             dx: 0.0,

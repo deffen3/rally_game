@@ -181,9 +181,14 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         dispatcher_builder.add(VehicleWeaponsSystem, "vehicle_weapons_system", &[]);
         dispatcher_builder.add(
+            CollisionVehicleWeaponFireSystem::default(),
+            "collision_vehicle_weapon_fire_system",
+            &["vehicle_weapons_system"],
+        );
+        dispatcher_builder.add(
             MoveWeaponFireSystem,
             "move_weapon_fire_system",
-            &["vehicle_weapons_system"],
+            &["collision_vehicle_weapon_fire_system"],
         );
 
         dispatcher_builder.add(
@@ -191,11 +196,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             "collision_vehicle_vehicle_system",
             &["vehicle_move_system"],
         );
-        dispatcher_builder.add(
-            CollisionVehicleWeaponFireSystem::default(),
-            "collision_vehicle_weapon_fire_system",
-            &["vehicle_move_system", "move_weapon_fire_system"],
-        );
+        
 
         dispatcher_builder.add(
             VehicleShieldArmorHealthSystem,
