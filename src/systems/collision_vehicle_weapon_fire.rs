@@ -31,6 +31,7 @@ use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.80;
 
 pub const PRE_IMPACT_DT_STEPS: f32 = 1.2;
+pub const SHOT_SPEED_TRIGGER: f32 = 500.0;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehicleWeaponFireSystem {
@@ -113,7 +114,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let abs_vel = sq_vel.sqrt();
 
                     let margin;
-                    if abs_vel > 650.0 {
+                    if abs_vel > SHOT_SPEED_TRIGGER {
                         //use pre-impact detection if within 3 time steps of radius of target
                         margin = abs_vel * dt * PRE_IMPACT_DT_STEPS;
                     }
@@ -246,7 +247,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let abs_vel = sq_vel.sqrt();
 
                     let margin;
-                    if abs_vel > 650.0 {
+                    if abs_vel > SHOT_SPEED_TRIGGER {
                         //use pre-impact detection if within 3 time steps of radius of target
                         margin = abs_vel * dt * PRE_IMPACT_DT_STEPS;
                     }
