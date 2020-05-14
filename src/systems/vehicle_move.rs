@@ -544,15 +544,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let vehicle_rotation = transform.rotation();
             let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
 
-            let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
-            let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
-
-            let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
-                + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
-
-            let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
-                + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
-
             let collision_margin = 5.0;
 
             let vehicle_collider_shape = Cuboid::new(Vector2::new(vehicle.width/2.0, vehicle.height/2.0));
@@ -588,43 +579,61 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     else {
                         hit = false;
                     }
-
-                    // if (vehicle_x - hitbox_x).powi(2) + (vehicle_y - hitbox_y).powi(2)
-                    //     < (hitbox.width / 2.0 + vehicle.width / 2.0).powi(2)
-                    // {
-                    //     hit = true;
-                    // } else {
-                    //     hit = false;
-                    // }
                 } else if hitbox.shape == HitboxShape::Rectangle {
-                    let mut interferences = 0;
+                    let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                    let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
-                    let left_hitbox_wall =
-                        vehicle_x + veh_rect_width / 2.0 > hitbox_x - hitbox.width / 2.0;
-                    let right_hitbox_wall =
-                        vehicle_x - veh_rect_width / 2.0 < hitbox_x + hitbox.width / 2.0;
+                    let collision = query::proximity(
+                        &vehicle_collider_pos, &vehicle_collider_shape,
+                        &hitbox_collider_pos, &hitbox_collider_shape,
+                        collision_margin,
+                    );
 
-                    let top_hitbox_wall =
-                        vehicle_y - veh_rect_height / 2.0 < hitbox_y + hitbox.height / 2.0;
-                    let bottom_hitbox_wall =
-                        vehicle_y + veh_rect_height / 2.0 > hitbox_y - hitbox.height / 2.0;
-
-                    if left_hitbox_wall {
-                        interferences += 1;
-                    }
-                    if right_hitbox_wall {
-                        interferences += 1;
-                    }
-                    if top_hitbox_wall {
-                        interferences += 1;
-                    }
-                    if bottom_hitbox_wall {
-                        interferences += 1;
-                    }
-
-                    if interferences >= 4 {
+                    if collision == Proximity::Intersecting {
                         hit = true;
-                    } else {
+                    }
+                    else if collision == Proximity::WithinMargin {
+                        hit = false;
+                    }
+                    else {
+                        hit = false;
+                    }
+                } else if hitbox.shape == HitboxShape::InnerQuarterCircle {
+                    let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                    let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                    let collision = query::proximity(
+                        &vehicle_collider_pos, &vehicle_collider_shape,
+                        &hitbox_collider_pos, &hitbox_collider_shape,
+                        collision_margin,
+                    );
+
+                    if collision == Proximity::Intersecting {
+                        hit = true;
+                    }
+                    else if collision == Proximity::WithinMargin {
+                        hit = false;
+                    }
+                    else {
+                        hit = false;
+                    }
+                } else if hitbox.shape == HitboxShape::OuterQuarterCircle {
+                    let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                    let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                    let collision = query::proximity(
+                        &vehicle_collider_pos, &vehicle_collider_shape,
+                        &hitbox_collider_pos, &hitbox_collider_shape,
+                        collision_margin,
+                    );
+
+                    if collision == Proximity::Intersecting {
+                        hit = true;
+                    }
+                    else if collision == Proximity::WithinMargin {
+                        hit = false;
+                    }
+                    else {
                         hit = false;
                     }
                 } else {
