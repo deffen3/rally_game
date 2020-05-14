@@ -177,26 +177,35 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
+            let vehicle_rotation = vehicle_transform.rotation();
+            let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
+
+            let vehicle_collider_shape = Cuboid::new(Vector2::new(vehicle.width/2.0, vehicle.height/2.0));
+            let vehicle_collider_pos = Isometry2::new(Vector2::new(vehicle_x, vehicle_y), vehicle_angle);
+
+
             player.last_hit_timer += dt;
 
             for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
                 (&*entities, &weapon_fires, &transforms).join()
             {
-                let fire_x = weapon_fire_transform.translation().x;
-                let fire_y = weapon_fire_transform.translation().y;
-
                 if weapon_fire.owner_player_id != player.id {
+                    let fire_x = weapon_fire_transform.translation().x;
+                    let fire_y = weapon_fire_transform.translation().y;
+
                     let fire_rotation = weapon_fire_transform.rotation();
                     let (_, _, fire_angle) = fire_rotation.euler_angles();
-                    let fire_x_comp = -fire_angle.sin(); //left is -, right is +
-                    let fire_y_comp = fire_angle.cos(); //up is +, down is -
 
-                    if ((fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
-                        < vehicle.width.powi(2))
-                        || ((fire_x - fire_x_comp * weapon_fire.height / 2.0 - vehicle_x).powi(2)
-                            + (fire_y - fire_y_comp * weapon_fire.height / 2.0 - vehicle_y).powi(2)
-                            < vehicle.width.powi(2))
-                    {
+                    let fire_collider_shape = Cuboid::new(Vector2::new(weapon_fire.width/2.0, weapon_fire.height/2.0));
+                    let fire_collider_pos = Isometry2::new(Vector2::new(fire_x, fire_y), fire_angle);
+
+                    let collision = query::proximity(
+                        &fire_collider_pos, &fire_collider_shape,
+                        &vehicle_collider_pos, &vehicle_collider_shape,
+                        0.0,
+                    );
+
+                    if collision == Proximity::Intersecting {
                         if !weapon_fire.attached {
                             let _ = entities.delete(weapon_fire_entity);
                         }
