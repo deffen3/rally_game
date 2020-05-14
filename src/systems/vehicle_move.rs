@@ -11,13 +11,12 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
-use log::{debug, info};
+use log::{debug};
 use rand::Rng;
 use std::f32::consts::PI;
 use std::collections::HashMap;
 
 extern crate nalgebra as na;
-
 use na::{Isometry2, Vector2};
 use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{Ball, Cuboid};

@@ -11,9 +11,14 @@ use amethyst::{
 
 use std::collections::HashMap;
 
+extern crate nalgebra as na;
+use na::{Isometry2, Vector2};
+use ncollide2d::query::{self, Proximity};
+use ncollide2d::shape::{Ball, Cuboid};
+
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
-    vehicle_damage_model, Hitbox, Player, PlayerWeaponIcon, Vehicle, VehicleState, Weapon,
+    vehicle_damage_model, Hitbox, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, Weapon,
     WeaponFire, WeaponStoreResource,
 };
 
@@ -96,9 +101,45 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let fire_x = weapon_fire_transform.translation().x;
                     let fire_y = weapon_fire_transform.translation().y;
 
-                    if (fire_x - hitbox_x).powi(2) + (fire_y - hitbox_y).powi(2)
-                        < (hitbox.width / 2.0).powi(2)
-                    {
+                    let fire_rotation = weapon_fire_transform.rotation();
+                    let (_, _, fire_angle) = fire_rotation.euler_angles();
+
+                    let fire_collider_shape = Cuboid::new(Vector2::new(weapon_fire.width/2.0, weapon_fire.height/2.0));
+                    let fire_collider_pos = Isometry2::new(Vector2::new(fire_x, fire_y), fire_angle);
+
+                    let collision;
+                    if hitbox.shape == HitboxShape::Circle {
+                        let hitbox_collider_shape = Ball::new(hitbox.width / 2.0);
+                        let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                        collision = query::proximity(
+                            &fire_collider_pos, &fire_collider_shape,
+                            &hitbox_collider_pos, &hitbox_collider_shape,
+                            0.0,
+                        );
+                    } else if hitbox.shape == HitboxShape::Rectangle {
+                        let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                        let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                        collision = query::proximity(
+                            &fire_collider_pos, &fire_collider_shape,
+                            &hitbox_collider_pos, &hitbox_collider_shape,
+                            0.0,
+                        );
+                    }
+                    else {
+                        let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                        let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                        collision = query::proximity(
+                            &fire_collider_pos, &fire_collider_shape,
+                            &hitbox_collider_pos, &hitbox_collider_shape,
+                            0.0,
+                        );
+                    }
+
+                    //weapon fire hits
+                    if collision == Proximity::Intersecting {
                         if !weapon_fire.attached {
                             let _ = entities.delete(weapon_fire_entity);
                         }
