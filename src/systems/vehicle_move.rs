@@ -115,21 +115,24 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     self.last_spawn_index,
                 );
 
-                if game_mode_setup.random_weapon_spawns && !game_mode_setup.keep_picked_up_weapons {
-                    let restart_weapon_name = game_mode_setup.starter_weapon.clone();
+                //if just now respawned and state changed into VehicleState::Active
+                if vehicle.state == VehicleState::Active {
+                    if game_mode_setup.random_weapon_spawns && !game_mode_setup.keep_picked_up_weapons {
+                        let restart_weapon_name = game_mode_setup.starter_weapon.clone();
 
-                    weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
+                        weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
-                    update_weapon_properties(weapon, restart_weapon_name, &weapon_store_resource);
-                    update_weapon_icon(
-                        &entities,
-                        &mut weapon,
-                        &weapon_fire_resource,
-                        player.id,
-                        &lazy_update,
-                    );
+                        update_weapon_properties(weapon, restart_weapon_name, &weapon_store_resource);
+                        update_weapon_icon(
+                            &entities,
+                            &mut weapon,
+                            &weapon_fire_resource,
+                            player.id,
+                            &lazy_update,
+                        );
 
-                    vehicle.weapon_weight = weapon.stats.weight;
+                        vehicle.weapon_weight = weapon.stats.weight;
+                    }
                 }
             }
 
