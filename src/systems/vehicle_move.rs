@@ -239,6 +239,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 debug!("{} Chasing", player.id);
                             }
                         } else {
+                            if dist_to_closest_vehicle > weapon.range_calc {
+                                player.bot_mode = BotMode::Chasing;
+                                debug!("{} Chasing", player.id);
+                            }
                             continue_with_attacking_mode = true;
                         }
                     } else {

@@ -12,6 +12,8 @@ use serde::Deserialize;
 use std::f32::consts::PI;
 use std::{collections::HashMap, fs::File};
 
+use log::{info};
+
 use crate::components::PlayerWeaponIcon;
 use crate::rally::UI_HEIGHT;
 use crate::resources::{GameModeSetup, WeaponFireResource};
@@ -153,6 +155,8 @@ pub struct Weapon {
     pub stats: WeaponStats,
     pub cooldown_timer: f32,
     pub burst_shots: u32,
+    pub dps_calc: f32,
+    pub range_calc: f32,
 }
 
 impl Component for Weapon {
@@ -170,9 +174,42 @@ impl Weapon {
             stats,
             cooldown_timer: 0.0,
             burst_shots: 0,
+            dps_calc: calculate_dps(stats),
+            range_calc: calculate_range(stats),
         }
     }
 }
+
+pub fn calculate_dps(stats: WeaponStats) -> f32 {
+    let dps;
+
+    if stats.burst_shot_limit > 0 {
+        dps = (stats.damage * ((stats.burst_shot_limit+1) as f32)) /
+            (stats.cooldown_reset + ((stats.burst_shot_limit+1) as f32) *stats.burst_cooldown_reset);
+    }
+    else {
+        dps = stats.damage / stats.cooldown_reset
+    }
+
+    dps
+}
+
+pub fn calculate_range(stats: WeaponStats) -> f32 {
+    let range;
+    
+    if stats.shot_speed <= 0.0 {
+        range = 0.0;
+    }
+    else if stats.shot_life_limit <= 0.0 {
+        range = 10000.0;
+    }
+    else {
+        range = stats.shot_speed * stats.shot_life_limit;
+    }
+    
+    range
+}
+
 
 #[derive(Clone)]
 pub struct WeaponFire {
@@ -271,6 +308,11 @@ pub fn update_weapon_properties(
 ) {
     weapon.name = weapon_name.clone();
     weapon.stats = build_named_weapon(weapon_name, weapon_store);
+
+    weapon.dps_calc = calculate_dps(weapon.stats);
+    weapon.range_calc = calculate_range(weapon.stats);
+
+    info!("{:?} {:?} {:?}", weapon.name, weapon.dps_calc, weapon.range_calc);
 }
 
 pub fn build_named_weapon(
