@@ -59,13 +59,10 @@ There are various weapons with various properties, including:
 
 
 ## TODO:
-1. Create a Hitbox component, and create a hitbox detection function - in progress
+1. Create a generic Hitbox component, and create hitbox detection functions - used for some entities, but not all
 1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
-1. Improve collision algorithms
 1. UI Transform works different on Mac? UI is in the middle of the screen.
-1. Red laser weapon can go through opponents on computers with potato frame rate
 1. Load race tracks from config file
-1. Better weapon dps/skill balance
 1. New bot modes to comprehend Racing, King of the Hill, repairing, and picking up new weapon boxes
 
 
