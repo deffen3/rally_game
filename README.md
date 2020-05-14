@@ -64,6 +64,7 @@ There are various weapons with various properties, including:
 1. UI Transform works different on Mac? UI is in the middle of the screen.
 1. Load race tracks from config file
 1. New bot modes to comprehend Racing, King of the Hill, repairing, and picking up new weapon boxes
+1. Bots should calculate time to collision and avoid colliding with walls
 
 
 ---
