@@ -110,65 +110,75 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let fire_collider_shape = Cuboid::new(Vector2::new(weapon_fire.width/2.0, weapon_fire.height/2.0));
                     let fire_collider_pos = Isometry2::new(Vector2::new(fire_x, fire_y), fire_angle);
 
-                    let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
-                    let abs_vel = sq_vel.sqrt();
-
-                    let margin;
-                    if abs_vel > SHOT_SPEED_TRIGGER {
-                        //use pre-impact detection if within 3 time steps of radius of target
-                        margin = abs_vel * dt * PRE_IMPACT_DT_STEPS;
-                    }
-                    else {
-                        margin = 0.0;
-                    }
-
-                    let collision;
-                    let hitbox_collider_pos;
-                    let hitbox_collider_shape_rect;
-                    let hitbox_collider_shape_circle;
-
-                    if hitbox.shape == HitboxShape::Circle {
-                        hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0);
-                        hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0)); //unused
-                        hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
-
-                        collision = query::proximity(
-                            &fire_collider_pos, &fire_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape_circle,
-                            margin,
-                        );
-                    } else { //if hitbox.shape == HitboxShape::Rectangle {
-                        hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
-                        hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0); //unused
-                        hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
-
-                        collision = query::proximity(
-                            &fire_collider_pos, &fire_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape_rect,
-                            margin,
-                        );
-                    }
-
-
                     let weapon_fire_hit;
-                    if collision == Proximity::Intersecting {
-                        weapon_fire_hit = true;
+                    if weapon_fire.shot_speed == 0.0 {
+                        weapon_fire_hit = false; //assumes hitboxes don't move
                     }
-                    else if collision == Proximity::WithinMargin {
-                        //if potentially on collision course, check time to impact
-                        let fire_ray = Ray::new(Point2::new(fire_x, fire_y), Vector2::new(weapon_fire.dx, weapon_fire.dy));
+                    else { //use ncollide algorithm
+                        let margin;
 
-                        let toi;
-                        if hitbox.shape == HitboxShape::Circle {
-                            toi = hitbox_collider_shape_circle.toi_with_ray(&hitbox_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+                        let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                        let abs_vel = sq_vel.sqrt();
+
+                        if abs_vel > SHOT_SPEED_TRIGGER {
+                            //use pre-impact detection if within 3 time steps of radius of target
+                            margin = abs_vel * dt * PRE_IMPACT_DT_STEPS;
                         }
                         else {
-                            toi = hitbox_collider_shape_rect.toi_with_ray(&hitbox_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+                            margin = 0.0;
                         }
 
-                        if let Some(toi_result) = toi {
-                            if toi_result <= PRE_IMPACT_DT_STEPS*dt {
-                                weapon_fire_hit = true;
+                        let collision;
+                        let hitbox_collider_pos;
+                        let hitbox_collider_shape_rect;
+                        let hitbox_collider_shape_circle;
+
+                        if hitbox.shape == HitboxShape::Circle {
+                            hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0);
+                            hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0)); //unused
+                            hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                            collision = query::proximity(
+                                &fire_collider_pos, &fire_collider_shape,
+                                &hitbox_collider_pos, &hitbox_collider_shape_circle,
+                                margin,
+                            );
+                        } else { //if hitbox.shape == HitboxShape::Rectangle {
+                            hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                            hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0); //unused
+                            hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
+                            collision = query::proximity(
+                                &fire_collider_pos, &fire_collider_shape,
+                                &hitbox_collider_pos, &hitbox_collider_shape_rect,
+                                margin,
+                            );
+                        }
+
+
+                        
+                        if collision == Proximity::Intersecting {
+                            weapon_fire_hit = true;
+                        }
+                        else if collision == Proximity::WithinMargin {
+                            //if potentially on collision course, check time to impact
+                            let fire_ray = Ray::new(Point2::new(fire_x, fire_y), Vector2::new(weapon_fire.dx, weapon_fire.dy));
+
+                            let toi;
+                            if hitbox.shape == HitboxShape::Circle {
+                                toi = hitbox_collider_shape_circle.toi_with_ray(&hitbox_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+                            }
+                            else {
+                                toi = hitbox_collider_shape_rect.toi_with_ray(&hitbox_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+                            }
+
+                            if let Some(toi_result) = toi {
+                                if toi_result <= PRE_IMPACT_DT_STEPS*dt {
+                                    weapon_fire_hit = true;
+                                }
+                                else {
+                                    weapon_fire_hit = false;
+                                }
                             }
                             else {
                                 weapon_fire_hit = false;
@@ -177,9 +187,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         else {
                             weapon_fire_hit = false;
                         }
-                    }
-                    else {
-                        weapon_fire_hit = false;
                     }
 
                     if weapon_fire_hit {
@@ -244,37 +251,55 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let fire_collider_shape = Cuboid::new(Vector2::new(weapon_fire.width/2.0, weapon_fire.height/2.0));
                     let fire_collider_pos = Isometry2::new(Vector2::new(fire_x, fire_y), fire_angle);
 
-                    let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
-                    let abs_vel = sq_vel.sqrt();
-
-                    let margin;
-                    if abs_vel > SHOT_SPEED_TRIGGER {
-                        //use pre-impact detection if within 3 time steps of radius of target
-                        margin = abs_vel * dt * PRE_IMPACT_DT_STEPS;
-                    }
-                    else {
-                        margin = 0.0;
-                    }
-
-                    let collision = query::proximity(
-                        &fire_collider_pos, &fire_collider_shape,
-                        &vehicle_collider_pos, &vehicle_collider_shape,
-                        margin,
-                    );
 
                     let weapon_fire_hit;
-                    if collision == Proximity::Intersecting {
-                        weapon_fire_hit = true;
+                    if weapon_fire.shot_speed == 0.0 {
+                        //use old lightweight detection algorithm
+                        if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
+                                < vehicle.width.powi(2) {
+                            weapon_fire_hit = true;
+                        }
+                        else {
+                            weapon_fire_hit = false;
+                        }
                     }
-                    else if collision == Proximity::WithinMargin {
-                        //if potentially on collision course, check time to impact
-                        let fire_ray = Ray::new(Point2::new(fire_x, fire_y), Vector2::new(weapon_fire.dx, weapon_fire.dy));
+                    else {
+                        //use ncollide algorithm
+                        let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                        let abs_vel = sq_vel.sqrt();
 
-                        let toi = vehicle_collider_shape.toi_with_ray(&vehicle_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+                        let margin;
+                        if abs_vel > SHOT_SPEED_TRIGGER {
+                            //use pre-impact detection if within 3 time steps of radius of target
+                            margin = abs_vel * dt * PRE_IMPACT_DT_STEPS;
+                        }
+                        else {
+                            margin = 0.0;
+                        }
 
-                        if let Some(toi_result) = toi {
-                            if toi_result <= PRE_IMPACT_DT_STEPS*dt {
-                                weapon_fire_hit = true;
+                        let collision = query::proximity(
+                            &fire_collider_pos, &fire_collider_shape,
+                            &vehicle_collider_pos, &vehicle_collider_shape,
+                            margin,
+                        );
+
+                        
+                        if collision == Proximity::Intersecting {
+                            weapon_fire_hit = true;
+                        }
+                        else if collision == Proximity::WithinMargin {
+                            //if potentially on collision course, check time to impact
+                            let fire_ray = Ray::new(Point2::new(fire_x, fire_y), Vector2::new(weapon_fire.dx, weapon_fire.dy));
+
+                            let toi = vehicle_collider_shape.toi_with_ray(&vehicle_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
+
+                            if let Some(toi_result) = toi {
+                                if toi_result <= PRE_IMPACT_DT_STEPS*dt {
+                                    weapon_fire_hit = true;
+                                }
+                                else {
+                                    weapon_fire_hit = false;
+                                }
                             }
                             else {
                                 weapon_fire_hit = false;
@@ -283,9 +308,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         else {
                             weapon_fire_hit = false;
                         }
-                    }
-                    else {
-                        weapon_fire_hit = false;
                     }
 
                     if weapon_fire_hit {

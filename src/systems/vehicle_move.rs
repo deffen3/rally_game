@@ -326,11 +326,38 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
             let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
 
+
+            vehicle.malfunction_cooldown_timer -= dt;
+
+            if vehicle.health.value <= 50.0 {
+                vehicle.malfunction_cooldown_timer -= dt;
+
+                if vehicle.malfunction_cooldown_timer < 0.0 {
+                    let malfunction_chance = Some(rng.gen_range(0.0, 100.0) as f32).unwrap();
+
+                    if malfunction_chance > vehicle.health.value {
+                        vehicle.malfunction = 100.0;
+                    }
+                    else {
+                        vehicle.malfunction = 0.0;
+                    }
+                    
+                    vehicle.malfunction_cooldown_timer = 0.5; //reset timer
+                }
+                //else unchanged, use old malfunction value
+            }
+            else {
+                vehicle.malfunction_cooldown_timer = -1.0;
+                vehicle.malfunction = 0.0;
+            }
+
             //Update vehicle velocity from vehicle speed accel input
             if vehicle.state == VehicleState::Active {
                 if let Some(move_amount) = vehicle_accel {
                     let scaled_amount: f32 = if vehicle.repair.activated {
                         0.0 as f32
+                    } else if vehicle.malfunction > 0.0 {
+                        thrust_accel_rate * move_amount * (100.0-vehicle.malfunction) as f32
                     } else if move_amount > 0.0 {
                         thrust_accel_rate * move_amount as f32
                     } else {
@@ -373,6 +400,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 if let Some(turn_amount) = vehicle_turn {
                     let scaled_amount: f32 = if vehicle.repair.activated == true {
                         0.0 as f32
+                    } else if vehicle.malfunction > 0.0 {
+                        rotate_accel_rate * turn_amount * (100.0-vehicle.malfunction) as f32
                     } else {
                         rotate_accel_rate * turn_amount as f32
                     };
