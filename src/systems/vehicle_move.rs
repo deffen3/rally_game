@@ -42,6 +42,8 @@ const BOT_COLLISION_MOVE_COOLDOWN_RESET: f32 = 0.7;
 const BOT_ENGAGE_DISTANCE: f32 = 160.0;
 const BOT_DISENGAGE_DISTANCE: f32 = 240.0;
 
+const WALL_HIT_BOUNCE_DECEL_PCT: f32 = 0.35;
+
 #[derive(SystemDesc, Default)]
 pub struct VehicleMoveSystem {
     pub last_spawn_index: u32,
@@ -150,7 +152,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let thrust_decel_rate: f32 = 0.6 * vehicle.engine_force / vehicle_weight;
             let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_force / vehicle_weight;
 
-            let wall_hit_non_bounce_decel_pct: f32 = 0.35;
+            let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
             let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
 
             //let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
@@ -529,7 +531,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
         //hitbox collision logic
         let mut player_destroyed: Vec<usize> = Vec::new();
-        let mut player_arena_bounce: Vec<usize> = Vec::new();
+
+        let mut player_arena_bounce_map = HashMap::new();
 
         let mut players_on_hill: Vec<usize> = Vec::new();
         let mut color_for_hill: Vec<(f32, f32, f32)> = Vec::new();
@@ -537,7 +540,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (player, vehicle, mut weapon, transform) in
             (&mut players, &mut vehicles, &mut weapons, &transforms).join()
         {
-            let wall_hit_non_bounce_decel_pct: f32 = 0.65;
+            let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
             let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
 
             let vehicle_x = transform.translation().x;
@@ -558,6 +561,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let hitbox_y = hitbox_transform.translation().y;
 
                 let hit;
+                let mut contact_data = None;
+
                 if hitbox.shape == HitboxShape::Circle {
                     let hitbox_collider_shape = Ball::new(hitbox.width / 2.0);
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
@@ -570,6 +575,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if collision == Proximity::Intersecting {
                         hit = true;
+
+                        contact_data = query::contact(
+                            &vehicle_collider_pos, &vehicle_collider_shape,
+                            &hitbox_collider_pos, &hitbox_collider_shape,
+                            0.0);
                     }
                     else if collision == Proximity::WithinMargin {
                         hit = false;
@@ -589,6 +599,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if collision == Proximity::Intersecting {
                         hit = true;
+
+                        contact_data = query::contact(
+                            &vehicle_collider_pos, &vehicle_collider_shape,
+                            &hitbox_collider_pos, &hitbox_collider_shape,
+                            0.0);
                     }
                     else if collision == Proximity::WithinMargin {
                         hit = false;
@@ -608,6 +623,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if collision == Proximity::Intersecting {
                         hit = true;
+
+                        contact_data = query::contact(
+                            &vehicle_collider_pos, &vehicle_collider_shape,
+                            &hitbox_collider_pos, &hitbox_collider_shape,
+                            0.0);
                     }
                     else if collision == Proximity::WithinMargin {
                         hit = false;
@@ -627,6 +647,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if collision == Proximity::Intersecting {
                         hit = true;
+
+                        contact_data = query::contact(
+                            &vehicle_collider_pos, &vehicle_collider_shape,
+                            &hitbox_collider_pos, &hitbox_collider_shape,
+                            0.0);
                     }
                     else if collision == Proximity::WithinMargin {
                         hit = false;
@@ -640,13 +665,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 if hit {
                     if hitbox.is_wall {
+                        //let contact_depth = contact_data.unwrap().depth;
+                        let contact_pt = contact_data.unwrap().world2;
+
                         let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
                         let abs_vel = sq_vel.sqrt();
 
                         vehicle.dx *= wall_hit_bounce_decel_pct;
                         vehicle.dy *= wall_hit_bounce_decel_pct;
 
-                        player_arena_bounce.push(player.id.clone());
+                        player_arena_bounce_map.insert(player.id.clone(), contact_pt);
 
                         if player.is_bot
                             && (player.bot_mode != BotMode::CollisionTurn)
@@ -758,12 +786,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     .count() as i32;
             }
 
-            if player_arena_bounce.contains(&player.id) {
+            let player_bounce = player_arena_bounce_map.get(&player.id);
+
+            if let Some(player_bounce) = player_bounce {
+                let contact_x = player_bounce.x;
+                let contact_y = player_bounce.y;
+
                 let vehicle_x = transform.translation().x;
                 let vehicle_y = transform.translation().y;
 
-                transform.set_translation_x(vehicle_x + vehicle.dx);
-                transform.set_translation_y(vehicle_y + vehicle.dy);
+                transform.set_translation_x(vehicle_x - (contact_x - vehicle_x)/10. + vehicle.dx);
+                transform.set_translation_y(vehicle_y - (contact_y - vehicle_y)/10. + vehicle.dy);
             }
         }
 
