@@ -16,7 +16,7 @@ use crate::resources::{GameModeSetup, GameModes};
 
 
 
-pub const PLAYER_COUNT: usize = 1;
+pub const PLAYER_COUNT: usize = 4;
 pub const BOT_COUNT: usize = PLAYER_COUNT-1;
 
 
