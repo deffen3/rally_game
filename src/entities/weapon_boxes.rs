@@ -7,7 +7,7 @@ use amethyst::{
 use rand::Rng;
 use std::f32::consts::PI;
 
-use crate::resources::WeaponFireResource;
+use crate::resources::{WeaponFireResource, GameModes};
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 
@@ -18,6 +18,7 @@ pub fn spawn_weapon_boxes(
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     lazy_update: &ReadExpect<LazyUpdate>,
     weapon_box_count: u32,
+    game_mode_setup: GameModes, 
 ) {
     let mut rng = rand::thread_rng();
     let mut spawn_index;
@@ -35,27 +36,59 @@ pub fn spawn_weapon_boxes(
 
         let mut local_transform = Transform::default();
 
-        let spacing_factor = 3.0;
         let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
 
-        let (x, y) = match spawn_index {
-            0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
-            1 => (ARENA_WIDTH / 2.0, arena_ui_height / spacing_factor),
-            2 => (
-                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                arena_ui_height / 2.0,
-            ),
-            3 => (
-                ARENA_WIDTH / 2.0,
-                arena_ui_height - (arena_ui_height / spacing_factor),
-            ),
-            _ => (
-                ARENA_WIDTH / spacing_factor,
-                arena_ui_height / spacing_factor,
-            ),
-        };
+        if game_mode_setup == GameModes::Race {
+            let spacing_factor = 5.0;
 
-        local_transform.set_translation_xyz(x, y, 0.3);
+            let (x, y) = match spawn_index {
+                0 => (
+                    ARENA_WIDTH / spacing_factor,
+                    arena_ui_height / spacing_factor,
+                ),
+                1 => (
+                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                    arena_ui_height - (arena_ui_height / spacing_factor),
+                ),
+                2 => (
+                    ARENA_WIDTH / spacing_factor,
+                    arena_ui_height - (arena_ui_height / spacing_factor),
+                ),
+                3 => (
+                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                    arena_ui_height / spacing_factor,
+                ),
+                _ => (
+                    ARENA_WIDTH / spacing_factor,
+                    arena_ui_height / spacing_factor,
+                ),
+            };
+
+            local_transform.set_translation_xyz(x, y, 0.3);
+        }
+        else {
+            let spacing_factor = 3.0;
+
+            let (x, y) = match spawn_index {
+                0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
+                1 => (ARENA_WIDTH / 2.0, arena_ui_height / spacing_factor),
+                2 => (
+                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                    arena_ui_height / 2.0,
+                ),
+                3 => (
+                    ARENA_WIDTH / 2.0,
+                    arena_ui_height - (arena_ui_height / spacing_factor),
+                ),
+                _ => (
+                    ARENA_WIDTH / spacing_factor,
+                    arena_ui_height / spacing_factor,
+                ),
+            };
+
+            local_transform.set_translation_xyz(x, y, 0.3);
+        }
+        
         local_transform.set_rotation_2d(PI / 8.0);
 
         let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();

@@ -208,6 +208,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     &weapon_fire_resource,
                     &lazy_update,
                     game_mode_setup.weapon_spawn_count.clone(),
+                    game_mode_setup.game_mode.clone(),
                 );
             }
         }

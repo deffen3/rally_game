@@ -11,7 +11,7 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
-use log::{debug, info};
+use log::{debug};
 use rand::Rng;
 use std::f32::consts::PI;
 use std::collections::HashMap;
