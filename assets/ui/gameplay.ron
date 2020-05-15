@@ -18,6 +18,7 @@ Container(
                 tab_order: 2,
                 anchor: TopLeft,
                 transparent: true,
+                
             ),
             text: (
                 text: "N/A",
@@ -30,12 +31,12 @@ Container(
         Label(
             transform: (
                 id: "p1_shield",
-                x: 50.,
-                y: -980.,
+                x: -450.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -49,12 +50,12 @@ Container(
         Label(
             transform: (
                 id: "p1_armor",
-                x: 130.,
-                y: -980.,
+                x: -370.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -68,12 +69,12 @@ Container(
         Label(
             transform: (
                 id: "p1_health",
-                x: 210.,
-                y: -980.,
+                x: -290.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -87,12 +88,12 @@ Container(
         Label(
             transform: (
                 id: "p1_points",
-                x: 130.,
-                y: -940.,
+                x: -370.,
+                y: 60.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "0",
@@ -107,12 +108,12 @@ Container(
         Label(
             transform: (
                 id: "p2_shield",
-                x: 300.,
-                y: -980.,
+                x: -200.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -126,12 +127,12 @@ Container(
         Label(
             transform: (
                 id: "p2_armor",
-                x: 380.,
-                y: -980.,
+                x: -120.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -145,12 +146,12 @@ Container(
         Label(
             transform: (
                 id: "p2_health",
-                x: 460.,
-                y: -980.,
+                x: -40.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -164,12 +165,12 @@ Container(
         Label(
             transform: (
                 id: "p2_points",
-                x: 380.,
-                y: -940.,
+                x: -120.,
+                y: 60.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "0",
@@ -184,12 +185,12 @@ Container(
         Label(
             transform: (
                 id: "p3_shield",
-                x: 550.,
-                y: -980.,
+                x: 50.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -203,12 +204,12 @@ Container(
         Label(
             transform: (
                 id: "p3_armor",
-                x: 630.,
-                y: -980.,
+                x: 130.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -222,12 +223,12 @@ Container(
         Label(
             transform: (
                 id: "p3_health",
-                x: 710.,
-                y: -980.,
+                x: 210.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -241,12 +242,12 @@ Container(
         Label(
             transform: (
                 id: "p3_points",
-                x: 630.,
-                y: -940.,
+                x: 130.,
+                y: 60.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "0",
@@ -261,12 +262,12 @@ Container(
         Label(
             transform: (
                 id: "p4_shield",
-                x: 800.,
-                y: -980.,
+                x: 300.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -280,12 +281,12 @@ Container(
         Label(
             transform: (
                 id: "p4_armor",
-                x: 880.,
-                y: -980.,
+                x: 380.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -299,12 +300,12 @@ Container(
         Label(
             transform: (
                 id: "p4_health",
-                x: 940.,
-                y: -980.,
+                x: 460.,
+                y: 20.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "100",
@@ -318,12 +319,12 @@ Container(
         Label(
             transform: (
                 id: "p4_points",
-                x: 880.,
-                y: -940.,
+                x: 380.,
+                y: 60.,
                 width: 800.,
                 height: 175.,
                 tab_order: 1,
-                anchor: TopLeft,
+                anchor: BottomMiddle,
             ),
             text: (
                 text: "0",
