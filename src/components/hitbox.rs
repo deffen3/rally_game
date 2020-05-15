@@ -11,10 +11,8 @@ pub enum HitboxShape {
 #[derive(Clone, Debug, PartialEq)]
 pub enum RaceCheckpointType {
     NotCheckpoint,
-    CheckpointStart,
-    CheckpointFinish,
-    LapStart,
-    LapFinish,
+    Checkpoint,
+    Lap,
 }
 
 #[derive(Clone)]

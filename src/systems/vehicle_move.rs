@@ -11,7 +11,7 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 
-use log::{debug};
+use log::{debug, info};
 use rand::Rng;
 use std::f32::consts::PI;
 use std::collections::HashMap;
@@ -551,10 +551,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let vehicle_collider_shape = Cuboid::new(Vector2::new(vehicle.width/2.0, vehicle.height/2.0));
             let vehicle_collider_pos = Isometry2::new(Vector2::new(vehicle_x, vehicle_y), vehicle_angle);
 
-            let mut checkpoint_id: i32 = 0;
-            let mut checkpoint_stages: [bool; 2] = [false; 2];
-            let mut lap_stages: [bool; 2] = [false; 2];
-
             for (hitbox_entity, hitbox, hitbox_transform) in
                 (&*entities, &hitboxes, &transforms).join()
             {
@@ -727,65 +723,21 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             };
 
                             color_for_hill.push((r, g, b));
-                        } else if (hitbox.checkpoint == RaceCheckpointType::CheckpointStart)
-                            && (hitbox.checkpoint_id == player.checkpoint_completed + 1)
+                        } else if (hitbox.checkpoint == RaceCheckpointType::Checkpoint)
+                                && (hitbox.checkpoint_id == player.checkpoint_completed + 1)
                         {
-                            checkpoint_stages[0] = true;
-                            checkpoint_id = hitbox.checkpoint_id;
-                        } else if hitbox.checkpoint == RaceCheckpointType::CheckpointFinish
-                            && (hitbox.checkpoint_id == player.checkpoint_completed + 1)
-                        {
-                            checkpoint_stages[1] = true;
-                            checkpoint_id = hitbox.checkpoint_id;
-                        } else if hitbox.checkpoint == RaceCheckpointType::LapStart {
-                            lap_stages[0] = true;
-                        } else if hitbox.checkpoint == RaceCheckpointType::LapFinish {
-                            lap_stages[1] = true;
+                            player.checkpoint_completed = hitbox.checkpoint_id;
+                            debug!("checkpoints:{}", player.checkpoint_completed);
+                        } 
+                        else if hitbox.checkpoint == RaceCheckpointType::Lap {
+                            if player.checkpoint_completed == game_mode_setup.checkpoint_count {
+                                player.laps_completed += 1;
+                            }
+                            player.checkpoint_completed = 0;
+                            debug!("checkpoints:{}", player.checkpoint_completed);
+                            debug!("laps:{}", player.laps_completed);
                         }
                     }
-                }
-
-                // println!("C: {} {}",checkpoint_stages[0], checkpoint_stages[1]);
-                // println!("L: {} {}",lap_stages[0], lap_stages[1]);
-
-                if checkpoint_stages[0] == true && checkpoint_stages[1] == false {
-                    player.hit_checkpoint_start = true;
-                } else if checkpoint_stages[0] == true
-                    && checkpoint_stages[1] == true
-                    && player.hit_checkpoint_start
-                {
-                    player.hit_checkpoint_middle = true;
-                } else if checkpoint_stages[0] == false
-                    && checkpoint_stages[1] == true
-                    && player.hit_checkpoint_middle
-                {
-                    player.checkpoint_completed = checkpoint_id;
-                    player.hit_checkpoint_start = false;
-                    player.hit_checkpoint_middle = false;
-                } else {
-                    player.hit_checkpoint_start = false;
-                    player.hit_checkpoint_middle = false;
-                }
-
-                if lap_stages[0] == true && lap_stages[1] == false {
-                    player.hit_lap_start = true;
-                } else if lap_stages[0] == true && lap_stages[1] == true && player.hit_lap_start {
-                    player.hit_lap_middle = true;
-                } else if lap_stages[0] == false && lap_stages[1] == true {
-                    if player.hit_lap_middle
-                        && (player.checkpoint_completed == game_mode_setup.checkpoint_count)
-                    {
-                        player.laps_completed += 1;
-                        player.hit_lap_start = false;
-                        player.hit_lap_middle = false;
-                    } else {
-                        //wrong-way detection
-                        player.hit_lap_start = false;
-                        player.hit_lap_middle = false;
-                        player.checkpoint_completed = 0;
-                    }
-                } else {
-                    player.hit_lap_start = false;
                 }
             }
         }
