@@ -16,7 +16,7 @@ use crate::resources::{GameModeSetup, GameModes};
 
 
 
-pub const PLAYER_COUNT: usize = 4;
+pub const PLAYER_COUNT: usize = 1;
 pub const BOT_COUNT: usize = PLAYER_COUNT-1;
 
 
@@ -238,7 +238,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 2;
-                        game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                        game_mode_setup.starter_weapon = WeaponNames::Mines;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = true;
 
