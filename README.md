@@ -24,7 +24,8 @@ __Armor__ is permanently lost. Armor will only be removed after your __Shields__
 
 __Health__ is lost after you at hit with no __Shields__ and no __Armor__. __Health__ is also lost if hit by a piercing damage weapon. __Health__ can be repaired by holding the __Repair__ button. 
 After fully repairing all __Health__, the __Shields__ will eventually re-boot if you continue holding __Repair__.
-Note that using __Repair__ will disable all use of __Engines__ and __Weapons__.
+Note that using __Repair__ will disable all use of __Engines__ and __Weapons__. If __Health__ goes below 50%, expect the
+__Engines__ to start malfunctioning as the vehicle is sparking.
 
 ---
 
