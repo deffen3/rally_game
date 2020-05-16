@@ -139,12 +139,37 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 }
             }
 
-            //lost armor does not contribute to weight
-            let vehicle_weight = (30.0 + vehicle.health.max * 10. / 100.)
-                + (vehicle.armor.value * 25. / 100.)
+            
+            //Similar comment exists in rally.rs
+            //typical vehicle weight = 100 at S:100/A:100/H:100 with normal engine efficiency
+
+            //health makes up the main hull of the vehicle, and contributes 20 base weight + 20 per 100 health
+            //shields make up 15 weight
+            //armor another 25 weight
+            //engine another 20 weight
+
+            //typical weapon weight adds about 10.0
+            //  for a total of about 110.0
+
+            
+            //a lighter racing vehicle with s:25/A:0/H:100 would weigh:
+            //  B:20 + H:20 + S:3.75 + E:20 + W:10 = 73.75,
+            //  and therefore would have about 50% quicker acceleration
+            //  but could only take about 42% typical damage before blowing up
+
+            //a heavy-weight tank combat vehicle with s:200/A:200/H:150 would weigh:
+            //  B:20 + H:30 + S:30 + A:50 + E:20 + W:10 = 160,
+            //  and therefore would have about 45% slower acceleration
+            //  but would take almost 550 damage, an 83% increase
+
+
+            //NOTE: lost armor does not contribute to weight, only the current value of armor matters
+            let vehicle_weight = (20.0 + vehicle.health.max * 20. / 100.)
                 + (vehicle.shield.max * 15. / 100.)
+                + (vehicle.armor.value * 25. / 100.)
                 + vehicle.engine_weight
                 + vehicle.weapon_weight;
+
 
             let rotate_accel_rate: f32 = 1.0 * vehicle.engine_force / vehicle_weight;
             let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_force / vehicle_weight;

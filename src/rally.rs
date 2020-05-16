@@ -145,14 +145,31 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             let vehicle_width: f32 = 7.0;
             let vehicle_height: f32 = 12.0;
 
-            //stock vehicle weight at 100/100/100 with normal engine efficiency is 100
 
-            //health makes up the main hull of the vehicle, and contributes 30 base + 10per health weight
+            //Similar comment exists in vehicle_move.rs
+            //typical vehicle weight = 100 at S:100/A:100/H:100 with normal engine efficiency
+
+            //health makes up the main hull of the vehicle, and contributes 20 base weight + 20 per 100 health
             //shields make up 15 weight
             //armor another 25 weight
             //engine another 20 weight
 
             //typical weapon weight adds about 10.0
+            //  for a total of about 110.0
+
+            
+            //a lighter racing vehicle with s:25/A:0/H:100 would weigh:
+            //  B:20 + H:20 + S:3.75 + E:20 + W:10 = 73.75,
+            //  and therefore would have about 50% quicker acceleration
+            //  but could only take about 42% typical damage before blowing up
+
+            //a heavy-weight tank combat vehicle with s:200/A:200/H:150 would weigh:
+            //  B:20 + H:30 + S:30 + A:50 + E:20 + W:10 = 160,
+            //  and therefore would have about 45% slower acceleration
+            //  but would take almost 550 damage, an 83% increase
+
+
+            //NOTE: lost armor does not contribute to weight, only the current value of armor matters
 
             let max_velocity = 1.0;
 

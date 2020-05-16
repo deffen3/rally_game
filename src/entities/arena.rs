@@ -243,153 +243,51 @@ pub fn initialize_arena_walls(
         
 
         //track layout
-        //central arena wall circle
-        let mut circle_transform = Transform::default();
+        let mut positions: Vec<(f32, f32)> = Vec::new();
         let scale = 4.0;
 
-        circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, 0.38);
-        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
-
-        let circle_sprite_render = SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 14,
-        };
-
-        world
-            .create_entity()
-            .with(Removal::new(0 as u32))
-            .with(circle_transform)
-            .with(circle_sprite_render)
-            .with(Hitbox::new(
-                20.0 * scale,
-                20.0 * scale,
-                0.0,
-                HitboxShape::Circle,
-                true,
-                false,
-                RaceCheckpointType::NotCheckpoint,
-                0,
-                false,
-            ))
-            .build();
-
-        let mut circle_transform = Transform::default();
-        let scale = 4.0;
-
-        circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0, 0.38);
-        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
-
-        let circle_sprite_render = SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 14,
-        };
-
-        world
-            .create_entity()
-            .with(Removal::new(0 as u32))
-            .with(circle_transform)
-            .with(circle_sprite_render)
-            .with(Hitbox::new(
-                20.0 * scale,
-                20.0 * scale,
-                0.0,
-                HitboxShape::Circle,
-                true,
-                false,
-                RaceCheckpointType::NotCheckpoint,
-                0,
-                false,
-            ))
-            .build();
-
-        let mut circle_transform = Transform::default();
-        let scale = 4.0;
-
-        circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0 - 20.0 * scale, arena_ui_height / 2.0, 0.38);
-        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
-
-        let circle_sprite_render = SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 14,
-        };
-
-        world
-            .create_entity()
-            .with(Removal::new(0 as u32))
-            .with(circle_transform)
-            .with(circle_sprite_render)
-            .with(Hitbox::new(
-                20.0 * scale,
-                20.0 * scale,
-                0.0,
-                HitboxShape::Circle,
-                true,
-                false,
-                RaceCheckpointType::NotCheckpoint,
-                0,
-                false,
-            ))
-            .build();
-
-        let mut circle_transform = Transform::default();
-        let scale = 4.0;
-
-        circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0 - 20.0 * scale, 0.38);
-        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
-
-        let circle_sprite_render = SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 14,
-        };
-
-        world
-            .create_entity()
-            .with(Removal::new(0 as u32))
-            .with(circle_transform)
-            .with(circle_sprite_render)
-            .with(Hitbox::new(
-                20.0 * scale,
-                20.0 * scale,
-                0.0,
-                HitboxShape::Circle,
-                true,
-                false,
-                RaceCheckpointType::NotCheckpoint,
-                0,
-                false,
-            ))
-            .build();
-
-        let mut circle_transform = Transform::default();
-        let scale = 4.0;
-
-        circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0 + 20.0 * scale, 0.38);
-        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
-
-        let circle_sprite_render = SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 14,
-        };
-
-        world
-            .create_entity()
-            .with(Removal::new(0 as u32))
-            .with(circle_transform)
-            .with(circle_sprite_render)
-            .with(Hitbox::new(
-                20.0 * scale,
-                20.0 * scale,
-                0.0,
-                HitboxShape::Circle,
-                true,
-                false,
-                RaceCheckpointType::NotCheckpoint,
-                0,
-                false,
-            ))
-            .build();
+        positions.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0));
+        positions.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0));
+        positions.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0 - 20.0 * scale));
+        positions.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0 + 20.0 * scale));
+        positions.push((ARENA_WIDTH / 2.0 + 40.0 * scale, arena_ui_height / 2.0 + 45.0 * scale));
+        positions.push((ARENA_WIDTH / 2.0 - 40.0 * scale, arena_ui_height / 2.0 + 45.0 * scale));
+        positions.push((ARENA_WIDTH / 2.0 - 20.0 * scale, arena_ui_height / 2.0));
+        positions.push((ARENA_WIDTH / 2.0 - 20.0 * scale, arena_ui_height / 2.0 + 20.0 * scale));
+        positions.push((ARENA_WIDTH / 2.0 - 30.0 * scale, arena_ui_height / 2.0 - 35.0 * scale));
+        positions.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0 - 20.0 * scale));
+        positions.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0 + 45.0 * scale));
 
 
+        for (x, y) in positions {
+            let mut circle_transform = Transform::default();
+            
+            circle_transform.set_translation_xyz(x, y, 0.38);
+            circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
+
+            let circle_sprite_render = SpriteRender {
+                sprite_sheet: sprite_sheet_handle.clone(),
+                sprite_number: 14,
+            };
+
+            world
+                .create_entity()
+                .with(Removal::new(0 as u32))
+                .with(circle_transform)
+                .with(circle_sprite_render)
+                .with(Hitbox::new(
+                    20.0 * scale,
+                    20.0 * scale,
+                    0.0,
+                    HitboxShape::Circle,
+                    true,
+                    false,
+                    RaceCheckpointType::NotCheckpoint,
+                    0,
+                    false,
+                ))
+                .build();
+        }
     } else {
         if game_mode == GameModes::KingOfTheHill {
             //the "hill"
