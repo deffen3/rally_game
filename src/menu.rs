@@ -2,7 +2,7 @@ use amethyst::{
     ecs::prelude::Entity,
     input::{is_close_requested, is_key_down},
     prelude::*,
-    ui::{UiCreator, UiEvent, UiEventType, UiFinder},
+    ui::{UiCreator, UiEvent, UiEventType, UiFinder, UiText},
     winit::VirtualKeyCode,
 };
 
@@ -27,6 +27,8 @@ const BUTTON_DEATHMATCH_TIME: &str = "deathmatch_time";
 const BUTTON_KING_OF_THE_HILL: &str = "king_of_the_hill";
 const BUTTON_COMBAT_RACE: &str = "combat_race";
 const BUTTON_START_GAME: &str = "start_game";
+const EDIT_TEXT_PLAYER_COUNT: &str = "player_count_field";
+const EDIT_TEXT_BOT_COUNT: &str = "bot_count_field";
 
 
 #[derive(Default, Debug)]
@@ -39,6 +41,8 @@ pub struct MainMenu {
     button_king_of_the_hill: Option<Entity>,
     button_combat_race: Option<Entity>,
     button_start_game: Option<Entity>,
+    edit_text_player_count: Option<Entity>,
+    edit_text_bot_count: Option<Entity>,
 }
 
 impl SimpleState for MainMenu {
@@ -83,23 +87,38 @@ impl SimpleState for MainMenu {
 
         log::info!("{:?}", weapon_spawn_chances);
 
-        //Start off with default classic gun game mode
-        world.insert(GameModeSetup {
-            game_mode: GameModes::ClassicGunGame,
-            match_time_limit: -1.0,
-            points_to_win: 14,
-            stock_lives: -1,
-            checkpoint_count: 0,
-            starter_weapon: WeaponNames::LaserDoubleGimballed,
-            random_weapon_spawns: false,
-            keep_picked_up_weapons: false,
-            weapon_spawn_count: 2,
-            weapon_spawn_timer: 20.0,
-            weapon_spawn_chances: weapon_spawn_chances,
-            max_players: INIT_PLAYER_COUNT,
-            bot_players: INIT_BOT_COUNT,
-            last_hit_threshold: 5.0,
-        });
+
+        let game_mode_needs_init: bool;
+        {
+            let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+
+            if let Some(_game_mode_setup) = fetched_game_mode_setup {
+                game_mode_needs_init = false;
+            }
+            else {
+                game_mode_needs_init = true;
+            }
+        }
+
+        if game_mode_needs_init {
+            //Start off with default classic gun game mode
+            world.insert(GameModeSetup {
+                game_mode: GameModes::ClassicGunGame,
+                match_time_limit: -1.0,
+                points_to_win: 14,
+                stock_lives: -1,
+                checkpoint_count: 0,
+                starter_weapon: WeaponNames::LaserDoubleGimballed,
+                random_weapon_spawns: false,
+                keep_picked_up_weapons: false,
+                weapon_spawn_count: 2,
+                weapon_spawn_timer: 20.0,
+                weapon_spawn_chances: weapon_spawn_chances,
+                max_players: INIT_PLAYER_COUNT,
+                bot_players: INIT_BOT_COUNT,
+                last_hit_threshold: 5.0,
+            });
+        }
 
         self.ui_root =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/menu.ron", ())));
@@ -109,6 +128,7 @@ impl SimpleState for MainMenu {
         // only search for buttons if they have not been found yet
         let StateData { world, .. } = state_data;
 
+        //Initialize buttons
         if self.button_classic_gun_game.is_none()
             || self.button_deathmatch_kills.is_none()
             || self.button_deathmatch_stock.is_none()
@@ -126,6 +146,49 @@ impl SimpleState for MainMenu {
                 self.button_combat_race = ui_finder.find(BUTTON_COMBAT_RACE);
                 self.button_start_game = ui_finder.find(BUTTON_START_GAME);
             });
+        }
+
+        
+        let mut player_count_init: bool = false;
+        let mut bot_count_init: bool = false;
+
+        //Find and Initialize input text value to match game mode
+        if self.edit_text_player_count.is_none() {
+            world.exec(|ui_finder: UiFinder<'_>| {
+                self.edit_text_player_count = ui_finder.find(EDIT_TEXT_PLAYER_COUNT);
+                player_count_init = true;
+            });
+        }
+
+        if self.edit_text_bot_count.is_none() {
+            world.exec(|ui_finder: UiFinder<'_>| {
+                self.edit_text_bot_count = ui_finder.find(EDIT_TEXT_BOT_COUNT);
+                bot_count_init = true;
+            });
+        }
+
+        let mut ui_text = world.write_storage::<UiText>();
+        let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
+
+        if let Some(mut game_mode_setup) = fetched_game_mode_setup {
+            //Set game mode to match user input after intialization has been completed
+            if let Some(player_count) = self.edit_text_player_count.and_then(|entity| ui_text.get_mut(entity)) {
+                if player_count_init {
+                    player_count.text = game_mode_setup.max_players.to_string();
+                }
+                else if let Ok(value) = player_count.text.parse::<usize>() {
+                    game_mode_setup.max_players = value;
+                }
+            }
+
+            if let Some(bot_count) = self.edit_text_bot_count.and_then(|entity| ui_text.get_mut(entity)) {
+                if bot_count_init {
+                    bot_count.text = game_mode_setup.bot_players.to_string();
+                }
+                else if let Ok(value) = bot_count.text.parse::<usize>() {
+                    game_mode_setup.bot_players = value;
+                }
+            }
         }
 
         Trans::None
@@ -157,9 +220,6 @@ impl SimpleState for MainMenu {
                 let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
 
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
-                    game_mode_setup.max_players = INIT_PLAYER_COUNT;
-                    game_mode_setup.bot_players = INIT_BOT_COUNT;
-
                     if Some(target) == self.button_classic_gun_game {
                         game_mode_setup.game_mode = GameModes::ClassicGunGame;
                         game_mode_setup.match_time_limit = -1.0;
@@ -244,5 +304,7 @@ impl SimpleState for MainMenu {
         self.button_king_of_the_hill = None;
         self.button_combat_race = None;
         self.button_start_game = None;
+        self.edit_text_player_count = None;
+        self.edit_text_bot_count = None;
     }
 }
