@@ -102,7 +102,7 @@ impl Vehicle {
             repair: Repair {
                 activated: false,
                 init_timer: 0.0,
-                init_threshold: 2.5,
+                init_threshold: 1.5,
                 entity: repair_entity,
             },
             engine_force,

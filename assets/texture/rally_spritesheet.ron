@@ -224,5 +224,11 @@ List((
             width: 35,
             height: 35,
         ),
+        ( //sparking malfunction #37
+            x: 39,
+            y: 37,
+            width: 8,
+            height: 8,
+        ),
     ],
 ))

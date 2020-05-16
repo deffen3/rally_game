@@ -11,7 +11,7 @@ pub use self::weapons::{
     build_named_weapon, build_named_weapon2, build_weapon_store, get_mine_sprite,
     get_next_weapon_name, get_random_weapon_name, get_trap_sprite, get_weapon_icon,
     update_weapon_icon, update_weapon_properties, Weapon, WeaponFire, WeaponNames, WeaponStats,
-    WeaponStoreResource, WeaponTypes,
+    WeaponStoreResource, WeaponTypes, Sparks,
 };
 
 mod armor;

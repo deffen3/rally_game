@@ -1,12 +1,10 @@
-use amethyst::core::{Time, Transform};
-use amethyst::derive::SystemDesc;
-use amethyst::ecs::{
-    Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
-    WriteStorage,
-};
-use amethyst::input::{InputHandler, StringBindings};
-use amethyst::renderer::{palette::Srgba, resources::Tint};
 use amethyst::{
+    core::{math::Vector3, Time, Transform},
+    derive::SystemDesc,
+    ecs::{Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
+        WriteStorage},
+    input::{InputHandler, StringBindings},
+    renderer::{palette::Srgba, resources::Tint},
     assets::AssetStorage,
     audio::{output::Output, Source},
 };
@@ -26,6 +24,9 @@ use crate::components::{
     update_weapon_properties, vehicle_damage_model, BotMode, Hitbox, HitboxShape, Player,
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, Weapon, WeaponStoreResource,
 };
+
+use crate::entities::{malfunction_sparking};
+
 use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
 use crate::rally::{
@@ -165,6 +166,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 3 => (input.axis_value("p4_accel"), input.axis_value("p4_turn")),
                 _ => (None, None),
             };
+
+            let vehicle_x = transform.translation().x;
+            let vehicle_y = transform.translation().y;
 
             let vehicle_rotation = transform.rotation();
             let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
@@ -327,28 +331,47 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
 
 
-            vehicle.malfunction_cooldown_timer -= dt;
-
-            if vehicle.health.value <= 50.0 {
+            //Apply malfunction for damaged vehicles
+            if vehicle.state == VehicleState::Active {
                 vehicle.malfunction_cooldown_timer -= dt;
 
-                if vehicle.malfunction_cooldown_timer < 0.0 {
-                    let malfunction_chance = Some(rng.gen_range(0.0, 100.0) as f32).unwrap();
+                if vehicle.health.value <= 50.0 {
+                    vehicle.malfunction_cooldown_timer -= dt;
 
-                    if malfunction_chance > vehicle.health.value {
-                        vehicle.malfunction = 100.0;
+                    if vehicle.malfunction_cooldown_timer < 0.0 {
+                        let malfunction_chance = Some(rng.gen_range(0.0, 100.0) as f32).unwrap();
+
+                        //if health is 50: 0-25 never malfunction, 25-75 chance no malfunction, 75-100 chance malfunction
+                        //  so 75% no malfunction, 25% malfunction
+                        //if health is 25: 0-25 never malfunction, 25-50 chance no malfunction, 50-100 chance malfunction
+                        //  so 50% no malfunction, 50% malfunction
+                        //if health is 10: 0-25 never malfunction, 25-35 chance no malfunction, 35-100 chance malfunction
+                        //  so 35% no malfunction, 65% malfunction
+
+                        if malfunction_chance - 25.0 > vehicle.health.value {
+                            vehicle.malfunction = 100.0;
+
+                            let sparks_position = Vector3::new(vehicle_x, vehicle_y, 0.5);
+
+                            malfunction_sparking(
+                                &entities,
+                                &weapon_fire_resource,
+                                sparks_position,
+                                &lazy_update,
+                            );
+                        }
+                        else {
+                            vehicle.malfunction = 0.0;
+                        }
+                        
+                        vehicle.malfunction_cooldown_timer = 0.5; //reset timer
                     }
-                    else {
-                        vehicle.malfunction = 0.0;
-                    }
-                    
-                    vehicle.malfunction_cooldown_timer = 0.5; //reset timer
+                    //else unchanged, use old malfunction value
                 }
-                //else unchanged, use old malfunction value
-            }
-            else {
-                vehicle.malfunction_cooldown_timer = -1.0;
-                vehicle.malfunction = 0.0;
+                else {
+                    vehicle.malfunction_cooldown_timer = -1.0;
+                    vehicle.malfunction = 0.0;
+                }
             }
 
             //Update vehicle velocity from vehicle speed accel input
@@ -429,9 +452,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
 
             //Wall-collision logic
-            let vehicle_x = transform.translation().x;
-            let vehicle_y = transform.translation().y;
-
             let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
                 + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
             let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()

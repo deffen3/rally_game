@@ -211,6 +211,17 @@ pub fn calculate_range(stats: WeaponStats) -> f32 {
 }
 
 
+pub struct Sparks {
+    pub dx: f32,
+    pub dy: f32,
+    pub life_timer: f32,
+}
+
+impl Component for Sparks {
+    type Storage = DenseVecStorage<Self>;
+}
+
+
 #[derive(Clone)]
 pub struct WeaponFire {
     pub active: bool,
