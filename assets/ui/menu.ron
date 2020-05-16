@@ -11,9 +11,136 @@ Container(
     background: SolidColor(0.03, 0.03, 0.03, 1.0),
     children: [
 
+        Label(
+            transform: (
+                id: "player_count_text",
+                width: 500.,
+                height: 55.,
+                x: 150.,
+                y: 150.,
+                tab_order: 1,
+                anchor: BottomLeft,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Players:",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 50.,
+                color: (0.2, 0.2, 0.6, 1.0),
+                align: Middle,
+            )
+        ),
+
+        // Editable text single line.
         Container(
             transform: (
-                id: "container_start",
+                id: "editable_container",
+                x: 280.,
+                y: 150.,
+                width: 40.,
+                height: 55.,
+                tab_order: 1,
+                anchor: BottomLeft,
+            ),
+            background: SolidColor(0.1, 0.1, 0.1, 1.0),
+            children: [
+                Label(
+                    transform: (
+                        id: "player_count_field",
+                        width: 500.,
+                        height: 55.,
+                        tab_order: 1,
+                        anchor: Middle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "4",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 50.,
+                        color: (0.2, 0.2, 0.6, 1.0),
+                        align: Middle,
+                        editable: (
+                            max_length: 1,
+                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
+                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
+                        ),
+                    )
+                ),
+            ]
+        ),
+
+
+        Label(
+            transform: (
+                id: "bot_count_text",
+                width: 500.,
+                height: 55.,
+                x: 150.,
+                y: 80.,
+                tab_order: 1,
+                anchor: BottomLeft,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Bots:",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 50.,
+                color: (0.2, 0.2, 0.6, 1.0),
+                align: Middle,
+            )
+        ),
+
+        // Editable text single line.
+        Container(
+            transform: (
+                id: "editable_container",
+                x: 280.,
+                y: 80.,
+                width: 40.,
+                height: 55.,
+                tab_order: 1,
+                anchor: BottomLeft,
+            ),
+            background: SolidColor(0.1, 0.1, 0.1, 1.0),
+            children: [
+                Label(
+                    transform: (
+                        id: "bot_count_field",
+                        width: 500.,
+                        height: 55.,
+                        tab_order: 1,
+                        anchor: Middle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "4",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 50.,
+                        color: (0.2, 0.2, 0.6, 1.0),
+                        align: Middle,
+                        editable: (
+                            max_length: 1,
+                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
+                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
+                        ),
+                    )
+                ),
+            ]
+        ),
+
+
+        Container(
+            transform: (
+                id: "container_gun_game",
+                x: -220,
                 y: 350,
                 width: 460.,
                 height: 100.,
@@ -48,6 +175,7 @@ Container(
         Container(
             transform: (
                 id: "container_deathmatch_kills",
+                x: -220,
                 y: 240,
                 width: 460.,
                 height: 100.,
@@ -83,6 +211,7 @@ Container(
         Container(
             transform: (
                 id: "container_deathmatch_stock",
+                x: -220,
                 y: 130,
                 width: 460.,
                 height: 100.,
@@ -118,6 +247,7 @@ Container(
         Container(
             transform: (
                 id: "container_deathmatch_time",
+                x: -220,
                 y: 20,
                 width: 460.,
                 height: 100.,
@@ -153,6 +283,7 @@ Container(
         Container(
             transform: (
                 id: "container_king_of_the_hill",
+                x: -220,
                 y: -90,
                 width: 460.,
                 height: 100.,
@@ -188,6 +319,7 @@ Container(
         Container(
             transform: (
                 id: "container_combat_race",
+                x: -220,
                 y: -200,
                 width: 460.,
                 height: 100.,
@@ -208,6 +340,41 @@ Container(
                     ),
                     button: (
                         text: "COMBAT RACE",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 40.,
+                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+        Container(
+            transform: (
+                id: "start_game_container",
+                x: -150,
+                y: 100,
+                width: 200.,
+                height: 100.,
+                anchor: BottomRight,
+            ),
+            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "start_game",
+                        width: 190.,
+                        height: 90.,
+                        tab_order: 1,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "START!",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
                         normal_text_color: (.20, 0.20, 0.65, 1.0),

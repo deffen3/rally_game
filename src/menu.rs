@@ -16,8 +16,8 @@ use crate::resources::{GameModeSetup, GameModes};
 
 
 
-pub const PLAYER_COUNT: usize = 4;
-pub const BOT_COUNT: usize = PLAYER_COUNT-1;
+pub const INIT_PLAYER_COUNT: usize = 4;
+pub const INIT_BOT_COUNT: usize = INIT_PLAYER_COUNT-1;
 
 
 const BUTTON_CLASSIC_GUN_GAME: &str = "classic_gun_game";
@@ -26,6 +26,8 @@ const BUTTON_DEATHMATCH_STOCK: &str = "deathmatch_stock";
 const BUTTON_DEATHMATCH_TIME: &str = "deathmatch_time";
 const BUTTON_KING_OF_THE_HILL: &str = "king_of_the_hill";
 const BUTTON_COMBAT_RACE: &str = "combat_race";
+const BUTTON_START_GAME: &str = "start_game";
+
 
 #[derive(Default, Debug)]
 pub struct MainMenu {
@@ -36,6 +38,7 @@ pub struct MainMenu {
     button_deathmatch_time: Option<Entity>,
     button_king_of_the_hill: Option<Entity>,
     button_combat_race: Option<Entity>,
+    button_start_game: Option<Entity>,
 }
 
 impl SimpleState for MainMenu {
@@ -84,7 +87,7 @@ impl SimpleState for MainMenu {
         world.insert(GameModeSetup {
             game_mode: GameModes::ClassicGunGame,
             match_time_limit: -1.0,
-            points_to_win: 15,
+            points_to_win: 14,
             stock_lives: -1,
             checkpoint_count: 0,
             starter_weapon: WeaponNames::LaserDoubleGimballed,
@@ -93,8 +96,8 @@ impl SimpleState for MainMenu {
             weapon_spawn_count: 2,
             weapon_spawn_timer: 20.0,
             weapon_spawn_chances: weapon_spawn_chances,
-            max_players: PLAYER_COUNT,
-            bot_players: BOT_COUNT,
+            max_players: INIT_PLAYER_COUNT,
+            bot_players: INIT_BOT_COUNT,
             last_hit_threshold: 5.0,
         });
 
@@ -112,6 +115,7 @@ impl SimpleState for MainMenu {
             || self.button_deathmatch_time.is_none()
             || self.button_king_of_the_hill.is_none()
             || self.button_combat_race.is_none()
+            || self.button_start_game.is_none()
         {
             world.exec(|ui_finder: UiFinder<'_>| {
                 self.button_classic_gun_game = ui_finder.find(BUTTON_CLASSIC_GUN_GAME);
@@ -120,6 +124,7 @@ impl SimpleState for MainMenu {
                 self.button_deathmatch_time = ui_finder.find(BUTTON_DEATHMATCH_TIME);
                 self.button_king_of_the_hill = ui_finder.find(BUTTON_KING_OF_THE_HILL);
                 self.button_combat_race = ui_finder.find(BUTTON_COMBAT_RACE);
+                self.button_start_game = ui_finder.find(BUTTON_START_GAME);
             });
         }
 
@@ -152,12 +157,10 @@ impl SimpleState for MainMenu {
                 let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
 
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
-                    game_mode_setup.max_players = PLAYER_COUNT;
-                    game_mode_setup.bot_players = BOT_COUNT;
+                    game_mode_setup.max_players = INIT_PLAYER_COUNT;
+                    game_mode_setup.bot_players = INIT_BOT_COUNT;
 
                     if Some(target) == self.button_classic_gun_game {
-                        log::info!("[Trans::Switch] Switching to GameplayState!");
-
                         game_mode_setup.game_mode = GameModes::ClassicGunGame;
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 14;
@@ -166,11 +169,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = false;
                         game_mode_setup.keep_picked_up_weapons = false;
-
-                        return Trans::Switch(Box::new(GameplayState::default()));
                     } else if Some(target) == self.button_deathmatch_kills {
-                        log::info!("[Trans::Switch] Switching to GameplayState!");
-
                         game_mode_setup.game_mode = GameModes::DeathmatchKills;
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 10;
@@ -179,11 +178,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
-
-                        return Trans::Switch(Box::new(GameplayState::default()));
                     } else if Some(target) == self.button_deathmatch_stock {
-                        log::info!("[Trans::Switch] Switching to GameplayState!");
-
                         game_mode_setup.game_mode = GameModes::DeathmatchStock;
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = -1;
@@ -192,11 +187,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
-
-                        return Trans::Switch(Box::new(GameplayState::default()));
                     } else if Some(target) == self.button_deathmatch_time {
-                        log::info!("[Trans::Switch] Switching to GameplayState!");
-
                         game_mode_setup.game_mode = GameModes::DeathmatchTimedKD;
                         game_mode_setup.match_time_limit = 5.0 * 60.0; //in seconds, 5mins
                         game_mode_setup.points_to_win = -1;
@@ -205,11 +196,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
-
-                        return Trans::Switch(Box::new(GameplayState::default()));
                     } else if Some(target) == self.button_king_of_the_hill {
-                        log::info!("[Trans::Switch] Switching to GameplayState!");
-
                         game_mode_setup.game_mode = GameModes::KingOfTheHill;
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 100;
@@ -218,11 +205,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
-
-                        return Trans::Switch(Box::new(GameplayState::default()));
                     } else if Some(target) == self.button_combat_race {
-                        log::info!("[Trans::Switch] Switching to GameplayState!");
-
                         game_mode_setup.game_mode = GameModes::Race;
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 10;
@@ -231,6 +214,8 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = true;
+                    } else if Some(target) == self.button_start_game {
+                        log::info!("[Trans::Switch] Switching to GameplayState!");
 
                         return Trans::Switch(Box::new(GameplayState::default()));
                     }
@@ -258,5 +243,6 @@ impl SimpleState for MainMenu {
         self.button_deathmatch_time = None;
         self.button_king_of_the_hill = None;
         self.button_combat_race = None;
+        self.button_start_game = None;
     }
 }
