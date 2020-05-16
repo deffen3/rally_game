@@ -12,6 +12,7 @@ pub enum BotMode {
     Chasing,
     Swording,
     TakeTheHill,
+    Repairing,
 }
 
 pub struct Player {

@@ -9,7 +9,7 @@ use amethyst::{
 use rand::Rng;
 use std::collections::HashMap;
 
-use crate::components::{Player, Vehicle, VehicleState};
+use crate::components::{Player, Vehicle, VehicleState, BotMode};
 
 #[derive(SystemDesc)]
 pub struct VehicleShieldArmorHealthSystem;
@@ -54,13 +54,20 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
-            let vehicle_repair = match player.id {
-                0 => input.action_is_down("p1_repair"),
-                1 => input.action_is_down("p2_repair"),
-                2 => input.action_is_down("p3_repair"),
-                3 => input.action_is_down("p4_repair"),
-                _ => None,
-            };
+            
+            let vehicle_repair;
+            if player.is_bot && player.bot_mode == BotMode::Repairing {
+                vehicle_repair = Some(true);
+            }
+            else {
+                vehicle_repair = match player.id {
+                    0 => input.action_is_down("p1_repair"),
+                    1 => input.action_is_down("p2_repair"),
+                    2 => input.action_is_down("p3_repair"),
+                    3 => input.action_is_down("p4_repair"),
+                    _ => None,
+                };
+            }
 
             if let Some(repair) = vehicle_repair {
                 if repair && vehicle.state == VehicleState::Active {

@@ -180,6 +180,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 if player.bot_mode == BotMode::Running
                     || player.bot_mode == BotMode::TakeTheHill
                     || player.bot_mode == BotMode::Mining
+                    || player.bot_mode == BotMode::Repairing
                 {
                     if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
                         if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
@@ -204,12 +205,20 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     }
 
                     if player.bot_mode == BotMode::TakeTheHill {
-                    } else if player.bot_mode == BotMode::Running
+
+                    } 
+                    else if player.bot_mode == BotMode::Running
                         || player.bot_mode == BotMode::Mining
+                        || player.bot_mode == BotMode::Repairing
                     {
                         //continue with Running or Mining mode
                         if player.bot_move_cooldown < 0.0 {
                             //issue new move command
+
+                            if vehicle.health.value < 100.0 || vehicle.shield.value == 0.0 {
+                                player.bot_mode = BotMode::Repairing;
+                            }
+
                             vehicle_accel = Some(rng.gen_range(0.2, 0.6) as f32);
                             vehicle_turn = Some(rng.gen_range(-1.0, 1.0) as f32);
 
