@@ -44,7 +44,7 @@ impl SimpleState for MainMenu {
         let world = data.world;
 
         let mut weapon_spawn_relative_chance_map = HashMap::new();
-        //weapon_spawn_relative_chance_map.insert(WeaponNames::LaserDoubleGimballed, 8);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserDoubleGimballed, 0);
         weapon_spawn_relative_chance_map.insert(WeaponNames::LaserDoubleBurstSide, 4);
         weapon_spawn_relative_chance_map.insert(WeaponNames::LaserPulseGimballed, 8);
         weapon_spawn_relative_chance_map.insert(WeaponNames::LaserBeam, 8);
@@ -56,7 +56,7 @@ impl SimpleState for MainMenu {
         weapon_spawn_relative_chance_map.insert(WeaponNames::Missile, 3);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Rockets, 3);
         weapon_spawn_relative_chance_map.insert(WeaponNames::SuperRocketGrenades, 2);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::Mine, 3);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::Mine, 2);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Trap, 2);
         weapon_spawn_relative_chance_map.insert(WeaponNames::LaserSword, 3);
         weapon_spawn_relative_chance_map.insert(WeaponNames::BackwardsLaserSword, 1);
@@ -71,10 +71,14 @@ impl SimpleState for MainMenu {
         let mut weapon_spawn_chances: Vec<(WeaponNames, f32)> = Vec::new();
 
         for (key, value) in weapon_spawn_relative_chance_map.iter() {
-            weapon_spawn_chances.push((key.clone(), chance_aggregate));
+            if *value > 0 {
+                weapon_spawn_chances.push((key.clone(), chance_aggregate));
 
-            chance_aggregate += (*value as f32) / (chance_total as f32);
+                chance_aggregate += (*value as f32) / (chance_total as f32);
+            }
         }
+
+        log::info!("{:?}", weapon_spawn_chances);
 
         //Start off with default classic gun game mode
         world.insert(GameModeSetup {
