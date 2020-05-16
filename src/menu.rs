@@ -15,6 +15,9 @@ use crate::components::WeaponNames;
 use crate::resources::{GameModeSetup, GameModes};
 
 
+pub const MAX_PLAYER_COUNT: usize = 4;
+pub const MIN_PLAYER_COUNT: usize = 1;
+pub const MIN_BOT_COUNT: usize = 0;
 
 pub const INIT_PLAYER_COUNT: usize = 4;
 pub const INIT_BOT_COUNT: usize = INIT_PLAYER_COUNT-1;
@@ -177,7 +180,20 @@ impl SimpleState for MainMenu {
                     player_count.text = game_mode_setup.max_players.to_string();
                 }
                 else if let Ok(value) = player_count.text.parse::<usize>() {
-                    game_mode_setup.max_players = value;
+                    if value > MAX_PLAYER_COUNT {
+                        game_mode_setup.max_players = MAX_PLAYER_COUNT;
+                        player_count.text = game_mode_setup.max_players.to_string();
+                    }
+                    else if value < MIN_PLAYER_COUNT {
+                        game_mode_setup.max_players = MIN_PLAYER_COUNT;
+                        player_count.text = game_mode_setup.max_players.to_string();
+                    }
+                    else {
+                        game_mode_setup.max_players = value;
+                    }
+                }
+                else {
+                    game_mode_setup.max_players = MIN_PLAYER_COUNT;
                 }
             }
 
@@ -186,7 +202,20 @@ impl SimpleState for MainMenu {
                     bot_count.text = game_mode_setup.bot_players.to_string();
                 }
                 else if let Ok(value) = bot_count.text.parse::<usize>() {
-                    game_mode_setup.bot_players = value;
+                    if value > MAX_PLAYER_COUNT {
+                        game_mode_setup.bot_players = MAX_PLAYER_COUNT;
+                        bot_count.text = game_mode_setup.bot_players.to_string();
+                    }
+                    else if value < MIN_BOT_COUNT {
+                        game_mode_setup.bot_players = MIN_BOT_COUNT;
+                        bot_count.text = game_mode_setup.bot_players.to_string();
+                    }
+                    else {
+                        game_mode_setup.bot_players = value;
+                    }
+                }
+                else {
+                    game_mode_setup.bot_players = MIN_BOT_COUNT;
                 }
             }
         }
