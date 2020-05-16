@@ -11,6 +11,40 @@ Container(
     background: SolidColor(0.03, 0.03, 0.03, 1.0),
     children: [
 
+
+        Container(
+            transform: (
+                id: "rules_container",
+                x: -250.,
+                y: -175.,
+                width: 350.,
+                height: 150.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.1, 0.1, 0.1, 1.0),
+            children: [
+                Label(
+                    transform: (
+                        id: "rules_text",
+                        x: 0.,
+                        y: 0.,
+                        z: 2.,
+                        width: 340.,
+                        height: 140.,
+                        anchor: Middle,
+                    ),
+                    text: (
+                        text: "",
+                        font_size: 20.,
+                        color: (0.5, 0.5, 0.5, 1.0),
+                        line_mode: Wrap,
+                        align: TopLeft,
+                    )
+                ),
+            ]
+        ),
+
+
         Label(
             transform: (
                 id: "player_count_text",
@@ -28,7 +62,7 @@ Container(
                 text: "Players:",
                 font: File("font/square.ttf", ("TTF", ())),
                 font_size: 50.,
-                color: (0.2, 0.2, 0.6, 1.0),
+                color: (0.8, 0.1, 0.05, 1.0),
                 align: Middle,
             )
         ),
@@ -61,7 +95,7 @@ Container(
                         text: "4",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 50.,
-                        color: (0.2, 0.2, 0.6, 1.0),
+                        color: (0.8, 0.1, 0.05, 1.0),
                         align: Middle,
                         editable: (
                             max_length: 1,
@@ -91,7 +125,7 @@ Container(
                 text: "Bots:",
                 font: File("font/square.ttf", ("TTF", ())),
                 font_size: 50.,
-                color: (0.2, 0.2, 0.6, 1.0),
+                color: (0.8, 0.1, 0.05, 1.0),
                 align: Middle,
             )
         ),
@@ -124,7 +158,7 @@ Container(
                         text: "3",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 50.,
-                        color: (0.2, 0.2, 0.6, 1.0),
+                        color: (0.8, 0.1, 0.05, 1.0),
                         align: Middle,
                         editable: (
                             max_length: 1,
@@ -146,7 +180,7 @@ Container(
                 height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
 
                 Button(
@@ -162,7 +196,7 @@ Container(
                         text: "CLASSIC GUNGAME",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
-                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -181,7 +215,7 @@ Container(
                 height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
 
                 // Complex Button
@@ -198,7 +232,7 @@ Container(
                         text: "DEATHMATCH - KILLS",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
-                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -217,7 +251,7 @@ Container(
                 height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
 
                 // Complex Button
@@ -234,7 +268,7 @@ Container(
                         text: "DEATHMATCH - STOCK",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
-                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -253,7 +287,7 @@ Container(
                 height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
 
                 // Complex Button
@@ -270,7 +304,7 @@ Container(
                         text: "DEATHMATCH - TIME",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
-                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -289,7 +323,7 @@ Container(
                 height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
 
                 // Complex Button
@@ -306,7 +340,7 @@ Container(
                         text: "KING OF THE HILL",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
-                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -325,7 +359,7 @@ Container(
                 height: 100.,
                 anchor: Middle,
             ),
-            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
 
                 // Complex Button
@@ -342,7 +376,7 @@ Container(
                         text: "COMBAT RACE",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
-                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
@@ -361,7 +395,7 @@ Container(
                 height: 100.,
                 anchor: BottomRight,
             ),
-            background: SolidColor(.20, 0.20, 0.65, 1.0),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
 
                 Button(
@@ -377,7 +411,7 @@ Container(
                         text: "START!",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
-                        normal_text_color: (.20, 0.20, 0.65, 1.0),
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),

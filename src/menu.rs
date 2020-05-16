@@ -32,6 +32,7 @@ const BUTTON_COMBAT_RACE: &str = "combat_race";
 const BUTTON_START_GAME: &str = "start_game";
 const EDIT_TEXT_PLAYER_COUNT: &str = "player_count_field";
 const EDIT_TEXT_BOT_COUNT: &str = "bot_count_field";
+const TEXT_RULES: &str = "rules_text";
 
 
 #[derive(Default, Debug)]
@@ -46,6 +47,7 @@ pub struct MainMenu {
     button_start_game: Option<Entity>,
     edit_text_player_count: Option<Entity>,
     edit_text_bot_count: Option<Entity>,
+    text_rules: Option<Entity>,
 }
 
 impl SimpleState for MainMenu {
@@ -154,6 +156,7 @@ impl SimpleState for MainMenu {
         
         let mut player_count_init: bool = false;
         let mut bot_count_init: bool = false;
+        let mut game_mode_rules_init: bool = false;
 
         //Find and Initialize input text value to match game mode
         if self.edit_text_player_count.is_none() {
@@ -169,6 +172,14 @@ impl SimpleState for MainMenu {
                 bot_count_init = true;
             });
         }
+
+        if self.text_rules.is_none() {
+            world.exec(|ui_finder: UiFinder<'_>| {
+                self.text_rules = ui_finder.find(TEXT_RULES);
+                game_mode_rules_init = true;
+            });
+        }
+
 
         let mut ui_text = world.write_storage::<UiText>();
         let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
@@ -217,6 +228,10 @@ impl SimpleState for MainMenu {
                 else {
                     game_mode_setup.bot_players = MIN_BOT_COUNT;
                 }
+            }
+
+            if let Some(game_rules) = self.text_rules.and_then(|entity| ui_text.get_mut(entity)) {
+                game_rules.text = get_game_rules_text(game_mode_setup.game_mode.clone());
             }
         }
 
@@ -335,5 +350,16 @@ impl SimpleState for MainMenu {
         self.button_start_game = None;
         self.edit_text_player_count = None;
         self.edit_text_bot_count = None;
+    }
+}
+
+fn get_game_rules_text(game_mode: GameModes) -> String {
+    match game_mode {
+        GameModes::ClassicGunGame => "Classic Gun Game:\nFirst to get a kill with each weapon wins. Weapons are hot-swapped after each kill.".to_string(),
+        GameModes::DeathmatchKills => "Deathmatch - Kills:\nFirst to a certain number of kills wins. New weapons can be picked up from arena.".to_string(),
+        GameModes::DeathmatchStock => "Deathmatch - Stock:\nIf you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.".to_string(),
+        GameModes::DeathmatchTimedKD => "Deathmatch - Timed:\nMatch ends after set time. Highest score of Kills minus Deaths is the winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.".to_string(),
+        GameModes::KingOfTheHill => "King of the Hill:\nPlayers gains points for being the only person in the special 'hill' zone. First player to a certain number of points wins. New weapons can be picked up from arena.".to_string(),
+        GameModes::Race => "Combat Race:\nIt's a race with weapons active. First player to complete the required number of laps wins. New weapons can be picked up from the race track.".to_string(),
     }
 }
