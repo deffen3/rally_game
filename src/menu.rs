@@ -145,20 +145,6 @@ impl SimpleState for MainMenu {
                 event_type: UiEventType::Click,
                 target,
             }) => {
-                /*
-                pub struct GameModeSetup {
-                    pub game_mode: GameModes,
-                    pub match_time_limit: f32,
-                    pub points_to_win: i32,
-                    pub stock_lives: i32,
-                    pub checkpoint_count: i32,
-                    pub starter_weapon: WeaponNames,
-                    pub random_weapon_spawns: bool,
-                    pub max_players: usize,
-                    pub bot_players: usize,
-                }
-                */
-
                 let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
 
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
