@@ -14,6 +14,7 @@ use amethyst::{
 };
 
 use crate::pause::PauseMenuState;
+use crate::score_screen::ScoreScreen;
 
 use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, WeaponFireResource};
 
@@ -327,6 +328,15 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
             if connected_success {
                 self.player_ui_initialized = true;
+            }
+        }
+
+
+        let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
+
+        if let Some(mut game_mode_setup) = fetched_game_mode_setup {
+            if false {
+                return Trans::Switch(Box::new(ScoreScreen::default()));
             }
         }
 

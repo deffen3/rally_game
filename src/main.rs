@@ -21,6 +21,7 @@ mod welcome;
 mod custom_vehicles;
 mod custom_weapons;
 mod custom_arena;
+mod score_screen;
 
 mod audio;
 mod components;
