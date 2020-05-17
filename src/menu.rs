@@ -30,9 +30,16 @@ const BUTTON_DEATHMATCH_TIME: &str = "deathmatch_time";
 const BUTTON_KING_OF_THE_HILL: &str = "king_of_the_hill";
 const BUTTON_COMBAT_RACE: &str = "combat_race";
 const BUTTON_START_GAME: &str = "start_game";
+
 const EDIT_TEXT_PLAYER_COUNT: &str = "player_count_field";
 const EDIT_TEXT_BOT_COUNT: &str = "bot_count_field";
+
 const TEXT_RULES: &str = "rules_text";
+
+const EDIT_TEXT_POINTS_TO_WIN: &str = "points_to_win_field";
+const EDIT_TEXT_STOCK_LIVES: &str = "stock_lives_field";
+const EDIT_TEXT_TIME_LIMIT: &str = "time_limit_field";
+
 
 
 #[derive(Default, Debug)]
@@ -48,6 +55,10 @@ pub struct MainMenu {
     edit_text_player_count: Option<Entity>,
     edit_text_bot_count: Option<Entity>,
     text_rules: Option<Entity>,
+    edit_text_points_to_win: Option<Entity>,
+    edit_text_stock_lives: Option<Entity>,
+    edit_text_time_limit: Option<Entity>,
+    init_base_rules: bool,
 }
 
 impl SimpleState for MainMenu {
@@ -153,6 +164,19 @@ impl SimpleState for MainMenu {
             });
         }
 
+        if self.edit_text_points_to_win.is_none()
+            || self.edit_text_stock_lives.is_none()
+            || self.edit_text_time_limit.is_none()
+        {
+            world.exec(|ui_finder: UiFinder<'_>| {
+                self.edit_text_points_to_win = ui_finder.find(EDIT_TEXT_POINTS_TO_WIN);
+                self.edit_text_stock_lives = ui_finder.find(EDIT_TEXT_STOCK_LIVES);
+                self.edit_text_time_limit = ui_finder.find(EDIT_TEXT_TIME_LIMIT);
+            });
+
+            self.init_base_rules = true;
+        }
+
         
         let mut player_count_init: bool = false;
         let mut bot_count_init: bool = false;
@@ -233,6 +257,81 @@ impl SimpleState for MainMenu {
             if let Some(game_rules) = self.text_rules.and_then(|entity| ui_text.get_mut(entity)) {
                 game_rules.text = get_game_rules_text(game_mode_setup.game_mode.clone());
             }
+
+            
+            
+            if let Some(points_to_win) = self.edit_text_points_to_win.and_then(|entity| ui_text.get_mut(entity)) {
+                if self.init_base_rules { //Initialization of base rules
+                    let setup_points_to_win = game_mode_setup.points_to_win.clone();
+                    if setup_points_to_win <= 0 {
+                        points_to_win.text = "".to_string();
+                    }
+                    else {
+                        points_to_win.text = setup_points_to_win.to_string();
+                    }
+                }
+                else { //Accepting User Input to modify base rules
+                    if let Ok(value) = points_to_win.text.parse::<i32>() {
+                        if value < 1 {
+                            points_to_win.text = "".to_string();
+                            game_mode_setup.points_to_win = -1;
+                        }
+                        else {
+                            game_mode_setup.points_to_win = value;
+                        }
+                    }
+                }
+            }
+
+            if let Some(stock_lives) = self.edit_text_stock_lives.and_then(|entity| ui_text.get_mut(entity)) {
+                if self.init_base_rules { //Initialization of base rules
+                    let setup_stock_lives = game_mode_setup.stock_lives.clone();
+                    if setup_stock_lives <= 0 {
+                        stock_lives.text = "".to_string();
+                    }
+                    else {
+                        stock_lives.text = setup_stock_lives.to_string();
+                    }
+                }
+                else { //Accepting User Input to modify base rules
+                    if let Ok(value) = stock_lives.text.parse::<i32>() {
+                        if value < 1 {
+                            stock_lives.text = "".to_string();
+                            game_mode_setup.stock_lives = -1;
+                        }
+                        else {
+                            game_mode_setup.stock_lives = value;
+                        }
+                    }
+                }
+            }
+
+            if let Some(time_limit) = self.edit_text_time_limit.and_then(|entity| ui_text.get_mut(entity)) {
+                if self.init_base_rules { //Initialization of base rules
+                    let setup_match_time_limit = game_mode_setup.match_time_limit.clone();
+                    if setup_match_time_limit <= 0.0 {
+                        time_limit.text = "".to_string();
+                    }
+                    else {
+                        time_limit.text = (setup_match_time_limit/60.).floor().to_string();
+                    }
+                }
+                else { //Accepting User Input to modify base rules
+                    if let Ok(value) = time_limit.text.parse::<f32>() {
+                        if value <= 0.0 {
+                            time_limit.text = "".to_string();
+                            game_mode_setup.match_time_limit = -1.0;
+                        }
+                        else {
+                            game_mode_setup.match_time_limit = value*60.;
+                        }
+                    }
+                }
+            }            
+        }
+
+        if self.init_base_rules {
+            self.init_base_rules = false;
         }
 
         Trans::None
@@ -273,6 +372,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = false;
                         game_mode_setup.keep_picked_up_weapons = false;
+                        self.init_base_rules = true;
                     } else if Some(target) == self.button_deathmatch_kills {
                         game_mode_setup.game_mode = GameModes::DeathmatchKills;
                         game_mode_setup.match_time_limit = -1.0;
@@ -282,6 +382,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
+                        self.init_base_rules = true;
                     } else if Some(target) == self.button_deathmatch_stock {
                         game_mode_setup.game_mode = GameModes::DeathmatchStock;
                         game_mode_setup.match_time_limit = -1.0;
@@ -291,6 +392,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
+                        self.init_base_rules = true;
                     } else if Some(target) == self.button_deathmatch_time {
                         game_mode_setup.game_mode = GameModes::DeathmatchTimedKD;
                         game_mode_setup.match_time_limit = 5.0 * 60.0; //in seconds, 5mins
@@ -300,6 +402,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
+                        self.init_base_rules = true;
                     } else if Some(target) == self.button_king_of_the_hill {
                         game_mode_setup.game_mode = GameModes::KingOfTheHill;
                         game_mode_setup.match_time_limit = -1.0;
@@ -309,6 +412,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
+                        self.init_base_rules = true;
                     } else if Some(target) == self.button_combat_race {
                         game_mode_setup.game_mode = GameModes::Race;
                         game_mode_setup.match_time_limit = -1.0;
@@ -318,6 +422,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = true;
+                        self.init_base_rules = true;
                     } else if Some(target) == self.button_start_game {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
 
@@ -350,6 +455,10 @@ impl SimpleState for MainMenu {
         self.button_start_game = None;
         self.edit_text_player_count = None;
         self.edit_text_bot_count = None;
+        self.edit_text_points_to_win = None;
+        self.edit_text_stock_lives = None;
+        self.edit_text_time_limit = None;
+        
     }
 }
 
@@ -360,6 +469,6 @@ fn get_game_rules_text(game_mode: GameModes) -> String {
         GameModes::DeathmatchStock => "Deathmatch - Stock:\nIf you run out of lives you are out. Last player alive wins. New weapons can be picked up from arena.".to_string(),
         GameModes::DeathmatchTimedKD => "Deathmatch - Timed:\nMatch ends after set time. Highest score of Kills minus Deaths is the winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.".to_string(),
         GameModes::KingOfTheHill => "King of the Hill:\nPlayers gains points for being the only person in the special 'hill' zone. First player to a certain number of points wins. New weapons can be picked up from arena.".to_string(),
-        GameModes::Race => "Combat Race:\nIt's a race with weapons active. First player to complete the required number of laps wins. New weapons can be picked up from the race track.".to_string(),
+        GameModes::Race => "Combat Race:\nIt's a race with weapons active. First player to complete the required number of laps wins. New weapons can be picked up from the arena race track.".to_string(),
     }
 }

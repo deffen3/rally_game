@@ -104,22 +104,22 @@ impl<'s> System<'s> for VehicleStatusSystem {
             if game_mode_setup.match_time_limit < 0.0
                 || match_timer.time <= game_mode_setup.match_time_limit
             {
-                let player_score;
+                let displayed_player_score;
 
                 if game_mode_setup.game_mode == GameModes::ClassicGunGame {
-                    player_score = player.kills; //in this mode only the kills with the current weapon are counted.
+                    displayed_player_score = player.kills; //in this mode only the kills with the current weapon are counted.
                 } else if game_mode_setup.game_mode == GameModes::DeathmatchKills {
-                    player_score = player.kills;
+                    displayed_player_score = player.kills;
                 } else if game_mode_setup.game_mode == GameModes::DeathmatchStock {
-                    player_score = game_mode_setup.stock_lives - player.deaths;
+                    displayed_player_score = game_mode_setup.stock_lives - player.deaths;
                 } else if game_mode_setup.game_mode == GameModes::DeathmatchTimedKD {
-                    player_score = player.kills - player.deaths;
+                    displayed_player_score = player.kills - player.deaths;
                 } else if game_mode_setup.game_mode == GameModes::Race {
-                    player_score = player.laps_completed;
+                    displayed_player_score = player.laps_completed;
                 } else if game_mode_setup.game_mode == GameModes::KingOfTheHill {
-                    player_score = player.objective_points.floor() as i32;
+                    displayed_player_score = player.objective_points.floor() as i32;
                 } else {
-                    player_score = 0;
+                    displayed_player_score = 0;
                 }
 
                 if game_mode_setup.game_mode == GameModes::DeathmatchStock
@@ -145,7 +145,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                         }
                     }
                 } else if game_mode_setup.points_to_win > 0
-                    && player_score >= game_mode_setup.points_to_win
+                    && displayed_player_score >= game_mode_setup.points_to_win
                 {
                     if !self.winners.contains(&player.id) {
                         self.winners.push(player.id.clone());
@@ -170,9 +170,12 @@ impl<'s> System<'s> for VehicleStatusSystem {
                         ui_text
                             .get_mut(points_status)
                             .unwrap()
-                            .text = format!("{:.0}", player_score);
+                            .text = format!("{:.0}", displayed_player_score);
                     }
                 }
+            }
+            else {
+                //handle timed games here, player with most points should be displayed as 1st, etc...
             }
         }
     }
