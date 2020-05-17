@@ -12,11 +12,34 @@ Container(
     children: [
 
 
+        Label(
+            transform: (
+                id: "game_title_text",
+                width: 500.,
+                height: 55.,
+                x: 0.,
+                y: -50.,
+                tab_order: 1,
+                anchor: TopMiddle,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Rocket Rally!",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 65.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
+
         Container(
             transform: (
                 id: "rules_container",
                 x: -250.,
-                y: -175.,
+                y: -195.,
                 width: 350.,
                 height: 150.,
                 anchor: TopRight,
@@ -35,6 +58,7 @@ Container(
                     ),
                     text: (
                         text: "",
+                        font: File("font/square.ttf", ("TTF", ())),
                         font_size: 20.,
                         color: (0.5, 0.5, 0.5, 1.0),
                         line_mode: Wrap,
@@ -43,6 +67,307 @@ Container(
                 ),
             ]
         ),
+
+
+        Label(
+            transform: (
+                id: "points_to_win_text",
+                width: 500.,
+                height: 55.,
+                x: -300.,
+                y: -320.,
+                tab_order: 1,
+                anchor: TopRight,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Points to Win:",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 25.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
+        // Editable text single line.
+        Container(
+            transform: (
+                id: "editable_container",
+                x: -150.,
+                y: -320.,
+                width: 40.,
+                height: 35.,
+                tab_order: 1,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.1, 0.1, 0.1, 1.0),
+            children: [
+                Label(
+                    transform: (
+                        id: "points_to_win_field",
+                        width: 500.,
+                        height: 30.,
+                        tab_order: 1,
+                        anchor: Middle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "5",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                        editable: (
+                            max_length: 2,
+                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
+                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
+                        ),
+                    )
+                ),
+            ]
+        ),
+
+
+        Label(
+            transform: (
+                id: "stock_lives_text",
+                width: 500.,
+                height: 55.,
+                x: -300.,
+                y: -365.,
+                tab_order: 1,
+                anchor: TopRight,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Stock Lives:",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 25.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
+        // Editable text single line.
+        Container(
+            transform: (
+                id: "editable_container",
+                x: -150.,
+                y: -365.,
+                width: 40.,
+                height: 35.,
+                tab_order: 1,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.1, 0.1, 0.1, 1.0),
+            children: [
+                Label(
+                    transform: (
+                        id: "stock_lives_field",
+                        width: 500.,
+                        height: 30.,
+                        tab_order: 1,
+                        anchor: Middle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "5",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                        editable: (
+                            max_length: 2,
+                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
+                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
+                        ),
+                    )
+                ),
+            ]
+        ),
+
+
+
+        Label(
+            transform: (
+                id: "time_limit_text",
+                width: 500.,
+                height: 55.,
+                x: -300.,
+                y: -410.,
+                tab_order: 1,
+                anchor: TopRight,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Time Limit (mins):",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 25.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
+        // Editable text single line.
+        Container(
+            transform: (
+                id: "editable_container",
+                x: -150.,
+                y: -410.,
+                width: 40.,
+                height: 35.,
+                tab_order: 1,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.1, 0.1, 0.1, 1.0),
+            children: [
+                Label(
+                    transform: (
+                        id: "time_limit_field",
+                        width: 500.,
+                        height: 30.,
+                        tab_order: 1,
+                        anchor: Middle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "5",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                        editable: (
+                            max_length: 2,
+                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
+                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
+                        ),
+                    )
+                ),
+            ]
+        ),
+
+
+
+
+        Container(
+            transform: (
+                id: "container_customize_vehicles",
+                x: -250.,
+                y: -500.,
+                width: 305.,
+                height: 35.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "customize_vehicles",
+                        width: 300.,
+                        height: 30.,
+                        tab_order: 3,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "Customize Vehicles",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+
+        Container(
+            transform: (
+                id: "container_customize_weapons",
+                x: -250.,
+                y: -550.,
+                width: 305.,
+                height: 35.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "customize_weapons",
+                        width: 300.,
+                        height: 30.,
+                        tab_order: 3,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "Customize Weapons",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+        Container(
+            transform: (
+                id: "container_customize_arena",
+                x: -250.,
+                y: -600.,
+                width: 305.,
+                height: 35.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "customize_arena",
+                        width: 300.,
+                        height: 30.,
+                        tab_order: 3,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "Customize Arena",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+
 
 
         Label(
@@ -175,7 +500,7 @@ Container(
             transform: (
                 id: "container_gun_game",
                 x: -220,
-                y: 350,
+                y: 330,
                 width: 460.,
                 height: 100.,
                 anchor: Middle,
@@ -210,7 +535,7 @@ Container(
             transform: (
                 id: "container_deathmatch_kills",
                 x: -220,
-                y: 240,
+                y: 220,
                 width: 460.,
                 height: 100.,
                 anchor: Middle,
@@ -246,7 +571,7 @@ Container(
             transform: (
                 id: "container_deathmatch_stock",
                 x: -220,
-                y: 130,
+                y: 110,
                 width: 460.,
                 height: 100.,
                 anchor: Middle,
@@ -282,7 +607,7 @@ Container(
             transform: (
                 id: "container_deathmatch_time",
                 x: -220,
-                y: 20,
+                y: 0.,
                 width: 460.,
                 height: 100.,
                 anchor: Middle,
@@ -318,7 +643,7 @@ Container(
             transform: (
                 id: "container_king_of_the_hill",
                 x: -220,
-                y: -90,
+                y: -110,
                 width: 460.,
                 height: 100.,
                 anchor: Middle,
@@ -354,7 +679,7 @@ Container(
             transform: (
                 id: "container_combat_race",
                 x: -220,
-                y: -200,
+                y: -220,
                 width: 460.,
                 height: 100.,
                 anchor: Middle,
