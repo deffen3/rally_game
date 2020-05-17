@@ -56,6 +56,9 @@ There are various weapons with various properties, including:
 - __Deathmatch: Timed KD__: Match ends after set time. Highest score of Kills minus Deaths is the winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
 - __King of the Hill__: Players gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
 - __Combat Race__: It's a race with weapons active. First player to complete the required number of laps wins. New weapons can be picked up from race track.
+
+![Imgur](https://i.imgur.com/bwNjzz2.png)
+
 ---
 
 
