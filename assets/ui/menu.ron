@@ -518,7 +518,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "CLASSIC GUNGAME",
+                        text: "CLASSIC GUN-GAME",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 40.,
                         normal_text_color: (0.8, 0.1, 0.05, 1.0),

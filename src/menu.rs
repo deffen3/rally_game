@@ -37,6 +37,7 @@ const EDIT_TEXT_BOT_COUNT: &str = "bot_count_field";
 const TEXT_RULES: &str = "rules_text";
 
 const EDIT_TEXT_POINTS_TO_WIN: &str = "points_to_win_field";
+const TEXT_POINTS_TO_WIN_LABEL: &str = "points_to_win_text";
 const EDIT_TEXT_STOCK_LIVES: &str = "stock_lives_field";
 const EDIT_TEXT_TIME_LIMIT: &str = "time_limit_field";
 
@@ -56,6 +57,7 @@ pub struct MainMenu {
     edit_text_bot_count: Option<Entity>,
     text_rules: Option<Entity>,
     edit_text_points_to_win: Option<Entity>,
+    text_points_to_win_label: Option<Entity>,
     edit_text_stock_lives: Option<Entity>,
     edit_text_time_limit: Option<Entity>,
     init_base_rules: bool,
@@ -165,10 +167,12 @@ impl SimpleState for MainMenu {
         }
 
         if self.edit_text_points_to_win.is_none()
+            || self.text_points_to_win_label.is_none()
             || self.edit_text_stock_lives.is_none()
             || self.edit_text_time_limit.is_none()
         {
             world.exec(|ui_finder: UiFinder<'_>| {
+                self.text_points_to_win_label = ui_finder.find(TEXT_POINTS_TO_WIN_LABEL);
                 self.edit_text_points_to_win = ui_finder.find(EDIT_TEXT_POINTS_TO_WIN);
                 self.edit_text_stock_lives = ui_finder.find(EDIT_TEXT_STOCK_LIVES);
                 self.edit_text_time_limit = ui_finder.find(EDIT_TEXT_TIME_LIMIT);
@@ -258,8 +262,12 @@ impl SimpleState for MainMenu {
                 game_rules.text = get_game_rules_text(game_mode_setup.game_mode.clone());
             }
 
+
+            if let Some(points_to_win_label) = self.text_points_to_win_label.and_then(|entity| ui_text.get_mut(entity)) {
+                points_to_win_label.text = get_points_label_text(game_mode_setup.game_mode.clone());
+            }
             
-            
+
             if let Some(points_to_win) = self.edit_text_points_to_win.and_then(|entity| ui_text.get_mut(entity)) {
                 if self.init_base_rules { //Initialization of base rules
                     let setup_points_to_win = game_mode_setup.points_to_win.clone();
@@ -282,6 +290,8 @@ impl SimpleState for MainMenu {
                     }
                 }
             }
+            
+
 
             if let Some(stock_lives) = self.edit_text_stock_lives.and_then(|entity| ui_text.get_mut(entity)) {
                 if self.init_base_rules { //Initialization of base rules
@@ -470,5 +480,16 @@ fn get_game_rules_text(game_mode: GameModes) -> String {
         GameModes::DeathmatchTimedKD => "Deathmatch - Timed:\nMatch ends after set time. Highest score of Kills minus Deaths is the winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.".to_string(),
         GameModes::KingOfTheHill => "King of the Hill:\nPlayers gains points for being the only person in the special 'hill' zone. First player to a certain number of points wins. New weapons can be picked up from arena.".to_string(),
         GameModes::Race => "Combat Race:\nIt's a race with weapons active. First player to complete the required number of laps wins. New weapons can be picked up from the arena race track.".to_string(),
+    }
+}
+
+fn get_points_label_text(game_mode: GameModes) -> String {
+    match game_mode {
+        GameModes::ClassicGunGame => "Points to Win:".to_string(),
+        GameModes::DeathmatchKills => "Kills to Win:".to_string(),
+        GameModes::DeathmatchStock => "Kills to Win:".to_string(),
+        GameModes::DeathmatchTimedKD => "Points to Win:".to_string(),
+        GameModes::KingOfTheHill => "Points to Win:".to_string(),
+        GameModes::Race => "Laps to Win:".to_string(),
     }
 }
