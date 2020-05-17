@@ -28,6 +28,7 @@ pub struct WeaponFireResource {
     pub flame_sprite_render: SpriteRender,
     pub weapon_box_sprite_render: SpriteRender,
     pub sparking_sprite_render: SpriteRender,
+    pub rocket_spray_sprite_render: SpriteRender,
 }
 
 pub fn initialize_weapon_fire_resource(
@@ -116,9 +117,14 @@ pub fn initialize_weapon_fire_resource(
             sprite_number: 35,
         },
         sparking_sprite_render: SpriteRender {
-            sprite_sheet: sprite_sheet_handle,
+            sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 37,
         },
+        rocket_spray_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle,
+            sprite_number: 38,
+        },
+        
     };
     world.insert(weapon_fire_resource.clone());
 

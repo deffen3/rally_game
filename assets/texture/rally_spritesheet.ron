@@ -230,5 +230,11 @@ List((
             width: 8,
             height: 8,
         ),
+        ( //rocket spray #38
+            x: 44,
+            y: 46,
+            width: 3,
+            height: 3,
+        ),
     ],
 ))

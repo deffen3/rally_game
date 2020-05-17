@@ -25,7 +25,7 @@ use crate::components::{
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, Weapon, WeaponStoreResource,
 };
 
-use crate::entities::{malfunction_sparking};
+use crate::entities::{malfunction_sparking, acceleration_spray};
 
 use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
@@ -45,9 +45,13 @@ const BOT_DISENGAGE_DISTANCE: f32 = 240.0;
 
 const WALL_HIT_BOUNCE_DECEL_PCT: f32 = 0.35;
 
+const ROCKET_SPRAY_COOLDOWN_RESET: f32 = 0.05;
+
+
 #[derive(SystemDesc, Default)]
 pub struct VehicleMoveSystem {
     pub last_spawn_index: u32,
+    pub rocket_spray_timer: f32,
 }
 
 impl<'s> System<'s> for VehicleMoveSystem {
@@ -100,6 +104,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
     ) {
         let mut rng = rand::thread_rng();
         let dt = time.delta_seconds();
+
+        self.rocket_spray_timer -= dt;
 
         let mut weapon_icons_old_map = HashMap::new();
 
@@ -423,6 +429,23 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     vehicle.dx += scaled_amount * yaw_x_comp * dt;
                     vehicle.dy += scaled_amount * yaw_y_comp * dt;
+
+                    let position = Vector3::new(
+                        vehicle_x - yaw_x_comp*vehicle.height/2.0,
+                        vehicle_y - yaw_y_comp*vehicle.height/2.0, 
+                        0.5
+                    );
+
+                    if scaled_amount >= 0.01 && self.rocket_spray_timer < 0.0 {
+                        acceleration_spray(
+                            &entities,
+                            &weapon_fire_resource,
+                            position,
+                            vehicle_angle + PI,
+                            scaled_amount.abs()*80.0,
+                            &lazy_update,
+                        );
+                    }
                 }
             }
 
@@ -907,6 +930,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     let _ = entities.delete(entity);
                 }
             }
+        }
+
+        if self.rocket_spray_timer < 0.0 {
+            self.rocket_spray_timer = ROCKET_SPRAY_COOLDOWN_RESET;
         }
     }
 }
