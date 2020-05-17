@@ -436,10 +436,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         0.5
                     );
 
+                    let is_smoking = (vehicle.health.value / vehicle.health.max) < 4./5.;
+
                     if scaled_amount >= 0.01 && self.rocket_spray_timer < 0.0 {
                         acceleration_spray(
                             &entities,
                             &weapon_fire_resource,
+                            is_smoking,
                             position,
                             vehicle_angle + PI,
                             scaled_amount.abs()*80.0,

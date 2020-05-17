@@ -2,6 +2,7 @@ use amethyst::{
     core::math::Vector3,
     core::transform::Transform,
     ecs::prelude::{Entities, Entity, LazyUpdate, ReadExpect},
+    renderer::{Transparent},
     utils::removal::Removal,
 };
 
@@ -103,6 +104,7 @@ pub fn hit_spray(
 pub fn acceleration_spray(
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
+    is_smoking: bool,
     position: Vector3<f32>,
     angle: f32,
     thrust: f32,
@@ -110,10 +112,18 @@ pub fn acceleration_spray(
 ) {
     let particles_entity: Entity = entities.create();
 
-    let particles_sprite = weapon_fire_resource.rocket_spray_sprite_render.clone();
+    let particles_sprite;
+    if is_smoking {
+        particles_sprite = weapon_fire_resource.smoke_spray_sprite_render.clone();
+    }
+    else {
+        particles_sprite = weapon_fire_resource.rocket_spray_sprite_render.clone();
+    }
 
     let mut local_transform = Transform::default();
     local_transform.set_translation(position);
+
+    local_transform.set_rotation_2d(angle-PI);
 
     let mut rng = rand::thread_rng();
     let random_velocity_angle = rng.gen_range(-PI/6., PI/6.);
@@ -126,10 +136,11 @@ pub fn acceleration_spray(
     lazy_update.insert(particles_entity, Particles {
         dx: thrust * x_comp,
         dy: thrust * y_comp,
-        life_timer: 0.1,
+        life_timer: 0.2,
     });
     
     lazy_update.insert(particles_entity, particles_sprite);
+    lazy_update.insert(particles_entity, Transparent);
     lazy_update.insert(particles_entity, local_transform);
 
     lazy_update.insert(particles_entity, Removal::new(0 as u32));

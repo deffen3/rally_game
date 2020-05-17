@@ -29,7 +29,7 @@ use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 
-pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.80;
+pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.30;
 
 pub const PRE_IMPACT_DT_STEPS: f32 = 1.2;
 pub const SHOT_SPEED_TRIGGER: f32 = 500.0;

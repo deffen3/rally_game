@@ -248,5 +248,11 @@ List((
             width: 3,
             height: 4,
         ),
+        ( //smoke spray #41
+            x: 53,
+            y: 56,
+            width: 5,
+            height: 5,
+        ),
     ],
 ))

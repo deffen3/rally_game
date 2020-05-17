@@ -31,6 +31,7 @@ pub struct WeaponFireResource {
     pub rocket_spray_sprite_render: SpriteRender,
     pub shield_hit_spray_sprite_render: SpriteRender,
     pub hull_hit_spray_sprite_render: SpriteRender,
+    pub smoke_spray_sprite_render: SpriteRender,
 }
 
 pub fn initialize_weapon_fire_resource(
@@ -131,8 +132,12 @@ pub fn initialize_weapon_fire_resource(
             sprite_number: 39,
         },
         hull_hit_spray_sprite_render: SpriteRender {
-            sprite_sheet: sprite_sheet_handle,
+            sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 40,
+        },
+        smoke_spray_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle,
+            sprite_number: 41,
         },
         
     };
