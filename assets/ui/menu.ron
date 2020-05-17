@@ -720,7 +720,7 @@ Container(
                 height: 100.,
                 anchor: BottomRight,
             ),
-            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            background: SolidColor(1.0, 0.9, 0.9, 1.0),
             children: [
 
                 Button(
