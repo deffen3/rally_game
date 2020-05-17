@@ -26,20 +26,37 @@ This is a 2D overhead-view vehicle combat game with a few different game modes.
 
 ## Vehicles
 
-__Vehicles__ can accelerate, decelerate, and turn with its __Engines__.
+__Vehicles__ can accelerate, decelerate, and turn with their __Engines__.
 
-__Vehicles__ can also shoot or deploy its __Weapons__.
+__Vehicles__ can also shoot or deploy their __Weapons__.
 
 Each __Vehicle__ has __Shields__, __Armor__, and __Health__. 
 
-__Shields__ will regenerate if you still have some __Shields__ left, and you haven't been hit in awhile.
+__Shields__ will regenerate if you still have some __Shields__ left and you haven't been hit within the last few seconds.
 
-__Armor__ is permanently lost. Armor will only be removed after your __Shields__ are gone.
+__Armor__ is permanently lost. Armor will start to be removed after you are hit with your __Shields__ gone.
 
-__Health__ is lost after once you are hit with no __Shields__ and no __Armor__. __Health__ will also be lost if hit by a piercing damage weapon. __Health__ can be repaired by holding the __Repair__ button. 
+__Health__ is lost once you are hit with no __Shields__ and no __Armor__. __Health__ will also be lost if hit by a piercing damage weapon. __Health__ can be repaired by holding the __Repair__ button. 
 After fully repairing all __Health__, the __Shields__ will eventually re-boot if you continue holding __Repair__.
 Note that using __Repair__ will disable all use of __Engines__ and __Weapons__. If __Health__ goes below 50%, expect the
 __Engines__ to start malfunctioning as the vehicle is sparking.
+
+---
+
+## Controls
+
+Player 1:
+    Accel/Decel Vehicle: W/S
+    Turn Vehicle Left/Right: A/D
+    Use Weapons: Spacebar
+    Repair Vehicle: R
+
+Player 2:
+    Accel/Decel Vehicle: Up Arrow / Down Arrow
+    Turn Vehicle Left/Right: Left Arrow / Right Arrow
+    Use Weapons: Right-Control
+    Repair Vehicle: Right-Shift
+)
 
 ---
 
