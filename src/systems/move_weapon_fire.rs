@@ -2,7 +2,7 @@ use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage};
 
-use crate::components::{Player, Vehicle, VehicleState, Weapon, WeaponFire, Sparks};
+use crate::components::{Player, Vehicle, VehicleState, Weapon, WeaponFire};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 use log::debug;
@@ -17,7 +17,6 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         Entities<'s>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, WeaponFire>,
-        WriteStorage<'s, Sparks>,
         ReadStorage<'s, Vehicle>,
         ReadStorage<'s, Weapon>,
         ReadStorage<'s, Player>,
@@ -26,21 +25,9 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
     fn run(
         &mut self,
-        (entities, mut transforms, mut weapon_fires, mut sparks, vehicles, weapons, players, time): Self::SystemData,
+        (entities, mut transforms, mut weapon_fires, vehicles, weapons, players, time): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
-
-        for (entity, spark, transform) in (&entities, &mut sparks, &mut transforms).join() {
-            spark.life_timer -= dt;
-
-            if spark.life_timer < 0.0 {
-                let _ = entities.delete(entity);
-            }
-            else {
-                transform.prepend_translation_x(spark.dx * dt);
-                transform.prepend_translation_y(spark.dy * dt);
-            }
-        }
 
         let mut vehicle_owner_map = HashMap::new();
         let mut heat_seeking_angle_map = HashMap::new();

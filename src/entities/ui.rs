@@ -10,7 +10,7 @@ use crate::resources::MatchTimer;
 
 use crate::components::{Player, Vehicle};
 
-use crate::resources::GameModeSetup;
+//use crate::resources::GameModeSetup;
 
 
 pub fn initialize_timer_ui(world: &mut World) {

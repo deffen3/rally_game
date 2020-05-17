@@ -24,13 +24,13 @@ use crate::entities::{
 
 use crate::components::{
     build_weapon_store, Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
-    Weapon, WeaponFire, Sparks,
+    Weapon, WeaponFire, Particles,
 };
 
 use crate::systems::{
     CollisionVehToVehSystem, CollisionVehicleWeaponFireSystem, MoveWeaponFireSystem,
     VehicleMoveSystem, VehicleShieldArmorHealthSystem, VehicleStatusSystem, VehicleTrackingSystem,
-    VehicleWeaponsSystem,
+    VehicleWeaponsSystem, MoveParticlesSystem,
 };
 
 pub const PLAYER_CAMERA: bool = false;
@@ -84,7 +84,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         world.register::<Vehicle>();
         world.register::<Weapon>();
         world.register::<WeaponFire>();
-        world.register::<Sparks>();
+        world.register::<Particles>();
 
         world.register::<PlayerWeaponIcon>();
 
@@ -223,13 +223,14 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             &["vehicle_move_system"],
         );
         
-
         dispatcher_builder.add(
             VehicleShieldArmorHealthSystem,
             "vehicle_shield_armor_health_system",
             &[],
         );
         dispatcher_builder.add(VehicleStatusSystem::default(), "vehicle_status_system", &[]);
+
+        dispatcher_builder.add(MoveParticlesSystem, "move_particles_system", &[]);
 
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();
