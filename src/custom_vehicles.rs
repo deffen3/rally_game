@@ -2,16 +2,13 @@ use amethyst::{
     ecs::prelude::Entity,
     input::{is_close_requested, is_key_down},
     prelude::*,
-    ui::{UiCreator, UiEvent, UiEventType, UiFinder, UiText},
+    ui::{UiCreator, UiEvent, UiEventType, UiFinder},
     winit::VirtualKeyCode,
 };
 
-use std::collections::HashMap;
-
 use crate::menu::MainMenu;
 
-use crate::components::WeaponNames;
-use crate::resources::{GameModeSetup, GameModes};
+use crate::resources::{GameModeSetup};
 
 
 
