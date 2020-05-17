@@ -18,7 +18,7 @@ Container(
                 width: 500.,
                 height: 55.,
                 x: 0.,
-                y: -50.,
+                y: -60.,
                 tab_order: 1,
                 anchor: TopMiddle,
                 stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),

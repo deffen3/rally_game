@@ -11,8 +11,8 @@ Container(
         Label(
             transform: (
                 id: "fps",
-                x: 100.,
-                y: -16,
+                x: 40.,
+                y: -10,
                 width: 200.,
                 height: 25.,
                 tab_order: 2,
@@ -23,7 +23,7 @@ Container(
             text: (
                 text: "N/A",
                 font: File("font/square.ttf", ("TTF", ())),
-                font_size: 25.,
+                font_size: 15.,
                 color: (0.498, 0.254, 0.937, 1.0),
             )
         ),
