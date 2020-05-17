@@ -240,7 +240,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if player.bot_move_cooldown < 0.0 {
                             //issue new move command
 
-                            if vehicle.health.value < 100.0 || vehicle.shield.value == 0.0 {
+                            if vehicle.health.value < vehicle.health.max || vehicle.shield.value == 0.0 {
                                 player.bot_mode = BotMode::Repairing;
                             }
 
@@ -369,11 +369,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
             if vehicle.state == VehicleState::Active {
                 vehicle.malfunction_cooldown_timer -= dt;
 
-                if vehicle.health.value <= 50.0 {
+                if vehicle.health.value <= (0.5 * vehicle.health.max) {
                     vehicle.malfunction_cooldown_timer -= dt;
 
                     if vehicle.malfunction_cooldown_timer < 0.0 {
-                        let malfunction_chance = Some(rng.gen_range(0.0, 100.0) as f32).unwrap();
+                        let malfunction_chance = Some(rng.gen_range(0.0, 1.0) as f32).unwrap();
 
                         //if health is 50: 0-25 never malfunction, 25-75 chance no malfunction, 75-100 chance malfunction
                         //  so 75% no malfunction, 25% malfunction
@@ -382,7 +382,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         //if health is 10: 0-25 never malfunction, 25-35 chance no malfunction, 35-100 chance malfunction
                         //  so 35% no malfunction, 65% malfunction
 
-                        if malfunction_chance - 25.0 > vehicle.health.value {
+                        if malfunction_chance - 0.25 > (vehicle.health.value / vehicle.health.max) {
                             vehicle.malfunction = 100.0;
 
                             let sparks_position = Vector3::new(vehicle_x, vehicle_y, 0.5);
