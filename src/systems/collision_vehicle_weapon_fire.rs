@@ -2,6 +2,7 @@ use amethyst::{
     assets::AssetStorage,
     audio::{output::Output, Source},
     core::{Time, Transform},
+    core::math::Vector3,
     derive::SystemDesc,
     ecs::{
         Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
@@ -22,7 +23,7 @@ use crate::components::{
     WeaponFire, WeaponStoreResource,
 };
 
-use crate::entities::spawn_weapon_boxes;
+use crate::entities::{spawn_weapon_boxes, hit_spray};
 
 use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
@@ -316,6 +317,18 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             weapon_fire.active = false;
                         }
 
+                        let position = Vector3::new(fire_x, fire_y, 0.5);
+
+                        let shields_up = vehicle.shield.value > 0.0;
+
+                        hit_spray(
+                            &entities,
+                            &weapon_fire_resource,
+                            shields_up,
+                            position,
+                            &lazy_update,
+                        );
+
                         player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
                         player.last_hit_timer = 0.0;
 
@@ -353,6 +366,8 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
+
+        //Kill tracking and gun-game weapon hot swap logic
         let mut weapon_icons_old_map = HashMap::new();
 
         for (player, mut weapon, vehicle, transform) in

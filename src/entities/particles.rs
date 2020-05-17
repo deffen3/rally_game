@@ -52,6 +52,53 @@ pub fn malfunction_sparking(
 }
 
 
+pub fn hit_spray(
+    entities: &Entities,
+    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
+    shields: bool,
+    position: Vector3<f32>,
+    lazy_update: &ReadExpect<LazyUpdate>,
+) {
+    let spray_entity: Entity = entities.create();
+
+    let spray_sprite;
+    if shields {
+        spray_sprite = weapon_fire_resource.shield_hit_spray_sprite_render.clone();
+    }
+    else {
+        spray_sprite = weapon_fire_resource.hull_hit_spray_sprite_render.clone();
+    }
+    
+    let mut local_transform = Transform::default();
+    local_transform.set_translation(position);
+
+
+    let mut rng = rand::thread_rng();
+    let random_rotation_angle = rng.gen_range(-PI, PI);
+
+    local_transform.set_rotation_2d(random_rotation_angle);
+
+    let random_velocity_angle = rng.gen_range(-PI, PI);
+
+    let x_comp = -random_velocity_angle.sin();
+    let y_comp = random_velocity_angle.cos();
+
+    let velocity = rng.gen_range(25.0, 40.0);
+
+    lazy_update.insert(spray_entity, Particles {
+        dx: velocity * x_comp,
+        dy: velocity * y_comp,
+        life_timer: 0.2,
+    });
+    
+    lazy_update.insert(spray_entity, spray_sprite);
+    lazy_update.insert(spray_entity, local_transform);
+
+    lazy_update.insert(spray_entity, Removal::new(0 as u32));
+}
+
+
+
 
 pub fn acceleration_spray(
     entities: &Entities,
