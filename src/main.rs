@@ -18,6 +18,9 @@ mod menu;
 mod pause;
 mod rally;
 mod welcome;
+mod custom_vehicles;
+mod custom_weapons;
+mod custom_arena;
 
 mod audio;
 mod components;

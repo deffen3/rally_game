@@ -10,6 +10,9 @@ use std::collections::HashMap;
 
 use crate::rally::GameplayState;
 use crate::welcome::WelcomeScreen;
+use crate::custom_vehicles::CustomVehiclesMenu;
+use crate::custom_weapons::CustomWeaponsMenu;
+use crate::custom_arena::CustomArenaMenu;
 
 use crate::components::WeaponNames;
 use crate::resources::{GameModeSetup, GameModes};
@@ -41,6 +44,9 @@ const TEXT_POINTS_TO_WIN_LABEL: &str = "points_to_win_text";
 const EDIT_TEXT_STOCK_LIVES: &str = "stock_lives_field";
 const EDIT_TEXT_TIME_LIMIT: &str = "time_limit_field";
 
+const BUTTON_CUSTOM_VEHICLES: &str = "customize_vehicles";
+const BUTTON_CUSTOM_WEAPONS: &str = "customize_weapons";
+const BUTTON_CUSTOM_ARENA: &str = "customize_arena";
 
 
 #[derive(Default, Debug)]
@@ -61,6 +67,9 @@ pub struct MainMenu {
     edit_text_stock_lives: Option<Entity>,
     edit_text_time_limit: Option<Entity>,
     init_base_rules: bool,
+    button_custom_vehicles: Option<Entity>,
+    button_custom_weapons: Option<Entity>,
+    button_custom_arena: Option<Entity>,
 }
 
 impl SimpleState for MainMenu {
@@ -103,7 +112,7 @@ impl SimpleState for MainMenu {
             }
         }
 
-        log::info!("{:?}", weapon_spawn_chances);
+        log::debug!("{:?}", weapon_spawn_chances);
 
 
         let game_mode_needs_init: bool;
@@ -154,6 +163,9 @@ impl SimpleState for MainMenu {
             || self.button_king_of_the_hill.is_none()
             || self.button_combat_race.is_none()
             || self.button_start_game.is_none()
+            || self.button_custom_vehicles.is_none()
+            || self.button_custom_weapons.is_none()
+            || self.button_custom_arena.is_none()
         {
             world.exec(|ui_finder: UiFinder<'_>| {
                 self.button_classic_gun_game = ui_finder.find(BUTTON_CLASSIC_GUN_GAME);
@@ -163,6 +175,9 @@ impl SimpleState for MainMenu {
                 self.button_king_of_the_hill = ui_finder.find(BUTTON_KING_OF_THE_HILL);
                 self.button_combat_race = ui_finder.find(BUTTON_COMBAT_RACE);
                 self.button_start_game = ui_finder.find(BUTTON_START_GAME);
+                self.button_custom_vehicles = ui_finder.find(BUTTON_CUSTOM_VEHICLES);
+                self.button_custom_weapons = ui_finder.find(BUTTON_CUSTOM_WEAPONS);
+                self.button_custom_arena = ui_finder.find(BUTTON_CUSTOM_ARENA);
             });
         }
 
@@ -433,9 +448,14 @@ impl SimpleState for MainMenu {
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = true;
                         self.init_base_rules = true;
+                    } else if Some(target) == self.button_custom_vehicles {
+                        return Trans::Switch(Box::new(CustomVehiclesMenu::default()));
+                    } else if Some(target) == self.button_custom_weapons {
+                        return Trans::Switch(Box::new(CustomWeaponsMenu::default()));
+                    } else if Some(target) == self.button_custom_arena {
+                        return Trans::Switch(Box::new(CustomArenaMenu::default()));
                     } else if Some(target) == self.button_start_game {
                         log::info!("[Trans::Switch] Switching to GameplayState!");
-
                         return Trans::Switch(Box::new(GameplayState::default()));
                     }
                 }
@@ -468,7 +488,7 @@ impl SimpleState for MainMenu {
         self.edit_text_points_to_win = None;
         self.edit_text_stock_lives = None;
         self.edit_text_time_limit = None;
-        
+        self.button_custom_vehicles = None;
     }
 }
 

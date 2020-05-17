@@ -1,0 +1,71 @@
+#![enable(implicit_some)]
+// Detailed field information can be found at https://docs.amethyst.rs/master/amethyst_ui/enum.UiWidget.html and related pages
+Container(
+    transform: (
+        id: "background",
+        anchor: Middle,
+        stretch: XY( x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+        width: 20.,
+        height: 20.,
+    ),
+    background: SolidColor(0.03, 0.03, 0.03, 1.0),
+    children: [
+
+
+        Label(
+            transform: (
+                id: "game_title_text",
+                width: 500.,
+                height: 55.,
+                x: 0.,
+                y: -60.,
+                anchor: TopMiddle,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Customize Weapons",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 65.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
+
+        Container(
+            transform: (
+                id: "go_back_container",
+                x: 180,
+                y: 100,
+                width: 280.,
+                height: 100.,
+                anchor: BottomLeft,
+            ),
+            background: SolidColor(1.0, 0.9, 0.9, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "back_to_menu",
+                        width: 270.,
+                        height: 90.,
+                        tab_order: 15,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "BACK TO MENU",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 40.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+    ],
+)
