@@ -250,129 +250,6 @@ Container(
 
 
 
-        Label(
-            transform: (
-                id: "player_count_text",
-                width: 500.,
-                height: 55.,
-                x: 150.,
-                y: 150.,
-                anchor: BottomLeft,
-                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
-                mouse_reactive: true,
-                selectable: 0,
-            ),
-            text: (
-                text: "Players:",
-                font: File("font/square.ttf", ("TTF", ())),
-                font_size: 50.,
-                color: (0.8, 0.1, 0.05, 1.0),
-                align: Middle,
-            )
-        ),
-
-        // Editable text single line.
-        Container(
-            transform: (
-                id: "editable_container",
-                x: 280.,
-                y: 150.,
-                width: 40.,
-                height: 55.,
-                anchor: BottomLeft,
-            ),
-            background: SolidColor(0.1, 0.1, 0.1, 1.0),
-            children: [
-                Label(
-                    transform: (
-                        id: "player_count_field",
-                        width: 500.,
-                        height: 55.,
-                        tab_order: 7,
-                        anchor: Middle,
-                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
-                        mouse_reactive: true,
-                        selectable: 0,
-                    ),
-                    text: (
-                        text: "4",
-                        font: File("font/square.ttf", ("TTF", ())),
-                        font_size: 50.,
-                        color: (0.8, 0.1, 0.05, 1.0),
-                        align: Middle,
-                        editable: (
-                            max_length: 1,
-                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
-                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
-                        ),
-                    )
-                ),
-            ]
-        ),
-
-
-        Label(
-            transform: (
-                id: "bot_count_text",
-                width: 500.,
-                height: 55.,
-                x: 150.,
-                y: 80.,
-                anchor: BottomLeft,
-                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
-                mouse_reactive: true,
-                selectable: 0,
-            ),
-            text: (
-                text: "Bots:",
-                font: File("font/square.ttf", ("TTF", ())),
-                font_size: 50.,
-                color: (0.8, 0.1, 0.05, 1.0),
-                align: Middle,
-            )
-        ),
-
-        // Editable text single line.
-        Container(
-            transform: (
-                id: "editable_container",
-                x: 280.,
-                y: 80.,
-                width: 40.,
-                height: 55.,
-                anchor: BottomLeft,
-            ),
-            background: SolidColor(0.1, 0.1, 0.1, 1.0),
-            children: [
-                Label(
-                    transform: (
-                        id: "bot_count_field",
-                        width: 500.,
-                        height: 55.,
-                        tab_order: 8,
-                        anchor: Middle,
-                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
-                        mouse_reactive: true,
-                        selectable: 0,
-                    ),
-                    text: (
-                        text: "3",
-                        font: File("font/square.ttf", ("TTF", ())),
-                        font_size: 50.,
-                        color: (0.8, 0.1, 0.05, 1.0),
-                        align: Middle,
-                        editable: (
-                            max_length: 1,
-                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
-                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
-                        ),
-                    )
-                ),
-            ]
-        ),
-
-
-
         Container(
             transform: (
                 id: "rules_container",
@@ -693,6 +570,128 @@ Container(
                         normal_image: SolidColor(0., 0., 0., 1.),
                         hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
                         press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+        Label(
+            transform: (
+                id: "player_count_text",
+                width: 500.,
+                height: 55.,
+                x: -250.,
+                y: -700.,
+                anchor: TopRight,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Players:",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 25.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
+        // Editable text single line.
+        Container(
+            transform: (
+                id: "editable_container",
+                x: -150,
+                y: -700,
+                width: 40.,
+                height: 35.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.1, 0.1, 0.1, 1.0),
+            children: [
+                Label(
+                    transform: (
+                        id: "player_count_field",
+                        width: 500.,
+                        height: 30.,
+                        tab_order: 7,
+                        anchor: Middle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "4",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                        editable: (
+                            max_length: 1,
+                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
+                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
+                        ),
+                    )
+                ),
+            ]
+        ),
+
+
+        Label(
+            transform: (
+                id: "bot_count_text",
+                width: 500.,
+                height: 55.,
+                x: -250.,
+                y: -745.,
+                anchor: TopRight,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "Bots:",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 25.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
+        // Editable text single line.
+        Container(
+            transform: (
+                id: "editable_container",
+                x: -150,
+                y: -745.,
+                width: 40.,
+                height: 35.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.1, 0.1, 0.1, 1.0),
+            children: [
+                Label(
+                    transform: (
+                        id: "bot_count_field",
+                        width: 500.,
+                        height: 30.,
+                        tab_order: 8,
+                        anchor: Middle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "3",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                        editable: (
+                            max_length: 1,
+                            selected_text_color: (0.09, 0.02, 0.25, 1.0),
+                            selected_background_color: (1.0, 0.5, 0.8, 1.0),
+                        ),
                     )
                 ),
             ]
