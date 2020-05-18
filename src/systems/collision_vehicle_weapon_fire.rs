@@ -30,6 +30,7 @@ use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 
 pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.30;
+pub const HIT_SPRAY_COOLDOWN_RESET: f32 = 0.05;
 
 pub const PRE_IMPACT_DT_STEPS: f32 = 1.2;
 pub const SHOT_SPEED_TRIGGER: f32 = 500.0;
@@ -37,6 +38,7 @@ pub const SHOT_SPEED_TRIGGER: f32 = 500.0;
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehicleWeaponFireSystem {
     pub hit_sound_cooldown_timer: f32,
+    pub hit_spray_cooldown_timer: f32,
     pub weapon_spawner_cooldown_timer: f32,
 }
 
@@ -62,6 +64,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
     fn setup(&mut self, _world: &mut World) {
         self.hit_sound_cooldown_timer = -1.0;
+        self.hit_spray_cooldown_timer = -1.0;
         self.weapon_spawner_cooldown_timer = 20.0;
     }
 
@@ -317,18 +320,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             weapon_fire.active = false;
                         }
 
-                        let position = Vector3::new(fire_x, fire_y, 0.5);
-
-                        let shields_up = vehicle.shield.value > 0.0;
-
-                        hit_spray(
-                            &entities,
-                            &weapon_fire_resource,
-                            shields_up,
-                            position,
-                            &lazy_update,
-                        );
-
                         player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
                         player.last_hit_timer = 0.0;
 
@@ -354,6 +345,25 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             player_got_killed_map
                                 .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
                         }
+
+
+                        if self.hit_spray_cooldown_timer < 0.0 
+                            && vehicle.state == VehicleState::Active
+                        {
+                            let position = Vector3::new(fire_x, fire_y, 0.5);
+                            let shields_up = vehicle.shield.value > 0.0;
+
+                            hit_spray(
+                                &entities,
+                                &weapon_fire_resource,
+                                shields_up,
+                                position,
+                                &lazy_update,
+                            );
+
+                            self.hit_spray_cooldown_timer = HIT_SPRAY_COOLDOWN_RESET;
+                        }
+
 
                         if self.hit_sound_cooldown_timer < 0.0
                             && vehicle.state == VehicleState::Active
@@ -426,5 +436,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         }
 
         self.hit_sound_cooldown_timer -= dt;
+        self.hit_spray_cooldown_timer -= dt;
     }
 }
