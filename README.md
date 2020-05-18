@@ -52,8 +52,8 @@ Player 1:
 - Repair Vehicle: R
 
 Player 2:
-- Accel/Decel Vehicle: Up Arrow / Down Arrow
-- Turn Vehicle Left/Right: Left Arrow / Right Arrow
+- Accel/Decel Vehicle: Up-Arrow / Down-Arrow
+- Turn Vehicle Left/Right: Left-Arrow / Right-Arrow
 - Use Weapons: Right-Control
 - Repair Vehicle: Right-Shift
 
@@ -82,11 +82,20 @@ There are various weapons with various properties, including:
 
 ## TODO:
 1. Create a generic Hitbox component, and create hitbox detection functions - used for some entities, but not all
-1. Improve missile heat-seeking tracking - pretty good now, still has bugs though
-1. UI Transform works different on Mac? UI is in the middle of the screen.
-1. Load race tracks from config file
+1. Make use of ncollide coarse and fine phase detection algorithm
+1. Improve missile heat-seeking tracking - pretty good now, still not great though
+1. UI Transform works different on Mac (based on DPI?). On Windows it also doesn't scale properly when window is resized.
+1. Load arena/race tracks from config file
 1. New bot modes to comprehend Racing, King of the Hill, repairing, and picking up new weapon boxes
 1. Bots should calculate time to collision and avoid colliding with walls
+1. Survival mode? Team of Humans vs. waves of bots? Support for teams in other modes?
+1. Capture the flag mode?
+1. Game setup customization for Vehicles, Weapons, Arenas
+1. Add stock lives counter for games where score and stock lives both matter
+1. Support for 0, 1, or more weapons per vehicle.
+1. Ion-cannon type weapon that does no normal damage but can damage shields and cause engine malfunctions
+1. Mine trigger and explosion radius? (and with explosion animation)
+1. Rockets should start slow shot speed but then accelerate (support accel rates for all weapons)
 
 ---
 
