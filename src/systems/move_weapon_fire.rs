@@ -111,11 +111,6 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         {
             if weapon_fire.active {
                 if weapon_fire.heat_seeking {
-                    // let killer_data = player_makes_kill_map.get(&player.id);
-
-                    // if let Some(killer_data) = killer_data {
-                    //     let weapon_name = killer_data;
-
                     let heat_seeking_data = heat_seeking_angle_map.get(&entity.id());
 
                     if let Some(heat_seeking_data) = heat_seeking_data {
@@ -134,9 +129,6 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
                         weapon_fire.dy += weapon_fire.heat_seeking_agility * velocity_y_comp * dt;
                         weapon_fire.dy *= weapon_fire.shot_speed / abs_vel;
-
-                        //let sq_vel2 = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
-                        //let abs_vel2 = sq_vel2.sqrt();
                     }
                 }
 
@@ -163,15 +155,17 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     }
                 } else { //move to updated position based on velocity
                     if weapon_fire.shot_speed > 0.0 {
-                        let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
-                        let abs_vel = sq_vel.sqrt();
+                        if weapon_fire.accel_rate > 0.0 {
+                            let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                            let abs_vel = sq_vel.sqrt();
 
-                        let new_speed = abs_vel + weapon_fire.accel_rate * dt;
-                        weapon_fire.shot_speed = new_speed;
+                            let new_speed = abs_vel + weapon_fire.accel_rate * dt;
+                            weapon_fire.shot_speed = new_speed;
 
-                        let scalar = new_speed / abs_vel;
-                        weapon_fire.dx *= scalar;
-                        weapon_fire.dy *= scalar;
+                            let scalar = new_speed / abs_vel;
+                            weapon_fire.dx *= scalar;
+                            weapon_fire.dy *= scalar;
+                        }
 
                         transform.prepend_translation_x(weapon_fire.dx * dt);
                         transform.prepend_translation_y(weapon_fire.dy * dt);
