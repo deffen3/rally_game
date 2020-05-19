@@ -12,6 +12,7 @@ use std::f32::consts::PI;
 #[derive(SystemDesc)]
 pub struct MoveWeaponFireSystem;
 
+
 impl<'s> System<'s> for MoveWeaponFireSystem {
     type SystemData = (
         Entities<'s>,
@@ -160,21 +161,33 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     } else {
                         let _ = entities.delete(entity);
                     }
-                } else {
-                    transform.prepend_translation_x(weapon_fire.dx * dt);
-                    transform.prepend_translation_y(weapon_fire.dy * dt);
+                } else { //move to updated position based on velocity
+                    if weapon_fire.shot_speed > 0.0 {
+                        let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
+                        let abs_vel = sq_vel.sqrt();
 
-                    let fire_x = transform.translation().x;
-                    let fire_y = transform.translation().y;
+                        let new_speed = abs_vel + weapon_fire.accel_rate * dt;
+                        weapon_fire.shot_speed = new_speed;
 
-                    //out of arena logic
-                    if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
-                        || (fire_x < (-2.0 * weapon_fire.width))
-                        || (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
-                        || (fire_y < (UI_HEIGHT - -2.0 * weapon_fire.width))
-                    {
-                        if !weapon_fire.attached {
-                            let _ = entities.delete(entity);
+                        let scalar = new_speed / abs_vel;
+
+                        //log::info!("{}, {}, {}",abs_vel, new_speed, scalar);
+
+                        transform.prepend_translation_x(weapon_fire.dx * scalar * dt);
+                        transform.prepend_translation_y(weapon_fire.dy * scalar * dt);
+
+                        let fire_x = transform.translation().x;
+                        let fire_y = transform.translation().y;
+
+                        //out of arena logic
+                        if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
+                            || (fire_x < (-2.0 * weapon_fire.width))
+                            || (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
+                            || (fire_y < (UI_HEIGHT - -2.0 * weapon_fire.width))
+                        {
+                            if !weapon_fire.attached {
+                                let _ = entities.delete(entity);
+                            }
                         }
                     }
                 }

@@ -21,7 +21,7 @@ pub struct WeaponFireResource {
     pub trap_p2_sprite_render: SpriteRender,
     pub trap_p3_sprite_render: SpriteRender,
     pub trap_p4_sprite_render: SpriteRender,
-    pub mine_neutral_sprite_render: SpriteRender,
+    pub grenade_sprite_render: SpriteRender,
     pub missile_sprite_render: SpriteRender,
     pub rockets_sprite_render: SpriteRender,
     pub laser_sword_sprite_render: SpriteRender,
@@ -32,6 +32,7 @@ pub struct WeaponFireResource {
     pub shield_hit_spray_sprite_render: SpriteRender,
     pub hull_hit_spray_sprite_render: SpriteRender,
     pub smoke_spray_sprite_render: SpriteRender,
+    pub ion_sprite_render: SpriteRender,
 }
 
 pub fn initialize_weapon_fire_resource(
@@ -79,7 +80,7 @@ pub fn initialize_weapon_fire_resource(
             sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 18,
         },
-        mine_neutral_sprite_render: SpriteRender {
+        grenade_sprite_render: SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 23,
         },
@@ -136,8 +137,12 @@ pub fn initialize_weapon_fire_resource(
             sprite_number: 40,
         },
         smoke_spray_sprite_render: SpriteRender {
-            sprite_sheet: sprite_sheet_handle,
+            sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 41,
+        },
+        ion_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle,
+            sprite_number: 42,
         },
         
     };

@@ -18,8 +18,6 @@ use crate::components::PlayerWeaponIcon;
 use crate::rally::UI_HEIGHT;
 use crate::resources::{GameModeSetup, WeaponFireResource};
 
-//pub const WEAPON_CONFIGS: HashMap<WeaponNames, WeaponStats> = build_weapon_store();
-
 #[derive(Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
 pub enum WeaponNames {
     LaserBeam,
@@ -40,8 +38,9 @@ pub enum WeaponNames {
     Rockets,
     LaserSword,
     BackwardsLaserSword,
-    SuperRocketGrenades,
+    SmartRocketGrenade,
     Flamethrower,
+    IonCannon,
 }
 
 pub fn get_random_weapon_name(game_mode_setup: &ReadExpect<GameModeSetup>) -> WeaponNames {
@@ -77,12 +76,13 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::Mine => Some(WeaponNames::LaserSword),
         WeaponNames::LaserSword => Some(WeaponNames::BackwardsLaserSword),
         WeaponNames::BackwardsLaserSword => None,
-        WeaponNames::SuperRocketGrenades => None,
+        WeaponNames::SmartRocketGrenade => None,
         WeaponNames::Trap => None,
         WeaponNames::ProjectileSteadyFire => None,
         WeaponNames::LaserDouble => None,
         WeaponNames::ProjectileRapidFire => None,
         WeaponNames::LaserPulse => None,
+        WeaponNames::IonCannon => None,
     }
 }
 
@@ -101,7 +101,10 @@ pub struct WeaponStats {
     pub burst_cooldown_reset: f32,
     pub shot_life_limit: f32,
     pub damage: f32,
+    pub trigger_radius: f32,
+    pub damage_radius: f32,
     pub shot_speed: f32,
+    pub accel_rate: f32,
     pub shield_damage_pct: f32,
     pub armor_damage_pct: f32,
     pub piercing_damage_pct: f32,
@@ -143,6 +146,8 @@ pub enum WeaponTypes {
     Rockets,
     LaserSword,
     Flame,
+    Grenade,
+    Ion,
 }
 
 #[derive(Clone)]
@@ -224,9 +229,12 @@ pub struct WeaponFire {
     pub spawn_angle: f32,
     pub owner_player_id: usize,
     pub shot_speed: f32,
+    pub accel_rate: f32,
     pub shot_life_timer: f32,
     pub shot_life_limit: f32,
     pub damage: f32,
+    pub trigger_radius: f32,
+    pub damage_radius: f32,
     pub shield_damage_pct: f32,
     pub armor_damage_pct: f32,
     pub piercing_damage_pct: f32,
@@ -254,8 +262,11 @@ impl WeaponFire {
         deployed: bool,
         spawn_angle: f32,
         shot_speed: f32,
+        accel_rate: f32,
         shot_life_limit: f32,
         damage: f32,
+        trigger_radius: f32,
+        damage_radius: f32,
         shield_damage_pct: f32,
         armor_damage_pct: f32,
         piercing_damage_pct: f32,
@@ -271,9 +282,11 @@ impl WeaponFire {
             WeaponTypes::Missile => (5.0, 6.0),
             WeaponTypes::Rockets => (5.0, 4.0),
             WeaponTypes::Mine => (4.0, 4.0),
+            WeaponTypes::Grenade => (4.0, 4.0),
             WeaponTypes::Trap => (2.0, 4.0),
             WeaponTypes::LaserSword => (3.0, 15.0),
             WeaponTypes::Flame => (6.0, 4.0),
+            WeaponTypes::Ion => (5.0, 5.0),
         };
 
         WeaponFire {
@@ -287,7 +300,10 @@ impl WeaponFire {
             spawn_angle,
             owner_player_id,
             damage,
+            trigger_radius,
+            damage_radius,
             shot_speed,
+            accel_rate,
             shot_life_timer: 0.0,
             shot_life_limit,
             shield_damage_pct,
@@ -340,7 +356,10 @@ pub fn build_named_weapon(
             burst_cooldown_reset: 100.0,
             shot_life_limit: 0.1,
             damage: 0.0,
+            trigger_radius: 0.0,
+            damage_radius: 0.0,
             shot_speed: 0.0,
+            accel_rate: 0.0,
             shield_damage_pct: 0.0,
             armor_damage_pct: 0.0,
             piercing_damage_pct: 0.0,
@@ -372,7 +391,10 @@ pub fn build_named_weapon2(
             burst_cooldown_reset: 100.0,
             shot_life_limit: 0.1,
             damage: 0.0,
+            trigger_radius: 0.0,
+            damage_radius: 0.0,
             shot_speed: 0.0,
+            accel_rate: 0.0,
             shield_damage_pct: 0.0,
             armor_damage_pct: 0.0,
             piercing_damage_pct: 0.0,
@@ -435,6 +457,7 @@ pub fn get_weapon_icon(
     weapon_stats: WeaponStats,
     weapon_fire_resource: &WeaponFireResource,
 ) -> (f32, SpriteRender) {
+
     let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type {
         WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
@@ -455,10 +478,13 @@ pub fn get_weapon_icon(
         WeaponTypes::Trap => (3.0, weapon_fire_resource.trap_p1_sprite_render.clone()),
         WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
         WeaponTypes::Flame => (2.0, weapon_fire_resource.flame_sprite_render.clone()),
+        WeaponTypes::Grenade => (2.0, weapon_fire_resource.grenade_sprite_render.clone()),
+        WeaponTypes::Ion => (2.0, weapon_fire_resource.ion_sprite_render.clone()),
     };
 
+    //Player colored weapons
     if weapon_stats.weapon_type == WeaponTypes::Mine {
-        weapon_sprite = get_mine_sprite(player_id, weapon_stats.shot_speed, weapon_fire_resource);
+        weapon_sprite = get_mine_sprite(player_id, weapon_fire_resource);
     } else if weapon_stats.weapon_type == WeaponTypes::Trap {
         weapon_sprite = get_trap_sprite(player_id, weapon_fire_resource);
     }
@@ -468,19 +494,14 @@ pub fn get_weapon_icon(
 
 pub fn get_mine_sprite(
     player_id: usize,
-    shot_speed: f32,
     weapon_fire_resource: &WeaponFireResource,
 ) -> SpriteRender {
-    if shot_speed > 0.0 {
-        weapon_fire_resource.mine_neutral_sprite_render.clone()
-    } else {
-        match player_id {
-            0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
-            1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
-            2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
-            3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
-            _ => weapon_fire_resource.mine_neutral_sprite_render.clone(),
-        }
+    match player_id {
+        0 => weapon_fire_resource.mine_p1_sprite_render.clone(),
+        1 => weapon_fire_resource.mine_p2_sprite_render.clone(),
+        2 => weapon_fire_resource.mine_p3_sprite_render.clone(),
+        3 => weapon_fire_resource.mine_p4_sprite_render.clone(),
+        _ => weapon_fire_resource.mine_p1_sprite_render.clone(),
     }
 }
 

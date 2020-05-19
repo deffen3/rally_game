@@ -89,7 +89,7 @@ impl SimpleState for MainMenu {
         weapon_spawn_relative_chance_map.insert(WeaponNames::Flamethrower, 4);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Missile, 3);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Rockets, 3);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::SuperRocketGrenades, 2);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::SmartRocketGrenade, 2);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Mine, 2);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Trap, 2);
         weapon_spawn_relative_chance_map.insert(WeaponNames::LaserSword, 3);
@@ -404,7 +404,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
-                        game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                        game_mode_setup.starter_weapon = WeaponNames::Mine;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
                         self.init_base_rules = true;
@@ -414,7 +414,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = -1;
                         game_mode_setup.stock_lives = 5;
                         game_mode_setup.checkpoint_count = 0;
-                        game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                        game_mode_setup.starter_weapon = WeaponNames::Rockets;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
                         self.init_base_rules = true;
@@ -424,7 +424,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = -1;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
-                        game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                        game_mode_setup.starter_weapon = WeaponNames::IonCannon;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
                         self.init_base_rules = true;
@@ -434,7 +434,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 100;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
-                        game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                        game_mode_setup.starter_weapon = WeaponNames::SmartRocketGrenade;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
                         self.init_base_rules = true;

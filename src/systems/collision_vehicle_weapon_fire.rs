@@ -35,6 +35,7 @@ pub const HIT_SPRAY_COOLDOWN_RESET: f32 = 0.05;
 pub const PRE_IMPACT_DT_STEPS: f32 = 1.2;
 pub const SHOT_SPEED_TRIGGER: f32 = 500.0;
 
+
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehicleWeaponFireSystem {
     pub hit_sound_cooldown_timer: f32,
@@ -97,6 +98,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             self.weapon_spawner_cooldown_timer -= dt;
         }
 
+        //weapon to non-moving hitbox collisions
         for (entity, hitbox, transform) in (&*entities, &hitboxes, &transforms).join() {
             if hitbox.is_wall {
                 let hitbox_x = transform.translation().x;
@@ -208,6 +210,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
+        //weapon box spawns
         if game_mode_setup.random_weapon_spawns
             && game_mode_setup.game_mode != GameModes::ClassicGunGame
         {
@@ -224,6 +227,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
+        //weapon to vehicle collisions
         let mut player_makes_kill_map = HashMap::new();
         let mut player_got_killed_map = HashMap::new();
 
@@ -257,7 +261,17 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
 
                     let weapon_fire_hit;
-                    if weapon_fire.shot_speed == 0.0 {
+                    if weapon_fire.trigger_radius > 0.0 {
+                        //use old lightweight detection algorithm
+                        if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
+                                < weapon_fire.trigger_radius.powi(2) {
+                            weapon_fire_hit = true;
+                        }
+                        else {
+                            weapon_fire_hit = false;
+                        }
+                    }
+                    else if weapon_fire.shot_speed == 0.0 {
                         //use old lightweight detection algorithm
                         if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
                                 < vehicle.width.powi(2) {
@@ -346,6 +360,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                                 .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
                         }
 
+
+                        if weapon_fire.damage_radius > 0.0 {
+                            //spawn explosion entity and sprite
+                            //check for hits below in a new join loop on vehicles and explosions
+                        }
 
                         if self.hit_spray_cooldown_timer < 0.0 
                             && vehicle.state == VehicleState::Active

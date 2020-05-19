@@ -140,11 +140,11 @@ List((
             width: 13,
             height: 18,
         ),
-        ( //mine neutral #23
+        ( //grenade #23
             x: 32,
             y: 31,
-            width: 5,
-            height: 5,
+            width: 4,
+            height: 4,
         ),
         ( //arena wall light-grey #24
             x: 0,
@@ -251,6 +251,12 @@ List((
         ( //smoke spray #41
             x: 53,
             y: 56,
+            width: 5,
+            height: 5,
+        ),
+        ( //ion blast #42
+            x: 32,
+            y: 37,
             width: 5,
             height: 5,
         ),
