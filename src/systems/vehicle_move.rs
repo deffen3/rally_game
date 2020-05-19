@@ -375,7 +375,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
             if vehicle.state == VehicleState::Active {
                 vehicle.malfunction_cooldown_timer -= dt;
 
-                if vehicle.health.value <= (0.5 * vehicle.health.max) {
+                //if vehicle low on health, or has taken ion damage, or is currently malfunctioning
+                if vehicle.health.value <= (0.5 * vehicle.health.max) || 
+                        vehicle.ion_malfunction_pct > 0.0 ||
+                        vehicle.malfunction > 0.0
+                {
                     vehicle.malfunction_cooldown_timer -= dt;
 
                     if vehicle.malfunction_cooldown_timer < 0.0 {
