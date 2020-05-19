@@ -109,6 +109,7 @@ pub struct WeaponStats {
     pub armor_damage_pct: f32,
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
+    pub ion_malfunction_pct: f32,
     pub weight: f32,
 }
 
@@ -239,6 +240,7 @@ pub struct WeaponFire {
     pub armor_damage_pct: f32,
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
+    pub ion_malfunction_pct: f32,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
     pub attached: bool,
@@ -271,6 +273,7 @@ impl WeaponFire {
         armor_damage_pct: f32,
         piercing_damage_pct: f32,
         health_damage_pct: f32,
+        ion_malfunction_pct: f32,
     ) -> WeaponFire {
         let (width, height) = match weapon_type {
             WeaponTypes::LaserDouble => (3.0, 6.0),
@@ -310,6 +313,7 @@ impl WeaponFire {
             armor_damage_pct,
             piercing_damage_pct,
             health_damage_pct,
+            ion_malfunction_pct,
             heat_seeking,
             heat_seeking_agility,
             attached,
@@ -364,6 +368,7 @@ pub fn build_named_weapon(
             armor_damage_pct: 0.0,
             piercing_damage_pct: 0.0,
             health_damage_pct: 0.0,
+            ion_malfunction_pct: 0.0,
             weight: 0.0,
         },
     }
@@ -399,6 +404,7 @@ pub fn build_named_weapon2(
             armor_damage_pct: 0.0,
             piercing_damage_pct: 0.0,
             health_damage_pct: 0.0,
+            ion_malfunction_pct: 0.0,
             weight: 0.0,
         },
     }

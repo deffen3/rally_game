@@ -361,6 +361,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         }
 
 
+                        if weapon_fire.ion_malfunction_pct > 0.0 {
+                            vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
+                        }
+
+
                         if weapon_fire.damage_radius > 0.0 {
                             //spawn explosion entity and sprite
                             //check for hits below in a new join loop on vehicles and explosions

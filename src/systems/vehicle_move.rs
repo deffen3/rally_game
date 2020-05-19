@@ -388,7 +388,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         //if health is 10: 0-25 never malfunction, 25-35 chance no malfunction, 35-100 chance malfunction
                         //  so 35% no malfunction, 65% malfunction
 
-                        if malfunction_chance - 0.25 > (vehicle.health.value / vehicle.health.max) {
+                        let malfunction_occurs: bool;
+                        if malfunction_chance - 0.25 > (vehicle.health.value / vehicle.health.max) ||
+                                malfunction_chance > (1.-vehicle.ion_malfunction_pct/100.) {
+                            malfunction_occurs = true;
+                        }
+                        else {
+                            malfunction_occurs = false;
+                        }
+
+                        if malfunction_occurs {
                             vehicle.malfunction = 100.0;
 
                             let sparks_position = Vector3::new(vehicle_x, vehicle_y, 0.5);
@@ -401,16 +410,18 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             );
                         }
                         else {
-                            vehicle.malfunction = 0.0;
+                            vehicle.malfunction = 0.0; //no malfunction
                         }
                         
                         vehicle.malfunction_cooldown_timer = 0.5; //reset timer
+                        vehicle.ion_malfunction_pct = 0.0; //clear ion malfunctions
                     }
                     //else unchanged, use old malfunction value
                 }
                 else {
                     vehicle.malfunction_cooldown_timer = -1.0;
                     vehicle.malfunction = 0.0;
+                    vehicle.ion_malfunction_pct = 0.0; //clear ion malfunctions
                 }
             }
 

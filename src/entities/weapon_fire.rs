@@ -40,6 +40,7 @@ pub fn fire_weapon(
         weapon.stats.armor_damage_pct,
         weapon.stats.piercing_damage_pct,
         weapon.stats.health_damage_pct,
+        weapon.stats.ion_malfunction_pct,
     );
 
     let local_transform = {
