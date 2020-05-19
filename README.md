@@ -93,9 +93,7 @@ There are various weapons with various properties, including:
 1. Game setup customization for Vehicles, Weapons, Arenas
 1. Add stock lives counter for games where score and stock lives both matter
 1. Support for 0, 1, or more weapons per vehicle.
-1. Ion-cannon type weapon that does no normal damage but can damage shields and cause engine malfunctions
-1. Mine trigger and explosion radius? (and with explosion animation)
-1. Rockets should start slow shot speed but then accelerate (support accel rates for all weapons)
+1. Mine trigger and explosion radius? (and with explosion shockwave animation)
 
 ---
 

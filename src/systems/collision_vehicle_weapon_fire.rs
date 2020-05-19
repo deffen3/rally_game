@@ -264,7 +264,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     if weapon_fire.trigger_radius > 0.0 {
                         //use old lightweight detection algorithm
                         if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
-                                < weapon_fire.trigger_radius.powi(2) {
+                                < (vehicle.width/2.0 + weapon_fire.trigger_radius).powi(2) {
                             weapon_fire_hit = true;
                         }
                         else {
