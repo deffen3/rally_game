@@ -256,8 +256,8 @@ impl SimpleState for MainMenu {
                     bot_count.text = game_mode_setup.bot_players.to_string();
                 }
                 else if let Ok(value) = bot_count.text.parse::<usize>() {
-                    if value > MAX_PLAYER_COUNT {
-                        game_mode_setup.bot_players = MAX_PLAYER_COUNT;
+                    if value > game_mode_setup.max_players {
+                        game_mode_setup.bot_players = game_mode_setup.max_players;
                         bot_count.text = game_mode_setup.bot_players.to_string();
                     }
                     else if value < MIN_BOT_COUNT {
