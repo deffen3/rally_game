@@ -260,5 +260,11 @@ List((
             width: 5,
             height: 5,
         ),
+        ( //explosion shockwave #43
+            x: 44,
+            y: 63,
+            width: 11,
+            height: 11,
+        ),
     ],
 ))

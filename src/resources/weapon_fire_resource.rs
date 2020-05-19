@@ -33,6 +33,7 @@ pub struct WeaponFireResource {
     pub hull_hit_spray_sprite_render: SpriteRender,
     pub smoke_spray_sprite_render: SpriteRender,
     pub ion_sprite_render: SpriteRender,
+    pub shockwave_sprite_render: SpriteRender,
 }
 
 pub fn initialize_weapon_fire_resource(
@@ -141,8 +142,12 @@ pub fn initialize_weapon_fire_resource(
             sprite_number: 41,
         },
         ion_sprite_render: SpriteRender {
-            sprite_sheet: sprite_sheet_handle,
+            sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 42,
+        },
+        shockwave_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle,
+            sprite_number: 43,
         },
         
     };
