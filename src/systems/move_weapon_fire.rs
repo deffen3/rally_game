@@ -170,11 +170,11 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         weapon_fire.shot_speed = new_speed;
 
                         let scalar = new_speed / abs_vel;
+                        weapon_fire.dx *= scalar;
+                        weapon_fire.dy *= scalar;
 
-                        //log::info!("{}, {}, {}",abs_vel, new_speed, scalar);
-
-                        transform.prepend_translation_x(weapon_fire.dx * scalar * dt);
-                        transform.prepend_translation_y(weapon_fire.dy * scalar * dt);
+                        transform.prepend_translation_x(weapon_fire.dx * dt);
+                        transform.prepend_translation_y(weapon_fire.dy * dt);
 
                         let fire_x = transform.translation().x;
                         let fire_y = transform.translation().y;
