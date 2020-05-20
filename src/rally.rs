@@ -255,7 +255,19 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 .expect("Failed to remove Game Screen");
         }
 
-        exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
+
+        let fetched_game_score = data.world.try_fetch_mut::<GameScore>();
+
+        if let Some(mut game_score) = fetched_game_score {
+            if !game_score.game_ended {
+                exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
+            }
+        }
+        else {
+            exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
+        }
+
+        self.player_ui_initialized = false;
 
         self.ui_root = None;
         self.fps_display = None;

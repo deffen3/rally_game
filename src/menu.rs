@@ -15,7 +15,7 @@ use crate::custom_weapons::CustomWeaponsMenu;
 use crate::custom_arena::CustomArenaMenu;
 
 use crate::components::WeaponNames;
-use crate::resources::{GameModeSetup, GameModes, GameScore};
+use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition};
 
 
 pub const MAX_PLAYER_COUNT: usize = 4;
@@ -135,6 +135,7 @@ impl SimpleState for MainMenu {
                 points_to_win: 14,
                 stock_lives: -1,
                 checkpoint_count: 0,
+                game_end_condition: GameEndCondition::First,
                 starter_weapon: WeaponNames::LaserDoubleGimballed,
                 random_weapon_spawns: false,
                 keep_picked_up_weapons: false,
@@ -398,6 +399,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 14;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
+                        game_mode_setup.game_end_condition = GameEndCondition::First;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = false;
                         game_mode_setup.keep_picked_up_weapons = false;
@@ -408,6 +410,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
+                        game_mode_setup.game_end_condition = GameEndCondition::First;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
@@ -418,6 +421,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = -1;
                         game_mode_setup.stock_lives = 5;
                         game_mode_setup.checkpoint_count = 0;
+                        game_mode_setup.game_end_condition = GameEndCondition::AllButOne;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
@@ -428,6 +432,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = -1;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
+                        game_mode_setup.game_end_condition = GameEndCondition::Timed;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
@@ -438,6 +443,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 100;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
+                        game_mode_setup.game_end_condition = GameEndCondition::First;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;
@@ -448,6 +454,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 2;
+                        game_mode_setup.game_end_condition = GameEndCondition::AllButOne;
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = true;

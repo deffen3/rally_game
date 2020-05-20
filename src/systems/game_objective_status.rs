@@ -9,14 +9,13 @@ use amethyst::{
 
 use crate::components::{Player, Vehicle};
 
-use crate::resources::{GameModeSetup, GameModes, MatchTimer, GameScore};
+use crate::resources::{GameModeSetup, GameModes, MatchTimer, GameScore, GameEndCondition};
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleStatusSystem {
     pub winners: Vec<usize>,
     pub losers: Vec<usize>,
     pub game_end_wait_timer: f32,
-    pub game_end: bool,
 }
 
 impl<'s> System<'s> for VehicleStatusSystem {
@@ -33,8 +32,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
     fn setup(&mut self, _world: &mut World) {
         self.winners = vec![];
         self.losers = vec![];
-        self.game_end_wait_timer = 5.0;
-        self.game_end = false;
     }
 
     fn run(
@@ -42,13 +39,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
         (players, vehicles, mut ui_text, time, game_mode_setup, mut game_score, mut match_timer): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
-
-        if self.game_end {
-            self.game_end_wait_timer -= dt;
-            if self.game_end_wait_timer <= 0.0 {
-                game_score.game_ended = true; //transitions to ScoreScreen state
-            }
-        }
 
         //if no match time limit exists, or it does exist and timer is within the limit
         if game_mode_setup.match_time_limit < 0.0
@@ -116,23 +106,15 @@ impl<'s> System<'s> for VehicleStatusSystem {
             if game_mode_setup.match_time_limit < 0.0
                 || match_timer.time <= game_mode_setup.match_time_limit
             {
-                let displayed_player_score;
-
-                if game_mode_setup.game_mode == GameModes::ClassicGunGame {
-                    displayed_player_score = player.kills; //in this mode only the kills with the current weapon are counted.
-                } else if game_mode_setup.game_mode == GameModes::DeathmatchKills {
-                    displayed_player_score = player.kills;
-                } else if game_mode_setup.game_mode == GameModes::DeathmatchStock {
-                    displayed_player_score = game_mode_setup.stock_lives - player.deaths;
-                } else if game_mode_setup.game_mode == GameModes::DeathmatchTimedKD {
-                    displayed_player_score = player.kills - player.deaths;
-                } else if game_mode_setup.game_mode == GameModes::Race {
-                    displayed_player_score = player.laps_completed;
-                } else if game_mode_setup.game_mode == GameModes::KingOfTheHill {
-                    displayed_player_score = player.objective_points.floor() as i32;
-                } else {
-                    displayed_player_score = 0;
-                }
+                let displayed_player_score = match game_mode_setup.game_mode {
+                    GameModes::ClassicGunGame => player.kills, //in this mode only the kills with the current weapon are counted.
+                    GameModes::DeathmatchKills => player.kills,
+                    GameModes::DeathmatchStock => game_mode_setup.stock_lives - player.deaths,
+                    GameModes::DeathmatchTimedKD => player.kills - player.deaths,
+                    GameModes::Race => player.laps_completed,
+                    GameModes::KingOfTheHill => player.objective_points.floor() as i32,
+                    _ => 0,
+                };
 
                 if game_mode_setup.game_mode == GameModes::DeathmatchStock
                     && (player.deaths >= game_mode_setup.stock_lives
@@ -187,15 +169,28 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 }
 
                 //Non-time based game-end condition
-                //If all but one player has won (or all but one player has lost)
-                if ((self.winners.len() > 0) && (self.winners.len() >= game_mode_setup.max_players - 1)) || 
-                        ((self.losers.len() > 0) && (self.losers.len() >= game_mode_setup.max_players - 1)) {
-                    self.game_end = true;
+                if game_mode_setup.game_end_condition == GameEndCondition::First {
+                    if self.winners.len() > 0 || self.losers.len() > 0 {
+                        game_score.game_ended = true;
+                    }
+                }
+                else if game_mode_setup.game_end_condition == GameEndCondition::AllButOne {
+                    //If all but one player has won (or all but one player has lost)
+                    if self.winners.len() >= game_mode_setup.max_players - 1 || 
+                            self.losers.len() >= game_mode_setup.max_players - 1 {
+                        game_score.game_ended = true;
+                    }
+                }
+                else if game_mode_setup.game_end_condition == GameEndCondition::All {
+                    if self.winners.len() == game_mode_setup.max_players || 
+                            self.losers.len() == game_mode_setup.max_players {
+                        game_score.game_ended = true;
+                    }
                 }
             }
             else {
                 //handle timed games here, player with most points should be displayed as 1st, etc...
-                self.game_end = true;
+                game_score.game_ended = true;
             }
         }
     }
