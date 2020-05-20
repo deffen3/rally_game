@@ -14,7 +14,7 @@ pub use self::weapons::{
     WeaponStoreResource, WeaponTypes,
 };
 pub use self::particles::{
-    Particles,
+    Particles, Shockwave,
 };
 
 mod armor;

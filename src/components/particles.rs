@@ -9,3 +9,13 @@ pub struct Particles {
 impl Component for Particles {
     type Storage = DenseVecStorage<Self>;
 }
+
+
+pub struct Shockwave {
+    pub radius: f32,
+    pub time: f32,
+}
+
+impl Component for Shockwave {
+    type Storage = DenseVecStorage<Self>;
+}

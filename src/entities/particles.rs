@@ -11,7 +11,7 @@ use std::f32::consts::PI;
 
 use crate::resources::WeaponFireResource;
 
-use crate::components::{Particles};
+use crate::components::{Particles, Shockwave};
 
 
 pub fn malfunction_sparking(
@@ -144,4 +144,37 @@ pub fn acceleration_spray(
     lazy_update.insert(particles_entity, local_transform);
 
     lazy_update.insert(particles_entity, Removal::new(0 as u32));
+}
+
+
+pub fn explosion_shockwave(
+    entities: &Entities,
+    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
+    position: Vector3<f32>,
+    radius: f32,
+    lazy_update: &ReadExpect<LazyUpdate>,
+) {
+    let shockwave_entity: Entity = entities.create();
+
+    let shockwave_sprite = weapon_fire_resource.shockwave_sprite_render.clone();
+
+    let mut local_transform = Transform::default();
+    local_transform.set_translation(position);
+    local_transform.set_scale(Vector3::new(0.0, 0.0, 0.0));
+
+    let life_time = 0.2;
+
+    lazy_update.insert(shockwave_entity, Particles {
+        dx: 0.0,
+        dy: 0.0,
+        life_timer: life_time,
+    });
+
+    lazy_update.insert(shockwave_entity, Shockwave {radius: radius, time: life_time});
+    
+    lazy_update.insert(shockwave_entity, shockwave_sprite);
+    lazy_update.insert(shockwave_entity, local_transform);
+    lazy_update.insert(shockwave_entity, Transparent);
+
+    lazy_update.insert(shockwave_entity, Removal::new(0 as u32));
 }

@@ -23,7 +23,7 @@ use crate::components::{
     WeaponFire, WeaponStoreResource,
 };
 
-use crate::entities::{spawn_weapon_boxes, hit_spray};
+use crate::entities::{spawn_weapon_boxes, hit_spray, explosion_shockwave};
 
 use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
 
@@ -231,8 +231,10 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         let mut player_makes_kill_map = HashMap::new();
         let mut player_got_killed_map = HashMap::new();
 
-        for (player, vehicle, _weapon, vehicle_transform) in
-            (&mut players, &mut vehicles, &mut weapons, &transforms).join()
+        let mut explosion_map: Vec<(usize, WeaponFire, f32, f32)> = Vec::new();
+
+        for (player, vehicle, vehicle_transform) in
+            (&mut players, &mut vehicles, &transforms).join()
         {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
@@ -329,16 +331,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     }
 
                     if weapon_fire_hit {
-                        if !weapon_fire.attached {
-                            let _ = entities.delete(weapon_fire_entity);
-                            weapon_fire.active = false;
-                        }
-
                         player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
                         player.last_hit_timer = 0.0;
 
                         let damage: f32 = weapon_fire.damage;
-
+                    
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
                             damage,
@@ -347,36 +344,47 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             weapon_fire.armor_damage_pct,
                             weapon_fire.health_damage_pct,
                         );
-
+                    
                         if vehicle_destroyed && vehicle.state == VehicleState::Active {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
-
+                    
                             player_makes_kill_map.insert(
                                 weapon_fire.owner_player_id.clone(),
                                 weapon_fire.weapon_name.clone(),
                             );
-
+                    
                             player_got_killed_map
                                 .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
                         }
-
-
+                    
+                    
                         if weapon_fire.ion_malfunction_pct > 0.0 {
                             vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
                         }
 
-
                         if weapon_fire.damage_radius > 0.0 {
                             //spawn explosion entity and sprite
                             //check for hits below in a new join loop on vehicles and explosions
-                        }
+                            explosion_map
+                                .push((player.id.clone(), weapon_fire.clone(), fire_x, fire_y));
 
+                            let position = Vector3::new(fire_x, fire_y, 0.5);
+                            
+                            explosion_shockwave(
+                                &entities,
+                                &weapon_fire_resource,
+                                position,
+                                weapon_fire.damage_radius, 
+                                &lazy_update,
+                            );
+                        }
+                    
                         if self.hit_spray_cooldown_timer < 0.0 
                             && vehicle.state == VehicleState::Active
                         {
                             let position = Vector3::new(fire_x, fire_y, 0.5);
                             let shields_up = vehicle.shield.value > 0.0;
-
+                    
                             hit_spray(
                                 &entities,
                                 &weapon_fire_resource,
@@ -384,16 +392,84 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                                 position,
                                 &lazy_update,
                             );
-
+                    
                             self.hit_spray_cooldown_timer = HIT_SPRAY_COOLDOWN_RESET;
                         }
-
-
+                    
+                    
                         if self.hit_sound_cooldown_timer < 0.0
                             && vehicle.state == VehicleState::Active
                         {
                             play_score_sound(&*sounds, &storage, audio_output.as_deref());
                             self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
+                        }
+                    
+                        if !weapon_fire.attached {
+                            let _ = entities.delete(weapon_fire_entity);
+                            weapon_fire.active = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        //apply splash explosion damage
+        for (player, vehicle, vehicle_transform) in
+            (&mut players, &mut vehicles, &transforms).join()
+        {
+            let vehicle_x = vehicle_transform.translation().x;
+            let vehicle_y = vehicle_transform.translation().y;
+
+            for (player_id_already_hit, weapon_fire, fire_x, fire_y) in &explosion_map {
+                if player.id != *player_id_already_hit {
+                    if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
+                            < (vehicle.width/2.0 + weapon_fire.damage_radius).powi(2) {
+
+                        player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
+                        player.last_hit_timer = 0.0;
+
+                        let damage: f32 = weapon_fire.damage;
+                    
+                        let vehicle_destroyed: bool = vehicle_damage_model(
+                            vehicle,
+                            damage,
+                            weapon_fire.piercing_damage_pct,
+                            weapon_fire.shield_damage_pct,
+                            weapon_fire.armor_damage_pct,
+                            weapon_fire.health_damage_pct,
+                        );
+                    
+                        if vehicle_destroyed && vehicle.state == VehicleState::Active {
+                            play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
+                    
+                            player_makes_kill_map.insert(
+                                weapon_fire.owner_player_id.clone(),
+                                weapon_fire.weapon_name.clone(),
+                            );
+                    
+                            player_got_killed_map
+                                .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
+                        }
+                    
+                        if weapon_fire.ion_malfunction_pct > 0.0 {
+                            vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
+                        }
+                    
+                        if self.hit_spray_cooldown_timer < 0.0 
+                            && vehicle.state == VehicleState::Active
+                        {
+                            let position = Vector3::new(*fire_x, *fire_y, 0.5);
+                            let shields_up = vehicle.shield.value > 0.0;
+                    
+                            hit_spray(
+                                &entities,
+                                &weapon_fire_resource,
+                                shields_up,
+                                position,
+                                &lazy_update,
+                            );
+                    
+                            self.hit_spray_cooldown_timer = HIT_SPRAY_COOLDOWN_RESET;
                         }
                     }
                 }
