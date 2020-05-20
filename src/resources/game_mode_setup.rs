@@ -27,3 +27,9 @@ pub struct GameModeSetup {
     pub bot_players: usize,
     pub last_hit_threshold: f32,
 }
+
+
+
+pub struct GameScore {
+    pub game_ended: bool,
+}

@@ -15,7 +15,7 @@ use crate::custom_weapons::CustomWeaponsMenu;
 use crate::custom_arena::CustomArenaMenu;
 
 use crate::components::WeaponNames;
-use crate::resources::{GameModeSetup, GameModes};
+use crate::resources::{GameModeSetup, GameModes, GameScore};
 
 
 pub const MAX_PLAYER_COUNT: usize = 4;
@@ -144,6 +144,10 @@ impl SimpleState for MainMenu {
                 max_players: INIT_PLAYER_COUNT,
                 bot_players: INIT_BOT_COUNT,
                 last_hit_threshold: 5.0,
+            });
+
+            world.insert(GameScore {
+                game_ended: false,
             });
         }
 

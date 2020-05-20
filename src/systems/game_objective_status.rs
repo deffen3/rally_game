@@ -9,12 +9,14 @@ use amethyst::{
 
 use crate::components::{Player, Vehicle};
 
-use crate::resources::{GameModeSetup, GameModes, MatchTimer};
+use crate::resources::{GameModeSetup, GameModes, MatchTimer, GameScore};
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleStatusSystem {
     pub winners: Vec<usize>,
     pub losers: Vec<usize>,
+    pub game_end_wait_timer: f32,
+    pub game_end: bool,
 }
 
 impl<'s> System<'s> for VehicleStatusSystem {
@@ -24,19 +26,29 @@ impl<'s> System<'s> for VehicleStatusSystem {
         WriteStorage<'s, UiText>,
         Read<'s, Time>,
         ReadExpect<'s, GameModeSetup>,
+        WriteExpect<'s, GameScore>,
         WriteExpect<'s, MatchTimer>,
     );
 
     fn setup(&mut self, _world: &mut World) {
         self.winners = vec![];
         self.losers = vec![];
+        self.game_end_wait_timer = 5.0;
+        self.game_end = false;
     }
 
     fn run(
         &mut self,
-        (players, vehicles, mut ui_text, time, game_mode_setup, mut match_timer): Self::SystemData,
+        (players, vehicles, mut ui_text, time, game_mode_setup, mut game_score, mut match_timer): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
+
+        if self.game_end {
+            self.game_end_wait_timer -= dt;
+            if self.game_end_wait_timer <= 0.0 {
+                game_score.game_ended = true; //transitions to ScoreScreen state
+            }
+        }
 
         //if no match time limit exists, or it does exist and timer is within the limit
         if game_mode_setup.match_time_limit < 0.0
@@ -173,9 +185,17 @@ impl<'s> System<'s> for VehicleStatusSystem {
                             .text = format!("{:.0}", displayed_player_score);
                     }
                 }
+
+                //Non-time based game-end condition
+                //If all but one player has won (or all but one player has lost)
+                if ((self.winners.len() > 0) && (self.winners.len() >= game_mode_setup.max_players - 1)) || 
+                        ((self.losers.len() > 0) && (self.losers.len() >= game_mode_setup.max_players - 1)) {
+                    self.game_end = true;
+                }
             }
             else {
                 //handle timed games here, player with most points should be displayed as 1st, etc...
+                self.game_end = true;
             }
         }
     }

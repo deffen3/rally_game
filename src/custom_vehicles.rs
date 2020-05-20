@@ -66,24 +66,10 @@ impl SimpleState for CustomVehiclesMenu {
             StateEvent::Ui(UiEvent {
                 event_type: UiEventType::Click,
                 target,
-            }) => {
-                let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
-
-                if let Some(mut game_mode_setup) = fetched_game_mode_setup {
-                    // if Some(target) == self.button {
-                    //     game_mode_setup.game_mode = GameModes::Race;
-                    //     game_mode_setup.match_time_limit = -1.0;
-                    //     game_mode_setup.points_to_win = 10;
-                    //     game_mode_setup.stock_lives = -1;
-                    //     game_mode_setup.checkpoint_count = 2;
-                    //     game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                    //     game_mode_setup.random_weapon_spawns = true;
-                    //     game_mode_setup.keep_picked_up_weapons = true;
-                    // } 
-                    if Some(target) == self.button_back_to_menu {
-                        log::info!("[Trans::Switch] Switching back to MainMenu!");
-                        return Trans::Switch(Box::new(MainMenu::default()));
-                    }
+            }) => { 
+                if Some(target) == self.button_back_to_menu {
+                    log::info!("[Trans::Switch] Switching back to MainMenu!");
+                    return Trans::Switch(Box::new(MainMenu::default()));
                 }
 
                 Trans::None

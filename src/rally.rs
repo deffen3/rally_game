@@ -16,7 +16,7 @@ use amethyst::{
 use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
-use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, WeaponFireResource};
+use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, GameScore, WeaponFireResource};
 
 use crate::entities::{
     initialize_arena_walls, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
@@ -332,10 +332,10 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         }
 
 
-        let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
+        let fetched_game_score = world.try_fetch_mut::<GameScore>();
 
-        if let Some(mut game_mode_setup) = fetched_game_mode_setup {
-            if false {
+        if let Some(mut game_score) = fetched_game_score {
+            if game_score.game_ended {
                 return Trans::Switch(Box::new(ScoreScreen::default()));
             }
         }
