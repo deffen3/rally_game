@@ -35,6 +35,373 @@ Container(
 
         Container(
             transform: (
+                id: "score_board_container",
+                x: 0,
+                y: -450,
+                width: 900.,
+                height: 380.,
+                anchor: TopMiddle,
+            ),
+            background: SolidColor(1.0, 0.9, 0.9, 0.2),
+            children: [
+
+
+                Label(
+                    transform: (
+                        id: "Points",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -50.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Points",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "Kills",
+                        width: 500.,
+                        height: 55.,
+                        x: 50.,
+                        y: -50.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Kills",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "Deaths",
+                        width: 500.,
+                        height: 55.,
+                        x: 200.,
+                        y: -50.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Deaths",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "Time",
+                        width: 500.,
+                        height: 55.,
+                        x: 350.,
+                        y: -50.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Time",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+
+                Label(
+                    transform: (
+                        id: "p1_title",
+                        width: 500.,
+                        height: 55.,
+                        x: -350.,
+                        y: -120.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Player 1",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p2_title",
+                        width: 500.,
+                        height: 55.,
+                        x: -350.,
+                        y: -190,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Player 2",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p3_title",
+                        width: 500.,
+                        height: 55.,
+                        x: -350.,
+                        y: -260.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Player 3",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p4_title",
+                        width: 500.,
+                        height: 55.,
+                        x: -350.,
+                        y: -330.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Player 4",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p1_place",
+                        width: 500.,
+                        height: 55.,
+                        x: -200.,
+                        y: -120.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "1st",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p2_place",
+                        width: 500.,
+                        height: 55.,
+                        x: -200.,
+                        y: -190,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "2nd",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p3_place",
+                        width: 500.,
+                        height: 55.,
+                        x: -200.,
+                        y: -260.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "3rd",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p4_place",
+                        width: 500.,
+                        height: 55.,
+                        x: -200.,
+                        y: -330.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "4th",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p1_score",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -120.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "3",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p2_score",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -190,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "2",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p3_score",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -260.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "1",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p4_score",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -330.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "0",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+            ]
+        ),
+
+        Container(
+            transform: (
                 id: "go_back_container",
                 x: 180,
                 y: 100,
