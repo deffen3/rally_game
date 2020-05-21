@@ -16,6 +16,8 @@ pub struct VehicleStatusSystem {
     pub winners: Vec<usize>,
     pub losers: Vec<usize>,
     pub game_end_wait_timer: f32,
+    pub scores: [i32; 4],
+    pub placements: [i32; 4],
 }
 
 impl<'s> System<'s> for VehicleStatusSystem {
@@ -32,6 +34,8 @@ impl<'s> System<'s> for VehicleStatusSystem {
     fn setup(&mut self, _world: &mut World) {
         self.winners = vec![];
         self.losers = vec![];
+        self.scores = [0; 4];
+        self.placements = [0; 4];
     }
 
     fn run(
@@ -116,6 +120,8 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     _ => 0,
                 };
 
+                self.scores[player.id.clone()] = displayed_player_score;
+
                 if game_mode_setup.game_mode == GameModes::DeathmatchStock
                     && (player.deaths >= game_mode_setup.stock_lives
                         || self.losers.len() > game_mode_setup.max_players - 1)
@@ -123,13 +129,15 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     if !self.losers.contains(&player.id) {
                         self.losers.push(player.id.clone());
 
-                        let text_out = match self.losers.len() {
-                            1 => "4th!".to_string(),
-                            2 => "3rd!".to_string(),
-                            3 => "2nd!".to_string(),
-                            4 => "1st!".to_string(),
-                            _ => "???".to_string(),
+                        let (text_out, place) = match self.losers.len() {
+                            1 => ("4th!".to_string(), 4),
+                            2 => ("3rd!".to_string(), 3),
+                            3 => ("2nd!".to_string(), 2),
+                            4 => ("1st!".to_string(), 1),
+                            _ => ("???".to_string(), 0),
                         };
+
+                        self.placements[player.id.clone()] = place;
 
                         if let Some(points_status) = vehicle.player_status_text.points {
                             ui_text
@@ -144,13 +152,15 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     if !self.winners.contains(&player.id) {
                         self.winners.push(player.id.clone());
 
-                        let text_out = match self.winners.len() {
-                            1 => "1st!".to_string(),
-                            2 => "2nd!".to_string(),
-                            3 => "3rd!".to_string(),
-                            4 => "4th!".to_string(),
-                            _ => "???".to_string(),
+                        let (text_out, place) = match self.winners.len() {
+                            1 => ("1st!".to_string(), 1),
+                            2 => ("2nd!".to_string(), 2),
+                            3 => ("3rd!".to_string(), 3),
+                            4 => ("4th!".to_string(), 4),
+                            _ => ("???".to_string(), 0),
                         };
+
+                        self.placements[player.id.clone()] = place;
 
                         if let Some(points_status) = vehicle.player_status_text.points {
                             ui_text
@@ -192,6 +202,36 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 //handle timed games here, player with most points should be displayed as 1st, etc...
                 game_score.game_ended = true;
             }
+        }
+
+        if game_score.game_ended {
+            //Resolve all other placements that are still 0 value
+            let mut index_placement_score: Vec<(usize, i32, i32)> = Vec::new();
+
+            for (player_index, score) in self.scores.iter().enumerate() {
+                let mut placement = self.placements[player_index];
+
+                index_placement_score.push((player_index, placement, *score));
+            }
+
+            log::info!("{:?}", index_placement_score);
+
+            index_placement_score.sort_by_key(|a| a.1); //first sort by current placement
+            index_placement_score.sort_by_key(|a| -a.2); //then sort by score
+
+            log::info!("{:?}", index_placement_score);
+
+
+            let mut index_final_placement_score: Vec<(usize, i32, i32)> = Vec::new();
+
+            for (new_placement, (player_index, placement, score)) in index_placement_score.iter().enumerate() {
+                index_final_placement_score.push((*player_index, (new_placement as i32)+1, *score));
+            }
+
+            log::info!("{:?}", index_final_placement_score);
+            
+
+            game_score.placements = self.placements;
         }
     }
 }

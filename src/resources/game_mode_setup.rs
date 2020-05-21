@@ -41,4 +41,5 @@ pub struct GameModeSetup {
 
 pub struct GameScore {
     pub game_ended: bool,
+    pub placements: [i32; 4],
 }

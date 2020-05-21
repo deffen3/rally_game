@@ -149,6 +149,7 @@ impl SimpleState for MainMenu {
 
             world.insert(GameScore {
                 game_ended: false,
+                placements: [0; 4],
             });
         }
 
