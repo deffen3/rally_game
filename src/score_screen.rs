@@ -19,6 +19,13 @@ const SCORE_SCREEN_TIMER_INIT: f32 = 1.0;
 
 const BUTTON_BACK_TO_MENU: &str = "back_to_menu";
 
+
+
+const P1_TITLE: &str = "p1_title";
+const P2_TITLE: &str = "p2_title";
+const P3_TITLE: &str = "p3_title";
+const P4_TITLE: &str = "p4_title";
+
 const P1_PLACE: &str = "p1_place";
 const P2_PLACE: &str = "p2_place";
 const P3_PLACE: &str = "p3_place";
@@ -36,6 +43,11 @@ pub struct ScoreScreen {
     ui_root: Option<Entity>,
     
     button_back_to_menu: Option<Entity>,
+
+    p1_title: Option<Entity>,
+    p2_title: Option<Entity>,
+    p3_title: Option<Entity>,
+    p4_title: Option<Entity>,
 
     p1_place: Option<Entity>,
     p2_place: Option<Entity>,
@@ -97,6 +109,10 @@ impl SimpleState for ScoreScreen {
 
         {
             if self.button_back_to_menu.is_none() ||
+                self.p1_title.is_none() ||
+                self.p2_title.is_none() ||
+                self.p3_title.is_none() ||
+                self.p4_title.is_none() ||
                 self.p1_place.is_none() ||
                 self.p2_place.is_none() ||
                 self.p3_place.is_none() ||
@@ -108,6 +124,10 @@ impl SimpleState for ScoreScreen {
             {
                 world.exec(|ui_finder: UiFinder<'_>| {
                     self.button_back_to_menu = ui_finder.find(BUTTON_BACK_TO_MENU);
+                    self.p1_title = ui_finder.find(P1_TITLE);
+                    self.p2_title = ui_finder.find(P2_TITLE);
+                    self.p3_title = ui_finder.find(P3_TITLE);
+                    self.p4_title = ui_finder.find(P4_TITLE);
                     self.p1_place = ui_finder.find(P1_PLACE);
                     self.p2_place = ui_finder.find(P2_PLACE);
                     self.p3_place = ui_finder.find(P3_PLACE);
@@ -125,6 +145,19 @@ impl SimpleState for ScoreScreen {
         let fetched_game_score = world.try_fetch::<GameScore>();
 
         if let Some(game_score) = fetched_game_score {
+            if let Some(p1_title) = self.p1_title.and_then(|entity| ui_text.get_mut(entity)) {
+                p1_title.text = get_title_text(game_score.placements[0].0);
+            }
+            if let Some(p2_title) = self.p2_title.and_then(|entity| ui_text.get_mut(entity)) {
+                p2_title.text = get_title_text(game_score.placements[1].0);
+            }
+            if let Some(p3_title) = self.p3_title.and_then(|entity| ui_text.get_mut(entity)) {
+                p3_title.text = get_title_text(game_score.placements[2].0);
+            }
+            if let Some(p4_title) = self.p4_title.and_then(|entity| ui_text.get_mut(entity)) {
+                p4_title.text = get_title_text(game_score.placements[3].0);
+            }
+
             if let Some(p1_place) = self.p1_place.and_then(|entity| ui_text.get_mut(entity)) {
                 p1_place.text = get_placement_text(game_score.placements[0].1);
             }
@@ -202,6 +235,10 @@ impl SimpleState for ScoreScreen {
 
         self.button_back_to_menu = None;
 
+        self.p1_title = None;
+        self.p2_title = None;
+        self.p3_title = None;
+        self.p4_title = None;
         self.p1_place = None;
         self.p2_place = None;
         self.p3_place = None;
@@ -211,6 +248,18 @@ impl SimpleState for ScoreScreen {
         self.p3_score = None;
         self.p4_score = None;
     }
+}
+
+fn get_title_text(player_in: usize) -> String {
+    let title_text = match player_in {
+        0 => "PLAYER 1".to_string(),
+        1 => "PLAYER 2".to_string(),
+        2 => "PLAYER 3".to_string(),
+        3 => "PLAYER 4".to_string(),
+        _ => "PLAYER ?".to_string(),
+    };
+
+    title_text
 }
 
 fn get_placement_text(place_in: i32) -> String {
