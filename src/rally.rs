@@ -256,9 +256,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         }
 
 
-        let fetched_game_score = data.world.try_fetch_mut::<GameScore>();
+        let fetched_game_score = data.world.try_fetch::<GameScore>();
 
-        if let Some(mut game_score) = fetched_game_score {
+        if let Some(game_score) = fetched_game_score {
             if !game_score.game_ended {
                 exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
             }
@@ -344,9 +344,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         }
 
 
-        let fetched_game_score = world.try_fetch_mut::<GameScore>();
+        let fetched_game_score = world.try_fetch::<GameScore>();
 
-        if let Some(mut game_score) = fetched_game_score {
+        if let Some(game_score) = fetched_game_score {
             if game_score.game_ended {
                 return Trans::Switch(Box::new(ScoreScreen::default()));
             }

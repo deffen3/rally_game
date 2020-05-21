@@ -35,7 +35,7 @@ impl<'s> System<'s> for MoveParticlesSystem {
             }
         }
 
-        for (entity, particle, shockwave, transform) in (&entities, &mut particles, &shockwaves, &mut transforms).join() {
+        for (particle, shockwave, transform) in (&mut particles, &shockwaves, &mut transforms).join() {
             let pct_expansion = 1.0 - (particle.life_timer / shockwave.time);
             let live_shockwave_radius = pct_expansion * shockwave.radius/2.0;
 

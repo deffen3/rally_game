@@ -223,7 +223,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
             let mut index_final_placement_score: Vec<(usize, i32, i32)> = Vec::new();
 
-            for (new_placement, (player_index, placement, score)) in index_placement_score.iter().enumerate() {
+            for (new_placement, (player_index, _, score)) in index_placement_score.iter().enumerate() {
                 index_final_placement_score.push((*player_index, (new_placement as i32)+1, *score));
             }
 

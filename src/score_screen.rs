@@ -12,7 +12,7 @@ use amethyst::{
 
 use crate::menu::MainMenu;
 
-use crate::resources::{GameModeSetup, GameScore};
+use crate::resources::{GameScore};
 
 
 const SCORE_SCREEN_TIMER_INIT: f32 = 1.0;
@@ -122,9 +122,9 @@ impl SimpleState for ScoreScreen {
 
 
         let mut ui_text = world.write_storage::<UiText>();
-        let fetched_game_score = world.try_fetch_mut::<GameScore>();
+        let fetched_game_score = world.try_fetch::<GameScore>();
 
-        if let Some(mut game_score) = fetched_game_score {
+        if let Some(game_score) = fetched_game_score {
             if let Some(p1_place) = self.p1_place.and_then(|entity| ui_text.get_mut(entity)) {
                 p1_place.text = get_placement_text(game_score.placements[0].1);
             }
@@ -160,7 +160,6 @@ impl SimpleState for ScoreScreen {
         data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
-        let world = data.world;
 
         match event {
             StateEvent::Window(event) => {
