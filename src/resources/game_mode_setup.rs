@@ -41,5 +41,5 @@ pub struct GameModeSetup {
 
 pub struct GameScore {
     pub game_ended: bool,
-    pub placements: [i32; 4],
+    pub placements: Vec<(usize, i32, i32)>,
 }

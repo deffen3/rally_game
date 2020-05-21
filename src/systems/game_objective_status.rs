@@ -117,7 +117,6 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     GameModes::DeathmatchTimedKD => player.kills - player.deaths,
                     GameModes::Race => player.laps_completed,
                     GameModes::KingOfTheHill => player.objective_points.floor() as i32,
-                    _ => 0,
                 };
 
                 self.scores[player.id.clone()] = displayed_player_score;
@@ -209,7 +208,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
             let mut index_placement_score: Vec<(usize, i32, i32)> = Vec::new();
 
             for (player_index, score) in self.scores.iter().enumerate() {
-                let mut placement = self.placements[player_index];
+                let placement = self.placements[player_index];
 
                 index_placement_score.push((player_index, placement, *score));
             }
@@ -231,7 +230,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
             log::info!("{:?}", index_final_placement_score);
             
 
-            game_score.placements = self.placements;
+            game_score.placements = index_final_placement_score;
         }
     }
 }
