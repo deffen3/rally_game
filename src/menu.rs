@@ -433,7 +433,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = -1;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
-                        game_mode_setup.game_end_condition = GameEndCondition::Timed;
+                        game_mode_setup.game_end_condition = GameEndCondition::AllButOne; //but usually just ends by time
                         game_mode_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_mode_setup.random_weapon_spawns = true;
                         game_mode_setup.keep_picked_up_weapons = false;

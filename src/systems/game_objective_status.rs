@@ -126,7 +126,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 }
                 self.stats[player.id.clone()] = (displayed_player_score, player.kills, player.deaths);
 
-                if game_mode_setup.game_mode == GameModes::DeathmatchStock
+                if (game_mode_setup.stock_lives > 0)
                     && (player.deaths >= game_mode_setup.stock_lives
                         || self.losers.len() > game_mode_setup.max_players - 1)
                 {
@@ -191,7 +191,12 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
         //Non-time based game-end condition
         if game_mode_setup.game_end_condition == GameEndCondition::First {
-            if self.winners.len() > 0 || self.losers.len() > 0 {
+            if game_mode_setup.game_mode == GameModes::DeathmatchStock { //first to lose, typically not played this way
+                if self.losers.len() > 0 {
+                    game_score.game_ended = true;
+                }
+            }
+            else if self.winners.len() > 0 {
                 game_score.game_ended = true;
             }
         }

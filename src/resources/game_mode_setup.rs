@@ -15,7 +15,6 @@ pub enum GameEndCondition {
     First,
     AllButOne,
     All,
-    Timed,
 }
 
 #[derive(Clone)]
