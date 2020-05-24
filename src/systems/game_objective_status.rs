@@ -16,7 +16,7 @@ pub struct VehicleStatusSystem {
     pub winners: Vec<usize>,
     pub losers: Vec<usize>,
     pub game_end_wait_timer: f32,
-    pub scores: [i32; 4],
+    pub stats: [(i32, i32, i32, f32); 4],
     pub placements: [i32; 4],
 }
 
@@ -34,7 +34,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
     fn setup(&mut self, _world: &mut World) {
         self.winners = vec![];
         self.losers = vec![];
-        self.scores = [0; 4];
+        self.stats = [(0, 0, 0, 0.0); 4];
         self.placements = [0; 4];
     }
 
@@ -119,7 +119,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     GameModes::KingOfTheHill => player.objective_points.floor() as i32,
                 };
 
-                self.scores[player.id.clone()] = displayed_player_score;
+                self.stats[player.id.clone()] = (displayed_player_score, player.kills, player.deaths, match_timer.time.clone());
 
                 if game_mode_setup.game_mode == GameModes::DeathmatchStock
                     && (player.deaths >= game_mode_setup.stock_lives
@@ -205,12 +205,12 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
         if game_score.game_ended {
             //Resolve all other placements that are still 0 value
-            let mut index_placement_score: Vec<(usize, i32, i32)> = Vec::new();
+            let mut index_placement_score: Vec<(usize, i32, i32, i32, i32, f32)> = Vec::new();
 
-            for (player_index, score) in self.scores.iter().enumerate() {
+            for (player_index, (score, kills, deaths, timer)) in self.stats.iter().enumerate() {
                 let placement = self.placements[player_index];
 
-                index_placement_score.push((player_index, placement, *score));
+                index_placement_score.push((player_index, placement, *score, *kills, *deaths, *timer));
             }
 
             log::info!("{:?}", index_placement_score);
@@ -221,10 +221,10 @@ impl<'s> System<'s> for VehicleStatusSystem {
             log::info!("{:?}", index_placement_score);
 
 
-            let mut index_final_placement_score: Vec<(usize, i32, i32)> = Vec::new();
+            let mut index_final_placement_score: Vec<(usize, i32, i32, i32, i32, f32)> = Vec::new();
 
-            for (new_placement, (player_index, _, score)) in index_placement_score.iter().enumerate() {
-                index_final_placement_score.push((*player_index, (new_placement as i32)+1, *score));
+            for (new_placement, (player_index, _, score, kills, deaths, timer)) in index_placement_score.iter().enumerate() {
+                index_final_placement_score.push((*player_index, (new_placement as i32)+1, *score, *kills, *deaths, *timer));
             }
 
             log::info!("{:?}", index_final_placement_score);

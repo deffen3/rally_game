@@ -148,7 +148,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "Player 1",
+                        text: "Player ?",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -170,7 +170,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "Player 2",
+                        text: "Player ?",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -192,7 +192,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "Player 3",
+                        text: "Player ?",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -214,7 +214,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "Player 4",
+                        text: "Player ?",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -236,7 +236,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "1st",
+                        text: "???",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -258,7 +258,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "2nd",
+                        text: "???",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -280,7 +280,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "3rd",
+                        text: "???",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -302,7 +302,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "4th",
+                        text: "???",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -324,7 +324,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "3",
+                        text: "?",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -346,7 +346,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "2",
+                        text: "?",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -368,7 +368,7 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "1",
+                        text: "?",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),
@@ -390,7 +390,184 @@ Container(
                         selectable: 0,
                     ),
                     text: (
-                        text: "0",
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+
+                Label(
+                    transform: (
+                        id: "p1_kills",
+                        width: 500.,
+                        height: 55.,
+                        x: 50.,
+                        y: -120.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p2_kills",
+                        width: 500.,
+                        height: 55.,
+                        x: 50.,
+                        y: -190,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p3_kills",
+                        width: 500.,
+                        height: 55.,
+                        x: 50.,
+                        y: -260.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p4_kills",
+                        width: 500.,
+                        height: 55.,
+                        x: 50.,
+                        y: -330.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p1_deaths",
+                        width: 500.,
+                        height: 55.,
+                        x: 200.,
+                        y: -120.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p2_deaths",
+                        width: 500.,
+                        height: 55.,
+                        x: 200.,
+                        y: -190,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p3_deaths",
+                        width: 500.,
+                        height: 55.,
+                        x: 200.,
+                        y: -260.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 35.,
+                        color: (0.7, 0.05, 0.03, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Label(
+                    transform: (
+                        id: "p4_deaths",
+                        width: 500.,
+                        height: 55.,
+                        x: 200.,
+                        y: -330.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 35.,
                         color: (0.7, 0.05, 0.03, 1.0),

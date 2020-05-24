@@ -1,0 +1,8 @@
+(
+  title: "Rocket Rally!",
+  dimensions: Some((1920, 1080)),
+  fullscreen: Some(MonitorIdent(0, "default")),
+  multisampling: 0,
+  visibility: true,
+  vysnc: false,
+)

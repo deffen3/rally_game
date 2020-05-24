@@ -38,7 +38,7 @@ pub const PLAYER_CAMERA: bool = false;
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
-pub const ARENA_WIDTH: f32 = 400.0;
+pub const ARENA_WIDTH: f32 = 705.0;
 
 pub const BASE_COLLISION_DAMAGE: f32 = 20.0;
 pub const COLLISION_PIERCING_DAMAGE_PCT: f32 = 0.0;

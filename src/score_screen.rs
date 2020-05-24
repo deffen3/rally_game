@@ -36,6 +36,21 @@ const P2_SCORE: &str = "p2_score";
 const P3_SCORE: &str = "p3_score";
 const P4_SCORE: &str = "p4_score";
 
+const P1_KILLS: &str = "p1_kills";
+const P2_KILLS: &str = "p2_kills";
+const P3_KILLS: &str = "p3_kills";
+const P4_KILLS: &str = "p4_kills";
+
+const P1_DEATHS: &str = "p1_deaths";
+const P2_DEATHS: &str = "p2_deaths";
+const P3_DEATHS: &str = "p3_deaths";
+const P4_DEATHS: &str = "p4_deaths";
+
+const P1_TIMER: &str = "p1_timer";
+const P2_TIMER: &str = "p2_timer";
+const P3_TIMER: &str = "p3_timer";
+const P4_TIMER: &str = "p4_timer";
+
 
 
 #[derive(Default, Debug)]
@@ -58,6 +73,22 @@ pub struct ScoreScreen {
     p2_score: Option<Entity>,
     p3_score: Option<Entity>,
     p4_score: Option<Entity>,
+
+    p1_kills: Option<Entity>,
+    p2_kills: Option<Entity>,
+    p3_kills: Option<Entity>,
+    p4_kills: Option<Entity>,
+
+    p1_deaths: Option<Entity>,
+    p2_deaths: Option<Entity>,
+    p3_deaths: Option<Entity>,
+    p4_deaths: Option<Entity>,
+
+    p1_timer: Option<Entity>,
+    p2_timer: Option<Entity>,
+    p3_timer: Option<Entity>,
+    p4_timer: Option<Entity>,
+
 
     load_timer: f32,
     loaded: bool,
@@ -120,7 +151,19 @@ impl SimpleState for ScoreScreen {
                 self.p1_score.is_none() ||
                 self.p2_score.is_none() ||
                 self.p3_score.is_none() ||
-                self.p4_score.is_none()
+                self.p4_score.is_none() ||
+                self.p1_kills.is_none() ||
+                self.p2_kills.is_none() ||
+                self.p3_kills.is_none() ||
+                self.p4_kills.is_none() ||
+                self.p1_deaths.is_none() ||
+                self.p2_deaths.is_none() ||
+                self.p3_deaths.is_none() ||
+                self.p4_deaths.is_none() ||
+                self.p1_timer.is_none() ||
+                self.p2_timer.is_none() ||
+                self.p3_timer.is_none() ||
+                self.p4_timer.is_none()
             {
                 world.exec(|ui_finder: UiFinder<'_>| {
                     self.button_back_to_menu = ui_finder.find(BUTTON_BACK_TO_MENU);
@@ -136,6 +179,18 @@ impl SimpleState for ScoreScreen {
                     self.p2_score = ui_finder.find(P2_SCORE);
                     self.p3_score = ui_finder.find(P3_SCORE);
                     self.p4_score = ui_finder.find(P4_SCORE);
+                    self.p1_kills = ui_finder.find(P1_KILLS);
+                    self.p2_kills = ui_finder.find(P2_KILLS);
+                    self.p3_kills = ui_finder.find(P3_KILLS);
+                    self.p4_kills = ui_finder.find(P4_KILLS);
+                    self.p1_deaths = ui_finder.find(P1_DEATHS);
+                    self.p2_deaths = ui_finder.find(P2_DEATHS);
+                    self.p3_deaths = ui_finder.find(P3_DEATHS);
+                    self.p4_deaths = ui_finder.find(P4_DEATHS);
+                    self.p1_timer = ui_finder.find(P1_TIMER);
+                    self.p2_timer = ui_finder.find(P2_TIMER);
+                    self.p3_timer = ui_finder.find(P3_TIMER);
+                    self.p4_timer = ui_finder.find(P4_TIMER);
                 });
             }
         }
@@ -183,6 +238,46 @@ impl SimpleState for ScoreScreen {
             if let Some(p4_score) = self.p4_score.and_then(|entity| ui_text.get_mut(entity)) {
                 p4_score.text = game_score.placements[3].2.to_string();
             }
+
+            if let Some(p1_kills) = self.p1_kills.and_then(|entity| ui_text.get_mut(entity)) {
+                p1_kills.text = game_score.placements[0].3.to_string();
+            }
+            if let Some(p2_kills) = self.p2_kills.and_then(|entity| ui_text.get_mut(entity)) {
+                p2_kills.text = game_score.placements[1].3.to_string();
+            }
+            if let Some(p3_kills) = self.p3_kills.and_then(|entity| ui_text.get_mut(entity)) {
+                p3_kills.text = game_score.placements[2].3.to_string();
+            }
+            if let Some(p4_kills) = self.p4_kills.and_then(|entity| ui_text.get_mut(entity)) {
+                p4_kills.text = game_score.placements[3].3.to_string();
+            }
+
+            if let Some(p1_deaths) = self.p1_deaths.and_then(|entity| ui_text.get_mut(entity)) {
+                p1_deaths.text = game_score.placements[0].4.to_string();
+            }
+            if let Some(p2_deaths) = self.p2_deaths.and_then(|entity| ui_text.get_mut(entity)) {
+                p2_deaths.text = game_score.placements[1].4.to_string();
+            }
+            if let Some(p3_deaths) = self.p3_deaths.and_then(|entity| ui_text.get_mut(entity)) {
+                p3_deaths.text = game_score.placements[2].4.to_string();
+            }
+            if let Some(p4_deaths) = self.p4_deaths.and_then(|entity| ui_text.get_mut(entity)) {
+                p4_deaths.text = game_score.placements[3].4.to_string();
+            }
+
+            if let Some(p1_timer) = self.p1_timer.and_then(|entity| ui_text.get_mut(entity)) {
+                p1_timer.text = (game_score.placements[0].5.floor() as i32 % 60).to_string();
+            }
+            if let Some(p2_timer) = self.p2_timer.and_then(|entity| ui_text.get_mut(entity)) {
+                p2_timer.text = (game_score.placements[1].5.floor() as i32 % 60).to_string();
+            }
+            if let Some(p3_timer) = self.p3_timer.and_then(|entity| ui_text.get_mut(entity)) {
+                p3_timer.text = (game_score.placements[2].5.floor() as i32 % 60).to_string();
+            }
+            if let Some(p4_timer) = self.p4_timer.and_then(|entity| ui_text.get_mut(entity)) {
+                p4_timer.text = (game_score.placements[3].5.floor() as i32 % 60).to_string();
+            }
+
         }
 
         Trans::None
@@ -247,6 +342,18 @@ impl SimpleState for ScoreScreen {
         self.p2_score = None;
         self.p3_score = None;
         self.p4_score = None;
+        self.p1_kills = None;
+        self.p2_kills = None;
+        self.p3_kills = None;
+        self.p4_kills = None;
+        self.p1_deaths = None;
+        self.p2_deaths = None;
+        self.p3_deaths = None;
+        self.p4_deaths = None;
+        self.p1_timer = None;
+        self.p2_timer = None;
+        self.p3_timer = None;
+        self.p4_timer = None;
     }
 }
 
