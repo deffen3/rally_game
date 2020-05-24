@@ -31,6 +31,7 @@ pub struct Player {
     pub last_turn_input: Option<f32>,
     pub last_hit_by_id: Option<usize>,
     pub last_hit_timer: f32,
+    pub last_made_hit_timer: f32,
 }
 
 impl Component for Player {
@@ -55,6 +56,7 @@ impl Player {
             last_turn_input: Some(0.0),
             last_hit_by_id: None,
             last_hit_timer: 0.0,
+            last_made_hit_timer: 0.0,
         }
     }
 }

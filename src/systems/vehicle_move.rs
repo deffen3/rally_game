@@ -43,6 +43,8 @@ const BOT_COLLISION_MOVE_COOLDOWN_RESET: f32 = 0.7;
 const BOT_ENGAGE_DISTANCE: f32 = 160.0;
 const BOT_DISENGAGE_DISTANCE: f32 = 240.0;
 
+const BOT_NO_HIT_MOVE_COOLDOWN: f32 = 6.0;
+
 const WALL_HIT_BOUNCE_DECEL_PCT: f32 = 0.35;
 
 const ROCKET_SPRAY_COOLDOWN_RESET: f32 = 0.05;
@@ -223,6 +225,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 player.bot_mode = BotMode::Swording;
                                 debug!("{} Swording", player.id);
                                 player.bot_move_cooldown = 5.0;
+                                player.last_made_hit_timer = 0.0;
                             } else if weapon.stats.shot_speed <= 0.0 {
                                 //Typically just Mines or Traps
                                 player.bot_mode = BotMode::Mining;
@@ -231,6 +234,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 player.bot_mode = BotMode::StopAim;
                                 debug!("{} StopAim", player.id);
                                 player.bot_move_cooldown = 5.0;
+                                player.last_made_hit_timer = 0.0;
                             }
                         }
                     }
@@ -249,13 +253,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
                                 if (vehicle.health.value < vehicle.health.max ||
                                         vehicle.shield.value == 0.0) && 
-                                        dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE {
+                                        dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE &&
+                                        player.last_hit_timer > 1.0 {
                                     player.bot_mode = BotMode::Repairing;
                                 }
                             }
 
-                            vehicle_accel = Some(rng.gen_range(0.2, 0.6) as f32);
-                            vehicle_turn = Some(rng.gen_range(-1.0, 1.0) as f32);
+                            vehicle_accel = Some(rng.gen_range(0.4, 0.6) as f32);
+                            vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
 
                             player.last_accel_input = vehicle_accel;
                             player.last_turn_input = vehicle_turn;
@@ -271,9 +276,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     || player.bot_mode == BotMode::Chasing
                     || player.bot_mode == BotMode::Swording
                 {
+                    player.last_made_hit_timer += dt;
+
                     let continue_with_attacking_mode;
 
                     if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
+
+                        //if the closest vehicle is too far away to engage
                         if dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE
                             || player.bot_move_cooldown < 0.0
                         {
@@ -289,15 +298,27 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             } else {
                                 player.bot_mode = BotMode::Chasing;
                                 debug!("{} Chasing", player.id);
+                                player.last_made_hit_timer = 0.0;
                             }
-                        } else {
-                            if dist_to_closest_vehicle > weapon.range_calc {
-                                player.bot_mode = BotMode::Chasing;
-                                debug!("{} Chasing", player.id);
+                        } else { //closest vehicle is close enough to engage
+                            //vehicle is close, but the bot isn't hitting it within 3 seconds
+                            if player.last_made_hit_timer > 3.0 && player.bot_mode != BotMode::Swording {
+                                continue_with_attacking_mode = false;
+
+                                player.bot_mode = BotMode::Running;
+                                player.bot_move_cooldown = BOT_NO_HIT_MOVE_COOLDOWN;
                             }
-                            continue_with_attacking_mode = true;
+                            else {
+                                //closest vehicle is out of current weapon range though
+                                if dist_to_closest_vehicle > weapon.range_calc {
+                                    player.bot_mode = BotMode::Chasing;
+                                    debug!("{} Chasing", player.id);
+                                    player.last_made_hit_timer = 0.0;
+                                }
+                                continue_with_attacking_mode = true;
+                            }
                         }
-                    } else {
+                    } else { //no closest vehicle exists, only vehicle alive right now?
                         continue_with_attacking_mode = false;
 
                         player.bot_move_cooldown = player.bot_move_cooldown_reset;
@@ -310,8 +331,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         } else {
                             player.bot_mode = BotMode::Chasing;
                             debug!("{} Chasing", player.id);
+                            player.last_made_hit_timer = 0.0;
                         }
                     }
+                    
 
                     if continue_with_attacking_mode {
                         //continue with Attacking mode

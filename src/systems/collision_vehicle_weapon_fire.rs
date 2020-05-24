@@ -228,6 +228,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         }
 
         //weapon to vehicle collisions
+        let mut player_makes_hit_map = HashMap::new();
         let mut player_makes_kill_map = HashMap::new();
         let mut player_got_killed_map = HashMap::new();
 
@@ -244,7 +245,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
             let vehicle_collider_shape = Cuboid::new(Vector2::new(vehicle.width/2.0, vehicle.height/2.0));
             let vehicle_collider_pos = Isometry2::new(Vector2::new(vehicle_x, vehicle_y), vehicle_angle);
-
 
             player.last_hit_timer += dt;
 
@@ -333,6 +333,9 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     if weapon_fire_hit {
                         player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
                         player.last_hit_timer = 0.0;
+
+                        player_makes_hit_map.insert(weapon_fire.owner_player_id.clone(), player.id);
+
 
                         let damage: f32 = weapon_fire.damage;
                     
@@ -483,6 +486,12 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         for (player, mut weapon, vehicle, transform) in
             (&mut players, &mut weapons, &mut vehicles, &mut transforms).join()
         {
+            let hit_data = player_makes_hit_map.get(&player.id);
+
+            if let Some(hit_data) = hit_data {
+                player.last_made_hit_timer = 0.0;
+            }
+
             let killer_data = player_makes_kill_map.get(&player.id);
 
             if let Some(killer_data) = killer_data {
