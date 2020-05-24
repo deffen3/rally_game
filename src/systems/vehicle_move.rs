@@ -246,10 +246,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if player.bot_move_cooldown < 0.0 {
                             //issue new move command
 
-                            if (vehicle.health.value < vehicle.health.max ||
-                                    vehicle.shield.value == 0.0) && 
-                                    dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE {
-                                player.bot_mode = BotMode::Repairing;
+                            if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
+                                if (vehicle.health.value < vehicle.health.max ||
+                                        vehicle.shield.value == 0.0) && 
+                                        dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE {
+                                    player.bot_mode = BotMode::Repairing;
+                                }
                             }
 
                             vehicle_accel = Some(rng.gen_range(0.2, 0.6) as f32);
