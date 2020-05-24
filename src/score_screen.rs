@@ -266,16 +266,28 @@ impl SimpleState for ScoreScreen {
             }
 
             if let Some(p1_timer) = self.p1_timer.and_then(|entity| ui_text.get_mut(entity)) {
-                p1_timer.text = (game_score.placements[0].5.floor() as i32 % 60).to_string();
+                let match_time_seconds: i32 = game_score.placements[0].5.floor() as i32 % 60;
+                let match_time_minutes: i32 = game_score.placements[0].5.floor() as i32 / 60;
+
+                p1_timer.text = format!("{:.0}:{:0>2.0}", match_time_minutes, match_time_seconds);
             }
             if let Some(p2_timer) = self.p2_timer.and_then(|entity| ui_text.get_mut(entity)) {
-                p2_timer.text = (game_score.placements[1].5.floor() as i32 % 60).to_string();
+                let match_time_seconds: i32 = game_score.placements[1].5.floor() as i32 % 60;
+                let match_time_minutes: i32 = game_score.placements[1].5.floor() as i32 / 60;
+
+                p2_timer.text = format!("{:.0}:{:0>2.0}", match_time_minutes, match_time_seconds);
             }
             if let Some(p3_timer) = self.p3_timer.and_then(|entity| ui_text.get_mut(entity)) {
-                p3_timer.text = (game_score.placements[2].5.floor() as i32 % 60).to_string();
+                let match_time_seconds: i32 = game_score.placements[2].5.floor() as i32 % 60;
+                let match_time_minutes: i32 = game_score.placements[2].5.floor() as i32 / 60;
+
+                p3_timer.text = format!("{:.0}:{:0>2.0}", match_time_minutes, match_time_seconds);
             }
             if let Some(p4_timer) = self.p4_timer.and_then(|entity| ui_text.get_mut(entity)) {
-                p4_timer.text = (game_score.placements[3].5.floor() as i32 % 60).to_string();
+                let match_time_seconds: i32 = game_score.placements[3].5.floor() as i32 % 60;
+                let match_time_minutes: i32 = game_score.placements[3].5.floor() as i32 / 60;
+
+                p4_timer.text = format!("{:.0}:{:0>2.0}", match_time_minutes, match_time_seconds);
             }
 
         }
