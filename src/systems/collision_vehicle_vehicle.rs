@@ -10,12 +10,20 @@ use crate::audio::{play_bounce_sound, Sounds};
 use log::debug;
 use std::collections::HashMap;
 
+extern crate nalgebra as na;
+use na::{Isometry2, Vector2};
+use ncollide2d::query::{self, Proximity};
+use ncollide2d::shape::{Cuboid};
+
 use crate::components::{kill_restart_vehicle, vehicle_damage_model, Player, Vehicle};
 use crate::rally::{
     BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT,
     COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
 };
 use crate::resources::{GameModeSetup, GameModes};
+
+const VEHICLE_COLLISION_COOLDOWN_RESET: f32 = 0.1;
+const VEHICLE_HIT_BOUNCE_DECEL_PCT: f32 = 0.45;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
@@ -54,36 +62,39 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             let vehicle_1_x = vehicle_1_transform.translation().x;
             let vehicle_1_y = vehicle_1_transform.translation().y;
 
+            let vehicle_1_rotation = vehicle_1_transform.rotation();
+            let (_, _, vehicle_1_angle) = vehicle_1_rotation.euler_angles();
+
+            let vehicle_1_collider_shape = Cuboid::new(Vector2::new(vehicle_1.width/2.0, vehicle_1.height/2.0));
+            let vehicle_1_collider_pos = Isometry2::new(Vector2::new(vehicle_1_x, vehicle_1_y), vehicle_1_angle);
+
             for (vehicle_2, player_2, vehicle_2_transform) in
                 (&vehicles, &players, &transforms).join()
             {
-                let vehicle_2_x = vehicle_2_transform.translation().x;
-                let vehicle_2_y = vehicle_2_transform.translation().y;
+                if player_1.id != player_2.id {
+                    let vehicle_2_x = vehicle_2_transform.translation().x;
+                    let vehicle_2_y = vehicle_2_transform.translation().y;
 
-                if (player_1.id != player_2.id)
-                    && (vehicle_1_x - vehicle_2_x).powi(2) + (vehicle_1_y - vehicle_2_y).powi(2)
-                        < vehicle_1.width.powi(2)
-                {
-                    // let veh_hit_non_bounce_decel_pct: f32 = 0.35;
-                    // let veh_hit_bounce_decel_pct: f32 = -veh_hit_non_bounce_decel_pct;
+                    let vehicle_2_rotation = vehicle_2_transform.rotation();
+                    let (_, _, vehicle_2_angle) = vehicle_2_rotation.euler_angles();
 
-                    let sq_vel_diff = (vehicle_1.dx - vehicle_2.dx).powi(2)
-                        + (vehicle_1.dy - vehicle_2.dy).powi(2);
-                    let abs_vel_diff = sq_vel_diff.sqrt();
+                    let vehicle_2_collider_shape = Cuboid::new(Vector2::new(vehicle_2.width/2.0, vehicle_2.height/2.0));
+                    let vehicle_2_collider_pos = Isometry2::new(Vector2::new(vehicle_2_x, vehicle_2_y), vehicle_2_angle);
 
-                    collision_ids_map.insert(player_1.id, abs_vel_diff);
-                    collision_ids_map.insert(player_2.id, abs_vel_diff);
+                    let collision = query::proximity(
+                        &vehicle_1_collider_pos, &vehicle_1_collider_shape,
+                        &vehicle_2_collider_pos, &vehicle_2_collider_shape,
+                        0.0,
+                    );
 
-                    /*
-                    let velocity_1_angle = vehicle_1.dy.atan2(vehicle_1.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
-                    let velocity_1_x_comp = -velocity_1_angle.sin(); //left is -, right is +
-                    let velocity_1_y_comp = velocity_1_angle.cos(); //up is +, down is -
+                    if collision == Proximity::Intersecting {
+                        let sq_vel_diff = (vehicle_1.dx - vehicle_2.dx).powi(2)
+                            + (vehicle_1.dy - vehicle_2.dy).powi(2);
+                        let abs_vel_diff = sq_vel_diff.sqrt();
 
-
-                    let velocity_2_angle = vehicle_2.dy.atan2(vehicle_2.dx) - (PI/2.0); //rotate by PI/2 to line up with yaw angle
-                    let velocity_2_x_comp = -velocity_2_angle.sin(); //left is -, right is +
-                    let velocity_2_y_comp = velocity_2_angle.cos(); //up is +, down is -
-                    */
+                        collision_ids_map.insert(player_1.id, abs_vel_diff);
+                        collision_ids_map.insert(player_2.id, abs_vel_diff);
+                    }
                 }
             }
         }
@@ -103,7 +114,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                     if *v_diff > 1.0 {
                         play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                     }
-                    vehicle.collision_cooldown_timer = 1.0;
+                    vehicle.collision_cooldown_timer = VEHICLE_COLLISION_COOLDOWN_RESET;
 
                     let vehicle_destroyed: bool = vehicle_damage_model(
                         vehicle,
@@ -131,11 +142,10 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         );
                     }
 
-                //vehicle_1.dx *= veh_hit_bounce_decel_pct * velocity_1_x_comp.abs();
-                //vehicle_1.dy *= veh_hit_bounce_decel_pct * velocity_1_y_comp.abs();
+                    let wall_hit_bounce_decel_pct: f32 = -VEHICLE_HIT_BOUNCE_DECEL_PCT;
 
-                //vehicle_2.dx *= veh_hit_bounce_decel_pct * velocity_2_x_comp.abs();
-                //vehicle_2.dy *= veh_hit_bounce_decel_pct * velocity_2_y_comp.abs();
+                    vehicle.dx *= wall_hit_bounce_decel_pct;
+                    vehicle.dy *= wall_hit_bounce_decel_pct;
                 } else {
                     vehicle.collision_cooldown_timer -= dt;
                 }
