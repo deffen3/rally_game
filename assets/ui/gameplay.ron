@@ -104,6 +104,26 @@ Container(
             )
         ),
 
+        Label(
+            transform: (
+                id: "p1_lives_remaining",
+                x: -480.,
+                y: 60.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: BottomMiddle,
+            ),
+            text: (
+                text: "0",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 15.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+
 
         Label(
             transform: (
@@ -176,6 +196,25 @@ Container(
                 text: "0",
                 font: File("font/square.ttf", ("TTF", ())),
                 font_size: 40.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p2_lives_remaining",
+                x: -230.,
+                y: 60.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: BottomMiddle,
+            ),
+            text: (
+                text: "0",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 15.,
                 color: (1.0, 1.0, 1.0, 1.0),
                 align: Middle,
             )
@@ -258,6 +297,26 @@ Container(
             )
         ),
 
+        Label(
+            transform: (
+                id: "p3_lives_remaining",
+                x: 20.,
+                y: 60.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: BottomMiddle,
+            ),
+            text: (
+                text: "0",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 15.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+
 
         Label(
             transform: (
@@ -330,6 +389,25 @@ Container(
                 text: "0",
                 font: File("font/square.ttf", ("TTF", ())),
                 font_size: 40.,
+                color: (1.0, 1.0, 1.0, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Label(
+            transform: (
+                id: "p4_lives_remaining",
+                x: 270.,
+                y: 60.,
+                width: 800.,
+                height: 175.,
+                tab_order: 1,
+                anchor: BottomMiddle,
+            ),
+            text: (
+                text: "0",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 15.,
                 color: (1.0, 1.0, 1.0, 1.0),
                 align: Middle,
             )

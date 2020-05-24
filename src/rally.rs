@@ -130,7 +130,13 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             }
         }
         
-        let player_status_text = PlayerStatusText { shield: None, armor: None, health: None, points: None};
+        let player_status_text = PlayerStatusText {
+            shield: None,
+            armor: None,
+            health: None,
+            points: None,
+            lives: None
+        };
 
         for player_index in 0..max_players {
             let is_bot = player_index >= max_players - bot_players;

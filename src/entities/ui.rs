@@ -58,6 +58,7 @@ pub struct PlayerStatusText {
     pub armor: Option<Entity>,
     pub health: Option<Entity>,
     pub points: Option<Entity>,
+    pub lives: Option<Entity>,
 }
 
 /// Initialises the UI
@@ -86,24 +87,28 @@ pub fn connect_players_to_ui(world: &mut World) -> bool {
             armor: None,
             health: None,
             points: None,
+            lives: None,
         },
         PlayerStatusText {
             shield: None,
             armor: None,
             health: None,
             points: None,
+            lives: None,
         },
         PlayerStatusText {
             shield: None,
             armor: None,
             health: None,
             points: None,
+            lives: None,
         },
         PlayerStatusText {
             shield: None,
             armor: None,
             health: None,
             points: None,
+            lives: None,
         },
     ];
 
@@ -134,6 +139,13 @@ pub fn connect_players_to_ui(world: &mut World) -> bool {
 
             if let Some(entity) = finder.find(&search_string) {
                 player_status_texts[player_index].points = Some(entity);
+            }
+        });
+        world.exec(|finder: UiFinder<'_>| {
+            let search_string = format!("p{}_lives_remaining", player_index+1);
+
+            if let Some(entity) = finder.find(&search_string) {
+                player_status_texts[player_index].lives = Some(entity);
             }
         });
     }

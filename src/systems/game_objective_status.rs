@@ -97,6 +97,23 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     .text = format!("{:.0}", vehicle.health.value.ceil());
             }
 
+            if game_mode_setup.stock_lives > 0 {
+                if let Some(lives_remaining) = vehicle.player_status_text.lives {
+                    ui_text
+                        .get_mut(lives_remaining)
+                        .unwrap()
+                        .text = format!("{:.0} x", game_mode_setup.stock_lives - player.deaths);
+                }
+            }
+            else {
+                if let Some(lives_remaining) = vehicle.player_status_text.lives {
+                    ui_text
+                        .get_mut(lives_remaining)
+                        .unwrap()
+                        .text = "".to_string()
+                }
+            }
+
             /*
             pub enum GameModes {
                 ClassicGunGame, //First to get a kill with each weapon. Weapons are hot-swapped after kills.
