@@ -92,8 +92,15 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                             + (vehicle_1.dy - vehicle_2.dy).powi(2);
                         let abs_vel_diff = sq_vel_diff.sqrt();
 
-                        collision_ids_map.insert(player_1.id, abs_vel_diff);
-                        collision_ids_map.insert(player_2.id, abs_vel_diff);
+                        let contact_data = query::contact(
+                            &vehicle_1_collider_pos, &vehicle_1_collider_shape,
+                            &vehicle_2_collider_pos, &vehicle_2_collider_shape,
+                            0.0);
+
+                        let contact_pt = contact_data.unwrap().world2;
+
+                        collision_ids_map.insert(player_1.id, (abs_vel_diff, contact_pt));
+                        collision_ids_map.insert(player_2.id, (abs_vel_diff, contact_pt));
                     }
                 }
             }
@@ -104,14 +111,15 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
         for (vehicle, player, transform) in (&mut vehicles, &mut players, &mut transforms).join() {
             let collision_ids = collision_ids_map.get(&player.id);
 
-            if let Some(collision_ids) = collision_ids {
-                let v_diff = collision_ids;
+            if let Some(collision_data) = collision_ids {
+                let (abs_vel_diff, contact_pt) = collision_data;
+
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     debug!("Player {} has collided", player.id);
 
-                    let damage: f32 = BASE_COLLISION_DAMAGE * v_diff;
+                    let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel_diff;
 
-                    if *v_diff > 1.0 {
+                    if *abs_vel_diff > 1.0 {
                         play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                     }
                     vehicle.collision_cooldown_timer = VEHICLE_COLLISION_COOLDOWN_RESET;
@@ -141,6 +149,13 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                             game_mode_setup.stock_lives,
                         );
                     }
+
+                    let vehicle_x = transform.translation().x;
+                    let vehicle_y = transform.translation().y;
+
+                    transform.set_translation_x(vehicle_x - (contact_pt.x - vehicle_x)/10. + vehicle.dx);
+                    transform.set_translation_y(vehicle_y - (contact_pt.y - vehicle_y)/10. + vehicle.dy);
+                    
 
                     let wall_hit_bounce_decel_pct: f32 = -VEHICLE_HIT_BOUNCE_DECEL_PCT;
 
