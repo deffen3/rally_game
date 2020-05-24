@@ -246,7 +246,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if player.bot_move_cooldown < 0.0 {
                             //issue new move command
 
-                            if vehicle.health.value < vehicle.health.max || vehicle.shield.value == 0.0 {
+                            if (vehicle.health.value < vehicle.health.max ||
+                                    vehicle.shield.value == 0.0) && 
+                                    dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE {
                                 player.bot_mode = BotMode::Repairing;
                             }
 
