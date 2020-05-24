@@ -81,19 +81,17 @@ There are various weapons with various properties, including:
 
 
 ## TODO:
+1. Game setup customization for Vehicles, Weapons, Arenas
+1. Bots should calculate time to collision and avoid colliding with walls
+1. Survival mode? Team of Humans vs. waves of bots? Support for teams in other modes?
+1. Capture the flag mode?
+1. New bot modes to comprehend Racing, King of the Hill, repairing, and picking up new weapon boxes
+1. Support for 0, 1, or more weapons per vehicle.
+1. Load arena/race tracks from config file
 1. Create a generic Hitbox component, and create hitbox detection functions - used for some entities, but not all
 1. Make use of ncollide coarse and fine phase detection algorithm
 1. Improve missile heat-seeking tracking - pretty good now, still not great though
 1. UI Transform works different on Mac (based on DPI?). On Windows it also doesn't scale properly when window is resized.
-1. Load arena/race tracks from config file
-1. New bot modes to comprehend Racing, King of the Hill, repairing, and picking up new weapon boxes
-1. Bots should calculate time to collision and avoid colliding with walls
-1. Survival mode? Team of Humans vs. waves of bots? Support for teams in other modes?
-1. Capture the flag mode?
-1. Game setup customization for Vehicles, Weapons, Arenas
-1. Add stock lives counter for games where score and stock lives both matter
-1. Support for 0, 1, or more weapons per vehicle.
-1. Mine trigger and explosion radius? (and with explosion shockwave animation)
 
 ---
 
