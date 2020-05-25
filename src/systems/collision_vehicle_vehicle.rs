@@ -26,7 +26,7 @@ use crate::rally::{
 use crate::resources::{GameModeSetup, GameModes};
 
 const VEHICLE_COLLISION_COOLDOWN_RESET: f32 = 0.1;
-const VEHICLE_HIT_BOUNCE_DECEL_PCT: f32 = 0.45;
+const COLLISION_LOSS: f32 = 0.03;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
@@ -133,6 +133,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
 
                 let abs_vel_diff = sq_vel_diff.sqrt();
 
+
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     debug!("Player {} has collided", player.id);
 
@@ -167,18 +168,26 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                             transform,
                             game_mode_setup.stock_lives,
                         );
-                    }
+                    }                    
+
+                    let vehicle_weight = determine_vehicle_weight(vehicle);
+
+                    // let vehicle_momentum = vehicle_weight * 
+                    //     (vehicle.dx.powi(2) + vehicle.dy.powi(2)).sqrt();
+
+                    // let other_vehicle_momentum = other_vehicle_weight * 
+                    //     (other_vehicle_dx.powi(2) + other_vehicle_dy.powi(2)).sqrt();
 
                     let vehicle_x = transform.translation().x;
                     let vehicle_y = transform.translation().y;
 
-                    let wall_hit_bounce_decel_pct: f32 = -VEHICLE_HIT_BOUNCE_DECEL_PCT;
+                    let impulse = COLLISION_LOSS*(2.0 * vehicle_weight)/(vehicle_weight + other_vehicle_weight);
 
-                    vehicle.dx *= wall_hit_bounce_decel_pct;
-                    vehicle.dy *= wall_hit_bounce_decel_pct;
+                    vehicle.dx = vehicle.dx - impulse*(contact_pt.x - vehicle_x);
+                    vehicle.dy = vehicle.dy - impulse*(contact_pt.y - vehicle_y);
 
-                    transform.set_translation_x(vehicle_x - (contact_pt.x - vehicle_x)/10. + vehicle.dx);
-                    transform.set_translation_y(vehicle_y - (contact_pt.y - vehicle_y)/10. + vehicle.dy);
+                    transform.set_translation_x(vehicle_x + vehicle.dx);
+                    transform.set_translation_y(vehicle_y + vehicle.dy);
 
                 } else {
                     vehicle.collision_cooldown_timer -= dt;
