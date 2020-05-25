@@ -26,7 +26,7 @@ use crate::rally::{
 use crate::resources::{GameModeSetup, GameModes};
 
 const VEHICLE_COLLISION_COOLDOWN_RESET: f32 = 0.1;
-const COLLISION_LOSS: f32 = 0.03;
+const COLLISION_LOSS: f32 = 0.05;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
@@ -110,9 +110,9 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         ));
                         
                         collision_ids_map.insert(player_2.id, (
-                            vehicle_2_weight,
-                            vehicle_2.dx,
-                            vehicle_2.dy,
+                            vehicle_1_weight,
+                            vehicle_1.dx,
+                            vehicle_1.dy,
                             contact_pt,
                         ));
                     }
