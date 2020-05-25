@@ -6,6 +6,7 @@ use crate::components::WeaponTypes;
 pub enum BotMode {
     Running,
     StopAim,
+    StrafeAim,
     CollisionTurn,
     CollisionMove,
     Mining,

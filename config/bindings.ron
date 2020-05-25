@@ -2,12 +2,16 @@
   axes: {
     "p1_accel": Emulated(pos: Key(W), neg: Key(S)),
     "p1_turn": Emulated(pos: Key(A), neg: Key(D)),
+    "p1_strafe": Emulated(pos: Key(Q), neg: Key(E)),
     "p2_accel": Emulated(pos: Key(Up), neg: Key(Down)),
     "p2_turn": Emulated(pos: Key(Left), neg: Key(Right)),
+    "p2_strafe": Emulated(pos: Key(Delete), neg: Key(PageDown)),
     "p3_accel": Emulated(pos: Key(Numpad8), neg: Key(Numpad5)),
     "p3_turn": Emulated(pos: Key(Numpad4), neg: Key(Numpad6)),
+    "p3_strafe": Emulated(pos: Key(Numpad7), neg: Key(Numpad9)),
     "p4_accel": Emulated(pos: Key(I), neg: Key(K)),
     "p4_turn": Emulated(pos: Key(J), neg: Key(L)),
+    "p4_strafe": Emulated(pos: Key(U), neg: Key(O)),
   },
   actions: {
     "open_menu": [[Key(Escape)]],

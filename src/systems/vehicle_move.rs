@@ -159,6 +159,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             let thrust_accel_rate: f32 = 0.9 * vehicle.engine_force / vehicle_weight;
             let thrust_decel_rate: f32 = 0.6 * vehicle.engine_force / vehicle_weight;
+            let thrust_strafe_accel_rate: f32 = 0.6 * vehicle.engine_force / vehicle_weight;
             let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_force / vehicle_weight;
 
             let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
@@ -167,12 +168,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
             //let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
             //let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
 
-            let (mut vehicle_accel, mut vehicle_turn) = match player.id {
-                0 => (input.axis_value("p1_accel"), input.axis_value("p1_turn")),
-                1 => (input.axis_value("p2_accel"), input.axis_value("p2_turn")),
-                2 => (input.axis_value("p3_accel"), input.axis_value("p3_turn")),
-                3 => (input.axis_value("p4_accel"), input.axis_value("p4_turn")),
-                _ => (None, None),
+            let (mut vehicle_accel, mut vehicle_turn, mut vehicle_strafe) = match player.id {
+                0 => (input.axis_value("p1_accel"), input.axis_value("p1_turn"), input.axis_value("p1_strafe")),
+                1 => (input.axis_value("p2_accel"), input.axis_value("p2_turn"), input.axis_value("p2_strafe")),
+                2 => (input.axis_value("p3_accel"), input.axis_value("p3_turn"), input.axis_value("p3_strafe")),
+                3 => (input.axis_value("p4_accel"), input.axis_value("p4_turn"), input.axis_value("p4_strafe")),
+                _ => (None, None, None),
             };
 
             let vehicle_x = transform.translation().x;
@@ -208,7 +209,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             } else {
                                 player.bot_mode = BotMode::StopAim;
                                 debug!("{} StopAim", player.id);
-                                player.bot_move_cooldown = 5.0;
+                                player.bot_move_cooldown = 1.0;
                                 player.last_made_hit_timer = 0.0;
                             }
                         }
@@ -248,6 +249,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         }
                     }
                 } else if player.bot_mode == BotMode::StopAim
+                    || player.bot_mode == BotMode::StrafeAim
                     || player.bot_mode == BotMode::Chasing
                     || player.bot_mode == BotMode::Swording
                 {
@@ -259,7 +261,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         //if the closest vehicle is too far away to engage
                         if dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE
-                            || player.bot_move_cooldown < 0.0
+                            && player.bot_move_cooldown < 0.0
                         {
                             continue_with_attacking_mode = false;
 
@@ -313,6 +315,31 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if continue_with_attacking_mode {
                         //continue with Attacking mode
+                        if player.bot_mode == BotMode::StopAim && player.last_hit_timer < 2.0 {
+                            player.bot_mode = BotMode::StrafeAim;
+                            log::info!("{} StrafeAim {}", player.id, player.bot_move_cooldown);
+                        }
+
+                        if player.bot_move_cooldown < 0.0 {
+                            if player.bot_mode == BotMode::StrafeAim {
+                                let left_or_right_strafe = rng.gen::<bool>();
+
+                                log::info!("{} Strafing", player.id);
+
+                                player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                                if left_or_right_strafe {
+                                    vehicle_strafe = Some(0.8);
+                                }
+                                else {
+                                    vehicle_strafe = Some(-0.8);
+                                }
+                                
+                            }
+                            else {
+                                player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                                vehicle_strafe = Some(0.0);
+                            }
+                        }
 
                         if let Some(attack_angle) = vehicle.angle_to_closest_vehicle {
                             let turn_value = 1.0;
@@ -369,8 +396,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 }
             }
 
-            let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
-            let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
+            let veh_x_comp = -vehicle_angle.sin(); //left is -, right is +
+            let veh_y_comp = vehicle_angle.cos(); //up is +, down is -
+
+            let veh_x_strafe_comp = -(vehicle_angle + PI/2.0).sin();
+            let veh_y_strafe_comp = (vehicle_angle + PI/2.0).cos();
 
 
             //Apply malfunction for damaged vehicles
@@ -444,12 +474,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         thrust_decel_rate * move_amount as f32
                     };
 
-                    vehicle.dx += scaled_amount * yaw_x_comp * dt;
-                    vehicle.dy += scaled_amount * yaw_y_comp * dt;
+                    vehicle.dx += scaled_amount * veh_x_comp * dt;
+                    vehicle.dy += scaled_amount * veh_y_comp * dt;
 
                     let position = Vector3::new(
-                        vehicle_x - yaw_x_comp*vehicle.height/2.0,
-                        vehicle_y - yaw_y_comp*vehicle.height/2.0, 
+                        vehicle_x - veh_x_comp*vehicle.height/2.0,
+                        vehicle_y - veh_y_comp*vehicle.height/2.0, 
                         0.5
                     );
 
@@ -468,6 +498,29 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     }
                 }
             }
+
+            //Update vehicle side strafing from strafing input
+            if vehicle.state == VehicleState::Active {
+                if let Some(strafe_amount) = vehicle_strafe {
+                    let scaled_amount: f32 = if vehicle.repair.activated {
+                        0.0 as f32
+                    } else if vehicle.malfunction > 0.0 {
+                        thrust_strafe_accel_rate * strafe_amount * (100.0-vehicle.malfunction) as f32
+                    } else {
+                        thrust_strafe_accel_rate * strafe_amount as f32
+                    };
+
+                    vehicle.dx += scaled_amount * veh_x_strafe_comp * dt;
+                    vehicle.dy += scaled_amount * veh_y_strafe_comp * dt;
+
+                    let position = Vector3::new(
+                        vehicle_x - veh_x_strafe_comp*vehicle.height/2.0,
+                        vehicle_y - veh_y_strafe_comp*vehicle.height/2.0, 
+                        0.5
+                    );
+                }
+            }
+
 
             //Apply friction
             //this needs to be applied to vehicle momentum angle, not vehicle_angle angle
@@ -529,10 +582,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
 
             //Wall-collision logic
-            let veh_rect_width = vehicle.height * 0.5 * yaw_x_comp.abs()
-                + vehicle.width * 0.5 * (1.0 - yaw_x_comp.abs());
-            let veh_rect_height = vehicle.height * 0.5 * yaw_y_comp.abs()
-                + vehicle.width * 0.5 * (1.0 - yaw_y_comp.abs());
+            let veh_rect_width = vehicle.height * 0.5 * veh_x_comp.abs()
+                + vehicle.width * 0.5 * (1.0 - veh_x_comp.abs());
+            let veh_rect_height = vehicle.height * 0.5 * veh_y_comp.abs()
+                + vehicle.width * 0.5 * (1.0 - veh_y_comp.abs());
 
             let mut x_collision = false;
             let mut y_collision = false;
