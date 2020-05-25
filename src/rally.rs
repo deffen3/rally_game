@@ -25,7 +25,7 @@ use crate::entities::{
 
 use crate::components::{
     build_weapon_store, Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
-    Weapon, WeaponFire, Particles,
+    Weapon, WeaponFire, Particles, VehicleMovementType,
 };
 
 use crate::systems::{
@@ -180,6 +180,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
             let max_velocity = 1.0;
 
+            let vehicle_movement_type = VehicleMovementType::Hover;
+
+
             let player = intialize_player(
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
@@ -194,6 +197,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 engine_force,
                 engine_weight,
                 max_velocity,
+                vehicle_movement_type,
                 vehicle_width,
                 vehicle_height,
             );

@@ -23,7 +23,7 @@ use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle, update_weapon_icon,
     update_weapon_properties, vehicle_damage_model, BotMode, Hitbox, HitboxShape, Player,
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, Weapon, WeaponStoreResource,
-    determine_vehicle_weight,
+    determine_vehicle_weight, VehicleMovementType,
 };
 
 use crate::entities::{malfunction_sparking, acceleration_spray};
@@ -161,6 +161,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let thrust_decel_rate: f32 = 0.6 * vehicle.engine_force / vehicle_weight;
             let thrust_strafe_accel_rate: f32 = 0.6 * vehicle.engine_force / vehicle_weight;
             let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_force / vehicle_weight;
+
+            let tire_longitudinal_friction_decel_rate: f32 = 0.3;
+            let tire_lateral_friction_decel_rate: f32 = 2.0;
+
+            let tank_track_longitudinal_friction_decel_rate: f32 = 0.8;
+            let tank_track_lateral_friction_decel_rate: f32 = 2.0;
 
             let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
             let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
@@ -317,14 +323,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         //continue with Attacking mode
                         if player.bot_mode == BotMode::StopAim && player.last_hit_timer < 2.0 {
                             player.bot_mode = BotMode::StrafeAim;
-                            log::info!("{} StrafeAim {}", player.id, player.bot_move_cooldown);
+                            debug!("{} StrafeAim {}", player.id, player.bot_move_cooldown);
                         }
 
                         if player.bot_move_cooldown < 0.0 {
                             if player.bot_mode == BotMode::StrafeAim {
                                 let left_or_right_strafe = rng.gen::<bool>();
-
-                                log::info!("{} Strafing", player.id);
 
                                 player.bot_move_cooldown = player.bot_move_cooldown_reset;
                                 if left_or_right_strafe {
@@ -500,7 +504,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
 
             //Update vehicle side strafing from strafing input
-            if vehicle.state == VehicleState::Active {
+            if vehicle.movement_type == VehicleMovementType::Hover &&
+                    vehicle.state == VehicleState::Active {
                 if let Some(strafe_amount) = vehicle_strafe {
                     let scaled_amount: f32 = if vehicle.repair.activated {
                         0.0 as f32
@@ -512,14 +517,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     vehicle.dx += scaled_amount * veh_x_strafe_comp * dt;
                     vehicle.dy += scaled_amount * veh_y_strafe_comp * dt;
-
-                    let position = Vector3::new(
-                        vehicle_x - veh_x_strafe_comp*vehicle.height/2.0,
-                        vehicle_y - veh_y_strafe_comp*vehicle.height/2.0, 
-                        0.5
-                    );
                 }
             }
+
+
+            let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+            let abs_vel = sq_vel.sqrt();
 
 
             //Apply friction
@@ -528,11 +531,63 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let velocity_x_comp = -velocity_angle.sin(); //left is -, right is +
             let velocity_y_comp = velocity_angle.cos(); //up is +, down is -
 
-            vehicle.dx -= thrust_friction_decel_rate * velocity_x_comp * dt;
-            vehicle.dy -= thrust_friction_decel_rate * velocity_y_comp * dt;
+            let compare_velocity_angle;
+            if abs_vel >= 0.001 {
+                if velocity_angle < PI {
+                    compare_velocity_angle = velocity_angle + 2.0 * PI;
+                }
+                else {
+                    compare_velocity_angle = velocity_angle;
+                }
+            }
+            else {
+                compare_velocity_angle = vehicle_angle; //no velocity = no slip
+            }
 
-            let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
-            let abs_vel = sq_vel.sqrt();
+            let mut slip_angle = vehicle_angle - compare_velocity_angle;
+
+            if slip_angle > PI {
+                slip_angle = -(2.0 * PI - slip_angle);
+            } else if slip_angle < -PI {
+                slip_angle = -(-2.0 * PI - slip_angle);
+            }
+
+            let slip_pct = 1.0 - ((slip_angle.abs() - PI/4.0).abs() / (PI/4.0));
+
+            log::debug!("{} {} {} {}", velocity_angle, vehicle_angle, slip_angle, slip_pct);
+
+
+            if vehicle.movement_type == VehicleMovementType::Hover {
+                vehicle.dx -= thrust_friction_decel_rate * velocity_x_comp * dt;
+                vehicle.dy -= thrust_friction_decel_rate * velocity_y_comp * dt;
+            }
+            else if vehicle.movement_type == VehicleMovementType::Car {
+                // let veh_x_comp = -vehicle_angle.sin(); //left is -, right is +
+                // let veh_y_comp = vehicle_angle.cos(); //up is +, down is -
+    
+                // let veh_x_strafe_comp = -(vehicle_angle + PI/2.0).sin();
+                // let veh_y_strafe_comp = (vehicle_angle + PI/2.0).cos();
+
+                // let tire_longitudinal_friction_decel_rate: f32 = 0.5;
+                // let tire_lateral_friction_decel_rate: f32 = 2.0;
+
+                vehicle.dx -= tire_longitudinal_friction_decel_rate * velocity_x_comp * (1.0 - slip_pct) * dt;
+                vehicle.dy -= tire_longitudinal_friction_decel_rate * velocity_y_comp * (1.0 - slip_pct) * dt;
+
+                vehicle.dx -= tire_lateral_friction_decel_rate * velocity_x_comp * slip_pct * dt;
+                vehicle.dy -= tire_lateral_friction_decel_rate * velocity_y_comp * slip_pct * dt;
+            }
+            else if vehicle.movement_type == VehicleMovementType::Tank {
+
+                vehicle.dx -= tank_track_longitudinal_friction_decel_rate * velocity_x_comp * (1.0 - slip_pct) * dt;
+                vehicle.dy -= tank_track_longitudinal_friction_decel_rate * velocity_y_comp * (1.0 - slip_pct) * dt;
+
+                vehicle.dx -= tank_track_lateral_friction_decel_rate * velocity_x_comp * (slip_pct) * dt;
+                vehicle.dy -= tank_track_lateral_friction_decel_rate * velocity_y_comp * (slip_pct) * dt;
+            }
+            
+
+            
 
             if abs_vel > vehicle.max_velocity {
                 vehicle.dx *= vehicle.max_velocity / abs_vel;
@@ -559,21 +614,41 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         rotate_accel_rate * turn_amount as f32
                     };
 
-                    if scaled_amount > 0.1 || scaled_amount < -0.1 {
-                        if vehicle.dr > 0.01 {
-                            vehicle.dr += (scaled_amount - rotate_friction_decel_rate) * dt;
-                        } else if vehicle.dr < -0.01 {
-                            vehicle.dr += (scaled_amount + rotate_friction_decel_rate) * dt;
-                        } else {
-                            vehicle.dr += (scaled_amount) * dt;
+                    let turnable;
+                    if vehicle.movement_type == VehicleMovementType::Car {
+                        if abs_vel >= 0.01 {
+                            turnable = true;
                         }
-                    } else if vehicle.dr > 0.01 {
-                        vehicle.dr += (-rotate_friction_decel_rate) * dt;
-                    } else if vehicle.dr < -0.01 {
-                        vehicle.dr += (rotate_friction_decel_rate) * dt;
-                    } else {
-                        vehicle.dr = 0.0;
+                        else {
+                            turnable = false;
+                        }
                     }
+                    else {
+                        turnable = true;
+                    }
+
+
+                    if turnable {
+                        if scaled_amount > 0.1 || scaled_amount < -0.1 {
+                            if vehicle.dr > 0.01 {
+                                vehicle.dr += (scaled_amount - rotate_friction_decel_rate) * dt;
+                            } else if vehicle.dr < -0.01 {
+                                vehicle.dr += (scaled_amount + rotate_friction_decel_rate) * dt;
+                            } else {
+                                vehicle.dr += (scaled_amount) * dt;
+                            }
+                        } else if vehicle.dr > 0.01 {
+                            vehicle.dr += (-rotate_friction_decel_rate) * dt;
+                        } else if vehicle.dr < -0.01 {
+                            vehicle.dr += (rotate_friction_decel_rate) * dt;
+                        } else {
+                            vehicle.dr = 0.0;
+                        }
+                    }
+                    else {
+                        vehicle.dr = 0.0
+                    }
+
 
                     vehicle.dr = vehicle.dr.min(0.025).max(-0.025);
 

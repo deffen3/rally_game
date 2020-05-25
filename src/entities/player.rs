@@ -13,7 +13,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     build_named_weapon2, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponNames,
-    WeaponStoreResource,
+    WeaponStoreResource, VehicleMovementType,
 };
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -33,6 +33,7 @@ pub fn intialize_player(
     engine_force: f32,
     engine_weight: f32,
     max_velocity: f32,
+    vehicle_movement_type: VehicleMovementType,
     vehicle_width: f32,
     vehicle_height: f32,
 ) -> Entity {
@@ -302,6 +303,7 @@ pub fn intialize_player(
             engine_weight,
             max_velocity,
             weapon_stats.weight,
+            vehicle_movement_type,
             vehicle_width,
             vehicle_height,
         ))

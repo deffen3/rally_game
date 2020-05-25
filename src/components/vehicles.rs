@@ -10,6 +10,13 @@ use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 use crate::resources::GameModes;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+pub enum VehicleMovementType {
+    Hover, //hover craft can turn to spin in place, and have the same friction regardless of velocity/vehicle angles
+    Car, //cars can only turn if moving, and have high friction when velocity angle differs greatly from vehicle angle
+    Tank, //tanks can turn to spin in place, and have high friction when velocity angle differs greatly from vehicle angle
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum VehicleState {
     Active,
     InActive,
@@ -17,6 +24,7 @@ pub enum VehicleState {
 }
 
 pub struct Vehicle {
+    pub movement_type: VehicleMovementType,
     pub width: f32,
     pub height: f32,
     pub dx: f32,
@@ -98,10 +106,12 @@ impl Vehicle {
         engine_weight: f32,
         max_velocity: f32,
         weapon_weight: f32,
+        movement_type: VehicleMovementType,
         width: f32,
         height: f32,
     ) -> Vehicle {
         Vehicle {
+            movement_type,
             width,
             height,
             dx: 0.0,
