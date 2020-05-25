@@ -16,7 +16,7 @@ use log::{info};
 
 use crate::components::PlayerWeaponIcon;
 use crate::rally::UI_HEIGHT;
-use crate::resources::{GameModeSetup, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameWeaponSetup, WeaponFireResource};
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
 pub enum WeaponNames {
@@ -43,13 +43,13 @@ pub enum WeaponNames {
     IonCannon,
 }
 
-pub fn get_random_weapon_name(game_mode_setup: &ReadExpect<GameModeSetup>) -> WeaponNames {
+pub fn get_random_weapon_name(game_setup: &ReadExpect<GameWeaponSetup>) -> WeaponNames {
     let mut rng = rand::thread_rng();
     let chance_selector = rng.gen_range(0.0, 1.0);
 
-    let mut weapon_selector = game_mode_setup.starter_weapon.clone();
+    let mut weapon_selector = game_setup.starter_weapon.clone();
 
-    for (weapon_name, chance) in game_mode_setup.weapon_spawn_chances.iter() {
+    for (weapon_name, chance) in game_setup.weapon_spawn_chances.iter() {
         if *chance >= chance_selector {
             weapon_selector = weapon_name.clone();
             break;

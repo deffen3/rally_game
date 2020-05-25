@@ -25,7 +25,7 @@ use crate::components::{
 
 use crate::entities::{spawn_weapon_boxes, hit_spray, explosion_shockwave};
 
-use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 
@@ -60,6 +60,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
         ReadExpect<'s, GameModeSetup>,
+        ReadExpect<'s, GameWeaponSetup>,
         ReadExpect<'s, WeaponStoreResource>,
     );
 
@@ -87,12 +88,13 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             weapon_fire_resource,
             lazy_update,
             game_mode_setup,
+            game_weapon_setup,
             weapon_store_resource,
         ): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
-        if game_mode_setup.random_weapon_spawns
+        if game_weapon_setup.random_weapon_spawns
             && game_mode_setup.game_mode != GameModes::ClassicGunGame
         {
             self.weapon_spawner_cooldown_timer -= dt;
@@ -211,17 +213,17 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         }
 
         //weapon box spawns
-        if game_mode_setup.random_weapon_spawns
+        if game_weapon_setup.random_weapon_spawns
             && game_mode_setup.game_mode != GameModes::ClassicGunGame
         {
             if self.weapon_spawner_cooldown_timer <= 0.0 {
-                self.weapon_spawner_cooldown_timer = game_mode_setup.weapon_spawn_timer;
+                self.weapon_spawner_cooldown_timer = game_weapon_setup.weapon_spawn_timer;
 
                 spawn_weapon_boxes(
                     &entities,
                     &weapon_fire_resource,
                     &lazy_update,
-                    game_mode_setup.weapon_spawn_count.clone(),
+                    game_weapon_setup.weapon_spawn_count.clone(),
                     game_mode_setup.game_mode.clone(),
                 );
             }

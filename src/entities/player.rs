@@ -15,7 +15,7 @@ use crate::components::{
     build_named_weapon2, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponNames,
     WeaponStoreResource,
 };
-use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
@@ -43,9 +43,15 @@ pub fn intialize_player(
 
         if let Some(game_mode_setup) = fetched_game_mode_setup {
             game_mode = game_mode_setup.game_mode.clone();
-            weapon_name = game_mode_setup.starter_weapon.clone();
         } else {
             game_mode = GameModes::ClassicGunGame;
+        }
+
+        let fetched_game_weapon_setup = world.try_fetch::<GameWeaponSetup>();
+
+        if let Some(game_weapon_setup) = fetched_game_weapon_setup {
+            weapon_name = game_weapon_setup.starter_weapon.clone();
+        } else {
             weapon_name = WeaponNames::LaserDoubleGimballed;
         }
     }

@@ -28,7 +28,7 @@ use crate::components::{
 
 use crate::entities::{malfunction_sparking, acceleration_spray};
 
-use crate::resources::{GameModeSetup, GameModes, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
 use crate::rally::{
     ARENA_HEIGHT, ARENA_WIDTH, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
@@ -72,6 +72,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         Option<Read<'s, Output>>,
         WriteStorage<'s, Tint>,
         ReadExpect<'s, GameModeSetup>,
+        ReadExpect<'s, GameWeaponSetup>,
         ReadStorage<'s, PlayerWeaponIcon>,
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
@@ -99,6 +100,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             audio_output,
             mut tints,
             game_mode_setup,
+            game_weapon_setup,
             player_weapon_icons,
             weapon_fire_resource,
             lazy_update,
@@ -129,8 +131,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //if just now respawned and state changed into VehicleState::Active
                 if vehicle.state == VehicleState::Active {
-                    if game_mode_setup.random_weapon_spawns && !game_mode_setup.keep_picked_up_weapons {
-                        let restart_weapon_name = game_mode_setup.starter_weapon.clone();
+                    if game_weapon_setup.random_weapon_spawns && !game_weapon_setup.keep_picked_up_weapons {
+                        let restart_weapon_name = game_weapon_setup.starter_weapon.clone();
 
                         weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
@@ -845,7 +847,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if hitbox.is_weapon_box {
                             let _ = entities.delete(hitbox_entity);
 
-                            let new_weapon_name = get_random_weapon_name(&game_mode_setup);
+                            let new_weapon_name = get_random_weapon_name(&game_weapon_setup);
 
                             weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
 
