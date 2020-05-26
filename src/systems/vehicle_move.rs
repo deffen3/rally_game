@@ -163,7 +163,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_force / vehicle_weight;
 
             let tire_longitudinal_friction_decel_rate: f32 = 0.3;
-            let tire_lateral_friction_decel_rate: f32 = 2.0;
+            let tire_lateral_friction_decel_rate: f32 = 0.15;
 
             let tank_track_longitudinal_friction_decel_rate: f32 = 0.8;
             let tank_track_lateral_friction_decel_rate: f32 = 2.0;
@@ -533,12 +533,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             let compare_velocity_angle;
             if abs_vel >= 0.001 {
-                if velocity_angle < PI {
-                    compare_velocity_angle = velocity_angle + 2.0 * PI;
-                }
-                else {
-                    compare_velocity_angle = velocity_angle;
-                }
+                compare_velocity_angle = velocity_angle;
             }
             else {
                 compare_velocity_angle = vehicle_angle; //no velocity = no slip
@@ -549,10 +544,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
             if slip_angle > PI {
                 slip_angle = -(2.0 * PI - slip_angle);
             } else if slip_angle < -PI {
-                slip_angle = -(-2.0 * PI - slip_angle);
+                slip_angle = 2.0 * PI + slip_angle;
             }
 
-            let slip_pct = 1.0 - ((slip_angle.abs() - PI/4.0).abs() / (PI/4.0));
+            let slip_pct = 1.0 - ((slip_angle.abs() - PI/2.0).abs() / (PI/2.0));
 
             log::debug!("{} {} {} {}", velocity_angle, vehicle_angle, slip_angle, slip_pct);
 
