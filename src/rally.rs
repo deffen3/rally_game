@@ -25,7 +25,7 @@ use crate::entities::{
 
 use crate::components::{
     build_weapon_store, Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
-    Weapon, WeaponFire, Particles, VehicleMovementType,
+    WeaponArray, WeaponFire, Particles, VehicleMovementType,
 };
 
 use crate::systems::{
@@ -83,7 +83,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         world.register::<Repair>();
         world.register::<Shield>();
         world.register::<Vehicle>();
-        world.register::<Weapon>();
+        world.register::<WeaponArray>();
         world.register::<WeaponFire>();
         world.register::<Particles>();
 

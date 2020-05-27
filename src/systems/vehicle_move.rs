@@ -20,9 +20,9 @@ use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
-    check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle, update_weapon_icon,
+    check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle,
     update_weapon_properties, vehicle_damage_model, BotMode, Hitbox, HitboxShape, Player,
-    PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, Weapon, WeaponStoreResource,
+    PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, WeaponArray, WeaponStoreResource,
     determine_vehicle_weight, VehicleMovementType,
 };
 
@@ -64,7 +64,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
-        WriteStorage<'s, Weapon>,
+        WriteStorage<'s, WeaponArray>,
         Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>,
         Read<'s, AssetStorage<Source>>,
@@ -92,7 +92,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             mut players,
             mut transforms,
             mut vehicles,
-            mut weapons,
+            mut weapon_arrays,
             time,
             input,
             storage,
@@ -117,8 +117,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut earned_collision_kills: Vec<usize> = Vec::new();
 
         //Turn and Accel
-        for (player, vehicle, transform, mut weapon) in
-            (&mut players, &mut vehicles, &mut transforms, &mut weapons).join()
+        for (player, vehicle, transform, mut weapon_array) in
+            (&mut players, &mut vehicles, &mut transforms, &mut weapon_arrays).join()
         {
             if vehicle.state == VehicleState::InRespawn {
                 self.last_spawn_index = check_respawn_vehicle(
@@ -134,22 +134,29 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     if game_weapon_setup.random_weapon_spawns && !game_weapon_setup.keep_picked_up_weapons {
                         let restart_weapon_name = game_weapon_setup.starter_weapon.clone();
 
-                        weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
+                        if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                            weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_type.clone());
 
-                        update_weapon_properties(weapon, restart_weapon_name, &weapon_store_resource);
-                        update_weapon_icon(
-                            &entities,
-                            &mut weapon,
-                            &weapon_fire_resource,
-                            player.id,
-                            &lazy_update,
-                        );
+                            update_weapon_properties(
+                                &mut weapon_array,
+                                restart_weapon_name,
+                                &weapon_store_resource,
+                                &entities,
+                                &weapon_fire_resource,
+                                player.id,
+                                &lazy_update,
+                            );
 
-                        vehicle.weapon_weight = weapon.stats.weight;
+                            if let Some(new_primary_weapon) = &weapon_array.weapons[0] {
+                                vehicle.weapon_weight = new_primary_weapon.stats.weight;
+                            }
+                            else {
+                                vehicle.weapon_weight = 0.0;
+                            }
+                        }
                     }
                 }
             }
-
             
             let vehicle_weight = determine_vehicle_weight(vehicle);
 
@@ -201,29 +208,31 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
                             && player.bot_move_cooldown < 0.0
                         {
-                            //change modes to attack
-                            if weapon.stats.attached {
-                                //Typically just LaserSword
-                                player.bot_mode = BotMode::Swording;
-                                debug!("{} Swording", player.id);
-                                player.bot_move_cooldown = 5.0;
-                                player.last_made_hit_timer = 0.0;
-                            } else if weapon.stats.shot_speed <= 0.0 {
-                                //Typically just Mines or Traps
-                                player.bot_mode = BotMode::Mining;
-                                debug!("{} Mining", player.id);
-                            } else {
-                                player.bot_mode = BotMode::StopAim;
-                                debug!("{} StopAim", player.id);
-                                player.bot_move_cooldown = 1.0;
-                                player.last_made_hit_timer = 0.0;
+                            if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                                //change modes to attack
+                                if primary_weapon.stats.attached {
+                                    //Typically just LaserSword
+                                    player.bot_mode = BotMode::Swording;
+                                    debug!("{} Swording", player.id);
+                                    player.bot_move_cooldown = 5.0;
+                                    player.last_made_hit_timer = 0.0;
+                                } else if primary_weapon.stats.shot_speed <= 0.0 {
+                                    //Typically just Mines or Traps
+                                    player.bot_mode = BotMode::Mining;
+                                    debug!("{} Mining", player.id);
+                                } else {
+                                    player.bot_mode = BotMode::StopAim;
+                                    debug!("{} StopAim", player.id);
+                                    player.bot_move_cooldown = 1.0;
+                                    player.last_made_hit_timer = 0.0;
+                                }
                             }
                         }
                     }
 
                     if player.bot_mode == BotMode::TakeTheHill {
-
-                    } 
+                        //TODO
+                    }
                     else if player.bot_mode == BotMode::Running
                         || player.bot_mode == BotMode::Mining
                         || player.bot_mode == BotMode::Repairing
@@ -293,10 +302,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             }
                             else {
                                 //closest vehicle is out of current weapon range though
-                                if dist_to_closest_vehicle > weapon.range_calc {
-                                    player.bot_mode = BotMode::Chasing;
-                                    debug!("{} Chasing", player.id);
-                                    player.last_made_hit_timer = 0.0;
+                                if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                                    if dist_to_closest_vehicle > primary_weapon.range_calc {
+                                        player.bot_mode = BotMode::Chasing;
+                                        debug!("{} Chasing", player.id);
+                                        player.last_made_hit_timer = 0.0;
+                                    }
                                 }
                                 continue_with_attacking_mode = true;
                             }
@@ -348,35 +359,37 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if let Some(attack_angle) = vehicle.angle_to_closest_vehicle {
                             let turn_value = 1.0;
 
-                            //Prepare magnitude of Turning and Acceleration input
-                            if player.bot_mode == BotMode::Swording {
-                                if weapon.stats.mounted_angle > PI / 2.0
-                                    || weapon.stats.mounted_angle < -PI / 2.0
-                                {
-                                    vehicle_accel = Some(-1.0); //drive backwards sword fighting
-                                } else {
-                                    vehicle_accel = Some(1.0); //drive forwards sword fighting
+                            if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                                //Prepare magnitude of Turning and Acceleration input
+                                if player.bot_mode == BotMode::Swording {
+                                    if primary_weapon.stats.mounted_angle > PI / 2.0
+                                        || primary_weapon.stats.mounted_angle < -PI / 2.0
+                                    {
+                                        vehicle_accel = Some(-1.0); //drive backwards sword fighting
+                                    } else {
+                                        vehicle_accel = Some(1.0); //drive forwards sword fighting
+                                    }
+                                } else if player.bot_mode == BotMode::Chasing {
+                                    vehicle_accel = Some(0.6);
                                 }
-                            } else if player.bot_mode == BotMode::Chasing {
-                                vehicle_accel = Some(0.6);
-                            }
 
-                            //Solve for Angle and Direction to turn
-                            let mut angle_diff =
-                                vehicle_angle + weapon.stats.mounted_angle - attack_angle;
+                                //Solve for Angle and Direction to turn
+                                let mut angle_diff =
+                                    vehicle_angle + primary_weapon.stats.mounted_angle - attack_angle;
 
-                            if angle_diff > PI {
-                                angle_diff = -(2.0 * PI - angle_diff);
-                            } else if angle_diff < -PI {
-                                angle_diff = -(-2.0 * PI - angle_diff);
-                            }
+                                if angle_diff > PI {
+                                    angle_diff = -(2.0 * PI - angle_diff);
+                                } else if angle_diff < -PI {
+                                    angle_diff = -(-2.0 * PI - angle_diff);
+                                }
 
-                            if angle_diff > 0.001 {
-                                vehicle_turn = Some(-turn_value);
-                            } else if angle_diff < -0.001 {
-                                vehicle_turn = Some(turn_value);
-                            } else {
-                                vehicle_turn = Some(0.0);
+                                if angle_diff > 0.001 {
+                                    vehicle_turn = Some(-turn_value);
+                                } else if angle_diff < -0.001 {
+                                    vehicle_turn = Some(turn_value);
+                                } else {
+                                    vehicle_turn = Some(0.0);
+                                }
                             }
                         }
                     }
@@ -786,8 +799,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut players_on_hill: Vec<usize> = Vec::new();
         let mut color_for_hill: Vec<(f32, f32, f32)> = Vec::new();
 
-        for (player, vehicle, mut weapon, transform) in
-            (&mut players, &mut vehicles, &mut weapons, &transforms).join()
+        for (player, vehicle, mut weapon_array, transform) in
+            (&mut players, &mut vehicles, &mut weapon_arrays, &transforms).join()
         {
             let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
             let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
@@ -972,22 +985,26 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             let new_weapon_name = get_random_weapon_name(&game_weapon_setup);
 
-                            weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
+                            if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                                weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_type.clone());
 
-                            update_weapon_properties(
-                                weapon,
-                                new_weapon_name,
-                                &weapon_store_resource,
-                            );
-                            update_weapon_icon(
-                                &entities,
-                                &mut weapon,
-                                &weapon_fire_resource,
-                                player.id,
-                                &lazy_update,
-                            );
+                                update_weapon_properties(
+                                    &mut weapon_array,
+                                    new_weapon_name,
+                                    &weapon_store_resource,
+                                    &entities,
+                                    &weapon_fire_resource,
+                                    player.id,
+                                    &lazy_update,
+                                );
 
-                            vehicle.weapon_weight = weapon.stats.weight;
+                                if let Some(new_primary_weapon) = &weapon_array.weapons[0] {
+                                    vehicle.weapon_weight = new_primary_weapon.stats.weight;
+                                }
+                                else {
+                                    vehicle.weapon_weight = 0.0;
+                                }
+                            }
                         } else if hitbox.is_hill {
                             players_on_hill.push(player.id.clone());
 

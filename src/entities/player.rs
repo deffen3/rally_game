@@ -12,7 +12,7 @@ use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
 use crate::components::{
-    build_named_weapon2, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, Weapon, WeaponNames,
+    build_named_weapon2, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, WeaponArray, Weapon, WeaponNames,
     WeaponStoreResource, VehicleMovementType,
 };
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
@@ -284,6 +284,8 @@ pub fn intialize_player(
         .with(Transparent)
         .build();
 
+    let weapon = Weapon::new(weapon_name, weapon_icon, weapon_stats);
+
     //Create actual Player with Vehicle and Weapon
     world
         .create_entity()
@@ -307,7 +309,9 @@ pub fn intialize_player(
             vehicle_width,
             vehicle_height,
         ))
-        .with(Weapon::new(weapon_name, weapon_icon, weapon_stats))
+        .with(WeaponArray {
+            weapons: [Some(weapon), None, None, None],
+        })
         .with(Player::new(player_index, is_bot))
         .build()
 }

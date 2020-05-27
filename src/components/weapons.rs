@@ -165,10 +165,6 @@ pub struct Weapon {
     pub range_calc: f32,
 }
 
-impl Component for Weapon {
-    type Storage = DenseVecStorage<Self>;
-}
-
 impl Weapon {
     pub fn new(name: WeaponNames, icon_entity: Entity, stats: WeaponStats) -> Weapon {
         Weapon {
@@ -185,6 +181,20 @@ impl Weapon {
         }
     }
 }
+
+
+
+#[derive(Clone)]
+pub struct WeaponArray {
+    pub weapons: [Option<Weapon>; 4],
+}
+
+impl Component for WeaponArray {
+    type Storage = DenseVecStorage<Self>;
+}
+
+
+
 
 pub fn calculate_dps(stats: WeaponStats) -> f32 {
     let dps;
@@ -325,17 +335,61 @@ impl WeaponFire {
 }
 
 pub fn update_weapon_properties(
-    weapon: &mut Weapon,
+    weapon_array: &mut WeaponArray,
     weapon_name: WeaponNames,
     weapon_store: &ReadExpect<WeaponStoreResource>,
+    entities: &Entities,
+    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
+    player_id: usize,
+    lazy_update: &ReadExpect<LazyUpdate>,
 ) {
-    weapon.name = weapon_name.clone();
-    weapon.stats = build_named_weapon(weapon_name, weapon_store);
+    //Get new weapon data
+    let new_weapon_stats = build_named_weapon(weapon_name.clone(), weapon_store);
+    let weapon_type = new_weapon_stats.weapon_type;
 
-    weapon.dps_calc = calculate_dps(weapon.stats);
-    weapon.range_calc = calculate_range(weapon.stats);
+    //update UI icon
+    let icon_entity: Entity = entities.create();
 
-    info!("{:?} {:?} {:?}", weapon.name, weapon.dps_calc, weapon.range_calc);
+    let x = 15.;
+    let y = UI_HEIGHT - 10.;
+    let dx = 32.;
+    let dx2 = 4.;
+
+    let weapon_icon_dx = 70.0;
+
+    let (icon_scale, weapon_sprite) =
+        get_weapon_icon(player_id, new_weapon_stats, weapon_fire_resource);
+
+    let mut icon_weapon_transform = Transform::default();
+
+    let starting_x = match player_id {
+        0 => (x),
+        1 => (x + 3.0 * dx + dx2),
+        2 => (x + 6.0 * dx + 2.0 * dx2),
+        3 => (x + 9.0 * dx + 3.0 * dx2),
+        _ => (0.0),
+    };
+
+    icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.4);
+    icon_weapon_transform.set_rotation_2d(-PI / 2.0);
+    icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
+
+    let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+
+    lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_type));
+    lazy_update.insert(icon_entity, weapon_sprite);
+    lazy_update.insert(icon_entity, icon_weapon_transform);
+    lazy_update.insert(icon_entity, icon_tint);
+    lazy_update.insert(icon_entity, Transparent);
+    lazy_update.insert(icon_entity, Removal::new(0 as u32));
+
+
+    //update Weapon
+    let new_primary_weapon = Weapon::new(weapon_name, icon_entity, new_weapon_stats);
+
+    info!("{:?} {:?} {:?}", new_primary_weapon.name, new_primary_weapon.dps_calc, new_primary_weapon.range_calc);
+
+    weapon_array.weapons[0] = Some(new_primary_weapon);
 }
 
 pub fn build_named_weapon(
@@ -410,53 +464,6 @@ pub fn build_named_weapon2(
     }
 }
 
-pub fn update_weapon_icon(
-    entities: &Entities,
-    weapon: &mut Weapon,
-    weapon_fire_resource: &ReadExpect<WeaponFireResource>,
-    player_id: usize,
-    lazy_update: &ReadExpect<LazyUpdate>,
-) {
-    let weapon_type = weapon.stats.weapon_type;
-
-    //UI icon
-    let weapon_entity: Entity = entities.create();
-
-    weapon.icon_entity = weapon_entity;
-
-    let x = 15.;
-    let y = UI_HEIGHT - 10.;
-    let dx = 32.;
-    let dx2 = 4.;
-
-    let weapon_icon_dx = 70.0;
-
-    let (icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, weapon.stats, weapon_fire_resource);
-
-    let mut icon_weapon_transform = Transform::default();
-
-    let starting_x = match player_id {
-        0 => (x),
-        1 => (x + 3.0 * dx + dx2),
-        2 => (x + 6.0 * dx + 2.0 * dx2),
-        3 => (x + 9.0 * dx + 3.0 * dx2),
-        _ => (0.0),
-    };
-
-    icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.4);
-    icon_weapon_transform.set_rotation_2d(-PI / 2.0);
-    icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
-
-    let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
-
-    lazy_update.insert(weapon_entity, PlayerWeaponIcon::new(player_id, weapon_type));
-    lazy_update.insert(weapon_entity, weapon_sprite);
-    lazy_update.insert(weapon_entity, icon_weapon_transform);
-    lazy_update.insert(weapon_entity, icon_tint);
-    lazy_update.insert(weapon_entity, Transparent);
-    lazy_update.insert(weapon_entity, Removal::new(0 as u32));
-}
 
 pub fn get_weapon_icon(
     player_id: usize,

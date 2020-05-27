@@ -18,8 +18,8 @@ use ncollide2d::query::{self, Proximity, Ray, RayCast};
 use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
-    get_next_weapon_name, kill_restart_vehicle, update_weapon_icon, update_weapon_properties,
-    vehicle_damage_model, Hitbox, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, Weapon,
+    get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
+    vehicle_damage_model, Hitbox, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
     WeaponFire, WeaponStoreResource,
 };
 
@@ -51,7 +51,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         WriteStorage<'s, Player>,
         ReadStorage<'s, PlayerWeaponIcon>,
         WriteStorage<'s, Vehicle>,
-        WriteStorage<'s, Weapon>,
+        WriteStorage<'s, WeaponArray>,
         WriteStorage<'s, WeaponFire>,
         Read<'s, Time>,
         Read<'s, AssetStorage<Source>>,
@@ -79,7 +79,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             mut players,
             player_icons,
             mut vehicles,
-            mut weapons,
+            mut weapon_arrays,
             mut weapon_fires,
             time,
             storage,
@@ -485,8 +485,8 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         //Kill tracking and gun-game weapon hot swap logic
         let mut weapon_icons_old_map = HashMap::new();
 
-        for (player, mut weapon, vehicle, transform) in
-            (&mut players, &mut weapons, &mut vehicles, &mut transforms).join()
+        for (player, mut weapon_array, vehicle, transform) in
+            (&mut players, &mut weapon_arrays, &mut vehicles, &mut transforms).join()
         {
             let hit_data = player_makes_hit_map.get(&player.id);
 
@@ -499,30 +499,35 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             if let Some(killer_data) = killer_data {
                 let weapon_name = killer_data;
 
-                //classic gun-game rules: hot-swap upgrade weapon type for player who got the kill
-                if game_mode_setup.game_mode == GameModes::ClassicGunGame
-                    && *weapon_name == weapon.name
-                {
-                    //if kill was using player's current weapon
-                    player.kills += 1;
-                    let new_weapon_name = get_next_weapon_name(weapon.name.clone());
+                if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                    //classic gun-game rules: hot-swap upgrade weapon type for player who got the kill
+                    if game_mode_setup.game_mode == GameModes::ClassicGunGame
+                        && *weapon_name == primary_weapon.name.clone()
+                    {
+                        //if kill was using player's current weapon
+                        player.kills += 1;
+                        let new_weapon_name = get_next_weapon_name(primary_weapon.name.clone());
 
-                    if let Some(new_weapon_name) = new_weapon_name.clone() {
-                        weapon_icons_old_map.insert(player.id, weapon.stats.weapon_type);
+                        if let Some(new_weapon_name) = new_weapon_name.clone() {
+                            weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_type.clone());
 
-                        update_weapon_properties(weapon, new_weapon_name, &weapon_store_resource);
-                        update_weapon_icon(
-                            &entities,
-                            &mut weapon,
-                            &weapon_fire_resource,
-                            player.id,
-                            &lazy_update,
-                        );
+                            update_weapon_properties(
+                                &mut weapon_array,
+                                new_weapon_name,
+                                &weapon_store_resource,
+                                &entities,
+                                &weapon_fire_resource,
+                                player.id,
+                                &lazy_update,
+                            );
 
-                        vehicle.weapon_weight = weapon.stats.weight;
-                    } //else, keep current weapon installed, no kill in this mode
-                } else {
-                    player.kills += 1; //in all other modes the kill always counts
+                            if let Some(new_primary_weapon) = &weapon_array.weapons[0] {
+                                vehicle.weapon_weight = new_primary_weapon.stats.weight;
+                            }
+                        } //else, keep current weapon installed, no kill in this mode
+                    } else {
+                        player.kills += 1; //in all other modes the kill always counts
+                    }
                 }
             }
 

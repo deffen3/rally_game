@@ -2,7 +2,7 @@ use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage};
 
-use crate::components::{Player, Vehicle, VehicleState, Weapon, WeaponFire};
+use crate::components::{Player, Vehicle, VehicleState, WeaponArray, WeaponFire};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
 use log::debug;
@@ -19,14 +19,14 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, WeaponFire>,
         ReadStorage<'s, Vehicle>,
-        ReadStorage<'s, Weapon>,
+        ReadStorage<'s, WeaponArray>,
         ReadStorage<'s, Player>,
         Read<'s, Time>,
     );
 
     fn run(
         &mut self,
-        (entities, mut transforms, mut weapon_fires, vehicles, weapons, players, time): Self::SystemData,
+        (entities, mut transforms, mut weapon_fires, vehicles, weapon_arrays, players, time): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
@@ -81,25 +81,29 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                 }
 
                 if weapon_fire.attached {
-                    for (_vehicle, vehicle_transform, weapon, player) in
-                        (&vehicles, &transforms, &weapons, &players).join()
+                    for (_vehicle, vehicle_transform, weapon_array, player) in
+                        (&vehicles, &transforms, &weapon_arrays, &players).join()
                     {
                         if weapon_fire.owner_player_id == player.id {
                             let vehicle_rotation = vehicle_transform.rotation();
                             let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-                            if weapon.name != weapon_fire.weapon_name {
-                                weapon_fire.deployed = false;
-                            }
+                            for weapon in weapon_array.weapons.iter() {
+                                if let Some(weapon) = weapon {
+                                    if weapon.name != weapon_fire.weapon_name {
+                                        weapon_fire.deployed = false;
+                                    }
 
-                            vehicle_owner_map.insert(
-                                weapon_fire.owner_player_id,
-                                (
-                                    vehicle_transform.translation().x,
-                                    vehicle_transform.translation().y,
-                                    yaw,
-                                ),
-                            );
+                                    vehicle_owner_map.insert(
+                                        weapon_fire.owner_player_id,
+                                        (
+                                            vehicle_transform.translation().x,
+                                            vehicle_transform.translation().y,
+                                            yaw,
+                                        ),
+                                    );
+                                }
+                            }
                         }
                     }
                 }

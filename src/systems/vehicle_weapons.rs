@@ -9,7 +9,7 @@ use amethyst::{
 use rand::Rng;
 use std::f32::consts::PI;
 
-use crate::components::{BotMode, Player, Vehicle, VehicleState, Weapon};
+use crate::components::{BotMode, Player, Vehicle, VehicleState, WeaponArray};
 use crate::entities::fire_weapon;
 use crate::resources::WeaponFireResource;
 
@@ -22,7 +22,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
         WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
-        WriteStorage<'s, Weapon>,
+        WriteStorage<'s, WeaponArray>,
         WriteStorage<'s, Tint>,
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
@@ -37,7 +37,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             mut players,
             mut transforms,
             mut vehicles,
-            mut weapons,
+            mut weapon_arrays,
             mut tints,
             weapon_fire_resource,
             lazy_update,
@@ -48,8 +48,8 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
         let mut rng = rand::thread_rng();
         let dt = time.delta_seconds();
 
-        for (player, vehicle, weapon, transform) in
-            (&mut players, &mut vehicles, &mut weapons, &mut transforms).join()
+        for (player, vehicle, weapon_array, transform) in
+            (&mut players, &mut vehicles, &mut weapon_arrays, &mut transforms).join()
         {
             if vehicle.state == VehicleState::Active {
                 //let vehicle_weapon_fire = input.action_is_down(&ActionBinding::VehicleShoot(player.id));
@@ -73,101 +73,105 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                     }
                 }
 
-                if let Some(fire) = vehicle_weapon_fire {
-                    if !vehicle.repair.activated {
-                        if fire && weapon.cooldown_timer <= 0.0 {
-                            let vehicle_rotation = transform.rotation();
-                            let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
+                for weapon in weapon_array.weapons.iter_mut() {
+                    if let Some(weapon) = weapon {
+                        if let Some(fire) = vehicle_weapon_fire {
+                            if !vehicle.repair.activated {
+                                if fire && weapon.cooldown_timer <= 0.0 {
+                                    let vehicle_rotation = transform.rotation();
+                                    let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
 
-                            let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
-                            let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
+                                    let yaw_x_comp = -vehicle_angle.sin(); //left is -, right is +
+                                    let yaw_y_comp = vehicle_angle.cos(); //up is +, down is -
 
-                            let fire_position = Vector3::new(
-                                transform.translation().x + yaw_x_comp * 5.0,
-                                transform.translation().y + yaw_y_comp * 5.0,
-                                0.0,
-                            );
+                                    let fire_position = Vector3::new(
+                                        transform.translation().x + yaw_x_comp * 5.0,
+                                        transform.translation().y + yaw_y_comp * 5.0,
+                                        0.0,
+                                    );
 
-                            //typical angle this weapon should fire at
-                            let standard_angle = vehicle_angle + weapon.stats.mounted_angle;
+                                    //typical angle this weapon should fire at
+                                    let standard_angle = vehicle_angle + weapon.stats.mounted_angle;
 
-                            //result angle the weapon fires at, after adding any auto-aim or spread modifiers
-                            let mut fire_angle: f32;
+                                    //result angle the weapon fires at, after adding any auto-aim or spread modifiers
+                                    let mut fire_angle: f32;
 
-                            if let Some(angle_to_closest_targetable_vehicle) =
-                                vehicle.angle_to_closest_targetable_vehicle
-                            {
-                                let angle_to_selected_vehicle = angle_to_closest_targetable_vehicle;
-                                let dist_to_selected_vehicle =
-                                    vehicle.dist_to_closest_targetable_vehicle.unwrap();
+                                    if let Some(angle_to_closest_targetable_vehicle) =
+                                        vehicle.angle_to_closest_targetable_vehicle
+                                    {
+                                        let angle_to_selected_vehicle = angle_to_closest_targetable_vehicle;
+                                        let dist_to_selected_vehicle =
+                                            vehicle.dist_to_closest_targetable_vehicle.unwrap();
 
-                                fire_angle = calc_tracking_fire_angle(
-                                    dist_to_selected_vehicle,
-                                    angle_to_selected_vehicle,
-                                    standard_angle,
-                                    weapon.stats.tracking_angle,
-                                );
-                            } else if let Some(angle_to_closest_targetable_vehicle) =
-                                vehicle.angle_to_closest_targetable_vehicle
-                            {
-                                let angle_to_selected_vehicle = angle_to_closest_targetable_vehicle;
-                                let dist_to_selected_vehicle =
-                                    vehicle.dist_to_closest_targetable_vehicle.unwrap();
+                                        fire_angle = calc_tracking_fire_angle(
+                                            dist_to_selected_vehicle,
+                                            angle_to_selected_vehicle,
+                                            standard_angle,
+                                            weapon.stats.tracking_angle,
+                                        );
+                                    } else if let Some(angle_to_closest_targetable_vehicle) =
+                                        vehicle.angle_to_closest_targetable_vehicle
+                                    {
+                                        let angle_to_selected_vehicle = angle_to_closest_targetable_vehicle;
+                                        let dist_to_selected_vehicle =
+                                            vehicle.dist_to_closest_targetable_vehicle.unwrap();
 
-                                fire_angle = calc_tracking_fire_angle(
-                                    dist_to_selected_vehicle,
-                                    angle_to_selected_vehicle,
-                                    standard_angle,
-                                    weapon.stats.tracking_angle,
-                                );
-                            } else {
-                                fire_angle = standard_angle; //no tracking, no vehicles
-                            }
+                                        fire_angle = calc_tracking_fire_angle(
+                                            dist_to_selected_vehicle,
+                                            angle_to_selected_vehicle,
+                                            standard_angle,
+                                            weapon.stats.tracking_angle,
+                                        );
+                                    } else {
+                                        fire_angle = standard_angle; //no tracking, no vehicles
+                                    }
 
-                            if weapon.stats.spread_angle >= 0.001 {
-                                let spread_angle_modifier =
-                                    rng.gen_range(-1.0, 1.0) * weapon.stats.spread_angle;
-                                fire_angle += spread_angle_modifier;
-                            }
+                                    if weapon.stats.spread_angle >= 0.001 {
+                                        let spread_angle_modifier =
+                                            rng.gen_range(-1.0, 1.0) * weapon.stats.spread_angle;
+                                        fire_angle += spread_angle_modifier;
+                                    }
 
-                            if !weapon.stats.attached || !weapon.stats.deployed {
-                                if !weapon.stats.deployed {
-                                    weapon.stats.deployed = true;
+                                    if !weapon.stats.attached || !weapon.stats.deployed {
+                                        if !weapon.stats.deployed {
+                                            weapon.stats.deployed = true;
+                                        }
+
+                                        fire_weapon(
+                                            &entities,
+                                            &weapon_fire_resource,
+                                            weapon.clone(),
+                                            fire_position,
+                                            fire_angle,
+                                            player.id,
+                                            &lazy_update,
+                                        );
+                                    }
+
+                                    if weapon.stats.burst_shot_limit > 0
+                                        && weapon.burst_shots < weapon.stats.burst_shot_limit
+                                    {
+                                        weapon.cooldown_timer = weapon.stats.burst_cooldown_reset;
+                                        weapon.burst_shots += 1;
+                                    } else {
+                                        weapon.cooldown_timer = weapon.stats.cooldown_reset;
+                                        weapon.burst_shots = 0;
+                                    }
                                 }
-
-                                fire_weapon(
-                                    &entities,
-                                    &weapon_fire_resource,
-                                    weapon.clone(),
-                                    fire_position,
-                                    fire_angle,
-                                    player.id,
-                                    &lazy_update,
-                                );
-                            }
-
-                            if weapon.stats.burst_shot_limit > 0
-                                && weapon.burst_shots < weapon.stats.burst_shot_limit
-                            {
-                                weapon.cooldown_timer = weapon.stats.burst_cooldown_reset;
-                                weapon.burst_shots += 1;
-                            } else {
-                                weapon.cooldown_timer = weapon.stats.cooldown_reset;
-                                weapon.burst_shots = 0;
                             }
                         }
-                    }
-                }
-                weapon.cooldown_timer = (weapon.cooldown_timer - dt).max(-1.0);
+                        weapon.cooldown_timer = (weapon.cooldown_timer - dt).max(-1.0);
 
-                let cooldown_pct = weapon.cooldown_timer / weapon.stats.cooldown_reset;
-                let tint_component = tints.get_mut(weapon.icon_entity);
+                        let cooldown_pct = weapon.cooldown_timer / weapon.stats.cooldown_reset;
+                        let tint_component = tints.get_mut(weapon.icon_entity);
 
-                if let Some(tint) = tint_component {
-                    if cooldown_pct < 0.0 {
-                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
-                    } else {
-                        *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.15));
+                        if let Some(tint) = tint_component {
+                            if cooldown_pct < 0.0 {
+                                *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+                            } else {
+                                *tint = Tint(Srgba::new(1.0, 1.0, 1.0, 0.15));
+                            }
+                        }
                     }
                 }
             }

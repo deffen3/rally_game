@@ -5,7 +5,7 @@ use amethyst::ecs::{Join, ReadStorage, System, SystemData, WriteStorage};
 use std::collections::HashMap;
 use std::f32::consts::PI;
 
-use crate::components::{Player, Vehicle, VehicleState, Weapon};
+use crate::components::{Player, Vehicle, VehicleState, WeaponArray};
 
 #[derive(SystemDesc)]
 pub struct VehicleTrackingSystem;
@@ -15,91 +15,93 @@ impl<'s> System<'s> for VehicleTrackingSystem {
         WriteStorage<'s, Player>,
         ReadStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
-        ReadStorage<'s, Weapon>,
+        ReadStorage<'s, WeaponArray>,
     );
 
-    fn run(&mut self, (mut players, transforms, mut vehicles, weapons): Self::SystemData) {
+    fn run(&mut self, (mut players, transforms, mut vehicles, weapon_arrays): Self::SystemData) {
         //Find closest vehicle, and closest targetable vehicle within weapon angle target range
         let mut closest_target_angles_map = HashMap::new();
 
-        for (player1, _vehicle1, vehicle1_transform, weapon) in
-            (&players, &vehicles, &transforms, &weapons).join()
+        for (player1, _vehicle1, vehicle1_transform, weapon_array) in
+            (&players, &vehicles, &transforms, &weapon_arrays).join()
         {
-            let mut closest_vehicle_dist: Option<f32> = None;
-            let mut closest_vehicle_target_angle: Option<f32> = None;
+            if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                let mut closest_vehicle_dist: Option<f32> = None;
+                let mut closest_vehicle_target_angle: Option<f32> = None;
 
-            let mut closest_targetable_vehicle_dist: Option<f32> = None;
-            let mut closest_targetable_vehicle_target_angle: Option<f32> = None;
+                let mut closest_targetable_vehicle_dist: Option<f32> = None;
+                let mut closest_targetable_vehicle_target_angle: Option<f32> = None;
 
-            let vehicle1_x = vehicle1_transform.translation().x;
-            let vehicle1_y = vehicle1_transform.translation().y;
+                let vehicle1_x = vehicle1_transform.translation().x;
+                let vehicle1_y = vehicle1_transform.translation().y;
 
-            let (_, _, vehicle_angle) = vehicle1_transform.rotation().euler_angles();
+                let (_, _, vehicle_angle) = vehicle1_transform.rotation().euler_angles();
 
-            //typical angle this weapon should fire at
-            let standard_angle = vehicle_angle + weapon.stats.mounted_angle;
+                //typical angle this weapon should fire at
+                let standard_angle = vehicle_angle + primary_weapon.stats.mounted_angle;
 
-            for (player2, vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join()
-            {
-                if player1.id != player2.id && vehicle2.state == VehicleState::Active {
-                    let vehicle2_x = vehicle2_transform.translation().x;
-                    let vehicle2_y = vehicle2_transform.translation().y;
+                for (player2, vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join()
+                {
+                    if player1.id != player2.id && vehicle2.state == VehicleState::Active {
+                        let vehicle2_x = vehicle2_transform.translation().x;
+                        let vehicle2_y = vehicle2_transform.translation().y;
 
-                    let dist = ((vehicle2_x - vehicle1_x).powi(2)
-                        + (vehicle2_y - vehicle1_y).powi(2))
-                    .sqrt();
+                        let dist = ((vehicle2_x - vehicle1_x).powi(2)
+                            + (vehicle2_y - vehicle1_y).powi(2))
+                        .sqrt();
 
-                    let x_diff = vehicle1_x - vehicle2_x;
-                    let y_diff = vehicle1_y - vehicle2_y;
+                        let x_diff = vehicle1_x - vehicle2_x;
+                        let y_diff = vehicle1_y - vehicle2_y;
 
-                    let mut target_angle = y_diff.atan2(x_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
+                        let mut target_angle = y_diff.atan2(x_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
 
-                    if target_angle > PI {
-                        target_angle -= 2.0 * PI;
-                    }
+                        if target_angle > PI {
+                            target_angle -= 2.0 * PI;
+                        }
 
-                    //Save closest vehicle, ...
-                    if closest_vehicle_dist.is_none() || dist < closest_vehicle_dist.unwrap() {
-                        closest_vehicle_dist = Some(dist);
-                        closest_vehicle_target_angle = Some(target_angle);
-                    }
+                        //Save closest vehicle, ...
+                        if closest_vehicle_dist.is_none() || dist < closest_vehicle_dist.unwrap() {
+                            closest_vehicle_dist = Some(dist);
+                            closest_vehicle_target_angle = Some(target_angle);
+                        }
 
-                    //...and closest targetable vehicle
-                    let mut angle_diff = standard_angle - target_angle;
+                        //...and closest targetable vehicle
+                        let mut angle_diff = standard_angle - target_angle;
 
-                    if angle_diff > PI {
-                        angle_diff = -(2.0 * PI - angle_diff);
-                    } else if angle_diff < -PI {
-                        angle_diff = -(-2.0 * PI - angle_diff);
-                    }
+                        if angle_diff > PI {
+                            angle_diff = -(2.0 * PI - angle_diff);
+                        } else if angle_diff < -PI {
+                            angle_diff = -(-2.0 * PI - angle_diff);
+                        }
 
-                    let targetable;
-                    if angle_diff.abs() < weapon.stats.tracking_angle {
-                        targetable = true;
-                    } else {
-                        targetable = false;
-                    }
+                        let targetable;
+                        if angle_diff.abs() < primary_weapon.stats.tracking_angle {
+                            targetable = true;
+                        } else {
+                            targetable = false;
+                        }
 
-                    if targetable {
-                        if closest_targetable_vehicle_dist.is_none()
-                            || dist < closest_targetable_vehicle_dist.unwrap()
-                        {
-                            closest_targetable_vehicle_dist = Some(dist);
-                            closest_targetable_vehicle_target_angle = Some(target_angle);
+                        if targetable {
+                            if closest_targetable_vehicle_dist.is_none()
+                                || dist < closest_targetable_vehicle_dist.unwrap()
+                            {
+                                closest_targetable_vehicle_dist = Some(dist);
+                                closest_targetable_vehicle_target_angle = Some(target_angle);
+                            }
                         }
                     }
                 }
-            }
 
-            closest_target_angles_map.insert(
-                player1.id,
-                (
-                    closest_vehicle_target_angle,
-                    closest_vehicle_dist,
-                    closest_targetable_vehicle_target_angle,
-                    closest_targetable_vehicle_dist,
-                ),
-            );
+                closest_target_angles_map.insert(
+                    player1.id,
+                    (
+                        closest_vehicle_target_angle,
+                        closest_vehicle_dist,
+                        closest_targetable_vehicle_target_angle,
+                        closest_targetable_vehicle_dist,
+                    ),
+                );
+            }
         }
 
         //Assign Tracking Data
