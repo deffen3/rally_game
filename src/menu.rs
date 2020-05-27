@@ -153,7 +153,7 @@ impl SimpleState for MainMenu {
 
             world.insert(GameTeamSetup {
                 mode: TeamSetupTypes::FreeForAll,
-                team: [0, 1, 2, 3],
+                teams: [0, 1, 2, 3],
             });
             
 
