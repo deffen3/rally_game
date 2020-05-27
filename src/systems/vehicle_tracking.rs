@@ -42,7 +42,10 @@ impl<'s> System<'s> for VehicleTrackingSystem {
 
                 for (player2, vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join()
                 {
-                    if player1.id != player2.id && vehicle2.state == VehicleState::Active {
+                    //Other player must be active and not on the same team
+                    if player1.id != player2.id && 
+                            player1.team != player2.team &&
+                            vehicle2.state == VehicleState::Active {
                         let vehicle2_x = vehicle2_transform.translation().x;
                         let vehicle2_y = vehicle2_transform.translation().y;
 
