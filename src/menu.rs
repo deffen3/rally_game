@@ -49,6 +49,11 @@ const BUTTON_CUSTOM_VEHICLES: &str = "customize_vehicles";
 const BUTTON_CUSTOM_WEAPONS: &str = "customize_weapons";
 const BUTTON_CUSTOM_ARENA: &str = "customize_arena";
 
+const TEXT_PLAYER_TEAMS: &str = "player_teams_result_text";
+const BUTTON_FFA: &str = "FFA_button";
+const BUTTON_2V2: &str = "2v2_button";
+const BUTTON_1V3: &str = "1v3_button";
+
 
 #[derive(Default, Debug)]
 pub struct MainMenu {
@@ -71,6 +76,10 @@ pub struct MainMenu {
     button_custom_vehicles: Option<Entity>,
     button_custom_weapons: Option<Entity>,
     button_custom_arena: Option<Entity>,
+    text_player_teams: Option<Entity>,
+    button_ffa: Option<Entity>,
+    button_2v2: Option<Entity>,
+    button_1v3: Option<Entity>,
 }
 
 impl SimpleState for MainMenu {
@@ -182,6 +191,10 @@ impl SimpleState for MainMenu {
             || self.button_custom_vehicles.is_none()
             || self.button_custom_weapons.is_none()
             || self.button_custom_arena.is_none()
+            || self.button_ffa.is_none()
+            || self.button_2v2.is_none()
+            || self.button_1v3.is_none()
+            || self.text_player_teams.is_none()
         {
             world.exec(|ui_finder: UiFinder<'_>| {
                 self.button_classic_gun_game = ui_finder.find(BUTTON_CLASSIC_GUN_GAME);
@@ -194,6 +207,10 @@ impl SimpleState for MainMenu {
                 self.button_custom_vehicles = ui_finder.find(BUTTON_CUSTOM_VEHICLES);
                 self.button_custom_weapons = ui_finder.find(BUTTON_CUSTOM_WEAPONS);
                 self.button_custom_arena = ui_finder.find(BUTTON_CUSTOM_ARENA);
+                self.button_ffa = ui_finder.find(BUTTON_FFA);
+                self.button_2v2 = ui_finder.find(BUTTON_2V2);
+                self.button_1v3 = ui_finder.find(BUTTON_1V3);
+                self.text_player_teams = ui_finder.find(TEXT_PLAYER_TEAMS);
             });
         }
 
@@ -289,6 +306,7 @@ impl SimpleState for MainMenu {
                 }
             }
 
+
             if let Some(game_rules) = self.text_rules.and_then(|entity| ui_text.get_mut(entity)) {
                 game_rules.text = get_game_rules_text(game_mode_setup.game_mode.clone());
             }
@@ -371,6 +389,28 @@ impl SimpleState for MainMenu {
             }            
         }
 
+
+        let fetched_game_team_setup = world.try_fetch_mut::<GameTeamSetup>();
+
+        if let Some(mut game_team_setup) = fetched_game_team_setup {
+            if let Some(team_setup) = self.text_player_teams.and_then(|entity| ui_text.get_mut(entity)) {
+                let team_setup_text = match game_team_setup.teams {
+                    [0, 1, 2, 3] => "FFA".to_string(),
+                    [0, 0, 1, 1] => "P1 P2 v P3 P4".to_string(),
+                    [0, 1, 0, 1] => "P1 P3 v P2 P4".to_string(),
+                    [0, 1, 1, 0] => "P1 P4 v P2 P3".to_string(),
+                    [0, 1, 1, 1] => "P1 v P2 P3 P4".to_string(),
+                    [1, 0, 1, 1] => "P2 v P1 P3 P4".to_string(),
+                    [1, 1, 0, 1] => "P3 v P1 P2 P4".to_string(),
+                    [1, 1, 1, 0] => "P4 v P1 P2 P3".to_string(),
+                    _ => "???".to_string()
+                };
+
+                team_setup.text = team_setup_text;
+            }
+        }
+
+
         if self.init_base_rules {
             self.init_base_rules = false;
         }
@@ -403,6 +443,7 @@ impl SimpleState for MainMenu {
             }) => {
                 let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
                 let fetched_game_weapon_setup = world.try_fetch_mut::<GameWeaponSetup>();
+                let fetched_game_team_setup = world.try_fetch_mut::<GameTeamSetup>();
 
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
                     if Some(target) == self.button_classic_gun_game {
@@ -484,6 +525,30 @@ impl SimpleState for MainMenu {
                     }
                 }
 
+                if let Some(mut game_team_setup) = fetched_game_team_setup {
+                    if Some(target) == self.button_ffa {
+                        game_team_setup.mode = TeamSetupTypes::FreeForAll;
+                        game_team_setup.teams = [0, 1, 2, 3];
+                    }
+                    if Some(target) == self.button_2v2 {
+                        game_team_setup.mode = TeamSetupTypes::TwoVsTwo;
+                        game_team_setup.teams = match game_team_setup.teams {
+                            [0, 0, 1, 1] => [0, 1, 0, 1],
+                            [0, 1, 0, 1] => [0, 1, 1, 0],
+                            _ => [0, 0, 1, 1]
+                        };
+                    }
+                    if Some(target) == self.button_1v3 {
+                        game_team_setup.mode = TeamSetupTypes::OneVsThree;
+                        game_team_setup.teams = match game_team_setup.teams {
+                            [0, 1, 1, 1] => [1, 0, 1, 1],
+                            [1, 0, 1, 1] => [1, 1, 0, 1],
+                            [1, 1, 0, 1] => [1, 1, 1, 0],
+                            _ => [0, 1, 1, 1]
+                        };
+                    }
+                }
+
                 if Some(target) == self.button_custom_vehicles {
                     return Trans::Switch(Box::new(CustomVehiclesMenu::default()));
                 } else if Some(target) == self.button_custom_weapons {
@@ -524,6 +589,10 @@ impl SimpleState for MainMenu {
         self.edit_text_stock_lives = None;
         self.edit_text_time_limit = None;
         self.button_custom_vehicles = None;
+        self.button_ffa = None;
+        self.button_2v2 = None;
+        self.button_1v3 = None;
+        self.text_player_teams = None;
     }
 }
 

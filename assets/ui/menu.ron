@@ -582,7 +582,7 @@ Container(
                 width: 500.,
                 height: 55.,
                 x: -250.,
-                y: -700.,
+                y: -685.,
                 anchor: TopRight,
                 stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
                 mouse_reactive: true,
@@ -602,7 +602,7 @@ Container(
             transform: (
                 id: "editable_container",
                 x: -150,
-                y: -700,
+                y: -685,
                 width: 40.,
                 height: 35.,
                 anchor: TopRight,
@@ -643,7 +643,7 @@ Container(
                 width: 500.,
                 height: 55.,
                 x: -250.,
-                y: -745.,
+                y: -730.,
                 anchor: TopRight,
                 stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
                 mouse_reactive: true,
@@ -663,7 +663,7 @@ Container(
             transform: (
                 id: "editable_container",
                 x: -150,
-                y: -745.,
+                y: -730.,
                 width: 40.,
                 height: 35.,
                 anchor: TopRight,
@@ -696,6 +696,138 @@ Container(
                 ),
             ]
         ),
+
+
+
+        Container(
+            transform: (
+                id: "FFA_container",
+                x: -400,
+                y: -790,
+                width: 50.,
+                height: 28.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                // Complex Button
+                Button(
+                    transform: (
+                        id: "FFA_button",
+                        width: 47.,
+                        height: 25.,
+                        tab_order: 5,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "FFA",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 20.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+        Container(
+            transform: (
+                id: "2v2_container",
+                x: -330,
+                y: -790,
+                width: 50.,
+                height: 28.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                // Complex Button
+                Button(
+                    transform: (
+                        id: "2v2_button",
+                        width: 47.,
+                        height: 25.,
+                        tab_order: 5,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "2 v 2",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 20.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+        Container(
+            transform: (
+                id: "1v3_container",
+                x: -260,
+                y: -790,
+                width: 50.,
+                height: 28.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                // Complex Button
+                Button(
+                    transform: (
+                        id: "1v3_button",
+                        width: 47.,
+                        height: 25.,
+                        tab_order: 5,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "1 v 3",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 20.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+
+        Label(
+            transform: (
+                id: "player_teams_result_text",
+                width: 500.,
+                height: 55.,
+                x: -150.,
+                y: -790.,
+                anchor: TopRight,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "FFA",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 25.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
 
 
 
