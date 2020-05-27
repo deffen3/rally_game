@@ -25,6 +25,7 @@ pub fn intialize_player(
     player_index: usize,
     weapon_fire_resource: WeaponFireResource,
     weapon_store: WeaponStoreResource,
+    team: i32,
     is_bot: bool,
     player_status_text: PlayerStatusText,
     max_health: f32,
@@ -312,6 +313,6 @@ pub fn intialize_player(
         .with(WeaponArray {
             weapons: [Some(weapon), None, None, None],
         })
-        .with(Player::new(player_index, is_bot))
+        .with(Player::new(player_index, team, is_bot))
         .build()
 }

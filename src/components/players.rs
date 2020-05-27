@@ -18,6 +18,7 @@ pub enum BotMode {
 
 pub struct Player {
     pub id: usize,
+    pub team: i32,
     pub kills: i32,
     pub deaths: i32,
     pub earned_collision_kills: u32,
@@ -40,9 +41,10 @@ impl Component for Player {
 }
 
 impl Player {
-    pub fn new(id: usize, is_bot: bool) -> Player {
+    pub fn new(id: usize, team: i32, is_bot: bool) -> Player {
         Player {
             id,
+            team,
             kills: 0,
             deaths: 0,
             earned_collision_kills: 0,

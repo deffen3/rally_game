@@ -46,3 +46,18 @@ pub struct GameScore {
     pub game_ended: bool,
     pub placements: Vec<(usize, i32, i32, i32, i32, f32)>,
 }
+
+
+
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum TeamSetupTypes {
+    FreeForAll,
+    OneVsThree,
+    TwoVsTwo,
+}
+
+pub struct GameTeamSetup {
+    pub mode: TeamSetupTypes,
+    pub teams: [i32; 4],
+}

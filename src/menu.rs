@@ -16,7 +16,7 @@ use crate::custom_arena::CustomArenaMenu;
 
 use crate::components::WeaponNames;
 use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
-    GameWeaponSetup};
+    GameWeaponSetup, GameTeamSetup, TeamSetupTypes};
 
 
 pub const MAX_PLAYER_COUNT: usize = 4;
@@ -150,6 +150,12 @@ impl SimpleState for MainMenu {
                 weapon_spawn_timer: 20.0,
                 weapon_spawn_chances: weapon_spawn_chances,
             });
+
+            world.insert(GameTeamSetup {
+                mode: TeamSetupTypes::FreeForAll,
+                teams: [0, 1, 2, 3],
+            });
+            
 
             world.insert(GameScore {
                 game_ended: false,

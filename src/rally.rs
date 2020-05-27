@@ -16,7 +16,9 @@ use amethyst::{
 use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
-use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, GameScore, WeaponFireResource};
+use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, GameScore, 
+    TeamSetupTypes, GameTeamSetup, WeaponFireResource
+};
 
 use crate::entities::{
     initialize_arena_walls, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
@@ -25,7 +27,7 @@ use crate::entities::{
 
 use crate::components::{
     build_weapon_store, Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
-    WeaponArray, WeaponFire, Particles, VehicleMovementType,
+    WeaponArray, WeaponFire, Particles, VehicleMovementType, 
 };
 
 use crate::systems::{
@@ -129,6 +131,19 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 bot_players = 3;
             }
         }
+
+        let player_to_team;
+        {
+            let fetched_game_team_setup = world.try_fetch::<GameTeamSetup>();
+
+            if let Some(game_team_setup) = fetched_game_team_setup {
+                player_to_team = game_team_setup.teams.clone();
+            } else {
+                player_to_team = [0, 1, 2, 3];
+            }
+        }
+
+
         
         let player_status_text = PlayerStatusText {
             shield: None,
@@ -182,13 +197,13 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
             let vehicle_movement_type = VehicleMovementType::Hover;
 
-
             let player = intialize_player(
                 world,
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
                 weapon_fire_resource.clone(),
                 weapon_store.clone(),
+                player_to_team[player_index],
                 is_bot,
                 player_status_text.clone(),
                 max_health,
