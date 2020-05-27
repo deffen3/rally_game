@@ -702,7 +702,7 @@ Container(
         Container(
             transform: (
                 id: "FFA_container",
-                x: -400,
+                x: -415,
                 y: -790,
                 width: 50.,
                 height: 28.,
@@ -737,7 +737,7 @@ Container(
         Container(
             transform: (
                 id: "2v2_container",
-                x: -330,
+                x: -350,
                 y: -790,
                 width: 50.,
                 height: 28.,
@@ -773,7 +773,7 @@ Container(
         Container(
             transform: (
                 id: "1v3_container",
-                x: -260,
+                x: -285,
                 y: -790,
                 width: 50.,
                 height: 28.,
