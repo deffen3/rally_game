@@ -10,7 +10,7 @@ use std::collections::HashMap;
 
 use crate::menu::MainMenu;
 
-use crate::resources::{GameModeSetup, GameVehicleSetup,};
+use crate::resources::{GameVehicleSetup,};
 
 use crate::components::{determine_vehicle_weight_stats, get_vehicle_name_string, 
     VehicleMovementType, VehicleStoreResource, get_next_vehicle_name, get_prev_vehicle_name,

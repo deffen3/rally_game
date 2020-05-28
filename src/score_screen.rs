@@ -297,10 +297,9 @@ impl SimpleState for ScoreScreen {
 
     fn handle_event(
         &mut self,
-        data: StateData<'_, GameData<'_, '_>>,
+        _data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
-
         match event {
             StateEvent::Window(event) => {
                 if is_close_requested(&event) {

@@ -490,7 +490,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         {
             let hit_data = player_makes_hit_map.get(&player.id);
 
-            if let Some(hit_data) = hit_data {
+            if let Some(_hit_data) = hit_data {
                 player.last_made_hit_timer = 0.0;
             }
 

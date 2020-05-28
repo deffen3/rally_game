@@ -17,7 +17,7 @@ use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
 use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, GameScore, 
-    TeamSetupTypes, GameTeamSetup, WeaponFireResource, GameVehicleSetup,
+    GameTeamSetup, WeaponFireResource, GameVehicleSetup,
 };
 
 use crate::entities::{
@@ -154,9 +154,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         };
 
         for player_index in 0..max_players {
-
-            
-
             let max_health: f32;
             let max_armor: f32;
             let max_shield: f32;

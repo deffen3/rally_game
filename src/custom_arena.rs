@@ -8,8 +8,6 @@ use amethyst::{
 
 use crate::menu::MainMenu;
 
-use crate::resources::{GameModeSetup};
-
 
 
 const BUTTON_BACK_TO_MENU: &str = "back_to_menu";
@@ -46,11 +44,9 @@ impl SimpleState for CustomArenaMenu {
 
     fn handle_event(
         &mut self,
-        data: StateData<'_, GameData<'_, '_>>,
+        _data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
-        let world = data.world;
-
         match event {
             StateEvent::Window(event) => {
                 if is_close_requested(&event) {

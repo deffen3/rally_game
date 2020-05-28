@@ -16,7 +16,7 @@ use log::{info};
 
 use crate::components::PlayerWeaponIcon;
 use crate::rally::UI_HEIGHT;
-use crate::resources::{GameModeSetup, GameWeaponSetup, WeaponFireResource};
+use crate::resources::{GameWeaponSetup, WeaponFireResource};
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
 pub enum WeaponNames {
