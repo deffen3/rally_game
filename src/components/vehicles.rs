@@ -1,15 +1,20 @@
 use crate::entities::ui::PlayerStatusText;
 use amethyst::core::Transform;
-use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
+use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity, World};
 
 use rand::Rng;
 use std::f32::consts::PI;
+use ron::de::from_reader;
+use serde::Deserialize;
+use std::{collections::HashMap, fs::File};
 
 use crate::components::{Armor, Health, Player, Repair, Shield};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 use crate::resources::GameModes;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+
+
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum VehicleMovementType {
     Hover, //hover craft can turn to spin in place, and have the same friction regardless of velocity/vehicle angles
     Car, //cars can only turn if moving, and have high friction when velocity angle differs greatly from vehicle angle
@@ -326,4 +331,60 @@ pub fn vehicle_damage_model(
     //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
 
     vehicle_destroyed
+}
+
+
+
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
+pub enum VehicleNames {
+    MediumCombat,
+    LightRacer,
+    HeavyTank,
+    CivilianCruiser,
+}
+
+
+
+
+#[derive(Copy, Clone, Debug, Deserialize)]
+pub struct VehicleStats {
+    pub max_shield: f32,
+    pub max_armor: f32,
+    pub max_health: f32,
+    pub engine_force: f32,
+    pub engine_weight: f32,
+    pub width: f32,
+    pub height: f32,
+    pub max_velocity: f32,
+    pub movement_type: VehicleMovementType,
+    pub health_repair_rate: f32,
+    pub health_repair_time: f32,
+    pub shield_recharge_rate: f32,
+    pub shield_cooldown: f32,
+    pub shield_repair_time: f32,
+    pub shield_radius: f32,
+}
+
+
+
+#[derive(Clone)]
+pub struct VehicleStoreResource {
+    pub store: HashMap<VehicleNames, VehicleStats>,
+}
+
+
+pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
+    let input_path = format!("{}/config/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
+    let f = File::open(&input_path).expect("Failed opening file");
+
+    let vehicle_configs_map: HashMap<VehicleNames, VehicleStats> =
+        from_reader(f).expect("Failed to load config");
+
+    let vehicle_store = VehicleStoreResource {
+        store: vehicle_configs_map,
+    };
+    world.insert(vehicle_store.clone());
+
+    vehicle_store
 }

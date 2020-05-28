@@ -14,7 +14,7 @@ use crate::custom_vehicles::CustomVehiclesMenu;
 use crate::custom_weapons::CustomWeaponsMenu;
 use crate::custom_arena::CustomArenaMenu;
 
-use crate::components::WeaponNames;
+use crate::components::{WeaponNames, build_vehicle_store};
 use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
     GameWeaponSetup, GameTeamSetup, TeamSetupTypes};
 
@@ -171,6 +171,9 @@ impl SimpleState for MainMenu {
                 placements: Vec::new(),
             });
         }
+
+        build_vehicle_store(world);
+
 
         self.ui_root =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/menu.ron", ())));

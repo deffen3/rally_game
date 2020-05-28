@@ -7,6 +7,7 @@ pub use self::shields::Shield;
 pub use self::vehicles::{
     check_respawn_vehicle, kill_restart_vehicle, vehicle_damage_model, 
     Vehicle, VehicleState, determine_vehicle_weight, VehicleMovementType,
+    build_vehicle_store,
 };
 pub use self::weapons::{
     build_named_weapon, build_named_weapon2, build_weapon_store, get_mine_sprite,
