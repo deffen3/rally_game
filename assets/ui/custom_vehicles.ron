@@ -36,6 +36,280 @@ Container(
 
         Container(
             transform: (
+                id: "p1_container",
+                x: -250.,
+                y: -250.,
+                width: 400.,
+                height: 250.,
+                anchor: TopMiddle,
+            ),
+            background: SolidColor(0.06, 0.05, 0.05, 1.0),
+            children: [
+
+                Label(
+                    transform: (
+                        id: "p1_veh_text",
+                        width: 500.,
+                        height: 55.,
+                        x: 0.,
+                        y: -20.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "Medium Combat",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        color: (0.8, 0.7, 0.7, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+                Label(
+                    transform: (
+                        id: "p1_shields_label",
+                        width: 500.,
+                        height: 55.,
+                        x: -170.,
+                        y: -260.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "SHIELDS:",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 15.,
+                        color: (0.8, 0.7, 0.7, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+                Label(
+                    transform: (
+                        id: "p1_armor_label",
+                        width: 500.,
+                        height: 55.,
+                        x: -170.,
+                        y: -280.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "ARMOR:",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 15.,
+                        color: (0.8, 0.7, 0.7, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+                Label(
+                    transform: (
+                        id: "p1_health_label",
+                        width: 500.,
+                        height: 55.,
+                        x: -170.,
+                        y: -300.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "HEALTH:",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 15.,
+                        color: (0.8, 0.7, 0.7, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+                Label(
+                    transform: (
+                        id: "p1_weight_label",
+                        width: 500.,
+                        height: 55.,
+                        x: -170.,
+                        y: -320.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "WEIGHT:",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 15.,
+                        color: (0.8, 0.7, 0.7, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+                Label(
+                    transform: (
+                        id: "p1_shields",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -260.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 15.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+                Label(
+                    transform: (
+                        id: "p1_armor",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -280.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 15.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+                Label(
+                    transform: (
+                        id: "p1_health",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -300.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 15.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+                Label(
+                    transform: (
+                        id: "p1_weight",
+                        width: 500.,
+                        height: 55.,
+                        x: -100.,
+                        y: -320.,
+                        anchor: TopMiddle,
+                        stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                        mouse_reactive: true,
+                        selectable: 0,
+                    ),
+                    text: (
+                        text: "?",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 15.,
+                        color: (0.8, 0.1, 0.05, 1.0),
+                        align: Middle,
+                    )
+                ),
+
+
+                Container(
+                    transform: (
+                        id: "p1_prev_veh_container",
+                        x: -170.,
+                        y: -125.,
+                        width: 30.,
+                        height: 30.,
+                        anchor: TopMiddle,
+                    ),
+                    background: SolidColor(0.8, 0.1, 0.05, 1.0),
+                    children: [
+
+                        Button(
+                            transform: (
+                                id: "p1_prev_vehicle",
+                                width: 25.,
+                                height: 25.,
+                                tab_order: 15,
+                                anchor: Middle,
+                                mouse_reactive: true,
+                            ),
+                            button: (
+                                text: "<",
+                                font: File("font/square.ttf", ("TTF", ())),
+                                font_size: 20.,
+                                normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                                normal_image: SolidColor(0., 0., 0., 1.),
+                                hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                                press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                            )
+                        ),
+                    ]
+                ),
+
+                Container(
+                    transform: (
+                        id: "p1_next_veh_container",
+                        x: 170.,
+                        y: -125.,
+                        width: 30.,
+                        height: 30.,
+                        anchor: TopMiddle,
+                    ),
+                    background: SolidColor(0.8, 0.1, 0.05, 1.0),
+                    children: [
+
+                        Button(
+                            transform: (
+                                id: "p1_next_vehicle",
+                                width: 25.,
+                                height: 25.,
+                                tab_order: 15,
+                                anchor: Middle,
+                                mouse_reactive: true,
+                            ),
+                            button: (
+                                text: ">",
+                                font: File("font/square.ttf", ("TTF", ())),
+                                font_size: 20.,
+                                normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                                normal_image: SolidColor(0., 0., 0., 1.),
+                                hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                                press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                            )
+                        ),   
+                    ]
+                ),
+            ]
+        ),
+
+
+
+        Container(
+            transform: (
                 id: "go_back_container",
                 x: 180,
                 y: 100,

@@ -93,6 +93,16 @@ pub fn determine_vehicle_weight(vehicle: &Vehicle) -> f32 {
     vehicle_weight
 }
 
+pub fn determine_vehicle_weight_stats(vehicle: VehicleStats) -> f32 {
+    let vehicle_weight = (20.0 + vehicle.max_health * 20. / 100.)
+        + (vehicle.max_shield * 15. / 100.)
+        + (vehicle.max_armor * 25. / 100.)
+        + vehicle.engine_weight;
+
+    vehicle_weight
+}
+
+
 impl Component for Vehicle {
     type Storage = DenseVecStorage<Self>;
 }
@@ -344,6 +354,33 @@ pub enum VehicleNames {
     CivilianCruiser,
 }
 
+
+pub fn get_vehicle_name_string(name: VehicleNames) -> String {
+    match name {
+        VehicleNames::MediumCombat => "Medium Combat".to_string(),
+        VehicleNames::LightRacer => "Light Racer".to_string(),
+        VehicleNames::HeavyTank => "Heavy Tank".to_string(),
+        VehicleNames::CivilianCruiser => "Civilian Cruiser".to_string(),
+    }
+}
+
+pub fn get_next_vehicle_name(name: VehicleNames) -> VehicleNames {
+    match name {
+        VehicleNames::MediumCombat => VehicleNames::LightRacer,
+        VehicleNames::LightRacer => VehicleNames::HeavyTank,
+        VehicleNames::HeavyTank => VehicleNames::CivilianCruiser,
+        VehicleNames::CivilianCruiser => VehicleNames::MediumCombat,
+    }
+}
+
+pub fn get_prev_vehicle_name(name: VehicleNames) -> VehicleNames {
+    match name {
+        VehicleNames::MediumCombat => VehicleNames::CivilianCruiser,
+        VehicleNames::LightRacer => VehicleNames::MediumCombat,
+        VehicleNames::HeavyTank => VehicleNames::LightRacer,
+        VehicleNames::CivilianCruiser => VehicleNames::HeavyTank,
+    }
+}
 
 
 

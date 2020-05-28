@@ -14,9 +14,12 @@ use crate::custom_vehicles::CustomVehiclesMenu;
 use crate::custom_weapons::CustomWeaponsMenu;
 use crate::custom_arena::CustomArenaMenu;
 
-use crate::components::{WeaponNames, build_vehicle_store};
+use crate::components::{WeaponNames, 
+    build_vehicle_store, VehicleNames, VehicleStats, VehicleMovementType,
+};
+
 use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
-    GameWeaponSetup, GameTeamSetup, TeamSetupTypes};
+    GameWeaponSetup, GameVehicleSetup, GameTeamSetup, TeamSetupTypes};
 
 
 pub const MAX_PLAYER_COUNT: usize = 4;
@@ -172,7 +175,41 @@ impl SimpleState for MainMenu {
             });
         }
 
-        build_vehicle_store(world);
+        let vehicle_store = build_vehicle_store(world);
+
+        let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &vehicle_store.store;
+
+        let standard_vehicle_stats = match vehicle_configs_map.get(&VehicleNames::MediumCombat) {
+            Some(vehicle_config) => *vehicle_config,
+            _ => VehicleStats {
+                max_shield: 0.0,
+                max_armor: 0.0,
+                max_health: 0.0,
+                engine_force: 0.0,
+                engine_weight: 0.0,
+                width: 0.0,
+                height: 0.0,
+                max_velocity: 0.0,
+                movement_type: VehicleMovementType::Hover,
+                health_repair_rate: 0.0,
+                health_repair_time: 0.0,
+                shield_recharge_rate: 0.0,
+                shield_cooldown: 0.0,
+                shield_repair_time: 0.0,
+                shield_radius: 0.0,
+            },
+        };
+
+        world.insert(GameVehicleSetup {
+            p1_name: VehicleNames::MediumCombat,
+            p2_name: VehicleNames::MediumCombat,
+            p3_name: VehicleNames::MediumCombat,
+            p4_name: VehicleNames::MediumCombat,
+            p1_stats: standard_vehicle_stats,
+            p2_stats: standard_vehicle_stats,
+            p3_stats: standard_vehicle_stats,
+            p4_stats: standard_vehicle_stats,
+        });
 
 
         self.ui_root =

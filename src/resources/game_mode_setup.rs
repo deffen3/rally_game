@@ -1,4 +1,4 @@
-use crate::components::WeaponNames;
+use crate::components::{WeaponNames, VehicleNames, VehicleStats};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GameModes {
@@ -38,6 +38,18 @@ pub struct GameWeaponSetup {
     pub weapon_spawn_count: u32,
     pub weapon_spawn_timer: f32,
     pub weapon_spawn_chances: Vec<(WeaponNames, f32)>,
+}
+
+
+pub struct GameVehicleSetup {
+    pub p1_name: VehicleNames,
+    pub p2_name: VehicleNames,
+    pub p3_name: VehicleNames,
+    pub p4_name: VehicleNames,
+    pub p1_stats: VehicleStats,
+    pub p2_stats: VehicleStats,
+    pub p3_stats: VehicleStats,
+    pub p4_stats: VehicleStats,
 }
 
 
