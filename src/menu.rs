@@ -173,44 +173,44 @@ impl SimpleState for MainMenu {
                 game_ended: false,
                 placements: Vec::new(),
             });
+
+
+            let vehicle_store = build_vehicle_store(world);
+
+            let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &vehicle_store.store;
+
+            let standard_vehicle_stats = match vehicle_configs_map.get(&VehicleNames::MediumCombat) {
+                Some(vehicle_config) => *vehicle_config,
+                _ => VehicleStats {
+                    max_shield: 0.0,
+                    max_armor: 0.0,
+                    max_health: 0.0,
+                    engine_force: 0.0,
+                    engine_weight: 0.0,
+                    width: 0.0,
+                    height: 0.0,
+                    max_velocity: 0.0,
+                    movement_type: VehicleMovementType::Hover,
+                    health_repair_rate: 0.0,
+                    health_repair_time: 0.0,
+                    shield_recharge_rate: 0.0,
+                    shield_cooldown: 0.0,
+                    shield_repair_time: 0.0,
+                    shield_radius: 0.0,
+                },
+            };
+
+            world.insert(GameVehicleSetup {
+                p1_name: VehicleNames::MediumCombat,
+                p2_name: VehicleNames::MediumCombat,
+                p3_name: VehicleNames::MediumCombat,
+                p4_name: VehicleNames::MediumCombat,
+                p1_stats: standard_vehicle_stats,
+                p2_stats: standard_vehicle_stats,
+                p3_stats: standard_vehicle_stats,
+                p4_stats: standard_vehicle_stats,
+            });
         }
-
-        let vehicle_store = build_vehicle_store(world);
-
-        let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &vehicle_store.store;
-
-        let standard_vehicle_stats = match vehicle_configs_map.get(&VehicleNames::MediumCombat) {
-            Some(vehicle_config) => *vehicle_config,
-            _ => VehicleStats {
-                max_shield: 0.0,
-                max_armor: 0.0,
-                max_health: 0.0,
-                engine_force: 0.0,
-                engine_weight: 0.0,
-                width: 0.0,
-                height: 0.0,
-                max_velocity: 0.0,
-                movement_type: VehicleMovementType::Hover,
-                health_repair_rate: 0.0,
-                health_repair_time: 0.0,
-                shield_recharge_rate: 0.0,
-                shield_cooldown: 0.0,
-                shield_repair_time: 0.0,
-                shield_radius: 0.0,
-            },
-        };
-
-        world.insert(GameVehicleSetup {
-            p1_name: VehicleNames::MediumCombat,
-            p2_name: VehicleNames::MediumCombat,
-            p3_name: VehicleNames::MediumCombat,
-            p4_name: VehicleNames::MediumCombat,
-            p1_stats: standard_vehicle_stats,
-            p2_stats: standard_vehicle_stats,
-            p3_stats: standard_vehicle_stats,
-            p4_stats: standard_vehicle_stats,
-        });
-
 
         self.ui_root =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/menu.ron", ())));
@@ -430,9 +430,9 @@ impl SimpleState for MainMenu {
         }
 
 
-        let fetched_game_team_setup = world.try_fetch_mut::<GameTeamSetup>();
+        let fetched_game_team_setup = world.try_fetch::<GameTeamSetup>();
 
-        if let Some(mut game_team_setup) = fetched_game_team_setup {
+        if let Some(game_team_setup) = fetched_game_team_setup {
             if let Some(team_setup) = self.text_player_teams.and_then(|entity| ui_text.get_mut(entity)) {
                 let team_setup_text = match game_team_setup.teams {
                     [0, 1, 2, 3] => "FFA".to_string(),

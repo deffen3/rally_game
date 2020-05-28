@@ -60,7 +60,6 @@ pub struct Vehicle {
 }
 
 pub fn determine_vehicle_weight(vehicle: &Vehicle) -> f32 {
-    //Similar comment exists in rally.rs
     //typical vehicle weight = 100 at S:100/A:100/H:100 with normal engine efficiency
 
     //health makes up the main hull of the vehicle, and contributes 20 base weight + 20 per 100 health

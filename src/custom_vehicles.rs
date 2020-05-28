@@ -85,9 +85,9 @@ impl SimpleState for CustomVehiclesMenu {
 
 
         let mut ui_text = world.write_storage::<UiText>();
-        let fetched_game_vehicle_setup = world.try_fetch_mut::<GameVehicleSetup>();
+        let fetched_game_vehicle_setup = world.try_fetch::<GameVehicleSetup>();
 
-        if let Some(mut game_vehicle_setup) = fetched_game_vehicle_setup {
+        if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
 
             if let Some(veh_name) = self.text_p1_vehicle_name.and_then(|entity| ui_text.get_mut(entity)) {
                 veh_name.text = get_vehicle_name_string(game_vehicle_setup.p1_name.clone());

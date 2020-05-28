@@ -17,7 +17,7 @@ use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
 use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, GameScore, 
-    TeamSetupTypes, GameTeamSetup, WeaponFireResource
+    TeamSetupTypes, GameTeamSetup, WeaponFireResource, GameVehicleSetup,
 };
 
 use crate::entities::{
@@ -154,48 +154,62 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         };
 
         for player_index in 0..max_players {
-            let is_bot = player_index >= max_players - bot_players;
-
-            let max_health = 100.0;
-            let max_armor = 100.0;
-            let max_shield = 100.0;
-
-            let engine_force = 100.0;
-            let engine_efficiency = 1.0;
-            let engine_weight = engine_force / engine_efficiency * 20. / 100.;
-
-            let vehicle_width: f32 = 7.0;
-            let vehicle_height: f32 = 12.0;
-
-
-            //Similar comment exists in vehicle_move.rs
-            //typical vehicle weight = 100 at S:100/A:100/H:100 with normal engine efficiency
-
-            //health makes up the main hull of the vehicle, and contributes 20 base weight + 20 per 100 health
-            //shields make up 15 weight
-            //armor another 25 weight
-            //engine another 20 weight
-
-            //typical weapon weight adds about 10.0
-            //  for a total of about 110.0
 
             
-            //a lighter racing vehicle with s:25/A:0/H:100 would weigh:
-            //  B:20 + H:20 + S:3.75 + E:20 + W:10 = 73.75,
-            //  and therefore would have about 50% quicker acceleration
-            //  but could only take about 42% typical damage before blowing up
 
-            //a heavy-weight tank combat vehicle with s:200/A:200/H:150 would weigh:
-            //  B:20 + H:30 + S:30 + A:50 + E:20 + W:10 = 160,
-            //  and therefore would have about 45% slower acceleration
-            //  but would take almost 550 damage, an 83% increase
+            let max_health: f32;
+            let max_armor: f32;
+            let max_shield: f32;
 
+            let engine_force: f32;
+            let engine_weight: f32;
 
-            //NOTE: lost armor does not contribute to weight, only the current value of armor matters
+            let vehicle_width: f32;
+            let vehicle_height: f32;
 
-            let max_velocity = 1.0;
+            let max_velocity: f32;
 
-            let vehicle_movement_type = VehicleMovementType::Hover;
+            let vehicle_movement_type: VehicleMovementType;
+
+            {
+                let fetched_game_vehicle_setup = world.try_fetch::<GameVehicleSetup>();
+
+                if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
+                    max_health = game_vehicle_setup.p1_stats.max_health;
+                    max_armor = game_vehicle_setup.p1_stats.max_armor;
+                    max_shield = game_vehicle_setup.p1_stats.max_shield;
+
+                    engine_force = game_vehicle_setup.p1_stats.engine_force;
+                    let engine_efficiency = 1.0;
+                    engine_weight = engine_force / engine_efficiency * 20. / 100.;
+
+                    vehicle_width = game_vehicle_setup.p1_stats.width;
+                    vehicle_height = game_vehicle_setup.p1_stats.height;
+
+                    max_velocity = game_vehicle_setup.p1_stats.max_velocity;
+
+                    vehicle_movement_type = VehicleMovementType::Hover;
+                }
+                else {
+                    max_health = 100.0;
+                    max_armor = 100.0;
+                    max_shield = 100.0;
+
+                    engine_force = 100.0;
+                    let engine_efficiency = 1.0;
+                    engine_weight = engine_force / engine_efficiency * 20. / 100.;
+
+                    vehicle_width = 7.0;
+                    vehicle_height = 12.0;
+
+                    max_velocity = 1.0;
+
+                    vehicle_movement_type = VehicleMovementType::Hover;
+                }
+            }
+
+            let is_bot = player_index >= max_players - bot_players;
+            
 
             let player = intialize_player(
                 world,
