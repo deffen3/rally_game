@@ -224,6 +224,8 @@ pub fn intialize_player(
         .with(shield_tint)
         .build();
 
+
+        
     //UI vehicle icons
     let x = 20.;
     let y = UI_HEIGHT - 10.;

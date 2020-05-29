@@ -399,7 +399,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
     }
 }
 
-fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handle<SpriteSheet> {
+pub fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> Handle<SpriteSheet> {
     // Load the sprite sheet necessary to render the graphics.
     // The texture is the pixel data
     // `texture_handle` is a cloneable reference to the texture

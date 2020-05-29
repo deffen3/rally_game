@@ -8,7 +8,6 @@ Container(
         width: 20.,
         height: 20.,
     ),
-    background: SolidColor(0.03, 0.03, 0.03, 1.0),
     children: [
 
 
@@ -39,11 +38,11 @@ Container(
                 id: "p1_container",
                 x: -250.,
                 y: -250.,
+                z: 0.0,
                 width: 400.,
                 height: 250.,
                 anchor: TopMiddle,
             ),
-            background: SolidColor(0.06, 0.05, 0.05, 1.0),
             children: [
 
                 Label(
