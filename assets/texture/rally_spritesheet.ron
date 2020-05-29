@@ -377,8 +377,8 @@ List((
         ( //interceptor armor #62
             x: 101,
             y: 53,
-            width: 11,
-            height: 9,
+            width: 15,
+            height: 11,
         ),
         ( //interceptor shield #63
             x: 101,
