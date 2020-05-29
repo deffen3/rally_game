@@ -123,6 +123,7 @@ pub fn intialize_player(
         VehicleNames::LightRacer => (44, 19, 20),
         VehicleNames::HeavyTank => (48, 57, 56),
         VehicleNames::CivilianCruiser => (52, 19, 20),
+        VehicleNames::Interceptor => (58, 63, 62),
     };
 
     let vehicle_sprite_render = SpriteRender {
@@ -225,7 +226,7 @@ pub fn intialize_player(
         .build();
 
 
-        
+
     //UI vehicle icons
     let x = 20.;
     let y = UI_HEIGHT - 10.;

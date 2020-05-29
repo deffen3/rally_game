@@ -1,13 +1,13 @@
 use amethyst::{
-    assets::{AssetStorage, Handle, Loader},
+    assets::{Handle},
     core::transform::Transform,
     core::math::Vector3,
     ecs::prelude::Entity,
     input::{is_close_requested, is_key_down},
     prelude::*,
     ui::{UiCreator, UiEvent, UiEventType, UiFinder, UiText},
-    renderer::{palette::Srgba, resources::Tint, 
-        ImageFormat, SpriteSheet, SpriteSheetFormat, SpriteRender, Texture, Transparent
+    renderer::{
+        SpriteSheet, SpriteRender,
     },
     winit::VirtualKeyCode,
     utils::{
@@ -181,6 +181,7 @@ impl SimpleState for CustomVehiclesMenu {
                 VehicleNames::LightRacer => 44,
                 VehicleNames::HeavyTank => 48,
                 VehicleNames::CivilianCruiser => 52,
+                VehicleNames::Interceptor => 58,
             };
         
             let vehicle_sprite_render = SpriteRender {

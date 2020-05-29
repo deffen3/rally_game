@@ -351,6 +351,7 @@ pub enum VehicleNames {
     LightRacer,
     HeavyTank,
     CivilianCruiser,
+    Interceptor,
 }
 
 
@@ -359,6 +360,7 @@ pub fn get_vehicle_name_string(name: VehicleNames) -> String {
         VehicleNames::MediumCombat => "Medium Combat".to_string(),
         VehicleNames::LightRacer => "Light Racer".to_string(),
         VehicleNames::HeavyTank => "Heavy Tank".to_string(),
+        VehicleNames::Interceptor => "Interceptor".to_string(),
         VehicleNames::CivilianCruiser => "Civilian Cruiser".to_string(),
     }
 }
@@ -367,7 +369,8 @@ pub fn get_next_vehicle_name(name: VehicleNames) -> VehicleNames {
     match name {
         VehicleNames::MediumCombat => VehicleNames::LightRacer,
         VehicleNames::LightRacer => VehicleNames::HeavyTank,
-        VehicleNames::HeavyTank => VehicleNames::CivilianCruiser,
+        VehicleNames::HeavyTank => VehicleNames::Interceptor,
+        VehicleNames::Interceptor => VehicleNames::CivilianCruiser,
         VehicleNames::CivilianCruiser => VehicleNames::MediumCombat,
     }
 }
@@ -377,7 +380,8 @@ pub fn get_prev_vehicle_name(name: VehicleNames) -> VehicleNames {
         VehicleNames::MediumCombat => VehicleNames::CivilianCruiser,
         VehicleNames::LightRacer => VehicleNames::MediumCombat,
         VehicleNames::HeavyTank => VehicleNames::LightRacer,
-        VehicleNames::CivilianCruiser => VehicleNames::HeavyTank,
+        VehicleNames::Interceptor => VehicleNames::HeavyTank,
+        VehicleNames::CivilianCruiser => VehicleNames::Interceptor,
     }
 }
 
