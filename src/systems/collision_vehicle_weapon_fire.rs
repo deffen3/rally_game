@@ -447,10 +447,12 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         if vehicle_destroyed && vehicle.state == VehicleState::Active {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                     
-                            player_makes_kill_map.insert(
-                                weapon_fire.owner_player_id.clone(),
-                                weapon_fire.weapon_name.clone(),
-                            );
+                            if player.id != weapon_fire.owner_player_id.clone() {
+                                player_makes_kill_map.insert(
+                                    weapon_fire.owner_player_id.clone(),
+                                    weapon_fire.weapon_name.clone(),
+                                );
+                            }
                     
                             player_got_killed_map
                                 .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
