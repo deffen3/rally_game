@@ -13,7 +13,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     build_named_weapon2, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, WeaponArray, Weapon, WeaponNames,
-    WeaponStoreResource, VehicleMovementType,
+    WeaponStoreResource, VehicleMovementType, VehicleNames,
 };
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -28,6 +28,7 @@ pub fn intialize_player(
     team: i32,
     is_bot: bool,
     player_status_text: PlayerStatusText,
+    vehicle_name: VehicleNames,
     max_health: f32,
     max_armor: f32,
     max_shield: f32,
@@ -117,9 +118,16 @@ pub fn intialize_player(
     vehicle_transform.set_rotation_2d(starting_rotation as f32);
     vehicle_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
 
+    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_name {
+        VehicleNames::MediumCombat => (0, 19, 20),
+        VehicleNames::LightRacer => (44, 19, 20),
+        VehicleNames::HeavyTank => (48, 57, 56),
+        VehicleNames::CivilianCruiser => (52, 19, 20),
+    };
+
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: player_index,
+        sprite_number: vehicle_sprite_number + player_index,
     };
 
     let weapon_stats = build_named_weapon2(weapon_name.clone(), weapon_store);
@@ -177,7 +185,7 @@ pub fn intialize_player(
 
     let armor_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 20,
+        sprite_number: armor_sprite_number,
     };
 
     // White shows the sprite as normal.
@@ -200,7 +208,7 @@ pub fn intialize_player(
 
     let shield_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle,
-        sprite_number: 19,
+        sprite_number: shield_sprite_number,
     };
 
     // White shows the sprite as normal.
