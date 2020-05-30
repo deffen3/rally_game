@@ -181,7 +181,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
                             || (fire_x < (-2.0 * weapon_fire.width))
                             || (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
-                            || (fire_y < (UI_HEIGHT -2.0 * weapon_fire.width))
+                            || (fire_y < (UI_HEIGHT - 2.0 * weapon_fire.width))
                         {
                             if !weapon_fire.attached {
                                 let _ = entities.delete(entity);
