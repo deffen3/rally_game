@@ -492,7 +492,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "Customize Vehicles",
+                        text: "Select Vehicles",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 25.,
                         normal_text_color: (0.8, 0.1, 0.05, 1.0),
@@ -528,7 +528,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "Customize Weapons",
+                        text: "Set Weapon Rules",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 25.,
                         normal_text_color: (0.8, 0.1, 0.05, 1.0),
@@ -563,7 +563,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "Customize Arena",
+                        text: "Select Arena",
                         font: File("font/square.ttf", ("TTF", ())),
                         font_size: 25.,
                         normal_text_color: (0.8, 0.1, 0.05, 1.0),

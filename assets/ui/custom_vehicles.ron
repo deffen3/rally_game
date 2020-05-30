@@ -24,7 +24,7 @@ Container(
                 selectable: 0,
             ),
             text: (
-                text: "Customize Vehicles",
+                text: "Select Vehicles",
                 font: File("font/square.ttf", ("TTF", ())),
                 font_size: 65.,
                 color: (0.8, 0.1, 0.05, 1.0),
