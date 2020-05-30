@@ -33,7 +33,8 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
         let mut owner_data_map = HashMap::new();
 
         for (player, vehicle, vehicle_transform) in (&players, &mut vehicles, &transforms).join() {
-            if (vehicle.shield.value > 0.0) && (vehicle.shield.value < vehicle.shield.max) {
+            if (vehicle.shield.value > 0.0) && 
+                    (vehicle.shield.max > 0.0 && vehicle.shield.value < vehicle.shield.max) {
                 if vehicle.shield.cooldown_timer < 0.0 {
                     //recharging
                     vehicle.shield.value += vehicle.shield.recharge_rate * dt;
@@ -71,7 +72,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
 
             if let Some(repair) = vehicle_repair {
                 if repair && vehicle.state == VehicleState::Active {
-                    if vehicle.health.value < vehicle.health.max || vehicle.shield.value == 0.0 {
+                    if vehicle.health.value < vehicle.health.max || (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0) {
                         //repair initiated
                         vehicle.repair.activated = true;
                         vehicle.repair.init_timer += dt;

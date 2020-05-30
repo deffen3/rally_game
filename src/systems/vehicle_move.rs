@@ -243,7 +243,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
                                 if (vehicle.health.value < vehicle.health.max ||
-                                        vehicle.shield.value == 0.0) && 
+                                        (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0)) && 
                                         dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE &&
                                         player.last_hit_timer > 1.0 {
                                     player.bot_mode = BotMode::Repairing;
