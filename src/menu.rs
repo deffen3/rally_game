@@ -201,14 +201,13 @@ impl SimpleState for MainMenu {
             };
 
             world.insert(GameVehicleSetup {
-                p1_name: VehicleNames::MediumCombat,
-                p2_name: VehicleNames::MediumCombat,
-                p3_name: VehicleNames::MediumCombat,
-                p4_name: VehicleNames::MediumCombat,
-                p1_stats: standard_vehicle_stats,
-                p2_stats: standard_vehicle_stats,
-                p3_stats: standard_vehicle_stats,
-                p4_stats: standard_vehicle_stats,
+                names: [
+                    VehicleNames::MediumCombat, 
+                    VehicleNames::MediumCombat,
+                    VehicleNames::MediumCombat,
+                    VehicleNames::MediumCombat
+                ],
+                stats: [standard_vehicle_stats; 4],
             });
         }
 

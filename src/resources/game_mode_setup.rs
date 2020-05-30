@@ -42,14 +42,8 @@ pub struct GameWeaponSetup {
 
 
 pub struct GameVehicleSetup {
-    pub p1_name: VehicleNames,
-    pub p2_name: VehicleNames,
-    pub p3_name: VehicleNames,
-    pub p4_name: VehicleNames,
-    pub p1_stats: VehicleStats,
-    pub p2_stats: VehicleStats,
-    pub p3_stats: VehicleStats,
-    pub p4_stats: VehicleStats,
+    pub names: [VehicleNames; 4],
+    pub stats: [VehicleStats; 4],
 }
 
 

@@ -174,20 +174,20 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 let fetched_game_vehicle_setup = world.try_fetch::<GameVehicleSetup>();
 
                 if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
-                    vehicle_name = game_vehicle_setup.p1_name.clone();
+                    vehicle_name = game_vehicle_setup.names[player_index].clone();
 
-                    max_health = game_vehicle_setup.p1_stats.max_health;
-                    max_armor = game_vehicle_setup.p1_stats.max_armor;
-                    max_shield = game_vehicle_setup.p1_stats.max_shield;
+                    max_health = game_vehicle_setup.stats[player_index].max_health;
+                    max_armor = game_vehicle_setup.stats[player_index].max_armor;
+                    max_shield = game_vehicle_setup.stats[player_index].max_shield;
 
-                    engine_force = game_vehicle_setup.p1_stats.engine_force;
+                    engine_force = game_vehicle_setup.stats[player_index].engine_force;
                     let engine_efficiency = 1.0;
                     engine_weight = engine_force / engine_efficiency * 20. / 100.;
 
-                    vehicle_width = game_vehicle_setup.p1_stats.width;
-                    vehicle_height = game_vehicle_setup.p1_stats.height;
+                    vehicle_width = game_vehicle_setup.stats[player_index].width;
+                    vehicle_height = game_vehicle_setup.stats[player_index].height;
 
-                    max_velocity = game_vehicle_setup.p1_stats.max_velocity;
+                    max_velocity = game_vehicle_setup.stats[player_index].max_velocity;
 
                     vehicle_movement_type = VehicleMovementType::Hover;
                 }

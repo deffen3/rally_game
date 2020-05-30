@@ -345,7 +345,7 @@ pub fn vehicle_damage_model(
 
 
 
-#[derive(Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
 pub enum VehicleNames {
     MediumCombat,
     LightRacer,
