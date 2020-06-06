@@ -363,7 +363,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                         }
                     
                     
-                        if weapon_fire.ion_malfunction_pct > 0.0 {
+                        if vehicle.shield.value == 0 && weapon_fire.ion_malfunction_pct > 0.0 {
                             vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
                         }
 
@@ -458,7 +458,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                                 .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
                         }
                     
-                        if weapon_fire.ion_malfunction_pct > 0.0 {
+                        if vehicle.shield.value == 0 && weapon_fire.ion_malfunction_pct > 0.0 {
                             vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
                         }
                     
