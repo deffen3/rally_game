@@ -15,7 +15,7 @@ use crate::custom_weapons::CustomWeaponsMenu;
 use crate::custom_arena::CustomArenaMenu;
 
 use crate::components::{WeaponNames, 
-    build_vehicle_store, VehicleNames, VehicleStats, VehicleMovementType,
+    build_vehicle_store, VehicleNames, VehicleStats, VehicleTypes, VehicleMovementType,
 };
 
 use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
@@ -182,6 +182,7 @@ impl SimpleState for MainMenu {
             let standard_vehicle_stats = match vehicle_configs_map.get(&VehicleNames::MediumCombat) {
                 Some(vehicle_config) => *vehicle_config,
                 _ => VehicleStats {
+                    vehicle_type: VehicleTypes::MediumCombat,
                     max_shield: 0.0,
                     max_armor: 0.0,
                     max_health: 0.0,

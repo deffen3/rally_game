@@ -27,7 +27,7 @@ use crate::entities::initialize_camera;
 
 use crate::components::{determine_vehicle_weight_stats, get_vehicle_name_string, 
     VehicleMovementType, VehicleStoreResource, get_next_vehicle_name, get_prev_vehicle_name,
-    VehicleNames, VehicleStats,
+    VehicleNames, VehicleStats, VehicleTypes,
 };
 
 
@@ -124,6 +124,8 @@ impl SimpleState for CustomVehiclesMenu {
 
         for player_index in 0..4 {
             let p1_vehicle_name: Option<VehicleNames>;
+            let p1_vehicle_sprite_type: Option<VehicleTypes>;
+
             {
                 let mut ui_text = world.write_storage::<UiText>();
                 let fetched_game_vehicle_setup = world.try_fetch::<GameVehicleSetup>();
@@ -157,9 +159,11 @@ impl SimpleState for CustomVehiclesMenu {
                     }
 
                     p1_vehicle_name = Some(game_vehicle_setup.names[player_index].clone());
+                    p1_vehicle_sprite_type = Some(game_vehicle_setup.stats[player_index].vehicle_type.clone());
                 }
                 else {
                     p1_vehicle_name = None;
+                    p1_vehicle_sprite_type = None;
                 }
             }
 
@@ -199,12 +203,12 @@ impl SimpleState for CustomVehiclesMenu {
 
             if p1_change_icon {
                 //UI vehicle icon
-                let vehicle_sprite_number = match p1_vehicle_name.unwrap() {
-                    VehicleNames::MediumCombat => 0,
-                    VehicleNames::LightRacer => 44,
-                    VehicleNames::HeavyTank => 48,
-                    VehicleNames::CivilianCruiser => 52,
-                    VehicleNames::Interceptor => 58,
+                let vehicle_sprite_number = match p1_vehicle_sprite_type.unwrap() {
+                    VehicleTypes::MediumCombat => 0,
+                    VehicleTypes::LightRacer => 44,
+                    VehicleTypes::HeavyTank => 48,
+                    VehicleTypes::CivilianCruiser => 52,
+                    VehicleTypes::Interceptor => 58,
                 };
             
                 let vehicle_sprite_render = SpriteRender {
@@ -279,6 +283,7 @@ impl SimpleState for CustomVehiclesMenu {
                                 let veh_stats = match vehicle_configs_map.get(&game_vehicle_setup.names[player_index]) {
                                     Some(vehicle_config) => *vehicle_config,
                                     _ => VehicleStats {
+                                        vehicle_type: VehicleTypes::MediumCombat,
                                         max_shield: 0.0,
                                         max_armor: 0.0,
                                         max_health: 0.0,
@@ -312,6 +317,7 @@ impl SimpleState for CustomVehiclesMenu {
                                 let veh_stats = match vehicle_configs_map.get(&game_vehicle_setup.names[player_index]) {
                                     Some(vehicle_config) => *vehicle_config,
                                     _ => VehicleStats {
+                                        vehicle_type: VehicleTypes::MediumCombat,
                                         max_shield: 0.0,
                                         max_armor: 0.0,
                                         max_health: 0.0,

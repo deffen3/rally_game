@@ -13,7 +13,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     build_named_weapon2, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, WeaponArray, Weapon, WeaponNames,
-    WeaponStoreResource, VehicleMovementType, VehicleNames,
+    WeaponStoreResource, VehicleMovementType, VehicleTypes,
 };
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -28,7 +28,7 @@ pub fn intialize_player(
     team: i32,
     is_bot: bool,
     player_status_text: PlayerStatusText,
-    vehicle_name: VehicleNames,
+    vehicle_type: VehicleTypes,
     max_health: f32,
     max_armor: f32,
     max_shield: f32,
@@ -118,12 +118,12 @@ pub fn intialize_player(
     vehicle_transform.set_rotation_2d(starting_rotation as f32);
     vehicle_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
 
-    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_name {
-        VehicleNames::MediumCombat => (0, 19, 20),
-        VehicleNames::LightRacer => (44, 19, 20),
-        VehicleNames::HeavyTank => (48, 57, 56),
-        VehicleNames::CivilianCruiser => (52, 19, 20),
-        VehicleNames::Interceptor => (58, 63, 62),
+    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_type {
+        VehicleTypes::MediumCombat => (0, 19, 20),
+        VehicleTypes::LightRacer => (44, 19, 20),
+        VehicleTypes::HeavyTank => (48, 57, 56),
+        VehicleTypes::CivilianCruiser => (52, 19, 20),
+        VehicleTypes::Interceptor => (58, 63, 62),
     };
 
     let vehicle_sprite_render = SpriteRender {

@@ -27,7 +27,7 @@ use crate::entities::{
 
 use crate::components::{
     build_weapon_store, Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
-    WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleNames,
+    WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleNames, VehicleTypes,
 };
 
 use crate::systems::{
@@ -154,7 +154,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         };
 
         for player_index in 0..max_players {
-            let vehicle_name: VehicleNames;
+            let vehicle_type: VehicleTypes;
 
             let max_health: f32;
             let max_armor: f32;
@@ -174,7 +174,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 let fetched_game_vehicle_setup = world.try_fetch::<GameVehicleSetup>();
 
                 if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
-                    vehicle_name = game_vehicle_setup.names[player_index].clone();
+                    vehicle_type = game_vehicle_setup.stats[player_index].vehicle_type;
 
                     max_health = game_vehicle_setup.stats[player_index].max_health;
                     max_armor = game_vehicle_setup.stats[player_index].max_armor;
@@ -192,7 +192,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                     vehicle_movement_type = VehicleMovementType::Hover;
                 }
                 else {
-                    vehicle_name = VehicleNames::MediumCombat;
+                    vehicle_type = VehicleTypes::MediumCombat;
 
                     max_health = 100.0;
                     max_armor = 100.0;
@@ -223,7 +223,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 player_to_team[player_index],
                 is_bot,
                 player_status_text.clone(),
-                vehicle_name.clone(),
+                vehicle_type.clone(),
                 max_health,
                 max_armor,
                 max_shield,

@@ -354,6 +354,15 @@ pub enum VehicleNames {
     Interceptor,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
+pub enum VehicleTypes {
+    MediumCombat,
+    LightRacer,
+    HeavyTank,
+    CivilianCruiser,
+    Interceptor,
+}
+
 
 pub fn get_vehicle_name_string(name: VehicleNames) -> String {
     match name {
@@ -389,6 +398,7 @@ pub fn get_prev_vehicle_name(name: VehicleNames) -> VehicleNames {
 
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct VehicleStats {
+    pub vehicle_type: VehicleTypes,
     pub max_shield: f32,
     pub max_armor: f32,
     pub max_health: f32,

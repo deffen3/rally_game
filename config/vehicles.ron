@@ -1,5 +1,6 @@
 {
   MediumCombat : VehicleStats (
+    vehicle_type: MediumCombat,
     max_shield: 100.0,
     max_armor: 100.0,
     max_health: 100.0,
@@ -17,6 +18,7 @@
     shield_radius: 14.0,
   ),
   LightRacer : VehicleStats (
+    vehicle_type: LightRacer,
     max_shield: 25.0,
     max_armor: 0.0,
     max_health: 100.0,
@@ -34,6 +36,7 @@
     shield_radius: 14.0,
   ),
   HeavyTank : VehicleStats (
+    vehicle_type: HeavyTank,
     max_shield: 200.0,
     max_armor: 200.0,
     max_health: 150.0,    
@@ -51,6 +54,7 @@
     shield_radius: 17.0,
   ),
   CivilianCruiser : VehicleStats (
+    vehicle_type: CivilianCruiser,
     max_shield: 0.0,
     max_armor: 0.0,
     max_health: 100.0,
@@ -68,6 +72,7 @@
     shield_radius: 14.0,
   ),
   Interceptor : VehicleStats (
+    vehicle_type: Interceptor,
     max_shield: 125.0,
     max_armor: 50.0,
     max_health: 100.0,
