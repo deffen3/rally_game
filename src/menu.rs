@@ -190,6 +190,7 @@ impl SimpleState for MainMenu {
                     engine_weight: 0.0,
                     width: 0.0,
                     height: 0.0,
+                    sprite_scalar: 0.0,
                     max_velocity: 0.0,
                     movement_type: VehicleMovementType::Hover,
                     health_repair_rate: 0.0,

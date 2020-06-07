@@ -1,6 +1,6 @@
 List((
-    texture_width: 128,
-    texture_height: 128,
+    texture_width: 256,
+    texture_height: 256,
     sprites: [
         ( //medium combat p1 #0
             x: 67,
@@ -385,6 +385,42 @@ List((
             y: 65,
             width: 19,
             height: 12,
+        ),
+        ( //t_speeder p1 #64
+            x: 63,
+            y: 76,
+            width: 26,
+            height: 29,
+        ),
+        ( //t_speeder p2 #65
+            x: 63,
+            y: 106,
+            width: 26,
+            height: 29,
+        ),
+        ( //t_speeder p3 #66
+            x: 63,
+            y: 136,
+            width: 26,
+            height: 29,
+        ),
+        ( //t_speeder p4 #67
+            x: 63,
+            y: 166,
+            width: 26,
+            height: 29,
+        ),
+        ( //t_speeder armor #68
+            x: 0,
+            y: 0,
+            width: 1,
+            height: 1,
+        ),
+        ( //t_speeder shield #69
+            x: 0,
+            y: 0,
+            width: 1,
+            height: 1,
         ),
     ],
 ))

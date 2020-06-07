@@ -38,6 +38,7 @@ pub fn intialize_player(
     vehicle_movement_type: VehicleMovementType,
     vehicle_width: f32,
     vehicle_height: f32,
+    vehicle_sprite_scalar: f32,
 ) -> Entity {
     let game_mode;
     let weapon_name;
@@ -117,6 +118,8 @@ pub fn intialize_player(
 
     vehicle_transform.set_rotation_2d(starting_rotation as f32);
     vehicle_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+    vehicle_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
+
 
     let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_type {
         VehicleTypes::MediumCombat => (0, 19, 20),
@@ -124,6 +127,7 @@ pub fn intialize_player(
         VehicleTypes::HeavyTank => (48, 57, 56),
         VehicleTypes::CivilianCruiser => (52, 19, 20),
         VehicleTypes::Interceptor => (58, 63, 62),
+        VehicleTypes::TSpeeder => (64, 69, 68),
     };
 
     let vehicle_sprite_render = SpriteRender {
@@ -137,6 +141,7 @@ pub fn intialize_player(
     let mut health_transform = Transform::default();
     health_transform.set_rotation_2d(starting_rotation as f32);
     health_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.3);
+    health_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let health_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
@@ -160,6 +165,7 @@ pub fn intialize_player(
     let mut repair_transform = Transform::default();
     repair_transform.set_rotation_2d(starting_rotation as f32);
     repair_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.4);
+    //repair_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let repair_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
@@ -183,6 +189,7 @@ pub fn intialize_player(
     let mut armor_transform = Transform::default();
     armor_transform.set_rotation_2d(starting_rotation as f32);
     armor_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.2);
+    armor_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let armor_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
@@ -206,6 +213,7 @@ pub fn intialize_player(
     let mut shield_transform = Transform::default();
     shield_transform.set_rotation_2d(starting_rotation as f32);
     shield_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.1);
+    shield_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let shield_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle,
@@ -245,6 +253,9 @@ pub fn intialize_player(
 
         icon_transform.set_rotation_2d(-PI / 2.0);
         icon_transform.set_translation_xyz(starting_x as f32, y, 0.4);
+
+        let vehicle_icon_scale = 1.0 / vehicle_sprite_scalar;
+        icon_transform.set_scale(Vector3::new(vehicle_icon_scale, vehicle_icon_scale, 0.0));
 
         world
             .create_entity()

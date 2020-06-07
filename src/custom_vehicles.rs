@@ -125,6 +125,7 @@ impl SimpleState for CustomVehiclesMenu {
         for player_index in 0..4 {
             let p1_vehicle_name: Option<VehicleNames>;
             let p1_vehicle_sprite_type: Option<VehicleTypes>;
+            let p1_vehicle_sprite_scalar: f32;
 
             {
                 let mut ui_text = world.write_storage::<UiText>();
@@ -136,7 +137,7 @@ impl SimpleState for CustomVehiclesMenu {
                         veh_name.text = get_vehicle_name_string(game_vehicle_setup.names[player_index].clone());
                     }
 
-                    let veh_stats = game_vehicle_setup.stats[player_index];            
+                    let veh_stats = game_vehicle_setup.stats[player_index];
 
                     if let Some(veh_shields) = self.text_p1_shields[player_index].and_then(|entity| ui_text.get_mut(entity)) {
                         veh_shields.text = veh_stats.max_shield.to_string();
@@ -160,10 +161,12 @@ impl SimpleState for CustomVehiclesMenu {
 
                     p1_vehicle_name = Some(game_vehicle_setup.names[player_index].clone());
                     p1_vehicle_sprite_type = Some(game_vehicle_setup.stats[player_index].vehicle_type.clone());
+                    p1_vehicle_sprite_scalar = game_vehicle_setup.stats[player_index].sprite_scalar.clone();
                 }
                 else {
                     p1_vehicle_name = None;
                     p1_vehicle_sprite_type = None;
+                    p1_vehicle_sprite_scalar = 0.0;
                 }
             }
 
@@ -209,6 +212,7 @@ impl SimpleState for CustomVehiclesMenu {
                     VehicleTypes::HeavyTank => 48,
                     VehicleTypes::CivilianCruiser => 52,
                     VehicleTypes::Interceptor => 58,
+                    VehicleTypes::TSpeeder => 64,
                 };
             
                 let vehicle_sprite_render = SpriteRender {
@@ -220,7 +224,9 @@ impl SimpleState for CustomVehiclesMenu {
 
                 icon_transform.set_rotation_2d(-PI / 2.0);
                 icon_transform.set_translation_xyz(x, y, 0.3);
-                icon_transform.set_scale(Vector3::new(7., 7., 0.0));
+
+                let scale = 7. / p1_vehicle_sprite_scalar;
+                icon_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
                 let p1_vehicle_sprite;
                 {
@@ -291,6 +297,7 @@ impl SimpleState for CustomVehiclesMenu {
                                         engine_weight: 0.0,
                                         width: 0.0,
                                         height: 0.0,
+                                        sprite_scalar: 0.0,
                                         max_velocity: 0.0,
                                         movement_type: VehicleMovementType::Hover,
                                         health_repair_rate: 0.0,
@@ -325,6 +332,7 @@ impl SimpleState for CustomVehiclesMenu {
                                         engine_weight: 0.0,
                                         width: 0.0,
                                         height: 0.0,
+                                        sprite_scalar: 0.0,
                                         max_velocity: 0.0,
                                         movement_type: VehicleMovementType::Hover,
                                         health_repair_rate: 0.0,

@@ -27,7 +27,7 @@ use crate::entities::{
 
 use crate::components::{
     build_weapon_store, Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
-    WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleNames, VehicleTypes,
+    WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleTypes,
 };
 
 use crate::systems::{
@@ -165,6 +165,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
             let vehicle_width: f32;
             let vehicle_height: f32;
+            let vehicle_sprite_scalar: f32;
 
             let max_velocity: f32;
 
@@ -181,11 +182,11 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                     max_shield = game_vehicle_setup.stats[player_index].max_shield;
 
                     engine_force = game_vehicle_setup.stats[player_index].engine_force;
-                    let engine_efficiency = 1.0;
-                    engine_weight = engine_force / engine_efficiency * 20. / 100.;
+                    engine_weight = game_vehicle_setup.stats[player_index].engine_weight;
 
                     vehicle_width = game_vehicle_setup.stats[player_index].width;
                     vehicle_height = game_vehicle_setup.stats[player_index].height;
+                    vehicle_sprite_scalar = game_vehicle_setup.stats[player_index].sprite_scalar;
 
                     max_velocity = game_vehicle_setup.stats[player_index].max_velocity;
 
@@ -204,6 +205,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
                     vehicle_width = 7.0;
                     vehicle_height = 12.0;
+                    vehicle_sprite_scalar = 1.0;
 
                     max_velocity = 1.0;
 
@@ -233,6 +235,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 vehicle_movement_type,
                 vehicle_width,
                 vehicle_height,
+                vehicle_sprite_scalar,
             );
 
             if PLAYER_CAMERA && !is_bot {

@@ -352,6 +352,7 @@ pub enum VehicleNames {
     HeavyTank,
     CivilianCruiser,
     Interceptor,
+    TSpeeder,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
@@ -361,6 +362,7 @@ pub enum VehicleTypes {
     HeavyTank,
     CivilianCruiser,
     Interceptor,
+    TSpeeder,
 }
 
 
@@ -370,6 +372,7 @@ pub fn get_vehicle_name_string(name: VehicleNames) -> String {
         VehicleNames::LightRacer => "Light Racer".to_string(),
         VehicleNames::HeavyTank => "Heavy Tank".to_string(),
         VehicleNames::Interceptor => "Interceptor".to_string(),
+        VehicleNames::TSpeeder => "T-Speeder".to_string(),
         VehicleNames::CivilianCruiser => "Civilian Cruiser".to_string(),
     }
 }
@@ -379,7 +382,8 @@ pub fn get_next_vehicle_name(name: VehicleNames) -> VehicleNames {
         VehicleNames::MediumCombat => VehicleNames::LightRacer,
         VehicleNames::LightRacer => VehicleNames::HeavyTank,
         VehicleNames::HeavyTank => VehicleNames::Interceptor,
-        VehicleNames::Interceptor => VehicleNames::CivilianCruiser,
+        VehicleNames::Interceptor => VehicleNames::TSpeeder,
+        VehicleNames::TSpeeder => VehicleNames::CivilianCruiser,
         VehicleNames::CivilianCruiser => VehicleNames::MediumCombat,
     }
 }
@@ -390,7 +394,8 @@ pub fn get_prev_vehicle_name(name: VehicleNames) -> VehicleNames {
         VehicleNames::LightRacer => VehicleNames::MediumCombat,
         VehicleNames::HeavyTank => VehicleNames::LightRacer,
         VehicleNames::Interceptor => VehicleNames::HeavyTank,
-        VehicleNames::CivilianCruiser => VehicleNames::Interceptor,
+        VehicleNames::TSpeeder => VehicleNames::Interceptor,
+        VehicleNames::CivilianCruiser => VehicleNames::TSpeeder,
     }
 }
 
@@ -406,6 +411,7 @@ pub struct VehicleStats {
     pub engine_weight: f32,
     pub width: f32,
     pub height: f32,
+    pub sprite_scalar: f32,
     pub max_velocity: f32,
     pub movement_type: VehicleMovementType,
     pub health_repair_rate: f32,
