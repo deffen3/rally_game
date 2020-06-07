@@ -422,7 +422,7 @@ pub struct VehicleStoreResource {
 
 
 pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
-    let input_path = format!("{}/config/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path = format!("{}/assets/game/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
     let f = File::open(&input_path).expect("Failed opening file");
 
     let vehicle_configs_map: HashMap<VehicleNames, VehicleStats> =

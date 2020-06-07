@@ -127,7 +127,7 @@ pub fn build_weapon_store(world: &mut World) -> WeaponStoreResource {
     //     (),
     // );
 
-    let input_path = format!("{}/config/weapons.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path = format!("{}/assets/game/weapons.ron", env!("CARGO_MANIFEST_DIR"));
     let f = File::open(&input_path).expect("Failed opening file");
 
     let weapon_configs_map: HashMap<WeaponNames, WeaponStats> =
