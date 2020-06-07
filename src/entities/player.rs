@@ -134,7 +134,7 @@ pub fn intialize_player(
     let mut health_transform = Transform::default();
     health_transform.set_rotation_2d(starting_rotation as f32);
     health_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.3);
-    health_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
+    //health_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let health_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
