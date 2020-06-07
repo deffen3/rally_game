@@ -25,9 +25,9 @@ use crate::resources::{GameVehicleSetup};
 
 use crate::entities::initialize_camera;
 
-use crate::components::{determine_vehicle_weight_stats, get_vehicle_name_string, 
-    VehicleMovementType, VehicleStoreResource, get_next_vehicle_name, get_prev_vehicle_name,
-    VehicleNames, VehicleStats, VehicleTypes,
+use crate::components::{determine_vehicle_weight_stats, 
+    VehicleStoreResource, get_next_vehicle_name, get_prev_vehicle_name,
+    VehicleNames, VehicleStats, VehicleTypes, get_none_vehicle, get_vehicle_sprites,
 };
 
 
@@ -132,12 +132,11 @@ impl SimpleState for CustomVehiclesMenu {
                 let fetched_game_vehicle_setup = world.try_fetch::<GameVehicleSetup>();
 
                 if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
+                    let veh_stats = game_vehicle_setup.stats[player_index].clone();
 
                     if let Some(veh_name) = self.text_p1_vehicle_name[player_index].and_then(|entity| ui_text.get_mut(entity)) {
-                        veh_name.text = get_vehicle_name_string(game_vehicle_setup.names[player_index].clone());
+                        veh_name.text = veh_stats.display_name.clone();
                     }
-
-                    let veh_stats = game_vehicle_setup.stats[player_index];
 
                     if let Some(veh_shields) = self.text_p1_shields[player_index].and_then(|entity| ui_text.get_mut(entity)) {
                         veh_shields.text = veh_stats.max_shield.to_string();
@@ -152,11 +151,7 @@ impl SimpleState for CustomVehiclesMenu {
                     }
 
                     if let Some(veh_weight) = self.text_p1_weight[player_index].and_then(|entity| ui_text.get_mut(entity)) {
-                        veh_weight.text = determine_vehicle_weight_stats(veh_stats).to_string();
-                    }
-
-                    if let Some(veh_name) = self.text_p1_vehicle_name[player_index].and_then(|entity| ui_text.get_mut(entity)) {
-                        veh_name.text = get_vehicle_name_string(game_vehicle_setup.names[player_index].clone());
+                        veh_weight.text = determine_vehicle_weight_stats(veh_stats.clone()).to_string();
                     }
 
                     p1_vehicle_name = Some(game_vehicle_setup.names[player_index].clone());
@@ -206,14 +201,7 @@ impl SimpleState for CustomVehiclesMenu {
 
             if p1_change_icon {
                 //UI vehicle icon
-                let vehicle_sprite_number = match p1_vehicle_sprite_type.unwrap() {
-                    VehicleTypes::MediumCombat => 0,
-                    VehicleTypes::LightRacer => 44,
-                    VehicleTypes::HeavyTank => 48,
-                    VehicleTypes::CivilianCruiser => 52,
-                    VehicleTypes::Interceptor => 58,
-                    VehicleTypes::TSpeeder => 64,
-                };
+                let (vehicle_sprite_number, _, _) = get_vehicle_sprites(p1_vehicle_sprite_type.unwrap());
             
                 let vehicle_sprite_render = SpriteRender {
                     sprite_sheet: self.sprite_sheet_handle.clone().unwrap(),
@@ -287,26 +275,8 @@ impl SimpleState for CustomVehiclesMenu {
                                 let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &game_vehicle_store.store;
                 
                                 let veh_stats = match vehicle_configs_map.get(&game_vehicle_setup.names[player_index]) {
-                                    Some(vehicle_config) => *vehicle_config,
-                                    _ => VehicleStats {
-                                        vehicle_type: VehicleTypes::MediumCombat,
-                                        max_shield: 0.0,
-                                        max_armor: 0.0,
-                                        max_health: 0.0,
-                                        engine_force: 0.0,
-                                        engine_weight: 0.0,
-                                        width: 0.0,
-                                        height: 0.0,
-                                        sprite_scalar: 0.0,
-                                        max_velocity: 0.0,
-                                        movement_type: VehicleMovementType::Hover,
-                                        health_repair_rate: 0.0,
-                                        health_repair_time: 0.0,
-                                        shield_recharge_rate: 0.0,
-                                        shield_cooldown: 0.0,
-                                        shield_repair_time: 0.0,
-                                        shield_radius: 0.0,
-                                    },
+                                    Some(vehicle_config) => vehicle_config.clone(),
+                                    _ => get_none_vehicle(),
                                 };
 
                                 game_vehicle_setup.stats[player_index] = veh_stats;
@@ -322,26 +292,8 @@ impl SimpleState for CustomVehiclesMenu {
                                 let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &game_vehicle_store.store;
                 
                                 let veh_stats = match vehicle_configs_map.get(&game_vehicle_setup.names[player_index]) {
-                                    Some(vehicle_config) => *vehicle_config,
-                                    _ => VehicleStats {
-                                        vehicle_type: VehicleTypes::MediumCombat,
-                                        max_shield: 0.0,
-                                        max_armor: 0.0,
-                                        max_health: 0.0,
-                                        engine_force: 0.0,
-                                        engine_weight: 0.0,
-                                        width: 0.0,
-                                        height: 0.0,
-                                        sprite_scalar: 0.0,
-                                        max_velocity: 0.0,
-                                        movement_type: VehicleMovementType::Hover,
-                                        health_repair_rate: 0.0,
-                                        health_repair_time: 0.0,
-                                        shield_recharge_rate: 0.0,
-                                        shield_cooldown: 0.0,
-                                        shield_repair_time: 0.0,
-                                        shield_radius: 0.0,
-                                    },
+                                    Some(vehicle_config) => vehicle_config.clone(),
+                                    _ => get_none_vehicle()
                                 };
 
                                 game_vehicle_setup.stats[player_index] = veh_stats;

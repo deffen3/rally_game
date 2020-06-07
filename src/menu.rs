@@ -15,7 +15,7 @@ use crate::custom_weapons::CustomWeaponsMenu;
 use crate::custom_arena::CustomArenaMenu;
 
 use crate::components::{WeaponNames, 
-    build_vehicle_store, VehicleNames, VehicleStats, VehicleTypes, VehicleMovementType,
+    build_vehicle_store, VehicleNames, VehicleStats, get_none_vehicle,
 };
 
 use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
@@ -180,26 +180,8 @@ impl SimpleState for MainMenu {
             let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &vehicle_store.store;
 
             let standard_vehicle_stats = match vehicle_configs_map.get(&VehicleNames::MediumCombat) {
-                Some(vehicle_config) => *vehicle_config,
-                _ => VehicleStats {
-                    vehicle_type: VehicleTypes::MediumCombat,
-                    max_shield: 0.0,
-                    max_armor: 0.0,
-                    max_health: 0.0,
-                    engine_force: 0.0,
-                    engine_weight: 0.0,
-                    width: 0.0,
-                    height: 0.0,
-                    sprite_scalar: 0.0,
-                    max_velocity: 0.0,
-                    movement_type: VehicleMovementType::Hover,
-                    health_repair_rate: 0.0,
-                    health_repair_time: 0.0,
-                    shield_recharge_rate: 0.0,
-                    shield_cooldown: 0.0,
-                    shield_repair_time: 0.0,
-                    shield_radius: 0.0,
-                },
+                Some(vehicle_config) => vehicle_config.clone(),
+                _ => get_none_vehicle()
             };
 
             world.insert(GameVehicleSetup {
@@ -209,7 +191,12 @@ impl SimpleState for MainMenu {
                     VehicleNames::MediumCombat,
                     VehicleNames::MediumCombat
                 ],
-                stats: [standard_vehicle_stats; 4],
+                stats: [
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                ],
             });
         }
 

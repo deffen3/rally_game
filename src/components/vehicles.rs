@@ -366,17 +366,6 @@ pub enum VehicleTypes {
 }
 
 
-pub fn get_vehicle_name_string(name: VehicleNames) -> String {
-    match name {
-        VehicleNames::MediumCombat => "Medium Combat".to_string(),
-        VehicleNames::LightRacer => "Light Racer".to_string(),
-        VehicleNames::HeavyTank => "Heavy Tank".to_string(),
-        VehicleNames::Interceptor => "Interceptor".to_string(),
-        VehicleNames::TSpeeder => "T-Speeder".to_string(),
-        VehicleNames::CivilianCruiser => "Civilian Cruiser".to_string(),
-    }
-}
-
 pub fn get_next_vehicle_name(name: VehicleNames) -> VehicleNames {
     match name {
         VehicleNames::MediumCombat => VehicleNames::LightRacer,
@@ -401,8 +390,9 @@ pub fn get_prev_vehicle_name(name: VehicleNames) -> VehicleNames {
 
 
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct VehicleStats {
+    pub display_name: String,
     pub vehicle_type: VehicleTypes,
     pub max_shield: f32,
     pub max_armor: f32,
@@ -443,4 +433,41 @@ pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
     world.insert(vehicle_store.clone());
 
     vehicle_store
+}
+
+pub fn get_none_vehicle() -> VehicleStats {
+    VehicleStats {
+        display_name: "None".to_string(),
+        vehicle_type: VehicleTypes::MediumCombat,
+        max_shield: 0.0,
+        max_armor: 0.0,
+        max_health: 0.0,
+        engine_force: 0.0,
+        engine_weight: 0.0,
+        width: 0.0,
+        height: 0.0,
+        sprite_scalar: 0.0,
+        max_velocity: 0.0,
+        movement_type: VehicleMovementType::Hover,
+        health_repair_rate: 0.0,
+        health_repair_time: 0.0,
+        shield_recharge_rate: 0.0,
+        shield_cooldown: 0.0,
+        shield_repair_time: 0.0,
+        shield_radius: 0.0,
+    }
+}
+
+
+pub fn get_vehicle_sprites(vehicle_type: VehicleTypes) -> (usize, usize, usize) {
+    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_type {
+        VehicleTypes::MediumCombat => (0, 19, 20),
+        VehicleTypes::LightRacer => (44, 19, 20),
+        VehicleTypes::HeavyTank => (48, 57, 56),
+        VehicleTypes::CivilianCruiser => (52, 19, 20),
+        VehicleTypes::Interceptor => (58, 63, 62),
+        VehicleTypes::TSpeeder => (64, 69, 68),
+    };
+
+    (vehicle_sprite_number, shield_sprite_number, armor_sprite_number)
 }

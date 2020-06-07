@@ -13,7 +13,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     build_named_weapon2, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, WeaponArray, Weapon, WeaponNames,
-    WeaponStoreResource, VehicleMovementType, VehicleTypes,
+    WeaponStoreResource, VehicleMovementType, VehicleTypes, get_vehicle_sprites,
 };
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -121,14 +121,7 @@ pub fn intialize_player(
     vehicle_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
 
-    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_type {
-        VehicleTypes::MediumCombat => (0, 19, 20),
-        VehicleTypes::LightRacer => (44, 19, 20),
-        VehicleTypes::HeavyTank => (48, 57, 56),
-        VehicleTypes::CivilianCruiser => (52, 19, 20),
-        VehicleTypes::Interceptor => (58, 63, 62),
-        VehicleTypes::TSpeeder => (64, 69, 68),
-    };
+    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = get_vehicle_sprites(vehicle_type);
 
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
