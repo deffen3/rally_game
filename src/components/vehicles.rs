@@ -1,6 +1,7 @@
-use crate::entities::ui::PlayerStatusText;
-use amethyst::core::Transform;
-use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity, World};
+use amethyst::{
+    core::Transform,
+    ecs::prelude::{Component, DenseVecStorage, Entity, World},
+};
 
 use rand::Rng;
 use std::f32::consts::PI;
@@ -11,7 +12,7 @@ use std::{collections::HashMap, fs::File};
 use crate::components::{Armor, Health, Player, Repair, Shield};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 use crate::resources::GameModes;
-
+use crate::entities::ui::PlayerStatusText;
 
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]

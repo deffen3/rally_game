@@ -1,9 +1,10 @@
 use amethyst::{
+    assets::{Loader},
     core::math::Vector3,
     core::transform::Transform,
     ecs::prelude::{Component, DenseVecStorage, Entities, Entity, LazyUpdate, ReadExpect, World},
     renderer::{palette::Srgba, resources::Tint, SpriteRender, Transparent},
-    utils::removal::Removal,
+    utils::{removal::Removal},
 };
 
 use rand::Rng;
@@ -119,6 +120,13 @@ pub struct WeaponStoreResource {
 }
 
 pub fn build_weapon_store(world: &mut World) -> WeaponStoreResource {
+    // let loader = world.read_resource::<Loader>();
+    // let weapon_configs_map = loader.load(
+    //     "game/weapons.ron",
+    //     RonFormat,
+    //     (),
+    // );
+
     let input_path = format!("{}/config/weapons.ron", env!("CARGO_MANIFEST_DIR"));
     let f = File::open(&input_path).expect("Failed opening file");
 
