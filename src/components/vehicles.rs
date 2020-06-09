@@ -1,6 +1,7 @@
 use amethyst::{
     core::Transform,
     ecs::prelude::{Component, DenseVecStorage, Entity, World},
+    utils::{application_root_dir},
 };
 
 use rand::Rng;
@@ -421,8 +422,20 @@ pub struct VehicleStoreResource {
 }
 
 
+/* Release rally.exe (crashes):
+"\\\\?\\C:\\Users\\Mike\\rust\\amethyst\\rally_game\\target\\release\\assets/game/vehicles.ron"
+
+cargo run
+"C:\\Users\\Mike\\rust\\amethyst\\rally_game\\assets/game/vehicles.ron"
+*/
+
 pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
-    let input_path = format!("{}/assets/game/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
+    let app_root = application_root_dir().unwrap();
+    let input_path = app_root.join("assets/game/vehicles.ron");
+    println!("{:?}", input_path);
+
+    //let input_path = format!("{}/assets/game/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
+    
     let f = File::open(&input_path).expect("Failed opening file");
 
     let vehicle_configs_map: HashMap<VehicleNames, VehicleStats> =
