@@ -120,10 +120,10 @@ pub struct WeaponStoreResource {
 }
 
 pub fn build_weapon_store(world: &mut World) -> WeaponStoreResource {
-    let app_root = current_dir();
-    let input_path = app_root.unwrap().join("assets/game/weapons.ron");
+    // let app_root = current_dir();
+    // let input_path = app_root.unwrap().join("assets/game/weapons.ron");
 
-    //let input_path = format!("{}/assets/game/weapons.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path = format!("{}/assets/game/weapons.ron", env!("CARGO_MANIFEST_DIR"));
 
     let f = File::open(&input_path).expect("Failed opening file");
 

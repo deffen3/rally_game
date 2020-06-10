@@ -431,10 +431,10 @@ cargo run
 */
 
 pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
-    let app_root = current_dir();
-    let input_path = app_root.unwrap().join("assets/game/vehicles.ron");
+    // let app_root = current_dir();
+    // let input_path = app_root.unwrap().join("assets/game/vehicles.ron");
 
-    //let input_path = format!("{}/assets/game/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path = format!("{}/assets/game/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
     
     let f = File::open(&input_path).expect("Failed opening file");
 
