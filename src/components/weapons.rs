@@ -11,6 +11,7 @@ use ron::de::from_reader;
 use serde::Deserialize;
 use std::f32::consts::PI;
 use std::{collections::HashMap, fs::File};
+use std::env::current_dir;
 
 use log::{info};
 
@@ -119,8 +120,8 @@ pub struct WeaponStoreResource {
 }
 
 pub fn build_weapon_store(world: &mut World) -> WeaponStoreResource {
-    let app_root = application_root_dir().unwrap();
-    let input_path = app_root.join("assets/game/weapons.ron");
+    let app_root = current_dir();
+    let input_path = app_root.unwrap().join("assets/game/weapons.ron");
 
     //let input_path = format!("{}/assets/game/weapons.ron", env!("CARGO_MANIFEST_DIR"));
 

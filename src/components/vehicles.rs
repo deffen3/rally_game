@@ -9,6 +9,7 @@ use std::f32::consts::PI;
 use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
+use std::env::current_dir;
 
 use crate::components::{Armor, Health, Player, Repair, Shield};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
@@ -430,9 +431,8 @@ cargo run
 */
 
 pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
-    let app_root = application_root_dir().unwrap();
-    let input_path = app_root.join("assets/game/vehicles.ron");
-    println!("{:?}", input_path);
+    let app_root = current_dir();
+    let input_path = app_root.unwrap().join("assets/game/vehicles.ron");
 
     //let input_path = format!("{}/assets/game/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
     
