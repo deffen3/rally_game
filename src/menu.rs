@@ -142,6 +142,8 @@ impl SimpleState for MainMenu {
         }
 
         if game_mode_needs_init {
+            //Re-architect this, as this is duplicated code
+
             //Start off with default classic gun game mode
             world.insert(GameModeSetup {
                 game_mode: GameModes::ClassicGunGame,
@@ -155,6 +157,8 @@ impl SimpleState for MainMenu {
                 last_hit_threshold: 5.0,
             });
 
+            //these are only defaults if a game-mode is not selected
+            //  and classic-gun-game mode is launched straight from the start game button
             world.insert(GameWeaponSetup {
                 starter_weapon: WeaponNames::LaserDoubleGimballed,
                 random_weapon_spawns: false,
