@@ -99,6 +99,7 @@ impl SimpleState for MainMenu {
         weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileCannonFire, 8);
         weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileRapidFireTurret, 4);
         weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileBurstFire, 5);
+        weapon_spawn_relative_chance_map.insert(WeaponNames::PiercingProjectile, 3);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Flamethrower, 4);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Missile, 3);
         weapon_spawn_relative_chance_map.insert(WeaponNames::Rockets, 3);
