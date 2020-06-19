@@ -48,14 +48,18 @@ __Engines__ to start malfunctioning as the vehicle is sparking.
 Player 1:
 - Accel/Decel Vehicle: W/S
 - Turn Vehicle Left/Right: A/D
-- Use Weapons: Spacebar
+- Strafe Vehicle Left/Right: Q/E
+- Use Primary Weapon: Spacebar
+- Use Secondary Weapon: Left Alt
 - Repair Vehicle: R
 
 Player 2:
-- Accel/Decel Vehicle: Up-Arrow / Down-Arrow
-- Turn Vehicle Left/Right: Left-Arrow / Right-Arrow
-- Use Weapons: Right-Control
-- Repair Vehicle: Right-Shift
+- Accel/Decel Vehicle: NumPad-Up (8) / NumPad (5)
+- Turn Vehicle Left/Right: NumPad-Left (4) / NumPad-Right (6)
+- Strafe Vehicle Left/Right: NumPad (7) / NumPad (9)
+- Use Primary Weapon: NumPad (0)
+- Use Secondary Weapon: NumpPad (1)
+- Repair Vehicle: NumPad Enter
 
 ---
 

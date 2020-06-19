@@ -523,6 +523,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                             update_weapon_properties(
                                 &mut weapon_array,
+                                0,
                                 new_weapon_name,
                                 &weapon_store_resource,
                                 &entities,

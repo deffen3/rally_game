@@ -259,7 +259,7 @@ pub fn intialize_player(
     }
 
     //UI initial weapon icon
-    let x = 15.;
+    let x = 5.;
     let y = UI_HEIGHT - 10.;
     let dx = 32.;
     let dx2 = 4.;

@@ -19,6 +19,10 @@ use crate::components::PlayerWeaponIcon;
 use crate::rally::UI_HEIGHT;
 use crate::resources::{GameWeaponSetup, WeaponFireResource};
 
+
+pub const WEAPON_ARRAY_SIZE: usize = 4;
+
+
 #[derive(Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
 pub enum WeaponNames {
     LaserBeam,
@@ -191,7 +195,7 @@ impl Weapon {
 
 #[derive(Clone)]
 pub struct WeaponArray {
-    pub weapons: [Option<Weapon>; 4],
+    pub weapons: [Option<Weapon>; WEAPON_ARRAY_SIZE],
 }
 
 impl Component for WeaponArray {
@@ -341,6 +345,7 @@ impl WeaponFire {
 
 pub fn update_weapon_properties(
     weapon_array: &mut WeaponArray,
+    weapon_index: usize,
     weapon_name: WeaponNames,
     weapon_store: &ReadExpect<WeaponStoreResource>,
     entities: &Entities,
@@ -355,7 +360,7 @@ pub fn update_weapon_properties(
     //update UI icon
     let icon_entity: Entity = entities.create();
 
-    let x = 15.;
+    let x = 5. + (weapon_index as f32)*10.0;
     let y = UI_HEIGHT - 10.;
     let dx = 32.;
     let dx2 = 4.;
@@ -390,11 +395,17 @@ pub fn update_weapon_properties(
 
 
     //update Weapon
-    let new_primary_weapon = Weapon::new(weapon_name, icon_entity, new_weapon_stats);
+    let new_weapon = Weapon::new(weapon_name, icon_entity, new_weapon_stats);
 
-    info!("{:?} {:?} {:?}", new_primary_weapon.name, new_primary_weapon.dps_calc, new_primary_weapon.range_calc);
+    info!("{:?} {:?} {:?}", new_weapon.name, new_weapon.dps_calc, new_weapon.range_calc);
 
-    weapon_array.weapons[0] = Some(new_primary_weapon);
+    if weapon_index >= WEAPON_ARRAY_SIZE {
+        weapon_array.weapons[WEAPON_ARRAY_SIZE-1] = Some(new_weapon);
+    }
+    else {
+        weapon_array.weapons[weapon_index] = Some(new_weapon);
+    }
+    
 }
 
 pub fn build_named_weapon(
@@ -477,27 +488,27 @@ pub fn get_weapon_icon(
 ) -> (f32, SpriteRender) {
 
     let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type {
-        WeaponTypes::LaserDouble => (3.0, weapon_fire_resource.laser_double_sprite_render.clone()),
-        WeaponTypes::LaserBeam => (1.0, weapon_fire_resource.laser_beam_sprite_render.clone()),
-        WeaponTypes::LaserPulse => (3.0, weapon_fire_resource.laser_burst_sprite_render.clone()),
+        WeaponTypes::LaserDouble => (1.5, weapon_fire_resource.laser_double_sprite_render.clone()),
+        WeaponTypes::LaserBeam => (0.5, weapon_fire_resource.laser_beam_sprite_render.clone()),
+        WeaponTypes::LaserPulse => (1.5, weapon_fire_resource.laser_burst_sprite_render.clone()),
         WeaponTypes::ProjectileBurstFire => {
-            (3.0, weapon_fire_resource.projectile_burst_render.clone())
+            (1.5, weapon_fire_resource.projectile_burst_render.clone())
         }
         WeaponTypes::ProjectileRapidFire => {
-            (3.0, weapon_fire_resource.projectile_rapid_render.clone())
+            (1.5, weapon_fire_resource.projectile_rapid_render.clone())
         }
         WeaponTypes::ProjectileCannonFire => (
-            3.0,
+            1.5,
             weapon_fire_resource.projectile_cannon_sprite_render.clone(),
         ),
-        WeaponTypes::Missile => (2.0, weapon_fire_resource.missile_sprite_render.clone()),
-        WeaponTypes::Rockets => (2.0, weapon_fire_resource.rockets_sprite_render.clone()),
-        WeaponTypes::Mine => (2.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
-        WeaponTypes::Trap => (3.0, weapon_fire_resource.trap_p1_sprite_render.clone()),
-        WeaponTypes::LaserSword => (1.0, weapon_fire_resource.laser_sword_sprite_render.clone()),
-        WeaponTypes::Flame => (2.0, weapon_fire_resource.flame_sprite_render.clone()),
-        WeaponTypes::Grenade => (2.0, weapon_fire_resource.grenade_sprite_render.clone()),
-        WeaponTypes::Ion => (2.0, weapon_fire_resource.ion_sprite_render.clone()),
+        WeaponTypes::Missile => (1.0, weapon_fire_resource.missile_sprite_render.clone()),
+        WeaponTypes::Rockets => (1.0, weapon_fire_resource.rockets_sprite_render.clone()),
+        WeaponTypes::Mine => (1.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
+        WeaponTypes::Trap => (1.5, weapon_fire_resource.trap_p1_sprite_render.clone()),
+        WeaponTypes::LaserSword => (0.5, weapon_fire_resource.laser_sword_sprite_render.clone()),
+        WeaponTypes::Flame => (1.0, weapon_fire_resource.flame_sprite_render.clone()),
+        WeaponTypes::Grenade => (1.0, weapon_fire_resource.grenade_sprite_render.clone()),
+        WeaponTypes::Ion => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
     };
 
     //Player colored weapons

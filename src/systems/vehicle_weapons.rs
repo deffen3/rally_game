@@ -9,9 +9,10 @@ use amethyst::{
 use rand::Rng;
 use std::f32::consts::PI;
 
-use crate::components::{BotMode, Player, Vehicle, VehicleState, WeaponArray};
+use crate::components::{BotMode, Player, Vehicle, VehicleState, WeaponArray, WEAPON_ARRAY_SIZE};
 use crate::entities::fire_weapon;
 use crate::resources::WeaponFireResource;
+
 
 #[derive(SystemDesc)]
 pub struct VehicleWeaponsSystem;
@@ -54,11 +55,21 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
             if vehicle.state == VehicleState::Active {
                 //let vehicle_weapon_fire = input.action_is_down(&ActionBinding::VehicleShoot(player.id));
 
-                let mut vehicle_weapon_fire = match player.id {
-                    0 => input.action_is_down("p1_shoot"),
-                    1 => input.action_is_down("p2_shoot"),
-                    2 => input.action_is_down("p3_shoot"),
-                    3 => input.action_is_down("p4_shoot"),
+                let mut vehicle_weapon_fire: [Option<bool>; WEAPON_ARRAY_SIZE] = [None; WEAPON_ARRAY_SIZE];
+                
+                vehicle_weapon_fire[0] = match player.id {
+                    0 => input.action_is_down("p1_fire"),
+                    1 => input.action_is_down("p2_fire"),
+                    2 => input.action_is_down("p3_fire"),
+                    3 => input.action_is_down("p4_fire"),
+                    _ => None,
+                };
+
+                vehicle_weapon_fire[1] = match player.id {
+                    0 => input.action_is_down("p1_alt_fire"),
+                    1 => input.action_is_down("p2_alt_fire"),
+                    2 => input.action_is_down("p3_alt_fire"),
+                    3 => input.action_is_down("p4_alt_fire"),
                     _ => None,
                 };
 
@@ -69,13 +80,14 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                         || player.bot_mode == BotMode::Chasing
                         || player.bot_mode == BotMode::Swording
                     {
-                        vehicle_weapon_fire = Some(rng.gen::<bool>());
+                        vehicle_weapon_fire[0] = Some(rng.gen::<bool>());
+                        vehicle_weapon_fire[1] = Some(rng.gen::<bool>());
                     }
                 }
 
-                for weapon in weapon_array.weapons.iter_mut() {
+                for (weapon_index, weapon) in weapon_array.weapons.iter_mut().enumerate() {
                     if let Some(weapon) = weapon {
-                        if let Some(fire) = vehicle_weapon_fire {
+                        if let Some(fire) = vehicle_weapon_fire[weapon_index] {
                             if !vehicle.repair.activated {
                                 if fire && weapon.cooldown_timer <= 0.0 {
                                     let vehicle_rotation = transform.rotation();
