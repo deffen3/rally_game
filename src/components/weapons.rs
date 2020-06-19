@@ -62,6 +62,7 @@ pub fn get_random_weapon_name(game_setup: &ReadExpect<GameWeaponSetup>) -> Weapo
 }
 
 //For Gun-Game mode rules
+//Last weapon should either map to itself or loop back around to another weapon
 pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
     match weapon_name {
         WeaponNames::LaserDoubleGimballed => Some(WeaponNames::ProjectileRapidFireTurret),
@@ -77,7 +78,7 @@ pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
         WeaponNames::LaserDoubleBurstSide => Some(WeaponNames::Mine),
         WeaponNames::Mine => Some(WeaponNames::LaserSword),
         WeaponNames::LaserSword => Some(WeaponNames::BackwardsLaserSword),
-        WeaponNames::BackwardsLaserSword => None,
+        WeaponNames::BackwardsLaserSword => Some(WeaponNames::LaserDoubleGimballed),
         _ => None,
     }
 }
