@@ -36,6 +36,7 @@ pub struct GameWeaponSetup {
     pub random_weapon_spawns: bool, //Applies to all game modes except GunGame
     pub keep_picked_up_weapons: bool,
     pub weapon_spawn_count: u32,
+    pub weapon_spawn_first_timer: f32,
     pub weapon_spawn_timer: f32,
     pub weapon_spawn_chances: Vec<(WeaponNames, f32)>,
 }

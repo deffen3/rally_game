@@ -64,10 +64,18 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         ReadExpect<'s, WeaponStoreResource>,
     );
 
-    fn setup(&mut self, _world: &mut World) {
+    fn setup(&mut self, world: &mut World) {
         self.hit_sound_cooldown_timer = -1.0;
         self.hit_spray_cooldown_timer = -1.0;
-        self.weapon_spawner_cooldown_timer = 20.0;
+
+        let fetched_game_weapon_setup = world.try_fetch::<GameWeaponSetup>();
+
+        if let Some(game_weapon_setup) = fetched_game_weapon_setup {
+            self.weapon_spawner_cooldown_timer = game_weapon_setup.weapon_spawn_first_timer;
+        }
+        else {
+            self.weapon_spawner_cooldown_timer = 20.0;
+        }
     }
 
     fn run(

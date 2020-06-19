@@ -45,6 +45,8 @@ pub enum WeaponNames {
     IonCannon,
 }
 
+
+//For when picking up weapon spawn boxes, or other random weapon selections
 pub fn get_random_weapon_name(game_setup: &ReadExpect<GameWeaponSetup>) -> WeaponNames {
     let mut rng = rand::thread_rng();
     let chance_selector = rng.gen_range(0.0, 1.0);
@@ -53,8 +55,10 @@ pub fn get_random_weapon_name(game_setup: &ReadExpect<GameWeaponSetup>) -> Weapo
 
     for (weapon_name, chance) in game_setup.weapon_spawn_chances.iter() {
         if *chance >= chance_selector {
+            break; //stay on previously selected weapon
+        }
+        else {
             weapon_selector = weapon_name.clone();
-            break;
         }
     }
 

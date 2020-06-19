@@ -165,6 +165,7 @@ impl SimpleState for MainMenu {
                 keep_picked_up_weapons: false,
                 weapon_spawn_count: 2,
                 weapon_spawn_timer: 20.0,
+                weapon_spawn_first_timer: 20.0,
                 weapon_spawn_chances: weapon_spawn_chances,
             });
 
