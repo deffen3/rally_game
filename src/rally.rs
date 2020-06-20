@@ -20,7 +20,7 @@ use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
 use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, GameScore, 
-    GameTeamSetup, WeaponFireResource, GameVehicleSetup, ArenaNavMesh,
+    GameTeamSetup, WeaponFireResource, GameVehicleSetup, ArenaNavMesh, ArenaInvertedNavMesh,
 };
 
 use crate::entities::{
@@ -138,6 +138,13 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             vertices: Vec::new(),
             triangles: Vec::new(),
         });
+
+        world.insert(ArenaInvertedNavMesh {
+            vertices: Vec::new(),
+            triangles: Vec::new(),
+        });
+
+        
 
         initialize_arena_walls(
             world,

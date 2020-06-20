@@ -11,7 +11,7 @@ use amethyst::{
 };
 
 use crate::components::{Vehicle, Player};
-use crate::resources::{ArenaNavMesh};
+use crate::resources::{ArenaNavMesh, ArenaInvertedNavMesh};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 
@@ -23,22 +23,31 @@ impl<'s> System<'s> for DebugLinesSystem {
     type SystemData = (
         Write<'s, DebugLines>,
         ReadExpect<'s, ArenaNavMesh>,
+        ReadExpect<'s, ArenaInvertedNavMesh>,
         ReadStorage<'s, Player>,
         ReadStorage<'s, Vehicle>,
         ReadStorage<'s, Transform>,
     );
 
-    fn run(&mut self, (mut debug_lines_resource, arena_nav_mesh, _players, _vehicles, _transforms): Self::SystemData) {
-        debug_lines_resource.draw_line(
-            [0.0, UI_HEIGHT, 0.5].into(),
-            [ARENA_WIDTH, ARENA_HEIGHT, 0.5].into(),
-            Srgba::new(0.3, 0.3, 1.0, 1.0),
-        );
+    fn run(
+        &mut self, (
+        mut debug_lines_resource, 
+        _arena_nav_mesh,
+        arena_inv_nav_mesh,
+        _players,
+        _vehicles,
+        _transforms): Self::SystemData
+    ) {
+        // debug_lines_resource.draw_line(
+        //     [0.0, UI_HEIGHT, 0.5].into(),
+        //     [ARENA_WIDTH, ARENA_HEIGHT, 0.5].into(),
+        //     Srgba::new(0.3, 0.3, 1.0, 1.0),
+        // );
 
-        for (v1_index, v2_index, v3_index) in arena_nav_mesh.triangles.iter() {
-            let v1 = arena_nav_mesh.vertices[*v1_index];
-            let v2 = arena_nav_mesh.vertices[*v2_index];
-            let v3 = arena_nav_mesh.vertices[*v3_index];
+        for (v1_index, v2_index, v3_index) in arena_inv_nav_mesh.triangles.iter() {
+            let v1 = arena_inv_nav_mesh.vertices[*v1_index];
+            let v2 = arena_inv_nav_mesh.vertices[*v2_index];
+            let v3 = arena_inv_nav_mesh.vertices[*v3_index];
 
             debug_lines_resource.draw_line(
                 [v1.0, v1.1, v1.2].into(),

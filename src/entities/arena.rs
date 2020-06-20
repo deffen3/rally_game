@@ -15,7 +15,7 @@ use navmesh::{NavMesh, NavQuery, NavPathMode};
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
-use crate::resources::{GameModeSetup, GameModes, ArenaNavMesh};
+use crate::resources::{GameModeSetup, GameModes, ArenaNavMesh, ArenaInvertedNavMesh};
 
 pub fn initialize_arena_walls(
     world: &mut World,
@@ -362,17 +362,18 @@ pub fn initialize_arena_walls(
             .build();
 
 
-        //Build navigation mesh    
-        let fetched_arena_nav_mesh = world.try_fetch_mut::<ArenaNavMesh>();
+        //Build inverse navigation mesh    
+        let fetched_arena_inv_nav_mesh = world.try_fetch_mut::<ArenaInvertedNavMesh>();
 
-        if let Some(mut arena_nav_mesh) = fetched_arena_nav_mesh {
-            arena_nav_mesh.vertices.push((x, y, 0.5));
-            arena_nav_mesh.vertices.push((x-10.0*scale, y, 0.5));
-            arena_nav_mesh.vertices.push((x, y+10.0*scale, 0.5));
+        if let Some(mut arena_inv_nav_mesh) = fetched_arena_inv_nav_mesh {
+            arena_inv_nav_mesh.vertices.push((x, y, 0.5));
+            arena_inv_nav_mesh.vertices.push((x-10.0*scale, y, 0.5));
+            arena_inv_nav_mesh.vertices.push((x, y+10.0*scale, 0.5));
 
-            let vertices_length = arena_nav_mesh.vertices.clone().len();
+            let vertices_length = arena_inv_nav_mesh.vertices.clone().len();
 
-            arena_nav_mesh.triangles.push((vertices_length-3, vertices_length-2, vertices_length-1));
+            arena_inv_nav_mesh.triangles.push((vertices_length-3, vertices_length-2, vertices_length-1));
         }
+
     }
 }
