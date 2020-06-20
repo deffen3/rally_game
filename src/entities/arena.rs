@@ -11,8 +11,6 @@ use amethyst::{
 
 use std::f32::consts::PI;
 
-use navmesh::{NavMesh, NavQuery, NavPathMode};
-
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 use crate::resources::{GameModeSetup, GameModes, ArenaNavMesh, ArenaInvertedNavMesh};
@@ -127,7 +125,13 @@ pub fn initialize_arena_walls(
 
     //positions to place circular wall objects
     let mut wall_objects_x_y_scale: Vec<(f32, f32, f32)> = Vec::new();
+    let mut nav_mesh_vertices: Vec<(f32, f32, f32)> = Vec::new();
+    let mut nav_mesh_triangles: Vec<(usize, usize, usize)> = Vec::new();
+    let mut nav_mesh_rect_vertices_x_y: Vec<(f32, f32, f32, f32, f32, f32, f32, f32)> = Vec::new();
 
+    let debug_line_z = 0.5;
+    let scale_mult = 10.0;
+    let nav_mesh_offset = scale_mult;
 
     if game_mode == GameModes::Race {
         //the visual "start/finish line"
@@ -135,7 +139,7 @@ pub fn initialize_arena_walls(
         let scale = 4.0;
 
         finish_line_transform.set_translation_xyz(
-            ARENA_WIDTH - 10.0 * scale,
+            ARENA_WIDTH - scale_mult * scale,
             arena_ui_height / 2.0,
             -0.02,
         );
@@ -158,7 +162,7 @@ pub fn initialize_arena_walls(
         let scale = 4.0;
 
         finish_line_transform.set_translation_xyz(
-            ARENA_WIDTH - 10.0 * scale,
+            ARENA_WIDTH - scale_mult * scale,
             arena_ui_height / 2.0 + 2.0 * scale,
             -0.02,
         );
@@ -186,7 +190,7 @@ pub fn initialize_arena_walls(
         let mut checkpoint_line_transform = Transform::default();
         let scale = 4.0;
 
-        checkpoint_line_transform.set_translation_xyz(10.0 * scale, arena_ui_height / 2.0, -0.02);
+        checkpoint_line_transform.set_translation_xyz(scale_mult * scale, arena_ui_height / 2.0, -0.02);
         checkpoint_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let checkpoint_line_sprite_render = SpriteRender {
@@ -261,6 +265,7 @@ pub fn initialize_arena_walls(
         wall_objects_x_y_scale.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0 - 20.0 * scale, scale));
         wall_objects_x_y_scale.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0 + 45.0 * scale, scale));
 
+
     } else {
         if game_mode == GameModes::KingOfTheHill {
             //the "hill"
@@ -299,6 +304,15 @@ pub fn initialize_arena_walls(
                 .with(king_tint)
                 .build();
 
+            let offset = scale_mult*scale + nav_mesh_offset;
+
+            nav_mesh_rect_vertices_x_y.push((
+                ARENA_WIDTH / 2.0 - offset, arena_ui_height / 2.0 - offset,
+                ARENA_WIDTH / 2.0 + offset, arena_ui_height / 2.0 - offset,
+                ARENA_WIDTH / 2.0 + offset, arena_ui_height / 2.0 + offset,
+                ARENA_WIDTH / 2.0 - offset, arena_ui_height / 2.0 + offset
+            ));
+
         } else {
             //central arena wall circle
             let scale = 4.0;
@@ -329,6 +343,51 @@ pub fn initialize_arena_walls(
             };
 
             wall_objects_x_y_scale.push((starting_x, starting_y, scale));
+
+            let offset = scale_mult*scale + nav_mesh_offset;
+
+            if idx == 0 {
+                //left side
+                nav_mesh_rect_vertices_x_y.push((
+                    0.0, UI_HEIGHT,
+                    0.0, ARENA_HEIGHT,
+                    starting_x - offset, ARENA_HEIGHT, 
+                    starting_x - offset, UI_HEIGHT, 
+                )); 
+                
+                // //above
+                // nav_mesh_rect_vertices_x_y.push((
+                //     starting_x - offset, starting_y + scale*15.0,
+                //     starting_x - offset, ARENA_HEIGHT,
+                //     starting_x + offset, ARENA_HEIGHT,
+                //     starting_x + offset, starting_y + scale*15.0,
+                // ));
+
+                // //below
+                // nav_mesh_rect_vertices_x_y.push((
+                //     starting_x - offset, starting_y - scale*15.0,
+                //     starting_x - offset, UI_HEIGHT,
+                //     starting_x + offset, UI_HEIGHT,
+                //     starting_x + offset, starting_y - scale*15.0,
+                // ));
+
+                // //right side
+                // nav_mesh_rect_vertices_x_y.push((
+                //     starting_x + offset, UI_HEIGHT,
+                //     starting_x + offset, ARENA_HEIGHT,
+                //     ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), ARENA_HEIGHT, 
+                //     ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), UI_HEIGHT, 
+                // )); 
+            }
+            else if idx == 1 {
+                // //left side
+                // nav_mesh_rect_vertices_x_y.push((
+                //     ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), ARENA_HEIGHT,
+                //     starting_x - offset, ARENA_HEIGHT,
+                //     starting_x - offset, arena_ui_height / 2.0 + (scale_mult*4.0 + nav_mesh_offset),
+                //     ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), arena_ui_height / 2.0 + (scale_mult*4.0 + nav_mesh_offset),
+                // )); 
+            }
         }
     }
 
@@ -366,14 +425,35 @@ pub fn initialize_arena_walls(
         let fetched_arena_inv_nav_mesh = world.try_fetch_mut::<ArenaInvertedNavMesh>();
 
         if let Some(mut arena_inv_nav_mesh) = fetched_arena_inv_nav_mesh {
-            arena_inv_nav_mesh.vertices.push((x, y, 0.5));
-            arena_inv_nav_mesh.vertices.push((x-10.0*scale, y, 0.5));
-            arena_inv_nav_mesh.vertices.push((x, y+10.0*scale, 0.5));
+            arena_inv_nav_mesh.vertices.push((x, y, debug_line_z));
+            arena_inv_nav_mesh.vertices.push((x - scale_mult*scale, y, debug_line_z));
+            arena_inv_nav_mesh.vertices.push((x, y + scale_mult*scale, debug_line_z));
 
             let vertices_length = arena_inv_nav_mesh.vertices.clone().len();
 
             arena_inv_nav_mesh.triangles.push((vertices_length-3, vertices_length-2, vertices_length-1));
         }
+    }
 
+
+    //Divide navigation rectangles into navigation mesh triangles
+    for (x1, y1, x2, y2, x3, y3, x4, y4) in nav_mesh_rect_vertices_x_y.iter() {
+        nav_mesh_vertices.push((*x1, *y1, debug_line_z)); //len - 4
+        nav_mesh_vertices.push((*x2, *y2, debug_line_z)); //len - 3
+        nav_mesh_vertices.push((*x3, *y3, debug_line_z)); //len - 2
+        nav_mesh_vertices.push((*x4, *y4, debug_line_z)); //len - 1
+
+        let vertices_length = nav_mesh_vertices.clone().len();
+    
+        nav_mesh_triangles.push((vertices_length - 4, vertices_length - 1, vertices_length - 2));
+        nav_mesh_triangles.push((vertices_length - 4, vertices_length - 3, vertices_length - 2));
+    }
+
+    //Store navigation mesh    
+    let fetched_arena_nav_mesh = world.try_fetch_mut::<ArenaNavMesh>();
+
+    if let Some(mut arena_nav_mesh) = fetched_arena_nav_mesh {
+        arena_nav_mesh.vertices = nav_mesh_vertices.clone();
+        arena_nav_mesh.triangles = nav_mesh_triangles.clone();
     }
 }

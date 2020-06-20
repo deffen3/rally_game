@@ -40,6 +40,7 @@ use crate::systems::{
 };
 
 pub const PLAYER_CAMERA: bool = false;
+const DEBUG_LINES: bool = true;
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -50,6 +51,7 @@ pub const COLLISION_PIERCING_DAMAGE_PCT: f32 = 0.0;
 pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 25.0;
 pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
+
 
 #[derive(Default)]
 pub struct GameplayState<'a, 'b> {
@@ -96,20 +98,20 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
 
 
-        
-        // Setup debug lines as a resource
-        world.insert(DebugLines::new());
-        // Configure width of lines. Optional step
-        world.insert(DebugLinesParams { line_width: 2.0 });
+        if DEBUG_LINES {
+            // Setup debug lines as a resource
+            world.insert(DebugLines::new());
+            // Configure width of lines. Optional step
+            world.insert(DebugLinesParams { line_width: 2.0 });
 
-        // Setup debug lines as a component and add lines to render axis&grid
-        let debug_lines_component = DebugLinesComponent::new();
+            // Setup debug lines as a component and add lines to render axis&grid
+            let debug_lines_component = DebugLinesComponent::new();
 
-        world
-            .create_entity()
-            .with(debug_lines_component)
-            .build();
-
+            world
+                .create_entity()
+                .with(debug_lines_component)
+                .build();
+        }
 
 
 
@@ -315,8 +317,10 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         dispatcher_builder.add(MoveParticlesSystem, "move_particles_system", &[]);
 
 
-
-        dispatcher_builder.add(DebugLinesSystem, "debug_lines_system", &[]);
+        if DEBUG_LINES {
+            dispatcher_builder.add(DebugLinesSystem, "debug_lines_system", &[]);
+        }
+        
 
 
 
