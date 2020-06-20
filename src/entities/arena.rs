@@ -15,13 +15,12 @@ use navmesh::{NavMesh, NavQuery, NavPathMode};
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
-use crate::resources::{GameModeSetup, GameModes};
+use crate::resources::{GameModeSetup, GameModes, ArenaNavMesh};
 
 pub fn initialize_arena_walls(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>,
     texture_sheet_handle: Handle<SpriteSheet>,
-    //game_mode: GameModes,
 ) {
     let game_mode;
     {
@@ -361,5 +360,19 @@ pub fn initialize_arena_walls(
                 false,
             ))
             .build();
+
+
+        //Build navigation mesh    
+        let fetched_arena_nav_mesh = world.try_fetch_mut::<ArenaNavMesh>();
+
+        if let Some(mut arena_nav_mesh) = fetched_arena_nav_mesh {
+            arena_nav_mesh.vertices.push((x, y, 0.5));
+            arena_nav_mesh.vertices.push((x-10.0*scale, y, 0.5));
+            arena_nav_mesh.vertices.push((x, y+10.0*scale, 0.5));
+
+            let vertices_length = arena_nav_mesh.vertices.clone().len();
+
+            arena_nav_mesh.triangles.push((vertices_length-3, vertices_length-2, vertices_length-1));
+        }
     }
 }

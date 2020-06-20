@@ -1,14 +1,10 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::Time,
-    core::{
-        math::{Point3, Vector3},
-    },
     ecs::prelude::{Dispatcher, DispatcherBuilder, Entity},
     input::{is_close_requested, is_key_down},
     prelude::*,
     renderer::{
-        palette::Srgba,
         debug_drawing::{DebugLines, DebugLinesComponent, DebugLinesParams},
         ImageFormat, SpriteSheet, SpriteSheetFormat, Texture
     },
@@ -18,14 +14,13 @@ use amethyst::{
         removal::{exec_removal, Removal},
     },
     winit::VirtualKeyCode,
-    window::ScreenDimensions,
 };
 
 use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
 use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, GameScore, 
-    GameTeamSetup, WeaponFireResource, GameVehicleSetup,
+    GameTeamSetup, WeaponFireResource, GameVehicleSetup, ArenaNavMesh,
 };
 
 use crate::entities::{
@@ -108,7 +103,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         world.insert(DebugLinesParams { line_width: 2.0 });
 
         // Setup debug lines as a component and add lines to render axis&grid
-        let mut debug_lines_component = DebugLinesComponent::new();
+        let debug_lines_component = DebugLinesComponent::new();
 
         world
             .create_entity()
@@ -137,6 +132,12 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         let weapon_store = build_weapon_store(world);
 
         initialize_timer_ui(world);
+
+
+        world.insert(ArenaNavMesh {
+            vertices: Vec::new(),
+            triangles: Vec::new(),
+        });
 
         initialize_arena_walls(
             world,
