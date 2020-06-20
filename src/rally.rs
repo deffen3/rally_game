@@ -1,16 +1,24 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::Time,
+    core::{
+        math::{Point3, Vector3},
+    },
     ecs::prelude::{Dispatcher, DispatcherBuilder, Entity},
     input::{is_close_requested, is_key_down},
     prelude::*,
-    renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
+    renderer::{
+        palette::Srgba,
+        debug_drawing::{DebugLines, DebugLinesComponent, DebugLinesParams},
+        ImageFormat, SpriteSheet, SpriteSheetFormat, Texture
+    },
     ui::{UiCreator, UiFinder, UiText, UiTransform},
     utils::{
         fps_counter::FpsCounter,
         removal::{exec_removal, Removal},
     },
     winit::VirtualKeyCode,
+    window::ScreenDimensions,
 };
 
 use crate::pause::PauseMenuState;
@@ -33,7 +41,7 @@ use crate::components::{
 use crate::systems::{
     CollisionVehToVehSystem, CollisionVehicleWeaponFireSystem, MoveWeaponFireSystem,
     VehicleMoveSystem, VehicleShieldArmorHealthSystem, VehicleStatusSystem, VehicleTrackingSystem,
-    VehicleWeaponsSystem, MoveParticlesSystem,
+    VehicleWeaponsSystem, MoveParticlesSystem, DebugLinesSystem,
 };
 
 pub const PLAYER_CAMERA: bool = false;
@@ -90,6 +98,25 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         world.register::<Particles>();
 
         world.register::<PlayerWeaponIcon>();
+
+
+
+        
+        // Setup debug lines as a resource
+        world.insert(DebugLines::new());
+        // Configure width of lines. Optional step
+        world.insert(DebugLinesParams { line_width: 2.0 });
+
+        // Setup debug lines as a component and add lines to render axis&grid
+        let mut debug_lines_component = DebugLinesComponent::new();
+
+        world
+            .create_entity()
+            .with(debug_lines_component)
+            .build();
+
+
+
 
         world.register::<Removal<u32>>();
 
@@ -278,6 +305,12 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         dispatcher_builder.add(VehicleStatusSystem::default(), "vehicle_status_system", &[]);
 
         dispatcher_builder.add(MoveParticlesSystem, "move_particles_system", &[]);
+
+
+
+        dispatcher_builder.add(DebugLinesSystem, "debug_lines_system", &[]);
+
+
 
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();

@@ -5,7 +5,7 @@ use amethyst::{
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
-        plugins::{RenderFlat2D, RenderToWindow},
+        plugins::{RenderFlat2D, RenderToWindow, RenderDebugLines},
         types::DefaultBackend,
         RenderingBundle,
     },
@@ -71,7 +71,8 @@ fn main() -> amethyst::Result<()> {
                 )
                 // RenderFlat2D plugin is used to render entities with a `SpriteRender` component.
                 .with_plugin(RenderFlat2D::default())
-                .with_plugin(RenderUi::default()),
+                .with_plugin(RenderUi::default())
+                .with_plugin(RenderDebugLines::default())
         )?;
 
     let mut game = Application::new(assets_dir, WelcomeScreen::default(), game_data)?;
