@@ -617,6 +617,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cgmath"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "283944cdecc44bf0b8dd010ec9af888d3b4f142844fdbe026c20ef68148d6fe7"
+dependencies = [
+ "approx 0.3.2",
+ "num-traits 0.2.11",
+ "rand 0.6.5",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -626,6 +637,12 @@ dependencies = [
  "num-traits 0.2.11",
  "time",
 ]
+
+[[package]]
+name = "clamp"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0113a8ae379a061c89a71d57a809439f5ce550b6a76063ab5ba2b1cb180971f"
 
 [[package]]
 name = "clang-sys"
@@ -1321,7 +1338,7 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "093d52460513e54346e440eadad05a799378654001d7c3a384c3d1e59b5f1e9f"
 dependencies = [
- "cgmath",
+ "cgmath 0.16.1",
  "mint",
 ]
 
@@ -1988,6 +2005,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "navmesh"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "356d889e13c02cb6e1d4e6d69faf09fd5dcd2e5f3cc97ff00c6e5870d87bab00"
+dependencies = [
+ "approx 0.3.2",
+ "petgraph 0.5.0",
+ "serde",
+ "spade",
+ "typid",
+]
+
+[[package]]
 name = "ncollide2d"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2096,6 +2126,7 @@ dependencies = [
  "autocfg 1.0.0",
  "num-integer",
  "num-traits 0.2.11",
+ "serde",
 ]
 
 [[package]]
@@ -2151,6 +2182,7 @@ dependencies = [
  "num-bigint",
  "num-integer",
  "num-traits 0.2.11",
+ "serde",
 ]
 
 [[package]]
@@ -2349,6 +2381,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "pdqselect"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ec91767ecc0a0bbe558ce8c9da33c068066c57ecc8bb8477ef8c1ad3ef77c27"
+
+[[package]]
 name = "peeking_take_while"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2378,6 +2416,8 @@ checksum = "29c127eea4a29ec6c85d153c59dc1213f33ec74cead30fe4730aecc88cc1fd92"
 dependencies = [
  "fixedbitset 0.2.0",
  "indexmap",
+ "serde",
+ "serde_derive",
 ]
 
 [[package]]
@@ -2561,6 +2601,7 @@ dependencies = [
  "amethyst",
  "log",
  "nalgebra 0.20.0",
+ "navmesh",
  "ncollide2d",
  "rand 0.7.3",
  "ron",
@@ -3489,6 +3530,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "spade"
+version = "1.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3dc1780b8854a0940003a328111d1da764cce7042a43334925ffaaa3b9debe0"
+dependencies = [
+ "cgmath 0.17.0",
+ "clamp",
+ "nalgebra 0.18.1",
+ "num",
+ "pdqselect",
+ "serde",
+ "smallvec 1.4.0",
+]
+
+[[package]]
 name = "specs"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3866,6 +3922,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "373c8a200f9e67a0c95e62a4f52fbf80c23b4381c05a17845531982fa99e6b33"
 
 [[package]]
+name = "typid"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0da09d42c77bb078b8a75f8103ba63e2e9a77b20100779ed2d236d87471de653"
+dependencies = [
+ "serde",
+ "uuid",
+]
+
+[[package]]
 name = "unic-langid"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3934,6 +4000,16 @@ name = "unicode-xid"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "826e7639553986605ec5979c7dd957c7895e93eabed50ab2ffa7f6128a75097c"
+
+[[package]]
+name = "uuid"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9fde2f6a4bea1d6e007c4ad38c6839fa71cbb63b6dbf5b595aa38dc9b1093c11"
+dependencies = [
+ "rand 0.7.3",
+ "serde",
+]
 
 [[package]]
 name = "vergen"
