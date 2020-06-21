@@ -9,7 +9,7 @@ use amethyst::{
     utils::removal::Removal,
 };
 
-use std::f32::consts::PI;
+use std::f32::{consts::PI};
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
@@ -125,9 +125,7 @@ pub fn initialize_arena_walls(
 
     //positions to place circular wall objects
     let mut wall_objects_x_y_scale: Vec<(f32, f32, f32)> = Vec::new();
-    let mut nav_mesh_vertices: Vec<(f32, f32, f32)> = Vec::new();
-    let mut nav_mesh_triangles: Vec<(usize, usize, usize)> = Vec::new();
-    let mut nav_mesh_rect_vertices_x_y: Vec<(f32, f32, f32, f32, f32, f32, f32, f32)> = Vec::new();
+    let mut nav_mesh_quad_vertices_x_y: Vec<(f32, f32, f32, f32, f32, f32, f32, f32)> = Vec::new();
 
     let debug_line_z = 0.5;
     let scale_mult = 10.0;
@@ -306,12 +304,13 @@ pub fn initialize_arena_walls(
 
             let offset = scale_mult*scale + nav_mesh_offset;
 
-            nav_mesh_rect_vertices_x_y.push((
-                ARENA_WIDTH / 2.0 - offset, arena_ui_height / 2.0 - offset,
-                ARENA_WIDTH / 2.0 + offset, arena_ui_height / 2.0 - offset,
-                ARENA_WIDTH / 2.0 + offset, arena_ui_height / 2.0 + offset,
-                ARENA_WIDTH / 2.0 - offset, arena_ui_height / 2.0 + offset
-            ));
+            //
+            // nav_mesh_quad_vertices_x_y.push((
+            //     ARENA_WIDTH / 2.0 - offset, arena_ui_height / 2.0 - offset,
+            //     ARENA_WIDTH / 2.0 + offset, arena_ui_height / 2.0 - offset,
+            //     ARENA_WIDTH / 2.0 + offset, arena_ui_height / 2.0 + offset,
+            //     ARENA_WIDTH / 2.0 - offset, arena_ui_height / 2.0 + offset
+            // ));
 
         } else {
             //central arena wall circle
@@ -347,46 +346,81 @@ pub fn initialize_arena_walls(
             let offset = scale_mult*scale + nav_mesh_offset;
 
             if idx == 0 {
-                //left side
-                nav_mesh_rect_vertices_x_y.push((
+                //left below
+                nav_mesh_quad_vertices_x_y.push((
                     0.0, UI_HEIGHT,
-                    0.0, ARENA_HEIGHT,
-                    starting_x - offset, ARENA_HEIGHT, 
+                    0.0, starting_y - offset,
+                    starting_x - offset, starting_y - offset, 
                     starting_x - offset, UI_HEIGHT, 
-                )); 
+                ));
+                //left
+                nav_mesh_quad_vertices_x_y.push((
+                    0.0, starting_y + offset,
+                    0.0, starting_y - offset,
+                    starting_x - offset, starting_y - offset, 
+                    starting_x - offset, starting_y + offset, 
+                ));
+                //left above
+                nav_mesh_quad_vertices_x_y.push((
+                    0.0, ARENA_HEIGHT,
+                    0.0, starting_y + offset,
+                    starting_x - offset, starting_y + offset, 
+                    starting_x - offset, ARENA_HEIGHT, 
+                ));
                 
-                // //above
-                // nav_mesh_rect_vertices_x_y.push((
-                //     starting_x - offset, starting_y + scale*15.0,
-                //     starting_x - offset, ARENA_HEIGHT,
-                //     starting_x + offset, ARENA_HEIGHT,
-                //     starting_x + offset, starting_y + scale*15.0,
-                // ));
+                //above
+                nav_mesh_quad_vertices_x_y.push((
+                    starting_x - offset, starting_y + offset,
+                    starting_x - offset, ARENA_HEIGHT,
+                    starting_x + offset, ARENA_HEIGHT,
+                    starting_x + offset, starting_y + offset,
+                ));
 
-                // //below
-                // nav_mesh_rect_vertices_x_y.push((
-                //     starting_x - offset, starting_y - scale*15.0,
-                //     starting_x - offset, UI_HEIGHT,
-                //     starting_x + offset, UI_HEIGHT,
-                //     starting_x + offset, starting_y - scale*15.0,
-                // ));
+                //below
+                nav_mesh_quad_vertices_x_y.push((
+                    starting_x - offset, starting_y - offset,
+                    starting_x - offset, UI_HEIGHT,
+                    starting_x + offset, UI_HEIGHT,
+                    starting_x + offset, starting_y - offset,
+                ));
 
-                // //right side
-                // nav_mesh_rect_vertices_x_y.push((
-                //     starting_x + offset, UI_HEIGHT,
-                //     starting_x + offset, ARENA_HEIGHT,
-                //     ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), ARENA_HEIGHT, 
-                //     ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), UI_HEIGHT, 
-                // )); 
+                //right below
+                nav_mesh_quad_vertices_x_y.push((
+                    starting_x + offset, UI_HEIGHT,
+                    starting_x + offset, starting_y - offset,
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), arena_ui_height / 2.0 - (scale_mult*4.0 + nav_mesh_offset), 
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), UI_HEIGHT, 
+                ));
+                //right
+                nav_mesh_quad_vertices_x_y.push((
+                    starting_x + offset, starting_y + offset,
+                    starting_x + offset, starting_y - offset,
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), starting_y - offset, 
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), starting_y + offset, 
+                ));
+                //right above
+                nav_mesh_quad_vertices_x_y.push((
+                    starting_x + offset, ARENA_HEIGHT,
+                    starting_x + offset, starting_y + offset,
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), arena_ui_height / 2.0 + (scale_mult*4.0 + nav_mesh_offset), 
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), ARENA_HEIGHT, 
+                ));
+                //right above2
+                nav_mesh_quad_vertices_x_y.push((
+                    starting_x + offset, ARENA_HEIGHT,
+                    starting_x + offset, starting_y + offset,
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), arena_ui_height / 2.0 + (scale_mult*4.0 + nav_mesh_offset), 
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), ARENA_HEIGHT, 
+                ));
             }
             else if idx == 1 {
-                // //left side
-                // nav_mesh_rect_vertices_x_y.push((
-                //     ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), ARENA_HEIGHT,
-                //     starting_x - offset, ARENA_HEIGHT,
-                //     starting_x - offset, arena_ui_height / 2.0 + (scale_mult*4.0 + nav_mesh_offset),
-                //     ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), arena_ui_height / 2.0 + (scale_mult*4.0 + nav_mesh_offset),
-                // )); 
+                //left side
+                nav_mesh_quad_vertices_x_y.push((
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), ARENA_HEIGHT,
+                    starting_x - offset, ARENA_HEIGHT,
+                    starting_x - offset, arena_ui_height / 2.0 + (scale_mult*4.0 + nav_mesh_offset),
+                    ARENA_WIDTH / 2.0 - (scale_mult*4.0 + nav_mesh_offset), arena_ui_height / 2.0 + (scale_mult*4.0 + nav_mesh_offset),
+                )); 
             }
         }
     }
@@ -436,17 +470,67 @@ pub fn initialize_arena_walls(
     }
 
 
-    //Divide navigation rectangles into navigation mesh triangles
-    for (x1, y1, x2, y2, x3, y3, x4, y4) in nav_mesh_rect_vertices_x_y.iter() {
-        nav_mesh_vertices.push((*x1, *y1, debug_line_z)); //len - 4
-        nav_mesh_vertices.push((*x2, *y2, debug_line_z)); //len - 3
-        nav_mesh_vertices.push((*x3, *y3, debug_line_z)); //len - 2
-        nav_mesh_vertices.push((*x4, *y4, debug_line_z)); //len - 1
+    let mut nav_mesh_vertices: Vec<(f32, f32, f32)> = Vec::new();
+    let mut nav_mesh_triangles: Vec<(usize, usize, usize)> = Vec::new();
 
-        let vertices_length = nav_mesh_vertices.clone().len();
+
+    //Divide navigation rectangles into navigation mesh triangles
+    for (x1, y1, x2, y2, x3, y3, x4, y4) in nav_mesh_quad_vertices_x_y.iter() {
+
+        let x1r = x1.round();
+        let x2r = x2.round();
+        let x3r = x3.round();
+        let x4r = x4.round();
+
+        let y1r = y1.round();
+        let y2r = y2.round();
+        let y3r = y3.round();
+        let y4r = y4.round();
+
+        let v1_index;
+        let v2_index;
+        let v3_index;
+        let v4_index;
+
+        let v1_find_index = nav_mesh_vertices.iter().position(|&r| r == (x1r, y1r, debug_line_z));
+        let v2_find_index = nav_mesh_vertices.iter().position(|&r| r == (x2r, y2r, debug_line_z));
+        let v3_find_index = nav_mesh_vertices.iter().position(|&r| r == (x3r, y3r, debug_line_z));
+        let v4_find_index = nav_mesh_vertices.iter().position(|&r| r == (x4r, y4r, debug_line_z));
+
+        if let Some(found_index) = v1_find_index {
+            v1_index = found_index;
+        }
+        else {
+            nav_mesh_vertices.push((x1r, y1r, debug_line_z));
+            v1_index = nav_mesh_vertices.clone().len() - 1;
+        }
+
+        if let Some(found_index) = v2_find_index {
+            v2_index = found_index;
+        }
+        else {
+            nav_mesh_vertices.push((x2r, y2r, debug_line_z));
+            v2_index = nav_mesh_vertices.clone().len() - 1;
+        }
+
+        if let Some(found_index) = v3_find_index {
+            v3_index = found_index;
+        }
+        else {
+            nav_mesh_vertices.push((x3r, y3r, debug_line_z));
+            v3_index = nav_mesh_vertices.clone().len() - 1;
+        }
+
+        if let Some(found_index) = v4_find_index {
+            v4_index = found_index;
+        }
+        else {
+            nav_mesh_vertices.push((x4r, y4r, debug_line_z));
+            v4_index = nav_mesh_vertices.clone().len() - 1;
+        }
     
-        nav_mesh_triangles.push((vertices_length - 4, vertices_length - 1, vertices_length - 2));
-        nav_mesh_triangles.push((vertices_length - 4, vertices_length - 3, vertices_length - 2));
+        nav_mesh_triangles.push((v4_index, v3_index, v2_index));
+        nav_mesh_triangles.push((v4_index, v1_index, v2_index));
     }
 
     //Store navigation mesh    
@@ -455,5 +539,11 @@ pub fn initialize_arena_walls(
     if let Some(mut arena_nav_mesh) = fetched_arena_nav_mesh {
         arena_nav_mesh.vertices = nav_mesh_vertices.clone();
         arena_nav_mesh.triangles = nav_mesh_triangles.clone();
+
+        log::info!("{:?}", arena_nav_mesh.vertices.len());
+        log::info!("{:?}", arena_nav_mesh.vertices);
+
+        log::info!("{:?}", arena_nav_mesh.triangles.len());
+        log::info!("{:?}", arena_nav_mesh.triangles);
     }
 }

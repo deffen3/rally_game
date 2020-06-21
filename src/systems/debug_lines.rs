@@ -49,6 +49,32 @@ impl<'s> System<'s> for DebugLinesSystem {
         //     Srgba::new(0.3, 0.3, 1.0, 1.0),
         // );
 
+
+        let nav_query_type = NavQuery::Accuracy;
+        let nav_path_type = NavPathMode::Accuracy;
+        /*
+        /// Quality of querying a point on nav mesh.
+        #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+        pub enum NavQuery {
+            /// Best quality, totally accurate.
+            Accuracy,
+            /// Medium quality, finds point in closest triangle.
+            Closest,
+            /// Low quality, finds first triangle in range of query.
+            ClosestFirst,
+        }
+
+        /// Quality of finding path.
+        #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+        pub enum NavPathMode {
+            /// Best quality, finds shortest path.
+            Accuracy,
+            /// Medium quality, finds shortest path througs triangles midpoints.
+            MidPoints,
+        }
+        */
+
+
         //draw keep-out zone as red debug lines
         for (v1_index, v2_index, v3_index) in arena_inv_nav_mesh.triangles.iter() {
             let v1 = arena_inv_nav_mesh.vertices[*v1_index];
@@ -125,25 +151,16 @@ impl<'s> System<'s> for DebugLinesSystem {
 
             let mesh = NavMesh::new(final_arena_nav_mesh_vertices.clone(), final_arena_nav_mesh_triangles.clone()).unwrap();
 
-            let path = mesh.find_path(
-                (vehicle_x, vehicle_y, 0.0).into(),
-                (ARENA_WIDTH / 2.0, (ARENA_HEIGHT + UI_HEIGHT) / 2.0, 0.0).into(),
-                NavQuery::Accuracy,
-                NavPathMode::MidPoints,
-            );
-                // .find_path(
-                //     (vehicle_x, vehicle_y, 0.0).into(),
-                //     (0.0, ARENA_HEIGHT + UI_HEIGHT, 0.0).into(),
-                //     NavQuery::Accuracy,
-                //     NavPathMode::MidPoints,
-                // );
-
-               
+            let path = mesh
+                .find_path(
+                    (vehicle_x, vehicle_y, 0.5).into(),
+                    (60.0, ARENA_HEIGHT + UI_HEIGHT - 50.0, 0.5).into(),
+                    nav_query_type,
+                    nav_path_type,
+                );
 
             //draw best path as blue debug line
             if let Some(path) = path {
-                log::info!("{:?}", path);
-
                 let mut prev_x = None;
                 let mut prev_y = None;
                 let mut prev_z = None;
@@ -166,8 +183,69 @@ impl<'s> System<'s> for DebugLinesSystem {
                     prev_z = Some(z);
                 }
             }
-            else {
-                log::info!("None");
+
+            let path2 = mesh
+                .find_path(
+                    (vehicle_x, vehicle_y, 0.5).into(),
+                    (ARENA_WIDTH / 2.0 - 10.0, (ARENA_HEIGHT + UI_HEIGHT)/2.0, 0.5).into(),
+                    nav_query_type,
+                    nav_path_type,
+                );
+
+            if let Some(path) = path2 {
+                let mut prev_x = None;
+                let mut prev_y = None;
+                let mut prev_z = None;
+
+                for nav_vector in path.iter() {
+                    let x = nav_vector.x;
+                    let y = nav_vector.y;
+                    let z = nav_vector.z;
+
+                    if !prev_x.is_none() {
+                        debug_lines_resource.draw_line(
+                            [prev_x.unwrap(), prev_y.unwrap(), prev_z.unwrap()].into(),
+                            [x, y, z].into(),
+                            Srgba::new(0.2, 0.8, 1.0, 1.0),
+                        );
+                    }
+
+                    prev_x = Some(x);
+                    prev_y = Some(y);
+                    prev_z = Some(z);
+                }
+            }
+
+            let path3 = mesh
+                .find_path(
+                    (vehicle_x, vehicle_y, 0.5).into(),
+                    (0.0, ARENA_HEIGHT, 0.5).into(),
+                    nav_query_type,
+                    nav_path_type,
+                );
+
+            if let Some(path) = path3 {
+                let mut prev_x = None;
+                let mut prev_y = None;
+                let mut prev_z = None;
+
+                for nav_vector in path.iter() {
+                    let x = nav_vector.x;
+                    let y = nav_vector.y;
+                    let z = nav_vector.z;
+
+                    if !prev_x.is_none() {
+                        debug_lines_resource.draw_line(
+                            [prev_x.unwrap(), prev_y.unwrap(), prev_z.unwrap()].into(),
+                            [x, y, z].into(),
+                            Srgba::new(0.5, 0.0, 1.0, 1.0),
+                        );
+                    }
+
+                    prev_x = Some(x);
+                    prev_y = Some(y);
+                    prev_z = Some(z);
+                }
             }
         }
     }
