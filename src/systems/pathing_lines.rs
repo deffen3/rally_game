@@ -11,7 +11,7 @@ use amethyst::{
 };
 
 
-use navmesh::{NavMesh, NavQuery, NavPathMode};
+use navmesh::{NavQuery, NavPathMode};
 
 
 use crate::components::{Vehicle, Player};
@@ -38,7 +38,7 @@ impl<'s> System<'s> for PathingLinesSystem {
         &mut self, (
         mut debug_lines_resource, 
         arena_nav_mesh,
-        arena_inv_nav_mesh,
+        _arena_inv_nav_mesh,
         arena_nav_mesh_final,
         players,
         vehicles,
