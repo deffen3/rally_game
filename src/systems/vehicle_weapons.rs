@@ -79,6 +79,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                         || player.bot_mode == BotMode::Mining
                         || player.bot_mode == BotMode::Chasing
                         || player.bot_mode == BotMode::Swording
+                        || player.bot_mode == BotMode::Racing
                     {
                         vehicle_weapon_fire[0] = Some(rng.gen::<bool>());
                         vehicle_weapon_fire[1] = Some(rng.gen::<bool>());
