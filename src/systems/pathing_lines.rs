@@ -138,7 +138,7 @@ impl<'s> System<'s> for PathingLinesSystem {
 
                 if !player.is_bot {
                     //player.path_target = Some((0.0, 0.0, 0.0));
-                    player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
+                    player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.0));
                 }
 
                 if let Some(target) = player.path_target {

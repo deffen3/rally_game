@@ -5,8 +5,9 @@ use crate::components::WeaponTypes;
 #[derive(Clone, Debug, PartialEq)]
 pub enum BotMode {
     Sleep,
-    RunAway,
+    RunTo,
     RunRandom,
+    RunBlind,
     FindEnemy,
     TakeTheHill,
     PickUpWeaponBox,
