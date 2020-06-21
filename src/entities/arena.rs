@@ -208,8 +208,8 @@ pub fn initialize_arena_walls(
             .with(checkpoint_line_transform)
             .with(checkpoint_line_sprite_render)
             .with(Hitbox::new(
-                20.0 * scale,
                 2.0 * scale,
+                20.0 * scale,
                 0.0,
                 HitboxShape::Rectangle,
                 false,
@@ -271,8 +271,8 @@ pub fn initialize_arena_walls(
             .with(checkpoint_line_transform)
             .with(checkpoint_line_sprite_render)
             .with(Hitbox::new(
-                20.0 * scale,
                 2.0 * scale,
+                20.0 * scale,
                 0.0,
                 HitboxShape::Rectangle,
                 false,
