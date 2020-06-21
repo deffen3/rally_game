@@ -137,7 +137,8 @@ impl<'s> System<'s> for PathingLinesSystem {
             if let Some(mesh) = &arena_nav_mesh_final.mesh {
 
                 if !player.is_bot {
-                    player.path_target = Some((0.0, 0.0, 0.0));
+                    //player.path_target = Some((0.0, 0.0, 0.0));
+                    player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
                 }
 
                 if let Some(target) = player.path_target {

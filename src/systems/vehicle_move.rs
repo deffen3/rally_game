@@ -248,50 +248,90 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         || player.bot_mode == BotMode::Mining
                         || player.bot_mode == BotMode::Repairing
                     {
-                        if player.bot_move_cooldown < 0.0 {
-                            //issue new move command
+                        if game_mode_setup.game_mode == GameModes::KingOfTheHill && !(player.bot_mode == BotMode::TakeTheHill) {
+                            player.bot_mode = BotMode::TakeTheHill;
+                            debug!("{} TakeTheHill", player.id);
+                        }
 
-                            if game_mode_setup.game_mode == GameModes::KingOfTheHill && 
-                                    !(player.bot_mode == BotMode::TakeTheHill) {
-                                player.bot_mode = BotMode::TakeTheHill;
-                                debug!("{} TakeTheHill", player.id);
-                                
-                                player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
-                            }
-                            else if player.bot_mode == BotMode::RunAway {
-                                player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
-                            }
-                            else {
-                                player.path_target = None;
-                            }
+                        if player.bot_mode == BotMode::TakeTheHill {
+                            player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
+                        }
+                        else if player.bot_mode == BotMode::RunAway {
+                            player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
+                        }
+                        else {
+                            player.path_target = None;
+                        }
 
 
-                            if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-                                if (vehicle.health.value < vehicle.health.max ||
-                                        (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0)) && 
-                                        dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE &&
-                                        player.last_hit_timer > 1.0 {
-                                    player.bot_mode = BotMode::Repairing;
+                        if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
+                            if (vehicle.health.value < vehicle.health.max ||
+                                    (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0)) && 
+                                    dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE &&
+                                    player.last_hit_timer > 1.0 {
+                                player.bot_mode = BotMode::Repairing;
+                            }
+                        }
+
+                        if let Some(path_plan) = player.path_plan.clone() {
+                            if path_plan.len() >= 2 {
+                                let first_target = path_plan[1];
+                                let path_x = first_target.0;
+                                let path_y = first_target.1;
+
+                                let x_diff = vehicle_x - path_x;
+                                let y_diff = vehicle_y - path_y;
+
+                                let dist = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
+
+                                let target_angle = y_diff.atan2(x_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
+
+                                let mut angle_diff = vehicle_angle - target_angle;
+
+                                if angle_diff > PI {
+                                    angle_diff = -(2.0 * PI - angle_diff);
+                                } else if angle_diff < -PI {
+                                    angle_diff = -(-2.0 * PI - angle_diff);
+                                }
+
+                                let turn_value = 0.2;
+
+                                if angle_diff > 0.001 {
+                                    vehicle_turn = Some(-turn_value);
+                                } else if angle_diff < -0.001 {
+                                    vehicle_turn = Some(turn_value);
+                                } else {
+                                    vehicle_turn = Some(0.0);
+                                }
+
+                                if angle_diff.abs() < 0.2 {
+                                    
+
+                                    vehicle_accel = Some(0.5);
                                 }
                             }
-
-                            if let Some(path_target) = player.path_target {
+                            else {
+                                vehicle_accel = Some(0.0);
+                                vehicle_turn = Some(0.0);
+                            }                                
+                        }
+                        else { //random movement input
+                            if player.bot_move_cooldown < 0.0 {
+                                //issue new move command
                                 vehicle_accel = Some(rng.gen_range(0.3, 0.5) as f32);
                                 vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
                             }
-                            else { //random movement input
-                                vehicle_accel = Some(rng.gen_range(0.3, 0.5) as f32);
-                                vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
+                            else {
+                                //hold previous random move
+                                vehicle_accel = player.last_accel_input;
+                                vehicle_turn = player.last_turn_input;
                             }
+                        }
+                        player.last_accel_input = vehicle_accel;
+                        player.last_turn_input = vehicle_turn;
 
-                            player.last_accel_input = vehicle_accel;
-                            player.last_turn_input = vehicle_turn;
-
+                        if player.bot_move_cooldown < 0.0 {
                             player.bot_move_cooldown = player.bot_move_cooldown_reset;
-                        } else {
-                            //hold previous Running move
-                            vehicle_accel = player.last_accel_input;
-                            vehicle_turn = player.last_turn_input;
                         }
                     }
                 } else if player.bot_mode == BotMode::StopAim
