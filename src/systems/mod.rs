@@ -8,7 +8,7 @@ pub use self::game_objective_status::VehicleStatusSystem;
 pub use self::vehicle_tracking::VehicleTrackingSystem;
 pub use self::vehicle_weapons::VehicleWeaponsSystem;
 pub use self::move_particles::MoveParticlesSystem;
-pub use self::debug_lines::DebugLinesSystem;
+pub use self::pathing_lines::PathingLinesSystem;
 
 mod collision_vehicle_vehicle;
 mod collision_vehicle_weapon_fire;
@@ -20,4 +20,4 @@ mod game_objective_status;
 mod vehicle_tracking;
 mod vehicle_weapons;
 mod move_particles;
-mod debug_lines;
+mod pathing_lines;

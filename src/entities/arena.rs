@@ -13,7 +13,13 @@ use std::f32::{consts::PI};
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
-use crate::resources::{GameModeSetup, GameModes, ArenaNavMesh, ArenaInvertedNavMesh};
+use crate::resources::{
+    GameModeSetup, GameModes, 
+    ArenaNavMesh, ArenaInvertedNavMesh, ArenaNavMeshFinal
+};
+
+use navmesh::{NavMesh, NavQuery, NavPathMode, NavVec3, NavTriangle};
+
 
 pub fn initialize_arena_walls(
     world: &mut World,
@@ -343,6 +349,8 @@ pub fn initialize_arena_walls(
     nav_mesh_grid_ys.push(UI_HEIGHT);
     nav_mesh_grid_ys.push(ARENA_HEIGHT);
 
+    let mut nav_mesh_grid_drop: Vec<(f32, f32, f32, f32, f32, f32)> = Vec::new();
+
 
     for (x, y, scale) in arena_circle_objects_x_y_scale {
         //add visual sprite
@@ -407,6 +415,11 @@ pub fn initialize_arena_walls(
         }
 
 
+        nav_mesh_grid_drop.push((xr_minus, yr_minus, xr_minus, yr_plus, xr_plus, yr_plus));
+        nav_mesh_grid_drop.push((xr_minus, yr_minus, xr_plus, yr_minus, xr_plus, yr_plus));
+
+
+
         //Build inverse navigation mesh    
         let fetched_arena_inv_nav_mesh = world.try_fetch_mut::<ArenaInvertedNavMesh>();
 
@@ -422,6 +435,8 @@ pub fn initialize_arena_walls(
     }
 
 
+
+    //Build navigation mesh from grid
     let mut nav_mesh_vertices: Vec<(f32, f32, f32)> = Vec::new();
     let mut nav_mesh_triangles: Vec<(usize, usize, usize)> = Vec::new();
 
@@ -434,6 +449,7 @@ pub fn initialize_arena_walls(
 
     log::info!("{} {}", xs_len, ys_len);
     log::info!("{:?} {:?}", nav_mesh_grid_xs, nav_mesh_grid_ys);
+    log::info!("{:?}", nav_mesh_grid_drop);
 
     for (y_idx, y) in nav_mesh_grid_ys.iter().enumerate() {
         for (x_idx, x) in nav_mesh_grid_xs.iter().enumerate() {
@@ -442,14 +458,22 @@ pub fn initialize_arena_walls(
             let vertex_idx = nav_mesh_vertices.len() - 1;
 
             if (x_idx > 0) && (y_idx > 0) {
-                nav_mesh_triangles.push((vertex_idx, vertex_idx - xs_len, vertex_idx - 1));
-                nav_mesh_triangles.push((vertex_idx - xs_len, vertex_idx - 1, vertex_idx - xs_len - 1));
+                let xr_minus = nav_mesh_vertices[vertex_idx - 1].0;
+                let xr_plus = nav_mesh_vertices[vertex_idx - xs_len].0;
+                let yr_minus = nav_mesh_vertices[vertex_idx - 1].1;
+                let yr_plus = nav_mesh_vertices[vertex_idx - xs_len].1;
+
+                nav_mesh_triangles.push((vertex_idx - 1, vertex_idx - xs_len - 1, vertex_idx - xs_len));
+                nav_mesh_triangles.push((vertex_idx - 1, vertex_idx, vertex_idx - xs_len));
             }
         }
     }
 
-    assert!(nav_mesh_vertices.len() == xs_len * ys_len);
-    assert!(nav_mesh_triangles.len() == 2 * (xs_len-1) * (ys_len-1));
+    log::info!("{} == {}", nav_mesh_vertices.len(), xs_len * ys_len);
+    log::info!("{} == {}", nav_mesh_triangles.len(), 2 * (xs_len-1) * (ys_len-1) - nav_mesh_grid_drop.len());
+
+    //assert!(nav_mesh_vertices.len() == xs_len * ys_len);
+    //assert!(nav_mesh_triangles.len() == 2 * (xs_len-1) * (ys_len-1) - nav_mesh_grid_drop.len());
 
 
     //Store navigation mesh
@@ -459,10 +483,29 @@ pub fn initialize_arena_walls(
         arena_nav_mesh.vertices = nav_mesh_vertices.clone();
         arena_nav_mesh.triangles = nav_mesh_triangles.clone();
 
-        log::info!("{:?}", arena_nav_mesh.vertices.len());
-        // log::info!("{:?}", arena_nav_mesh.vertices);
+        let fetched_arena_nav_mesh_final = world.try_fetch_mut::<ArenaNavMeshFinal>();
 
-        log::info!("{:?}", arena_nav_mesh.triangles.len());
-        // log::info!("{:?}", arena_nav_mesh.triangles);
+        if let Some(mut arena_nav_mesh_final) = fetched_arena_nav_mesh_final {
+
+            let mut nav_vecs: Vec<NavVec3> = Vec::new();
+            let mut nav_triangles: Vec<NavTriangle> = Vec::new();
+
+            for (x,y,z) in arena_nav_mesh.vertices.iter() {
+                nav_vecs.push(NavVec3::new(*x, *y, *z));
+            }
+
+            for (v1, v2, v3) in arena_nav_mesh.triangles.iter() {
+                nav_triangles.push(NavTriangle {
+                    first: *v1 as u32,
+                    second: *v2 as u32,
+                    third: *v3 as u32
+                });
+            }
+
+            arena_nav_mesh_final.mesh = Some(NavMesh::new(
+                nav_vecs.clone(),
+                nav_triangles.clone()
+            ).unwrap());
+        }
     }
 }

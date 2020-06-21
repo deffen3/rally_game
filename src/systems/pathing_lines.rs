@@ -11,23 +11,24 @@ use amethyst::{
 };
 
 
-use navmesh::{NavMesh, NavQuery, NavPathMode, NavVec3, NavTriangle};
+use navmesh::{NavMesh, NavQuery, NavPathMode};
 
 
 use crate::components::{Vehicle, Player};
-use crate::resources::{ArenaNavMesh, ArenaInvertedNavMesh};
+use crate::resources::{ArenaNavMesh, ArenaInvertedNavMesh, ArenaNavMeshFinal};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, DEBUG_LINES_LEVEL};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT, DEBUG_LINES};
 
 
 #[derive(SystemDesc)]
-pub struct DebugLinesSystem;
+pub struct PathingLinesSystem;
 
-impl<'s> System<'s> for DebugLinesSystem {
+impl<'s> System<'s> for PathingLinesSystem {
     type SystemData = (
         Write<'s, DebugLines>,
         ReadExpect<'s, ArenaNavMesh>,
         ReadExpect<'s, ArenaInvertedNavMesh>,
+        ReadExpect<'s, ArenaNavMeshFinal>,
         ReadStorage<'s, Player>,
         ReadStorage<'s, Vehicle>,
         ReadStorage<'s, Transform>,
@@ -38,6 +39,7 @@ impl<'s> System<'s> for DebugLinesSystem {
         mut debug_lines_resource, 
         arena_nav_mesh,
         arena_inv_nav_mesh,
+        arena_nav_mesh_final,
         players,
         vehicles,
         transforms): Self::SystemData
@@ -100,7 +102,7 @@ impl<'s> System<'s> for DebugLinesSystem {
         // }
 
         //draw nav mesh zones as green debug lines
-        if DEBUG_LINES_LEVEL >= 2 {
+        if DEBUG_LINES {
             for (v1_index, v2_index, v3_index) in arena_nav_mesh.triangles.iter() {
                 let v1 = arena_nav_mesh.vertices[*v1_index];
                 let v2 = arena_nav_mesh.vertices[*v2_index];
@@ -125,24 +127,6 @@ impl<'s> System<'s> for DebugLinesSystem {
                 );
             }
         }
-
-        let mut final_arena_nav_mesh_vertices: Vec<NavVec3> = Vec::new();
-
-        for (x,y,z) in arena_nav_mesh.vertices.iter() {
-            final_arena_nav_mesh_vertices.push(NavVec3::new(*x, *y, *z));
-        }
-
-
-        let mut final_arena_nav_mesh_triangles: Vec<NavTriangle> = Vec::new();
-
-        for (v1, v2, v3) in arena_nav_mesh.triangles.iter() {
-            final_arena_nav_mesh_triangles.push(NavTriangle {
-                first: *v1 as u32,
-                second: *v2 as u32,
-                third: *v3 as u32
-            });
-        }
-
         
 
         for (_player, _vehicle, transform) in (&players, &vehicles, &transforms).join()
@@ -150,39 +134,39 @@ impl<'s> System<'s> for DebugLinesSystem {
             let vehicle_x = transform.translation().x;
             let vehicle_y = transform.translation().y;
 
-            let mesh = NavMesh::new(final_arena_nav_mesh_vertices.clone(), final_arena_nav_mesh_triangles.clone()).unwrap();
+            if let Some(mesh) = &arena_nav_mesh_final.mesh {
+                let path = mesh
+                    .find_path(
+                        (vehicle_x, vehicle_y, 0.5).into(),
+                        (ARENA_WIDTH / 2.0, (ARENA_HEIGHT + UI_HEIGHT)/2.0, 0.5).into(),
+                        nav_query_type,
+                        nav_path_type,
+                    );
 
-            let path = mesh
-                .find_path(
-                    (vehicle_x, vehicle_y, 0.5).into(),
-                    (ARENA_WIDTH / 2.0, (ARENA_HEIGHT + UI_HEIGHT)/2.0, 0.5).into(),
-                    nav_query_type,
-                    nav_path_type,
-                );
+                
+                if let Some(path) = path {
+                    if DEBUG_LINES {
+                        let mut prev_x = None;
+                        let mut prev_y = None;
+                        let mut prev_z = None;
 
-            
-            if let Some(path) = path {
-                if DEBUG_LINES_LEVEL >= 2 {
-                    let mut prev_x = None;
-                    let mut prev_y = None;
-                    let mut prev_z = None;
+                        for nav_vector in path.iter() {
+                            let x = nav_vector.x;
+                            let y = nav_vector.y;
+                            let z = nav_vector.z;
 
-                    for nav_vector in path.iter() {
-                        let x = nav_vector.x;
-                        let y = nav_vector.y;
-                        let z = nav_vector.z;
+                            if !prev_x.is_none() {
+                                debug_lines_resource.draw_line(
+                                    [prev_x.unwrap(), prev_y.unwrap(), prev_z.unwrap()].into(),
+                                    [x, y, z].into(),
+                                    Srgba::new(0.2, 0.8, 1.0, 1.0),
+                                );
+                            }
 
-                        if !prev_x.is_none() {
-                            debug_lines_resource.draw_line(
-                                [prev_x.unwrap(), prev_y.unwrap(), prev_z.unwrap()].into(),
-                                [x, y, z].into(),
-                                Srgba::new(0.2, 0.8, 1.0, 1.0),
-                            );
+                            prev_x = Some(x);
+                            prev_y = Some(y);
+                            prev_z = Some(z);
                         }
-
-                        prev_x = Some(x);
-                        prev_y = Some(y);
-                        prev_z = Some(z);
                     }
                 }
             }

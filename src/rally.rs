@@ -19,8 +19,10 @@ use amethyst::{
 use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
-use crate::resources::{initialize_weapon_fire_resource, GameModeSetup, GameScore, 
-    GameTeamSetup, WeaponFireResource, GameVehicleSetup, ArenaNavMesh, ArenaInvertedNavMesh,
+use crate::resources::{initialize_weapon_fire_resource, 
+    GameModeSetup, GameScore, 
+    GameTeamSetup, WeaponFireResource, GameVehicleSetup, 
+    ArenaNavMesh, ArenaInvertedNavMesh, ArenaNavMeshFinal,
 };
 
 use crate::entities::{
@@ -36,11 +38,11 @@ use crate::components::{
 use crate::systems::{
     CollisionVehToVehSystem, CollisionVehicleWeaponFireSystem, MoveWeaponFireSystem,
     VehicleMoveSystem, VehicleShieldArmorHealthSystem, VehicleStatusSystem, VehicleTrackingSystem,
-    VehicleWeaponsSystem, MoveParticlesSystem, DebugLinesSystem,
+    VehicleWeaponsSystem, MoveParticlesSystem, PathingLinesSystem,
 };
 
 pub const PLAYER_CAMERA: bool = false;
-pub const DEBUG_LINES_LEVEL: u8 = 2;
+pub const DEBUG_LINES: bool = true;
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -97,21 +99,18 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         world.register::<PlayerWeaponIcon>();
 
 
+        // Setup debug lines as a resource
+        world.insert(DebugLines::new());
+        // Configure width of lines. Optional step
+        world.insert(DebugLinesParams { line_width: 2.0 });
 
-        if DEBUG_LINES_LEVEL > 0 {
-            // Setup debug lines as a resource
-            world.insert(DebugLines::new());
-            // Configure width of lines. Optional step
-            world.insert(DebugLinesParams { line_width: 2.0 });
+        // Setup debug lines as a component and add lines to render axis&grid
+        let debug_lines_component = DebugLinesComponent::new();
 
-            // Setup debug lines as a component and add lines to render axis&grid
-            let debug_lines_component = DebugLinesComponent::new();
-
-            world
-                .create_entity()
-                .with(debug_lines_component)
-                .build();
-        }
+        world
+            .create_entity()
+            .with(debug_lines_component)
+            .build();
 
 
 
@@ -146,7 +145,10 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             triangles: Vec::new(),
         });
 
-        
+        world.insert(ArenaNavMeshFinal {
+            mesh: None,
+        });
+
 
         initialize_arena_walls(
             world,
@@ -316,13 +318,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         dispatcher_builder.add(MoveParticlesSystem, "move_particles_system", &[]);
 
-
-        if DEBUG_LINES_LEVEL > 0 {
-            dispatcher_builder.add(DebugLinesSystem, "debug_lines_system", &[]);
-        }
+        dispatcher_builder.add(PathingLinesSystem, "pathing_lines_system", &[]);
         
-
-
 
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();
