@@ -1210,15 +1210,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 && (hitbox.checkpoint_id == player.checkpoint_completed + 1)
                         {
                             player.checkpoint_completed = hitbox.checkpoint_id;
-                            log::info!("{} checkpoints:{}", player.id, player.checkpoint_completed);
+                            debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
                         }
                         else if hitbox.checkpoint == RaceCheckpointType::Lap {
                             if player.checkpoint_completed == game_mode_setup.checkpoint_count {
                                 player.laps_completed += 1;
                             }
                             player.checkpoint_completed = 0;
-                            log::info!("{} checkpoints:{}", player.id, player.checkpoint_completed);
-                            log::info!("{} laps:{}", player.id, player.laps_completed);
+                            debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
+                            debug!("{} laps:{}", player.id, player.laps_completed);
                         }
                     }
                 }
