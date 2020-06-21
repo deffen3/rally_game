@@ -40,7 +40,7 @@ use crate::systems::{
 };
 
 pub const PLAYER_CAMERA: bool = false;
-const DEBUG_LINES: bool = true;
+pub const DEBUG_LINES_LEVEL: u8 = 2;
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -98,7 +98,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
 
 
-        if DEBUG_LINES {
+        if DEBUG_LINES_LEVEL > 0 {
             // Setup debug lines as a resource
             world.insert(DebugLines::new());
             // Configure width of lines. Optional step
@@ -293,18 +293,18 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         dispatcher_builder.add(
             CollisionVehicleWeaponFireSystem::default(),
             "collision_vehicle_weapon_fire_system",
-            &["vehicle_weapons_system"],
+            &[],
         );
         dispatcher_builder.add(
             MoveWeaponFireSystem,
             "move_weapon_fire_system",
-            &["collision_vehicle_weapon_fire_system"],
+            &[],
         );
 
         dispatcher_builder.add(
             CollisionVehToVehSystem,
             "collision_vehicle_vehicle_system",
-            &["vehicle_move_system"],
+            &[],
         );
         
         dispatcher_builder.add(
@@ -317,7 +317,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         dispatcher_builder.add(MoveParticlesSystem, "move_particles_system", &[]);
 
 
-        if DEBUG_LINES {
+        if DEBUG_LINES_LEVEL > 0 {
             dispatcher_builder.add(DebugLinesSystem, "debug_lines_system", &[]);
         }
         
