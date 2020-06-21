@@ -215,31 +215,40 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     || player.bot_mode == BotMode::Mining
                     || player.bot_mode == BotMode::Repairing
                 {
-                    if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-                        if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
-                            && player.bot_move_cooldown < 0.0
-                        {
-                            if let Some(primary_weapon) = &weapon_array.weapons[0] {
-                                //change modes to attack
-                                if primary_weapon.stats.attached {
-                                    //Typically just LaserSword
-                                    player.bot_mode = BotMode::Swording;
-                                    debug!("{} Swording", player.id);
-                                    player.bot_move_cooldown = 5.0;
-                                    player.last_made_hit_timer = 0.0;
-                                } else if primary_weapon.stats.shot_speed <= 0.0 {
-                                    //Typically just Mines or Traps
-                                    player.bot_mode = BotMode::Mining;
-                                    debug!("{} Mining", player.id);
-                                } else {
-                                    player.bot_mode = BotMode::StopAim;
-                                    debug!("{} StopAim", player.id);
-                                    player.bot_move_cooldown = 1.0;
-                                    player.last_made_hit_timer = 0.0;
+                    if game_mode_setup.game_mode == GameModes::KingOfTheHill && player.on_hill == false {
+                        player.bot_mode = BotMode::TakeTheHill;
+                        debug!("{} TakeTheHill", player.id);
+                    }
+                    else {
+                        //check to change mode
+                        if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
+                            if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
+                                && player.bot_move_cooldown < 0.0
+                            {
+                                if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                                    //change modes to attack
+                                    if primary_weapon.stats.attached {
+                                        //Typically just LaserSword
+                                        player.bot_mode = BotMode::Swording;
+                                        debug!("{} Swording", player.id);
+                                        player.bot_move_cooldown = 5.0;
+                                        player.last_made_hit_timer = 0.0;
+                                    } else if primary_weapon.stats.shot_speed <= 0.0 {
+                                        //Typically just Mines or Traps
+                                        player.bot_mode = BotMode::Mining;
+                                        debug!("{} Mining", player.id);
+                                    } else {
+                                        player.bot_mode = BotMode::StopAim;
+                                        debug!("{} StopAim", player.id);
+                                        player.bot_move_cooldown = 1.0;
+                                        player.last_made_hit_timer = 0.0;
+                                    }
                                 }
                             }
                         }
                     }
+
+                    log::info!("{} {}", player.id, player.on_hill);
 
 
                     if player.bot_mode == BotMode::RunAway
@@ -248,13 +257,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         || player.bot_mode == BotMode::Mining
                         || player.bot_mode == BotMode::Repairing
                     {
-                        if game_mode_setup.game_mode == GameModes::KingOfTheHill && !(player.bot_mode == BotMode::TakeTheHill) {
-                            player.bot_mode = BotMode::TakeTheHill;
-                            debug!("{} TakeTheHill", player.id);
-                        }
-
                         if player.bot_mode == BotMode::TakeTheHill {
-                            player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
+                            if player.on_hill == false {
+                                player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
+                            }
+                            else {
+                                player.path_target = None;
+                            }   
                         }
                         else if player.bot_mode == BotMode::RunAway {
                             player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
@@ -284,6 +293,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                 let dist = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
 
+                                let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+                                let abs_vel = sq_vel.sqrt()*10.0; //Why does velocity not seem accurate without this weird multiplier???
+
+                                let approx_t_to_arrival = dist / abs_vel;
+                                let approx_t_to_rest = abs_vel / thrust_friction_decel_rate;
+
                                 let target_angle = y_diff.atan2(x_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
 
                                 let mut angle_diff = vehicle_angle - target_angle;
@@ -305,9 +320,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 }
 
                                 if angle_diff.abs() < 0.2 {
-                                    
-
-                                    vehicle_accel = Some(0.5);
+                                    if approx_t_to_arrival < approx_t_to_rest {
+                                        vehicle_accel = Some(thrust_friction_decel_rate * 1.05);
+                                    }
+                                    else {
+                                        vehicle_accel = Some(0.8);
+                                    }
                                 }
                             }
                             else {
@@ -887,6 +905,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let vehicle_collider_shape = Cuboid::new(Vector2::new(vehicle.width/2.0, vehicle.height/2.0));
             let vehicle_collider_pos = Isometry2::new(Vector2::new(vehicle_x, vehicle_y), vehicle_angle);
 
+            player.on_hill = false; //reset
+
             for (hitbox_entity, hitbox, hitbox_transform) in
                 (&*entities, &hitboxes, &transforms).join()
             {
@@ -1079,6 +1099,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             }
                         } else if hitbox.is_hill {
                             players_on_hill.push(player.id.clone());
+                            player.on_hill = true;
 
                             let (r, g, b) = match player.id.clone() {
                                 0 => (1.0, 0.3, 0.3),
@@ -1106,6 +1127,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     }
                 }
             }
+
+            
         }
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {

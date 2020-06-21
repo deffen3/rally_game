@@ -111,19 +111,19 @@ impl<'s> System<'s> for PathingLinesSystem {
                 debug_lines_resource.draw_line(
                     [v1.0, v1.1, v1.2].into(),
                     [v2.0, v2.1, v2.2].into(),
-                    Srgba::new(0.2, 1.0, 0.2, 1.0),
+                    Srgba::new(0.2, 1.0, 0.2, 0.1),
                 );
 
                 debug_lines_resource.draw_line(
                     [v2.0, v2.1, v2.2].into(),
                     [v3.0, v3.1, v3.2].into(),
-                    Srgba::new(0.2, 1.0, 0.2, 1.0),
+                    Srgba::new(0.2, 1.0, 0.2, 0.1),
                 );
 
                 debug_lines_resource.draw_line(
                     [v3.0, v3.1, v3.2].into(),
                     [v1.0, v1.1, v1.2].into(),
-                    Srgba::new(0.2, 1.0, 0.2, 1.0),
+                    Srgba::new(0.2, 1.0, 0.2, 0.1),
                 );
             }
         }
@@ -169,7 +169,7 @@ impl<'s> System<'s> for PathingLinesSystem {
                                     debug_lines_resource.draw_line(
                                         [prev_x.unwrap(), prev_y.unwrap(), prev_z.unwrap()].into(),
                                         [x, y, z].into(),
-                                        Srgba::new(0.2, 0.8, 1.0, 1.0),
+                                        Srgba::new(0.2, 0.8, 1.0, 0.3),
                                     );
                                 }
 
@@ -181,6 +181,9 @@ impl<'s> System<'s> for PathingLinesSystem {
                             player.path_plan = Some(path_plan.clone());
                         }
                     }
+                }
+                else {
+                    player.path_plan = None;
                 }
             }
         }
