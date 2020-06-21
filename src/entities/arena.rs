@@ -132,7 +132,7 @@ pub fn initialize_arena_walls(
     //positions to place circular wall objects
     let mut arena_circle_objects_x_y_scale: Vec<(f32, f32, f32)> = Vec::new();
 
-    let debug_line_z = 0.5;
+    let debug_line_z = 0.0;
     let scale_mult = 10.0;
     let nav_mesh_offset = 10.0;
 

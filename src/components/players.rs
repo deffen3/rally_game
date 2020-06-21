@@ -4,7 +4,12 @@ use crate::components::WeaponTypes;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BotMode {
-    Running,
+    Sleep,
+    RunAway,
+    RunRandom,
+    FindEnemy,
+    TakeTheHill,
+    PickUpWeaponBox,
     StopAim,
     StrafeAim,
     CollisionTurn,
@@ -12,7 +17,6 @@ pub enum BotMode {
     Mining,
     Chasing,
     Swording,
-    TakeTheHill,
     Repairing,
 }
 
@@ -29,6 +33,8 @@ pub struct Player {
     pub bot_mode: BotMode,
     pub bot_move_cooldown: f32,
     pub bot_move_cooldown_reset: f32,
+    pub path_target: Option<(f32, f32, f32)>,
+    pub path_plan: Option<Vec<(f32, f32, f32)>>,
     pub last_accel_input: Option<f32>,
     pub last_turn_input: Option<f32>,
     pub last_hit_by_id: Option<usize>,
@@ -52,9 +58,11 @@ impl Player {
             checkpoint_completed: 0,
             laps_completed: 0,
             is_bot,
-            bot_mode: BotMode::StopAim,
+            bot_mode: BotMode::Sleep,
             bot_move_cooldown: -1.0,
             bot_move_cooldown_reset: 1.0,
+            path_target: None,
+            path_plan: None,
             last_accel_input: Some(0.0),
             last_turn_input: Some(0.0),
             last_hit_by_id: None,

@@ -3,7 +3,7 @@ use amethyst::{
         transform::{Transform},
     },
     derive::SystemDesc,
-    ecs::{System, Join, SystemData, Write, ReadExpect, ReadStorage},
+    ecs::{System, Join, SystemData, Write, ReadExpect, WriteStorage, ReadStorage},
     renderer::{
         debug_drawing::{DebugLines},
         palette::Srgba,
@@ -29,7 +29,7 @@ impl<'s> System<'s> for PathingLinesSystem {
         ReadExpect<'s, ArenaNavMesh>,
         ReadExpect<'s, ArenaInvertedNavMesh>,
         ReadExpect<'s, ArenaNavMeshFinal>,
-        ReadStorage<'s, Player>,
+        WriteStorage<'s, Player>,
         ReadStorage<'s, Vehicle>,
         ReadStorage<'s, Transform>,
     );
@@ -40,7 +40,7 @@ impl<'s> System<'s> for PathingLinesSystem {
         arena_nav_mesh,
         _arena_inv_nav_mesh,
         arena_nav_mesh_final,
-        players,
+        mut players,
         vehicles,
         transforms): Self::SystemData
     ) {
@@ -129,43 +129,55 @@ impl<'s> System<'s> for PathingLinesSystem {
         }
         
 
-        for (_player, _vehicle, transform) in (&players, &vehicles, &transforms).join()
+        for (player, _vehicle, transform) in (&mut players, &vehicles, &transforms).join()
         {
             let vehicle_x = transform.translation().x;
             let vehicle_y = transform.translation().y;
 
             if let Some(mesh) = &arena_nav_mesh_final.mesh {
-                let path = mesh
-                    .find_path(
-                        (vehicle_x, vehicle_y, 0.5).into(),
-                        (ARENA_WIDTH / 2.0, (ARENA_HEIGHT + UI_HEIGHT)/2.0, 0.5).into(),
-                        nav_query_type,
-                        nav_path_type,
-                    );
 
-                
-                if let Some(path) = path {
-                    if DEBUG_LINES {
-                        let mut prev_x = None;
-                        let mut prev_y = None;
-                        let mut prev_z = None;
+                if !player.is_bot {
+                    player.path_target = Some((0.0, 0.0, 0.0));
+                }
 
-                        for nav_vector in path.iter() {
-                            let x = nav_vector.x;
-                            let y = nav_vector.y;
-                            let z = nav_vector.z;
+                if let Some(target) = player.path_target {
+                    let path = mesh
+                        .find_path(
+                            (vehicle_x, vehicle_y, 0.0).into(),
+                            target.into(),
+                            nav_query_type,
+                            nav_path_type,
+                        );
+                    
+                    if let Some(path) = path {
+                        if DEBUG_LINES {
+                            let mut prev_x = None;
+                            let mut prev_y = None;
+                            let mut prev_z = None;
 
-                            if !prev_x.is_none() {
-                                debug_lines_resource.draw_line(
-                                    [prev_x.unwrap(), prev_y.unwrap(), prev_z.unwrap()].into(),
-                                    [x, y, z].into(),
-                                    Srgba::new(0.2, 0.8, 1.0, 1.0),
-                                );
+                            let mut path_plan = Vec::new();
+
+                            for nav_vector in path.iter() {
+                                let x = nav_vector.x;
+                                let y = nav_vector.y;
+                                let z = nav_vector.z;
+
+                                path_plan.push((x, y, z));
+
+                                if !prev_x.is_none() {
+                                    debug_lines_resource.draw_line(
+                                        [prev_x.unwrap(), prev_y.unwrap(), prev_z.unwrap()].into(),
+                                        [x, y, z].into(),
+                                        Srgba::new(0.2, 0.8, 1.0, 1.0),
+                                    );
+                                }
+
+                                prev_x = Some(x);
+                                prev_y = Some(y);
+                                prev_z = Some(z);
                             }
 
-                            prev_x = Some(x);
-                            prev_y = Some(y);
-                            prev_z = Some(z);
+                            player.path_plan = Some(path_plan.clone());
                         }
                     }
                 }

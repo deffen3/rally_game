@@ -203,7 +203,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             //Issue Bot commands
             if player.is_bot && vehicle.state == VehicleState::Active {
-                if player.bot_mode == BotMode::Running
+                if player.bot_mode == BotMode::Sleep {
+                    //Wakeup-logic needed here
+                    //In most game modes the bot should immediately wake up
+                    player.bot_mode = BotMode::RunRandom;
+                    debug!("{} Run Randomly", player.id);
+                }
+                else if player.bot_mode == BotMode::RunAway
+                    || player.bot_mode == BotMode::RunRandom
                     || player.bot_mode == BotMode::TakeTheHill
                     || player.bot_mode == BotMode::Mining
                     || player.bot_mode == BotMode::Repairing
@@ -234,16 +241,30 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         }
                     }
 
-                    if player.bot_mode == BotMode::TakeTheHill {
-                        //TODO
-                    }
-                    else if player.bot_mode == BotMode::Running
+
+                    if player.bot_mode == BotMode::RunAway
+                        || player.bot_mode == BotMode::RunRandom
+                        || player.bot_mode == BotMode::TakeTheHill
                         || player.bot_mode == BotMode::Mining
                         || player.bot_mode == BotMode::Repairing
                     {
-                        //continue with Running or Mining mode
                         if player.bot_move_cooldown < 0.0 {
                             //issue new move command
+
+                            if game_mode_setup.game_mode == GameModes::KingOfTheHill && 
+                                    !(player.bot_mode == BotMode::TakeTheHill) {
+                                player.bot_mode = BotMode::TakeTheHill;
+                                debug!("{} TakeTheHill", player.id);
+                                
+                                player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
+                            }
+                            else if player.bot_mode == BotMode::RunAway {
+                                player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.5));
+                            }
+                            else {
+                                player.path_target = None;
+                            }
+
 
                             if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
                                 if (vehicle.health.value < vehicle.health.max ||
@@ -254,8 +275,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 }
                             }
 
-                            vehicle_accel = Some(rng.gen_range(0.4, 0.6) as f32);
-                            vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
+                            if let Some(path_target) = player.path_target {
+                                vehicle_accel = Some(rng.gen_range(0.3, 0.5) as f32);
+                                vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
+                            }
+                            else { //random movement input
+                                vehicle_accel = Some(rng.gen_range(0.3, 0.5) as f32);
+                                vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
+                            }
 
                             player.last_accel_input = vehicle_accel;
                             player.last_turn_input = vehicle_turn;
@@ -289,8 +316,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             let run_or_chase = rng.gen::<bool>();
 
                             if run_or_chase {
-                                player.bot_mode = BotMode::Running;
-                                debug!("{} Running", player.id);
+                                player.bot_mode = BotMode::RunRandom;
+                                debug!("{} Run Randomly", player.id);
                             } else {
                                 player.bot_mode = BotMode::Chasing;
                                 debug!("{} Chasing", player.id);
@@ -301,7 +328,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             if player.last_made_hit_timer > 3.0 && player.bot_mode != BotMode::Swording {
                                 continue_with_attacking_mode = false;
 
-                                player.bot_mode = BotMode::Running;
+                                player.bot_mode = BotMode::RunRandom;
                                 player.bot_move_cooldown = BOT_NO_HIT_MOVE_COOLDOWN;
                             }
                             else {
@@ -324,8 +351,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         let run_or_chase = rng.gen::<bool>();
 
                         if run_or_chase {
-                            player.bot_mode = BotMode::Running;
-                            debug!("{} Running", player.id);
+                            player.bot_mode = BotMode::RunRandom;
+                            debug!("{} Run Randomly", player.id);
                         } else {
                             player.bot_mode = BotMode::Chasing;
                             debug!("{} Chasing", player.id);
@@ -411,8 +438,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     vehicle_turn = Some(0.0);
 
                     if player.bot_move_cooldown < 0.0 {
-                        player.bot_mode = BotMode::Running;
-                        debug!("{} Running", player.id);
+                        player.bot_mode = BotMode::RunRandom;
+                        debug!("{} Run Randomly", player.id);
                     }
                 }
             }
