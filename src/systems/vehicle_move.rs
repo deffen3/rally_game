@@ -206,8 +206,89 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 if player.bot_mode == BotMode::Sleep {
                     //Wakeup-logic needed here
                     //In most game modes the bot should immediately wake up
-                    player.bot_mode = BotMode::RunRandom;
-                    debug!("{} Run Random", player.id);
+                    if game_mode_setup.game_mode == GameModes::Race {
+                        player.bot_mode = BotMode::Racing;
+                        debug!("{} Racing", player.id);
+                    }
+                    else {
+                        player.bot_mode = BotMode::RunRandom;
+                        debug!("{} Run Random", player.id);
+                    }
+                }
+                else if player.bot_mode == BotMode::Racing {
+                    //Determine which point to race to
+
+                    if player.checkpoint_completed == 0 {
+                        player.path_target = Some((ARENA_WIDTH/2.0 - 20., ARENA_HEIGHT - 60.0, 0.0));
+                    }
+                    else if player.checkpoint_completed == 1 {
+                        player.path_target = Some((30.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 - 20., 0.0));
+                    }
+                    else if player.checkpoint_completed == 2 {
+                        player.path_target = Some((ARENA_WIDTH/2.0 + 20., UI_HEIGHT + 20., 0.0));
+                    }
+                    else if player.checkpoint_completed == 3 {
+                        player.path_target = Some((ARENA_WIDTH - 20., (UI_HEIGHT + ARENA_HEIGHT)/2.0 + 20., 0.0));
+                    }
+
+
+                    if let Some(path_plan) = player.path_plan.clone() {
+                        if path_plan.len() >= 2 {
+                            let first_target = path_plan[1];
+                            let path_x = first_target.0;
+                            let path_y = first_target.1;
+
+                            let x_diff = vehicle_x - path_x;
+                            let y_diff = vehicle_y - path_y;
+
+                            let dist = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
+
+                            let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+                            let abs_vel = sq_vel.sqrt()*10.0; //Why does velocity not seem accurate without this weird multiplier???
+
+                            let approx_t_to_arrival = dist / abs_vel;
+                            let approx_t_to_rest = abs_vel / thrust_friction_decel_rate;
+
+                            let target_angle = y_diff.atan2(x_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
+
+                            let mut angle_diff = vehicle_angle - target_angle;
+
+                            if angle_diff > PI {
+                                angle_diff = -(2.0 * PI - angle_diff);
+                            } else if angle_diff < -PI {
+                                angle_diff = -(-2.0 * PI - angle_diff);
+                            }
+
+                            let turn_value = 0.2;
+
+                            if angle_diff > 0.001 {
+                                vehicle_turn = Some(-turn_value);
+                            } else if angle_diff < -0.001 {
+                                vehicle_turn = Some(turn_value);
+                            } else {
+                                vehicle_turn = Some(0.0);
+                            }
+
+                            if angle_diff.abs() < 0.2 {
+                                if approx_t_to_arrival < approx_t_to_rest {
+                                    vehicle_accel = Some(thrust_friction_decel_rate * 1.05);
+                                }
+                                else {
+                                    vehicle_accel = Some(0.8);
+                                }
+                            }
+                        }
+                        else {
+                            vehicle_accel = Some(0.0);
+                            vehicle_turn = Some(0.0);
+                        }                                
+                    }
+                    player.last_accel_input = vehicle_accel;
+                    player.last_turn_input = vehicle_turn;
+
+                    if player.bot_move_cooldown < 0.0 {
+                        player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                    }
                 }
                 else if player.bot_mode == BotMode::RunTo
                     || player.bot_mode == BotMode::RunRandom
@@ -506,7 +587,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     vehicle_accel = Some(0.5);
                     vehicle_turn = Some(0.0);
 
-                    if player.bot_move_cooldown < 0.0 {
+                    if game_mode_setup.game_mode == GameModes::Race {
+                        player.bot_mode = BotMode::Racing;
+                        debug!("{} Racing", player.id);
+                    }
+                    else if player.bot_move_cooldown < 0.0 {
                         player.bot_mode = BotMode::RunRandom;
                         debug!("{} Run Random", player.id);
                     }
@@ -1125,15 +1210,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 && (hitbox.checkpoint_id == player.checkpoint_completed + 1)
                         {
                             player.checkpoint_completed = hitbox.checkpoint_id;
-                            debug!("checkpoints:{}", player.checkpoint_completed);
-                        } 
+                            log::info!("{} checkpoints:{}", player.id, player.checkpoint_completed);
+                        }
                         else if hitbox.checkpoint == RaceCheckpointType::Lap {
                             if player.checkpoint_completed == game_mode_setup.checkpoint_count {
                                 player.laps_completed += 1;
                             }
                             player.checkpoint_completed = 0;
-                            debug!("checkpoints:{}", player.checkpoint_completed);
-                            debug!("laps:{}", player.laps_completed);
+                            log::info!("{} checkpoints:{}", player.id, player.checkpoint_completed);
+                            log::info!("{} laps:{}", player.id, player.laps_completed);
                         }
                     }
                 }

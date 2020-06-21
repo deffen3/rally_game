@@ -134,7 +134,7 @@ pub fn initialize_arena_walls(
 
     let debug_line_z = 0.0;
     let scale_mult = 10.0;
-    let nav_mesh_offset = 10.0;
+    let nav_mesh_offset = 7.0;
 
     if game_mode == GameModes::Race {
         //the visual "start/finish line"
@@ -193,7 +193,8 @@ pub fn initialize_arena_walls(
         let mut checkpoint_line_transform = Transform::default();
         let scale = 4.0;
 
-        checkpoint_line_transform.set_translation_xyz(scale_mult * scale, arena_ui_height / 2.0, -0.02);
+        checkpoint_line_transform.set_rotation_2d(-PI/2.0);
+        checkpoint_line_transform.set_translation_xyz(ARENA_WIDTH/2.0, ARENA_HEIGHT - 20.0*scale, -0.02);
         checkpoint_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let checkpoint_line_sprite_render = SpriteRender {
@@ -224,8 +225,7 @@ pub fn initialize_arena_walls(
         let mut checkpoint_line_transform = Transform::default();
         let scale = 4.0;
 
-        checkpoint_line_transform.set_rotation_2d(PI/2.0);
-        checkpoint_line_transform.set_translation_xyz(ARENA_WIDTH/2.0, 20.0*scale -5.0, -0.02);
+        checkpoint_line_transform.set_translation_xyz(scale_mult * scale, arena_ui_height / 2.0, -0.02);
         checkpoint_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let checkpoint_line_sprite_render = SpriteRender {
@@ -251,12 +251,44 @@ pub fn initialize_arena_walls(
             ))
             .build();
 
+
+        //3rd "checkpoint line"
+        let mut checkpoint_line_transform = Transform::default();
+        let scale = 4.0;
+
+        checkpoint_line_transform.set_rotation_2d(PI/2.0);
+        checkpoint_line_transform.set_translation_xyz(ARENA_WIDTH/2.0, 20.0*scale -5.0, -0.02);
+        checkpoint_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
+
+        let checkpoint_line_sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 31,
+        };
+
+        world
+            .create_entity()
+            .with(Removal::new(0 as u32))
+            .with(checkpoint_line_transform)
+            .with(checkpoint_line_sprite_render)
+            .with(Hitbox::new(
+                20.0 * scale,
+                2.0 * scale,
+                0.0,
+                HitboxShape::Rectangle,
+                false,
+                false,
+                RaceCheckpointType::Checkpoint,
+                3,
+                false,
+            ))
+            .build();
+
         
 
         //track layout
         let scale = 4.0;
 
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0 + 8.0 * scale, scale));
         arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0, scale));
         arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0 - 20.0 * scale, scale));
         arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0 + 20.0 * scale, scale));
@@ -342,12 +374,12 @@ pub fn initialize_arena_walls(
 
 
     let mut nav_mesh_grid_xs: Vec<f32> = Vec::new();
-    nav_mesh_grid_xs.push(0.0);
-    nav_mesh_grid_xs.push(ARENA_WIDTH);
+    nav_mesh_grid_xs.push(0.0 + nav_mesh_offset);
+    nav_mesh_grid_xs.push(ARENA_WIDTH - nav_mesh_offset);
 
     let mut nav_mesh_grid_ys: Vec<f32> = Vec::new();
-    nav_mesh_grid_ys.push(UI_HEIGHT);
-    nav_mesh_grid_ys.push(ARENA_HEIGHT);
+    nav_mesh_grid_ys.push(UI_HEIGHT + nav_mesh_offset);
+    nav_mesh_grid_ys.push(ARENA_HEIGHT - nav_mesh_offset);
 
     let mut nav_mesh_grid_drop: Vec<(f32, f32, f32, f32)> = Vec::new();
 
@@ -487,8 +519,8 @@ pub fn initialize_arena_walls(
     log::info!("{} == {}", nav_mesh_vertices.len(), xs_len * ys_len);
     log::info!("{} == {}", nav_mesh_triangles.len(), 2 * (xs_len-1) * (ys_len-1) - 2*grid_drops);
 
-    assert!(nav_mesh_vertices.len() == xs_len * ys_len);
-    assert!(nav_mesh_triangles.len() == 2 * (xs_len-1) * (ys_len-1) - 2*grid_drops);
+    //assert!(nav_mesh_vertices.len() == xs_len * ys_len);
+    //assert!(nav_mesh_triangles.len() == 2 * (xs_len-1) * (ys_len-1) - 2*grid_drops);
 
 
     //Store navigation mesh

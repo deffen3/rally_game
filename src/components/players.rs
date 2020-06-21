@@ -11,6 +11,7 @@ pub enum BotMode {
     FindEnemy,
     TakeTheHill,
     PickUpWeaponBox,
+    Racing,
     StopAim,
     StrafeAim,
     CollisionTurn,
