@@ -375,11 +375,15 @@ pub fn initialize_arena_walls(
 
     let mut nav_mesh_grid_xs: Vec<f32> = Vec::new();
     nav_mesh_grid_xs.push(0.0 + nav_mesh_offset);
+    nav_mesh_grid_xs.push(0.0 + 3.0*nav_mesh_offset);
     nav_mesh_grid_xs.push(ARENA_WIDTH - nav_mesh_offset);
+    nav_mesh_grid_xs.push(ARENA_WIDTH - 3.0*nav_mesh_offset);
 
     let mut nav_mesh_grid_ys: Vec<f32> = Vec::new();
     nav_mesh_grid_ys.push(UI_HEIGHT + nav_mesh_offset);
+    nav_mesh_grid_ys.push(UI_HEIGHT + 3.0*nav_mesh_offset);
     nav_mesh_grid_ys.push(ARENA_HEIGHT - nav_mesh_offset);
+    nav_mesh_grid_ys.push(ARENA_HEIGHT - 3.0*nav_mesh_offset);
 
     let mut nav_mesh_grid_drop: Vec<(f32, f32, f32, f32)> = Vec::new();
 
