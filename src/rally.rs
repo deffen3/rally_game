@@ -199,6 +199,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             let max_armor: f32;
             let max_shield: f32;
 
+            let heal_pulse_amount: f32;
+            let heal_pulse_rate: f32;
+
             let engine_force: f32;
             let engine_weight: f32;
 
@@ -220,6 +223,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                     max_armor = game_vehicle_setup.stats[player_index].max_armor;
                     max_shield = game_vehicle_setup.stats[player_index].max_shield;
 
+                    heal_pulse_amount = game_vehicle_setup.stats[player_index].heal_pulse_amount;
+                    heal_pulse_rate = game_vehicle_setup.stats[player_index].heal_pulse_rate;
+
                     engine_force = game_vehicle_setup.stats[player_index].engine_force;
                     engine_weight = game_vehicle_setup.stats[player_index].engine_weight;
 
@@ -237,6 +243,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                     max_health = 100.0;
                     max_armor = 100.0;
                     max_shield = 100.0;
+
+                    heal_pulse_amount = 0.0;
+                    heal_pulse_rate = 0.0;
 
                     engine_force = 100.0;
                     let engine_efficiency = 1.0;
@@ -265,6 +274,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 is_bot,
                 player_status_text.clone(),
                 vehicle_type.clone(),
+                heal_pulse_amount,
+                heal_pulse_rate,
                 max_health,
                 max_armor,
                 max_shield,

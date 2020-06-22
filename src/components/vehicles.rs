@@ -47,6 +47,9 @@ pub struct Vehicle {
     pub armor: Armor,
     pub shield: Shield,
     pub repair: Repair,
+    pub heal_pulse_amount: f32,
+    pub heal_pulse_rate: f32,
+    pub heal_cooldown_timer: f32,
     pub engine_weight: f32,
     pub weapon_weight: f32,
     pub engine_force: f32,
@@ -119,6 +122,8 @@ impl Vehicle {
         max_shield: f32,
         max_armor: f32,
         max_health: f32,
+        heal_pulse_amount: f32,
+        heal_pulse_rate: f32,
         engine_force: f32,
         engine_weight: f32,
         max_velocity: f32,
@@ -167,6 +172,9 @@ impl Vehicle {
                 init_threshold: 1.5,
                 entity: repair_entity,
             },
+            heal_pulse_amount,
+            heal_pulse_rate,
+            heal_cooldown_timer: -1.0,
             engine_force,
             engine_weight,
             weapon_weight,
@@ -411,8 +419,10 @@ pub struct VehicleStats {
     pub health_repair_time: f32,
     pub shield_recharge_rate: f32,
     pub shield_cooldown: f32,
-    pub shield_repair_time: f32,
+    pub shield_repair_reboot_time: f32,
     pub shield_radius: f32,
+    pub heal_pulse_amount: f32,
+    pub heal_pulse_rate: f32,
 }
 
 
@@ -467,8 +477,10 @@ pub fn get_none_vehicle() -> VehicleStats {
         health_repair_time: 0.0,
         shield_recharge_rate: 0.0,
         shield_cooldown: 0.0,
-        shield_repair_time: 0.0,
+        shield_repair_reboot_time: 0.0,
         shield_radius: 0.0,
+        heal_pulse_amount: 0.0,
+        heal_pulse_rate: 0.0,
     }
 }
 

@@ -33,6 +33,23 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
         let mut owner_data_map = HashMap::new();
 
         for (player, vehicle, vehicle_transform) in (&players, &mut vehicles, &transforms).join() {
+            //Healing is automatically done if health is damaged
+            if (vehicle.heal_pulse_rate > 0.0 && vehicle.health.value > 0.0) && 
+                    (vehicle.health.max > 0.0 && vehicle.health.value < vehicle.health.max) {
+                if vehicle.heal_cooldown_timer < 0.0 {
+                    //healing applied
+                    vehicle.health.value += vehicle.heal_pulse_amount;
+
+                    vehicle.health.value = vehicle.health.value.min(vehicle.health.max);
+
+                    vehicle.heal_cooldown_timer = vehicle.heal_pulse_rate;
+                } else {
+                    //waiting for heal pulse...
+                    vehicle.heal_cooldown_timer -= dt;
+                }
+            }
+
+            //Shields are automatically re-charged if shields are damaged
             if (vehicle.shield.value > 0.0) && 
                     (vehicle.shield.max > 0.0 && vehicle.shield.value < vehicle.shield.max) {
                 if vehicle.shield.cooldown_timer < 0.0 {
@@ -49,13 +66,8 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 }
             }
 
-            let vehicle_rotation = vehicle_transform.rotation();
-            let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-            let vehicle_x = vehicle_transform.translation().x;
-            let vehicle_y = vehicle_transform.translation().y;
-
-            
+            //Repairing must be initiated by the player
             let vehicle_repair;
             if player.is_bot && player.bot_mode == BotMode::Repairing {
                 vehicle_repair = Some(true);
@@ -112,6 +124,14 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 vehicle.repair.init_timer = 0.0;
                 vehicle.shield.repair_timer = 0.0;
             }
+
+            
+            let vehicle_rotation = vehicle_transform.rotation();
+            let (_, _, yaw) = vehicle_rotation.euler_angles();
+
+            let vehicle_x = vehicle_transform.translation().x;
+            let vehicle_y = vehicle_transform.translation().y;
+
 
             owner_data_map.insert(
                 player.id,
