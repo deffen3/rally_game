@@ -339,6 +339,44 @@ pub fn initialize_arena_walls(
                 .with(king_tint)
                 .build();
 
+
+            //small hill blockers
+            let spacing_factor = 11.0 / 7.0;
+            let scale = 1.0;
+    
+            for idx in 0..4 {
+                let (starting_x, starting_y) = match idx {
+                    0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
+                    1 => (ARENA_WIDTH / 2.0, arena_ui_height / spacing_factor),
+                    2 => (
+                        ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
+                        arena_ui_height / 2.0,
+                    ),
+                    3 => (
+                        ARENA_WIDTH / 2.0,
+                        arena_ui_height - (arena_ui_height / spacing_factor),
+                    ),
+                    _ => (
+                        ARENA_WIDTH / spacing_factor,
+                        arena_ui_height / spacing_factor,
+                    ),
+                };
+    
+                arena_circle_objects_x_y_scale.push((starting_x, starting_y, scale));
+            }
+
+            for idx in 0..4 {
+                let (starting_x, starting_y) = match idx {
+                    0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / spacing_factor),
+                    1 => (ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), arena_ui_height / spacing_factor),
+                    2 => (ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), arena_ui_height - (arena_ui_height / spacing_factor)),
+                    3 => (ARENA_WIDTH / spacing_factor, arena_ui_height - (arena_ui_height / spacing_factor)),
+                    _ => (ARENA_WIDTH / spacing_factor, arena_ui_height / spacing_factor),
+                };
+    
+                arena_circle_objects_x_y_scale.push((starting_x, starting_y, scale));
+            }
+
         } else {
             //central arena wall circle
             let scale = 4.0;

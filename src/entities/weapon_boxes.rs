@@ -67,7 +67,14 @@ pub fn spawn_weapon_boxes(
             local_transform.set_translation_xyz(x, y, 0.3);
         }
         else {
-            let spacing_factor = 3.0;
+            let spacing_factor;
+            if game_mode_setup == GameModes::KingOfTheHill {
+                spacing_factor = 3.3;
+            }
+            else {
+                spacing_factor = 3.0;
+            }
+            
 
             let (x, y) = match spawn_index {
                 0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
