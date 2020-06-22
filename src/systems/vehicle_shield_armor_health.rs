@@ -87,7 +87,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                         //repair successful started
                         if vehicle.health.value < vehicle.health.max {
                             vehicle.health.value += vehicle.health.repair_rate * dt;
-                            vehicle.health.value = vehicle.health.value.min(100.0);
+                            vehicle.health.value = vehicle.health.value.min(vehicle.health.max);
                         } else if vehicle.shield.value <= 0.0 && vehicle.shield.max > 0.0 {
                             vehicle.shield.repair_timer += dt;
                             if vehicle.shield.repair_timer > vehicle.shield.repair_threshold {
