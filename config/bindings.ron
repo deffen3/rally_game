@@ -20,7 +20,7 @@
     "p1_repair": [[Key(R)]],
     "p2_fire": [[Key(Numpad0)]],
     "p2_alt_fire": [[Key(Numpad1)]],
-    "p2_repair": [[Key(NumpadEnter)]],
+    "p2_repair": [[Key(Numpad2)]],
     "p3_fire": [[Key(RControl)]],
     "p3_alt_fire": [[Key(RShift)]],
     "p3_repair": [[Key(Return)]],
