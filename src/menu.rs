@@ -515,7 +515,7 @@ impl SimpleState for MainMenu {
                     } else if Some(target) == self.button_king_of_the_hill {
                         game_mode_setup.game_mode = GameModes::KingOfTheHill;
                         game_mode_setup.match_time_limit = -1.0;
-                        game_mode_setup.points_to_win = 100;
+                        game_mode_setup.points_to_win = 50;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.game_end_condition = GameEndCondition::First;
