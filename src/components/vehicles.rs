@@ -377,6 +377,20 @@ pub enum VehicleTypes {
 }
 
 
+pub fn get_vehicle_sprites(vehicle_type: VehicleTypes) -> (usize, usize, usize) {
+    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_type {
+        VehicleTypes::MediumCombat => (0, 19, 20),
+        VehicleTypes::LightRacer => (44, 19, 20),
+        VehicleTypes::HeavyTank => (48, 57, 56),
+        VehicleTypes::CivilianCruiser => (52, 19, 20),
+        VehicleTypes::Interceptor => (58, 63, 62),
+        VehicleTypes::TSpeeder => (64, 69, 68),
+    };
+
+    (vehicle_sprite_number, shield_sprite_number, armor_sprite_number)
+}
+
+
 pub fn get_next_vehicle_name(name: VehicleNames) -> VehicleNames {
     match name {
         VehicleNames::MediumCombat => VehicleNames::LightRacer,
@@ -482,18 +496,4 @@ pub fn get_none_vehicle() -> VehicleStats {
         heal_pulse_amount: 0.0,
         heal_pulse_rate: 0.0,
     }
-}
-
-
-pub fn get_vehicle_sprites(vehicle_type: VehicleTypes) -> (usize, usize, usize) {
-    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_type {
-        VehicleTypes::MediumCombat => (0, 19, 20),
-        VehicleTypes::LightRacer => (44, 19, 20),
-        VehicleTypes::HeavyTank => (48, 57, 56),
-        VehicleTypes::CivilianCruiser => (52, 19, 20),
-        VehicleTypes::Interceptor => (58, 63, 62),
-        VehicleTypes::TSpeeder => (64, 69, 68),
-    };
-
-    (vehicle_sprite_number, shield_sprite_number, armor_sprite_number)
 }
