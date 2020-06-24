@@ -14,6 +14,7 @@ pub enum GameModes {
 pub enum GameEndCondition {
     First,
     AllButOne,
+    AllButOneExtended,
     All,
 }
 

@@ -19,6 +19,7 @@ pub struct VehicleStatusSystem {
     pub stats: [(i32, i32, i32); 4],
     pub player_active_timer: [f32; 4],
     pub placements: [i32; 4],
+    pub extended_timer: f32,
 }
 
 impl<'s> System<'s> for VehicleStatusSystem {
@@ -38,11 +39,20 @@ impl<'s> System<'s> for VehicleStatusSystem {
         self.stats = [(0, 0, 0); 4];
         self.player_active_timer = [0.0; 4];
         self.placements = [0; 4];
+        self.extended_timer = 0.0;
     }
 
     fn run(
         &mut self,
-        (players, vehicles, mut ui_text, time, game_mode_setup, mut game_score, mut match_timer): Self::SystemData,
+        (
+            players, 
+            vehicles, 
+            mut ui_text, 
+            time, 
+            game_mode_setup, 
+            mut game_score, 
+            mut match_timer
+        ): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
@@ -138,10 +148,14 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     GameModes::KingOfTheHill => player.objective_points.floor() as i32,
                 };
 
-                if vehicle.state != VehicleState::InActive {
+                if vehicle.state != VehicleState::InActive && 
+                        !self.losers.contains(&player.id) &&
+                        !self.winners.contains(&player.id) {
                     self.player_active_timer[player.id] = match_timer.time;
+
+                    self.stats[player.id.clone()] = (displayed_player_score, player.kills, player.deaths);
                 }
-                self.stats[player.id.clone()] = (displayed_player_score, player.kills, player.deaths);
+                
 
                 if (game_mode_setup.stock_lives > 0)
                     && (player.deaths >= game_mode_setup.stock_lives
@@ -224,12 +238,23 @@ impl<'s> System<'s> for VehicleStatusSystem {
                 game_score.game_ended = true;
             }
         }
+        else if game_mode_setup.game_end_condition == GameEndCondition::AllButOneExtended {
+            if self.winners.len() >= game_mode_setup.max_players - 1 || 
+                    self.losers.len() >= game_mode_setup.max_players - 1 {
+                self.extended_timer += dt;
+            }
+
+            if self.extended_timer >= 10.0 {
+                game_score.game_ended = true;
+            }
+        }
         else if game_mode_setup.game_end_condition == GameEndCondition::All {
             if self.winners.len() == game_mode_setup.max_players || 
                     self.losers.len() == game_mode_setup.max_players {
                 game_score.game_ended = true;
             }
         }
+        
 
 
         if game_score.game_ended {

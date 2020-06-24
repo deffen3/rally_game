@@ -518,7 +518,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 3;
-                        game_mode_setup.game_end_condition = GameEndCondition::AllButOne;
+                        game_mode_setup.game_end_condition = GameEndCondition::AllButOneExtended; //extended for a few seconds after
                         self.init_base_rules = true;
                     }
                 }
