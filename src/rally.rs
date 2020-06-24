@@ -130,7 +130,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
-        let weapon_store = build_weapon_store(world);
+        build_weapon_store(world);
 
         initialize_timer_ui(world);
 
@@ -269,7 +269,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 self.sprite_sheet_handle.clone().unwrap(),
                 player_index,
                 weapon_fire_resource.clone(),
-                weapon_store.clone(),
                 player_to_team[player_index],
                 is_bot,
                 player_status_text.clone(),

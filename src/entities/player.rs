@@ -12,8 +12,8 @@ use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
 use crate::components::{
-    build_named_weapon2, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, WeaponArray, Weapon, WeaponNames,
-    WeaponStoreResource, VehicleMovementType, VehicleTypes, get_vehicle_sprites,
+    build_named_weapon_from_world, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, WeaponArray, Weapon, WeaponNames,
+    VehicleMovementType, VehicleTypes, get_vehicle_sprites,
 };
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -24,7 +24,6 @@ pub fn intialize_player(
     sprite_sheet_handle: Handle<SpriteSheet>,
     player_index: usize,
     weapon_fire_resource: WeaponFireResource,
-    weapon_store: WeaponStoreResource,
     team: i32,
     is_bot: bool,
     player_status_text: PlayerStatusText,
@@ -130,7 +129,7 @@ pub fn intialize_player(
         sprite_number: vehicle_sprite_number + player_index,
     };
 
-    let weapon_stats = build_named_weapon2(weapon_name.clone(), weapon_store);
+    let weapon_stats = build_named_weapon_from_world(weapon_name.clone(), world);
 
     //Create Health Entity
     let mut health_transform = Transform::default();

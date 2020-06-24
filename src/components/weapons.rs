@@ -123,7 +123,7 @@ pub struct WeaponStoreResource {
     pub store: HashMap<WeaponNames, WeaponStats>,
 }
 
-pub fn build_weapon_store(world: &mut World) -> WeaponStoreResource {
+pub fn build_weapon_store(world: &mut World) {
     // let app_root = current_dir();
     // let input_path = app_root.unwrap().join("assets/game/weapons.ron");
 
@@ -138,8 +138,6 @@ pub fn build_weapon_store(world: &mut World) -> WeaponStoreResource {
         store: weapon_configs_map,
     };
     world.insert(weapon_store.clone());
-
-    weapon_store
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
@@ -410,7 +408,7 @@ pub fn update_weapon_properties(
 
 pub fn build_named_weapon(
     weapon_name: WeaponNames,
-    weapon_store: &ReadExpect<WeaponStoreResource>,
+    weapon_store: &WeaponStoreResource,
 ) -> WeaponStats {
     let weapon_configs_map: &HashMap<WeaponNames, WeaponStats> = &weapon_store.store;
 
@@ -444,40 +442,15 @@ pub fn build_named_weapon(
     }
 }
 
-pub fn build_named_weapon2(
+pub fn build_named_weapon_from_world(
     weapon_name: WeaponNames,
-    weapon_store: WeaponStoreResource,
+    world: &mut World,
 ) -> WeaponStats {
-    let weapon_configs_map: HashMap<WeaponNames, WeaponStats> = weapon_store.store;
+    let weapon_store = world.fetch::<WeaponStoreResource>();
+    
+    let weapon_stats = build_named_weapon(weapon_name, &weapon_store);
 
-    match weapon_configs_map.get(&weapon_name) {
-        Some(weapon_config) => *weapon_config,
-        _ => WeaponStats {
-            weapon_type: WeaponTypes::LaserDouble,
-            heat_seeking: false,
-            heat_seeking_agility: 0.0,
-            attached: false,
-            deployed: false,
-            tracking_angle: 0.0,
-            spread_angle: 0.0,
-            mounted_angle: 0.0,
-            cooldown_reset: 100.0,
-            burst_shot_limit: 0,
-            burst_cooldown_reset: 100.0,
-            shot_life_limit: 0.1,
-            damage: 0.0,
-            trigger_radius: 0.0,
-            damage_radius: 0.0,
-            shot_speed: 0.0,
-            accel_rate: 0.0,
-            shield_damage_pct: 0.0,
-            armor_damage_pct: 0.0,
-            piercing_damage_pct: 0.0,
-            health_damage_pct: 0.0,
-            ion_malfunction_pct: 0.0,
-            weight: 0.0,
-        },
-    }
+    weapon_stats
 }
 
 
