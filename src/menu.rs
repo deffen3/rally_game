@@ -15,7 +15,8 @@ use crate::custom_weapons::CustomWeaponsMenu;
 use crate::custom_arena::CustomArenaMenu;
 
 use crate::components::{WeaponNames, 
-    build_vehicle_store, VehicleNames, VehicleStats, get_none_vehicle,
+    build_vehicle_store, VehicleNames, VehicleStats, get_none_vehicle, 
+    build_weapon_store, WeaponStoreResource
 };
 
 use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
@@ -90,43 +91,34 @@ impl SimpleState for MainMenu {
         // create UI from prefab and save the reference.
         let world = data.world;
 
-        let mut weapon_spawn_relative_chance_map = HashMap::new();
-        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserDoubleGimballed, 0);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserDoubleBurstSide, 4);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserPulseGimballed, 8);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserBeam, 8);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::Shotgun, 8);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileCannonFire, 8);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileRapidFireTurret, 4);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::ProjectileBurstFire, 5);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::PiercingProjectile, 3);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::Flamethrower, 4);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::Missile, 3);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::Rockets, 3);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::SmartRocketGrenade, 2);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::Mine, 2);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::Trap, 2);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::LaserSword, 3);
-        weapon_spawn_relative_chance_map.insert(WeaponNames::BackwardsLaserSword, 1);
+        build_weapon_store(world);
 
-        let mut chance_total: u32 = 0;
 
-        for (_key, value) in weapon_spawn_relative_chance_map.iter() {
-            chance_total += value;
-        }
-
-        let mut chance_aggregate: f32 = 0.0;
         let mut weapon_spawn_chances: Vec<(WeaponNames, f32)> = Vec::new();
+        {
+            let weapon_store_resource = world.fetch::<WeaponStoreResource>();
+            let weapon_spawn_relative_chance_map = &weapon_store_resource.spawn_chance;
 
-        for (key, value) in weapon_spawn_relative_chance_map.iter() {
-            if *value > 0 {
-                weapon_spawn_chances.push((key.clone(), chance_aggregate));
 
-                chance_aggregate += (*value as f32) / (chance_total as f32);
+            let mut chance_total: u32 = 0;
+
+            for (_key, value) in weapon_spawn_relative_chance_map.iter() {
+                chance_total += value;
             }
-        }
 
-        log::debug!("{:?}", weapon_spawn_chances);
+            let mut chance_aggregate: f32 = 0.0;
+            
+
+            for (key, value) in weapon_spawn_relative_chance_map.iter() {
+                if *value > 0 {
+                    weapon_spawn_chances.push((key.clone(), chance_aggregate));
+
+                    chance_aggregate += (*value as f32) / (chance_total as f32);
+                }
+            }
+
+            log::debug!("{:?}", weapon_spawn_chances);
+        }
 
 
         let game_mode_needs_init: bool;
@@ -183,7 +175,7 @@ impl SimpleState for MainMenu {
 
             let vehicle_store = build_vehicle_store(world);
 
-            let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &vehicle_store.store;
+            let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &vehicle_store.properties;
 
             let standard_vehicle_stats = match vehicle_configs_map.get(&VehicleNames::MediumCombat) {
                 Some(vehicle_config) => vehicle_config.clone(),

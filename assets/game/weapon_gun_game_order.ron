@@ -1,0 +1,16 @@
+{
+  LaserDoubleGimballed : ProjectileRapidFireTurret,
+  ProjectileRapidFireTurret : Flamethrower,
+  Flamethrower : Missile,
+  Missile : LaserBeam,
+  LaserBeam : Shotgun,
+  Shotgun : ProjectileCannonFire,
+  ProjectileCannonFire : LaserPulseGimballed,
+  LaserPulseGimballed : Rockets,
+  Rockets : ProjectileBurstFire,
+  ProjectileBurstFire : LaserDoubleBurstSide,
+  LaserDoubleBurstSide : Mine,
+  Mine : LaserSword,
+  LaserSword : BackwardsLaserSword,
+  BackwardsLaserSword : LaserDoubleGimballed,
+}

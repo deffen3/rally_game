@@ -31,7 +31,7 @@ use crate::entities::{
 };
 
 use crate::components::{
-    build_weapon_store, Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
+    Armor, Health, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
     WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleTypes,
 };
 
@@ -130,7 +130,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
-        build_weapon_store(world);
 
         initialize_timer_ui(world);
 

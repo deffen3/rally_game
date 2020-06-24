@@ -272,7 +272,7 @@ impl SimpleState for CustomVehiclesMenu {
                             let fetched_game_vehicle_store = data.world.try_fetch::<VehicleStoreResource>();
 
                             if let Some(game_vehicle_store) = fetched_game_vehicle_store {
-                                let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &game_vehicle_store.store;
+                                let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &game_vehicle_store.properties;
                 
                                 let veh_stats = match vehicle_configs_map.get(&game_vehicle_setup.names[player_index]) {
                                     Some(vehicle_config) => vehicle_config.clone(),
@@ -289,7 +289,7 @@ impl SimpleState for CustomVehiclesMenu {
                             let fetched_game_vehicle_store = data.world.try_fetch::<VehicleStoreResource>();
 
                             if let Some(game_vehicle_store) = fetched_game_vehicle_store {
-                                let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &game_vehicle_store.store;
+                                let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &game_vehicle_store.properties;
                 
                                 let veh_stats = match vehicle_configs_map.get(&game_vehicle_setup.names[player_index]) {
                                     Some(vehicle_config) => vehicle_config.clone(),

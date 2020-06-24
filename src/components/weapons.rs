@@ -69,27 +69,29 @@ pub fn get_random_weapon_name(game_setup: &ReadExpect<GameWeaponSetup>) -> Weapo
     weapon_selector
 }
 
-//For Gun-Game mode rules
-//Last weapon should either map to itself or loop back around to another weapon
-pub fn get_next_weapon_name(weapon_name: WeaponNames) -> Option<WeaponNames> {
-    match weapon_name {
-        WeaponNames::LaserDoubleGimballed => Some(WeaponNames::ProjectileRapidFireTurret),
-        WeaponNames::ProjectileRapidFireTurret => Some(WeaponNames::Flamethrower),
-        WeaponNames::Flamethrower => Some(WeaponNames::Missile),
-        WeaponNames::Missile => Some(WeaponNames::LaserBeam),
-        WeaponNames::LaserBeam => Some(WeaponNames::Shotgun),
-        WeaponNames::Shotgun => Some(WeaponNames::ProjectileCannonFire),
-        WeaponNames::ProjectileCannonFire => Some(WeaponNames::LaserPulseGimballed),
-        WeaponNames::LaserPulseGimballed => Some(WeaponNames::Rockets),
-        WeaponNames::Rockets => Some(WeaponNames::ProjectileBurstFire),
-        WeaponNames::ProjectileBurstFire => Some(WeaponNames::LaserDoubleBurstSide),
-        WeaponNames::LaserDoubleBurstSide => Some(WeaponNames::Mine),
-        WeaponNames::Mine => Some(WeaponNames::LaserSword),
-        WeaponNames::LaserSword => Some(WeaponNames::BackwardsLaserSword),
-        WeaponNames::BackwardsLaserSword => Some(WeaponNames::LaserDoubleGimballed),
-        _ => None,
+
+
+pub fn get_next_weapon_name(
+    weapon_name: WeaponNames,
+    weapon_store_resource: &WeaponStoreResource,
+) -> Option<WeaponNames> {
+
+    let next_weapon_option = weapon_store_resource.gun_game_order.get(&weapon_name);
+    
+    let next_weapon_out: Option<WeaponNames>;
+
+    if let Some(next_weapon) = next_weapon_option {
+        next_weapon_out = Some(next_weapon.clone());
     }
+    else {
+        next_weapon_out = None;
+    }
+    
+    next_weapon_out
 }
+
+
+
 
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct WeaponStats {
@@ -120,23 +122,37 @@ pub struct WeaponStats {
 
 #[derive(Clone)]
 pub struct WeaponStoreResource {
-    pub store: HashMap<WeaponNames, WeaponStats>,
+    pub properties: HashMap<WeaponNames, WeaponStats>,
+    pub spawn_chance: HashMap<WeaponNames, u32>,
+    pub gun_game_order: HashMap<WeaponNames, WeaponNames>,
 }
 
 pub fn build_weapon_store(world: &mut World) {
     // let app_root = current_dir();
     // let input_path = app_root.unwrap().join("assets/game/weapons.ron");
 
-    let input_path = format!("{}/assets/game/weapons.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path_weapon_props = format!("{}/assets/game/weapon_properties.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path_spawn_chance = format!("{}/assets/game/weapon_spawn_chance.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path_weapon_order = format!("{}/assets/game/weapon_gun_game_order.ron", env!("CARGO_MANIFEST_DIR"));
 
-    let f = File::open(&input_path).expect("Failed opening file");
+    let f_weapon_props = File::open(&input_path_weapon_props).expect("Failed opening file");
+    let f_spawn_chance = File::open(&input_path_spawn_chance).expect("Failed opening file");
+    let f_weapon_order = File::open(&input_path_weapon_order).expect("Failed opening file");
 
-    let weapon_configs_map: HashMap<WeaponNames, WeaponStats> =
-        from_reader(f).expect("Failed to load config");
+    let weapon_properties_map: HashMap<WeaponNames, WeaponStats> =
+        from_reader(f_weapon_props).expect("Failed to load config");
+    let weapon_spawn_chance_map: HashMap<WeaponNames, u32> =
+        from_reader(f_spawn_chance).expect("Failed to load config");
+    let weapon_order_map: HashMap<WeaponNames, WeaponNames> =
+        from_reader(f_weapon_order).expect("Failed to load config");
+
 
     let weapon_store = WeaponStoreResource {
-        store: weapon_configs_map,
+        properties: weapon_properties_map,
+        spawn_chance: weapon_spawn_chance_map,
+        gun_game_order: weapon_order_map,
     };
+
     world.insert(weapon_store.clone());
 }
 
@@ -410,7 +426,7 @@ pub fn build_named_weapon(
     weapon_name: WeaponNames,
     weapon_store: &WeaponStoreResource,
 ) -> WeaponStats {
-    let weapon_configs_map: &HashMap<WeaponNames, WeaponStats> = &weapon_store.store;
+    let weapon_configs_map: &HashMap<WeaponNames, WeaponStats> = &weapon_store.properties;
 
     match weapon_configs_map.get(&weapon_name) {
         Some(weapon_config) => *weapon_config,

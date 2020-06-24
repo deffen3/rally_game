@@ -429,7 +429,7 @@ pub struct VehicleStats {
 
 #[derive(Clone)]
 pub struct VehicleStoreResource {
-    pub store: HashMap<VehicleNames, VehicleStats>,
+    pub properties: HashMap<VehicleNames, VehicleStats>,
 }
 
 
@@ -452,7 +452,7 @@ pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
         from_reader(f).expect("Failed to load config");
 
     let vehicle_store = VehicleStoreResource {
-        store: vehicle_configs_map,
+        properties: vehicle_configs_map,
     };
     world.insert(vehicle_store.clone());
 

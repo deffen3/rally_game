@@ -516,7 +516,10 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     {
                         //if kill was using player's current weapon
                         player.kills += 1;
-                        let new_weapon_name = get_next_weapon_name(primary_weapon.name.clone());
+                        let new_weapon_name = get_next_weapon_name(
+                            primary_weapon.name.clone(),
+                            &weapon_store_resource,
+                        );
 
                         if let Some(new_weapon_name) = new_weapon_name.clone() {
                             weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_type.clone());
