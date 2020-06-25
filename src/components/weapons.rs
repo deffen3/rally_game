@@ -23,7 +23,7 @@ use crate::resources::{GameWeaponSetup, WeaponFireResource};
 pub const WEAPON_ARRAY_SIZE: usize = 4;
 
 
-#[derive(Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Deserialize, Hash, Eq)]
 pub enum WeaponNames {
     LaserBeam,
     LaserPulse,
@@ -76,20 +76,24 @@ pub fn get_next_weapon_name(
     weapon_store_resource: &WeaponStoreResource,
 ) -> Option<WeaponNames> {
 
-    let next_weapon_option = weapon_store_resource.gun_game_order.get(&weapon_name);
-    
-    let next_weapon_out: Option<WeaponNames>;
+    let length = weapon_store_resource.gun_game_order.len();
+    let index = weapon_store_resource.gun_game_order.iter().position(|&r| r == weapon_name);
 
-    if let Some(next_weapon) = next_weapon_option {
-        next_weapon_out = Some(next_weapon.clone());
+    let weapon_out: Option<WeaponNames>;
+    if let Some(index) = index {
+        if index == length-1 {
+            weapon_out = Some(weapon_store_resource.gun_game_order[0]); //loop-back around
+        }
+        else {
+            weapon_out = Some(weapon_store_resource.gun_game_order[index+1]);
+        }
     }
     else {
-        next_weapon_out = None;
+        weapon_out = None;
     }
     
-    next_weapon_out
+    weapon_out
 }
-
 
 
 
@@ -124,7 +128,7 @@ pub struct WeaponStats {
 pub struct WeaponStoreResource {
     pub properties: HashMap<WeaponNames, WeaponStats>,
     pub spawn_chance: HashMap<WeaponNames, u32>,
-    pub gun_game_order: HashMap<WeaponNames, WeaponNames>,
+    pub gun_game_order: Vec<WeaponNames>,
 }
 
 pub fn build_weapon_store(world: &mut World) {
@@ -143,7 +147,7 @@ pub fn build_weapon_store(world: &mut World) {
         from_reader(f_weapon_props).expect("Failed to load config");
     let weapon_spawn_chance_map: HashMap<WeaponNames, u32> =
         from_reader(f_spawn_chance).expect("Failed to load config");
-    let weapon_order_map: HashMap<WeaponNames, WeaponNames> =
+    let weapon_order_map: Vec<WeaponNames> =
         from_reader(f_weapon_order).expect("Failed to load config");
 
 
