@@ -21,6 +21,10 @@ use crate::resources::{
 use navmesh::{NavMesh, NavVec3, NavTriangle};
 
 
+
+
+
+
 pub fn initialize_arena_walls(
     world: &mut World,
     sprite_sheet_handle: Handle<SpriteSheet>,
@@ -56,77 +60,6 @@ pub fn initialize_arena_walls(
         .with(floor_texture_render)
         .build();
 
-    //bottom UI wall
-    let mut wall_transform = Transform::default();
-    wall_transform.set_translation_xyz(0.0, UI_HEIGHT - 1.0, 0.39);
-    wall_transform.set_scale(Vector3::new(40.0, 1.0, 0.0));
-
-    let wall_sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 13,
-    };
-
-    world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(Hitbox::new(
-            20.0,
-            2.0,
-            0.0,
-            HitboxShape::Rectangle,
-            true,
-            false,
-            RaceCheckpointType::NotCheckpoint,
-            0,
-            false,
-        ))
-        .with(wall_transform)
-        .with(wall_sprite_render)
-        .build();
-
-    //bottom UI background
-    let mut ui_back_transform = Transform::default();
-    ui_back_transform.set_translation_xyz(0.0, UI_HEIGHT / 2.0 - 1.0, 0.35);
-    ui_back_transform.set_scale(Vector3::new(40.0, 9.0, 0.0));
-
-    let ui_back_sprite_render = SpriteRender {
-        sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 24,
-    };
-
-    world
-        .create_entity()
-        .with(Removal::new(0 as u32))
-        .with(ui_back_transform)
-        .with(ui_back_sprite_render)
-        .build();
-
-    //UI divider walls
-    let dx = 32.;
-    let dx2 = 4.;
-
-    for idx in 0..3 {
-        let mut ui_div_wall_transform = Transform::default();
-        ui_div_wall_transform.set_translation_xyz(
-            100. + (idx as f32) * (3.0 * dx + dx2),
-            UI_HEIGHT - 18.0,
-            0.4,
-        );
-        ui_div_wall_transform.set_scale(Vector3::new(1.7, 1.0, 0.0));
-        ui_div_wall_transform.set_rotation_2d(PI / 2.0);
-
-        let wall_sprite_render = SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 13,
-        };
-
-        world
-            .create_entity()
-            .with(Removal::new(0 as u32))
-            .with(ui_div_wall_transform)
-            .with(wall_sprite_render)
-            .build();
-    }
 
 
     //positions to place circular wall objects
@@ -598,3 +531,77 @@ pub fn initialize_arena_walls(
         }
     }
 }
+
+
+
+    // //bottom UI wall
+    // let mut wall_transform = Transform::default();
+    // wall_transform.set_translation_xyz(0.0, UI_HEIGHT - 1.0, 0.39);
+    // wall_transform.set_scale(Vector3::new(40.0, 1.0, 0.0));
+
+    // let wall_sprite_render = SpriteRender {
+    //     sprite_sheet: sprite_sheet_handle.clone(),
+    //     sprite_number: 13,
+    // };
+
+    // world
+    //     .create_entity()
+    //     .with(Removal::new(0 as u32))
+    //     .with(Hitbox::new(
+    //         20.0,
+    //         2.0,
+    //         0.0,
+    //         HitboxShape::Rectangle,
+    //         true,
+    //         false,
+    //         RaceCheckpointType::NotCheckpoint,
+    //         0,
+    //         false,
+    //     ))
+    //     .with(wall_transform)
+    //     .with(wall_sprite_render)
+    //     .build();
+
+    // //bottom UI background
+    // let mut ui_back_transform = Transform::default();
+    // ui_back_transform.set_translation_xyz(0.0, UI_HEIGHT / 2.0 - 1.0, 0.35);
+    // ui_back_transform.set_scale(Vector3::new(40.0, 9.0, 0.0));
+
+    // let ui_back_sprite_render = SpriteRender {
+    //     sprite_sheet: sprite_sheet_handle.clone(),
+    //     sprite_number: 24,
+    // };
+
+    // world
+    //     .create_entity()
+    //     .with(Removal::new(0 as u32))
+    //     .with(ui_back_transform)
+    //     .with(ui_back_sprite_render)
+    //     .build();
+
+    // //UI divider walls
+    // let dx = 32.;
+    // let dx2 = 4.;
+
+    // for idx in 0..3 {
+    //     let mut ui_div_wall_transform = Transform::default();
+    //     ui_div_wall_transform.set_translation_xyz(
+    //         100. + (idx as f32) * (3.0 * dx + dx2),
+    //         UI_HEIGHT - 18.0,
+    //         0.4,
+    //     );
+    //     ui_div_wall_transform.set_scale(Vector3::new(1.7, 1.0, 0.0));
+    //     ui_div_wall_transform.set_rotation_2d(PI / 2.0);
+
+    //     let wall_sprite_render = SpriteRender {
+    //         sprite_sheet: sprite_sheet_handle.clone(),
+    //         sprite_number: 13,
+    //     };
+
+    //     world
+    //         .create_entity()
+    //         .with(Removal::new(0 as u32))
+    //         .with(ui_div_wall_transform)
+    //         .with(wall_sprite_render)
+    //         .build();
+    // }
