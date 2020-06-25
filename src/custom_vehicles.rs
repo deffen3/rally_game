@@ -201,7 +201,7 @@ impl SimpleState for CustomVehiclesMenu {
 
             if p1_change_icon {
                 //UI vehicle icon
-                let (vehicle_sprite_number, _, _) = get_vehicle_sprites(p1_vehicle_sprite_type.unwrap());
+                let (vehicle_sprite_number, _, _) = get_vehicle_sprites(world, p1_vehicle_sprite_type.unwrap());
             
                 let vehicle_sprite_render = SpriteRender {
                     sprite_sheet: self.sprite_sheet_handle.clone().unwrap(),
@@ -267,7 +267,10 @@ impl SimpleState for CustomVehiclesMenu {
                     for player_index in 0..4 {
 
                         if Some(target) == self.button_p1_next_vehicle[player_index] {
-                            game_vehicle_setup.names[player_index] = get_next_vehicle_name(game_vehicle_setup.names[player_index].clone());
+                            game_vehicle_setup.names[player_index] = get_next_vehicle_name(
+                                data.world,
+                                game_vehicle_setup.names[player_index].clone()
+                            );
                             
                             let fetched_game_vehicle_store = data.world.try_fetch::<VehicleStoreResource>();
 
@@ -283,7 +286,10 @@ impl SimpleState for CustomVehiclesMenu {
                             }
                         }
                         if Some(target) == self.button_p1_prev_vehicle[player_index] {
-                            game_vehicle_setup.names[player_index] = get_prev_vehicle_name(game_vehicle_setup.names[player_index].clone());
+                            game_vehicle_setup.names[player_index] = get_prev_vehicle_name(
+                                data.world,
+                                game_vehicle_setup.names[player_index].clone()
+                            );
                             
                             
                             let fetched_game_vehicle_store = data.world.try_fetch::<VehicleStoreResource>();

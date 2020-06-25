@@ -122,7 +122,9 @@ pub fn intialize_player(
     vehicle_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
 
-    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = get_vehicle_sprites(vehicle_type);
+    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = get_vehicle_sprites(
+        &world, vehicle_type
+    );
 
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),

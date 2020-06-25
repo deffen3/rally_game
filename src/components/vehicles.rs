@@ -17,6 +17,34 @@ use crate::resources::GameModes;
 use crate::entities::ui::PlayerStatusText;
 
 
+
+//VehicleNames correspond to the vehicle_properties.ron
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
+pub enum VehicleNames {
+    MediumCombat,
+    LightRacer,
+    HeavyTank,
+    CivilianCruiser,
+    Interceptor,
+    TSpeeder,
+}
+
+
+//VehicleTypes correspond to sprites
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
+pub enum VehicleTypes {
+    MediumCombat,
+    LightRacer,
+    HeavyTank,
+    CivilianCruiser,
+    Interceptor,
+    TSpeeder,
+}
+
+
+
+
+
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum VehicleMovementType {
     Hover, //hover craft can turn to spin in place, and have the same friction regardless of velocity/vehicle angles
@@ -356,94 +384,11 @@ pub fn vehicle_damage_model(
 
 
 
-#[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
-pub enum VehicleNames {
-    MediumCombat,
-    LightRacer,
-    HeavyTank,
-    CivilianCruiser,
-    Interceptor,
-    TSpeeder,
-}
-
-#[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
-pub enum VehicleTypes {
-    MediumCombat,
-    LightRacer,
-    HeavyTank,
-    CivilianCruiser,
-    Interceptor,
-    TSpeeder,
-}
-
-
-pub fn get_vehicle_sprites(vehicle_type: VehicleTypes) -> (usize, usize, usize) {
-    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = match vehicle_type {
-        VehicleTypes::MediumCombat => (0, 19, 20),
-        VehicleTypes::LightRacer => (44, 19, 20),
-        VehicleTypes::HeavyTank => (48, 57, 56),
-        VehicleTypes::CivilianCruiser => (52, 19, 20),
-        VehicleTypes::Interceptor => (58, 63, 62),
-        VehicleTypes::TSpeeder => (64, 69, 68),
-    };
-
-    (vehicle_sprite_number, shield_sprite_number, armor_sprite_number)
-}
-
-
-pub fn get_next_vehicle_name(name: VehicleNames) -> VehicleNames {
-    match name {
-        VehicleNames::MediumCombat => VehicleNames::LightRacer,
-        VehicleNames::LightRacer => VehicleNames::HeavyTank,
-        VehicleNames::HeavyTank => VehicleNames::Interceptor,
-        VehicleNames::Interceptor => VehicleNames::TSpeeder,
-        VehicleNames::TSpeeder => VehicleNames::CivilianCruiser,
-        VehicleNames::CivilianCruiser => VehicleNames::MediumCombat,
-    }
-}
-
-pub fn get_prev_vehicle_name(name: VehicleNames) -> VehicleNames {
-    match name {
-        VehicleNames::MediumCombat => VehicleNames::CivilianCruiser,
-        VehicleNames::LightRacer => VehicleNames::MediumCombat,
-        VehicleNames::HeavyTank => VehicleNames::LightRacer,
-        VehicleNames::Interceptor => VehicleNames::HeavyTank,
-        VehicleNames::TSpeeder => VehicleNames::Interceptor,
-        VehicleNames::CivilianCruiser => VehicleNames::TSpeeder,
-    }
-}
-
-
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct VehicleStats {
-    pub display_name: String,
-    pub vehicle_type: VehicleTypes,
-    pub max_shield: f32,
-    pub max_armor: f32,
-    pub max_health: f32,
-    pub engine_force: f32,
-    pub engine_weight: f32,
-    pub width: f32,
-    pub height: f32,
-    pub sprite_scalar: f32,
-    pub max_velocity: f32,
-    pub movement_type: VehicleMovementType,
-    pub health_repair_rate: f32,
-    pub health_repair_time: f32,
-    pub shield_recharge_rate: f32,
-    pub shield_cooldown: f32,
-    pub shield_repair_reboot_time: f32,
-    pub shield_radius: f32,
-    pub heal_pulse_amount: f32,
-    pub heal_pulse_rate: f32,
-}
-
-
-
 #[derive(Clone)]
 pub struct VehicleStoreResource {
     pub properties: HashMap<VehicleNames, VehicleStats>,
+    pub order: Vec<VehicleNames>,
+    pub type_sprites: HashMap<VehicleTypes, (usize, usize, usize)>,
 }
 
 
@@ -458,15 +403,25 @@ pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
     // let app_root = current_dir();
     // let input_path = app_root.unwrap().join("assets/game/vehicles.ron");
 
-    let input_path = format!("{}/assets/game/vehicles.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path_properties = format!("{}/assets/game/vehicle_properties.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path_order = format!("{}/assets/game/vehicle_selection_order.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_type_sprites = format!("{}/assets/game/vehicle_type_sprites.ron", env!("CARGO_MANIFEST_DIR"));
     
-    let f = File::open(&input_path).expect("Failed opening file");
+    let f_properties = File::open(&input_path_properties).expect("Failed opening file");
+    let f_order = File::open(&input_path_order).expect("Failed opening file");
+    let f_type_sprites = File::open(&input_type_sprites).expect("Failed opening file");
 
-    let vehicle_configs_map: HashMap<VehicleNames, VehicleStats> =
-        from_reader(f).expect("Failed to load config");
+    let vehicle_properties_map: HashMap<VehicleNames, VehicleStats> =
+        from_reader(f_properties).expect("Failed to load config");
+    let vehicle_order_list: Vec<VehicleNames> =
+        from_reader(f_order).expect("Failed to load config");
+    let vehicle_type_sprites: HashMap<VehicleTypes, (usize, usize, usize)> =
+        from_reader(f_type_sprites).expect("Failed to load config");
 
     let vehicle_store = VehicleStoreResource {
-        properties: vehicle_configs_map,
+        properties: vehicle_properties_map,
+        order: vehicle_order_list,
+        type_sprites: vehicle_type_sprites,
     };
     world.insert(vehicle_store.clone());
 
@@ -496,4 +451,84 @@ pub fn get_none_vehicle() -> VehicleStats {
         heal_pulse_amount: 0.0,
         heal_pulse_rate: 0.0,
     }
+}
+
+
+
+pub fn get_vehicle_sprites(world: &World, vehicle_type: VehicleTypes) -> (usize, usize, usize) {
+    let vehicle_store = world.fetch::<VehicleStoreResource>();
+
+    let vehicle_sprites_option = vehicle_store.type_sprites.get(&vehicle_type);
+    
+    let vehicle_sprites_out: (usize, usize, usize);
+
+    if let Some(vehicle_properties) = vehicle_sprites_option {
+        vehicle_sprites_out = *vehicle_properties;
+    }
+    else {
+        vehicle_sprites_out = (0,0,0);
+    }
+    
+    vehicle_sprites_out
+}
+
+
+pub fn get_next_vehicle_name(world: &World, name: VehicleNames) -> VehicleNames {
+    let vehicle_store = world.fetch::<VehicleStoreResource>();
+
+    let length = vehicle_store.order.len();
+    let index = vehicle_store.order.iter().position(|&r| r == name).unwrap();
+    
+    let vehicle_out: VehicleNames;
+    if index == length-1 {
+        vehicle_out = vehicle_store.order[0]
+    }
+    else {
+        vehicle_out = vehicle_store.order[index+1];
+    }
+    
+    vehicle_out
+}
+
+pub fn get_prev_vehicle_name(world: &World, name: VehicleNames) -> VehicleNames {
+    let vehicle_store = world.fetch::<VehicleStoreResource>();
+
+    let length = vehicle_store.order.len();
+    let index = vehicle_store.order.iter().position(|&r| r == name).unwrap();
+
+    let vehicle_out: VehicleNames;
+    if index == 0 {
+        vehicle_out = vehicle_store.order[length-1]
+    }
+    else {
+        vehicle_out = vehicle_store.order[index-1];
+    }
+    
+    vehicle_out
+}
+
+
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct VehicleStats {
+    pub display_name: String,
+    pub vehicle_type: VehicleTypes,
+    pub max_shield: f32,
+    pub max_armor: f32,
+    pub max_health: f32,
+    pub engine_force: f32,
+    pub engine_weight: f32,
+    pub width: f32,
+    pub height: f32,
+    pub sprite_scalar: f32,
+    pub max_velocity: f32,
+    pub movement_type: VehicleMovementType,
+    pub health_repair_rate: f32,
+    pub health_repair_time: f32,
+    pub shield_recharge_rate: f32,
+    pub shield_cooldown: f32,
+    pub shield_repair_reboot_time: f32,
+    pub shield_radius: f32,
+    pub heal_pulse_amount: f32,
+    pub heal_pulse_rate: f32,
 }

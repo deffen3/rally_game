@@ -1,0 +1,8 @@
+{
+  MediumCombat : (0, 19, 20),
+  LightRacer : (44, 19, 20),
+  HeavyTank : (48, 57, 56),
+  CivilianCruiser : (52, 19, 20),
+  Interceptor : (58, 63, 62),
+  TSpeeder : (64, 69, 68),
+}
