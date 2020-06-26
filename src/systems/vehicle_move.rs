@@ -23,7 +23,7 @@ use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle,
     update_weapon_properties, vehicle_damage_model, BotMode, Hitbox, HitboxShape, Player,
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, WeaponArray, WeaponStoreResource,
-    determine_vehicle_weight, VehicleMovementType,
+    determine_vehicle_weight, VehicleMovementType, DurationDamage,
 };
 
 use crate::entities::{malfunction_sparking, acceleration_spray};
@@ -894,6 +894,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             COLLISION_SHIELD_DAMAGE_PCT,
                             COLLISION_ARMOR_DAMAGE_PCT,
                             COLLISION_HEALTH_DAMAGE_PCT,
+                            0.0,
+                            DurationDamage::default(),
                         );
 
                         if vehicle_destroyed {
@@ -936,6 +938,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             COLLISION_SHIELD_DAMAGE_PCT,
                             COLLISION_ARMOR_DAMAGE_PCT,
                             COLLISION_HEALTH_DAMAGE_PCT,
+                            0.0,
+                            DurationDamage::default(),
                         );
 
                         if vehicle_destroyed {
@@ -1145,6 +1149,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 COLLISION_SHIELD_DAMAGE_PCT,
                                 COLLISION_ARMOR_DAMAGE_PCT,
                                 COLLISION_HEALTH_DAMAGE_PCT,
+                                0.0,
+                                DurationDamage::default(),
                             );
 
                             if vehicle_destroyed {

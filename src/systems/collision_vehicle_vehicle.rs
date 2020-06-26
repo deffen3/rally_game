@@ -16,7 +16,7 @@ use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{Cuboid};
 
 use crate::components::{kill_restart_vehicle, vehicle_damage_model, 
-    Player, Vehicle, determine_vehicle_weight
+    Player, Vehicle, determine_vehicle_weight, DurationDamage,
 };
 
 use crate::rally::{
@@ -171,6 +171,8 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         COLLISION_SHIELD_DAMAGE_PCT,
                         COLLISION_ARMOR_DAMAGE_PCT,
                         COLLISION_HEALTH_DAMAGE_PCT,
+                        0.0,
+                        DurationDamage::default(),
                     );
 
                     if vehicle_destroyed {

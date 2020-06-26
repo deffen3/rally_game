@@ -11,7 +11,7 @@ use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
 use std::env::current_dir;
 
-use crate::components::{Armor, Health, Player, Repair, Shield};
+use crate::components::{Armor, Health, Player, Repair, Shield, DurationDamage};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
 use crate::resources::GameModes;
 use crate::entities::ui::PlayerStatusText;
@@ -59,6 +59,7 @@ pub enum VehicleState {
     InRespawn,
 }
 
+
 pub struct Vehicle {
     pub movement_type: VehicleMovementType,
     pub width: f32,
@@ -85,54 +86,14 @@ pub struct Vehicle {
     pub malfunction: f32,
     pub malfunction_cooldown_timer: f32,
     pub ion_malfunction_pct: f32,
+    pub duration_damage_timer: f32,
+    pub duration_damage: DurationDamage,
     pub respawn_timer: f32,
     pub death_x: f32,
     pub death_y: f32,
     pub death_angle: f32,
     pub state: VehicleState,
     pub player_status_text: PlayerStatusText,
-}
-
-pub fn determine_vehicle_weight(vehicle: &Vehicle) -> f32 {
-    //typical vehicle weight = 100 at S:100/A:100/H:100 with normal engine efficiency
-
-    //health makes up the main hull of the vehicle, and contributes 20 base weight + 20 per 100 health
-    //shields make up 15 weight
-    //armor another 25 weight
-    //engine another 20 weight
-
-    //typical weapon weight adds about 10.0
-    //  for a total of about 110.0
-
-    
-    //a lighter racing vehicle with s:25/A:0/H:100 would weigh:
-    //  B:20 + H:20 + S:3.75 + E:20 + W:10 = 73.75,
-    //  and therefore would have about 50% quicker acceleration
-    //  but could only take about 42% typical damage before blowing up
-
-    //a heavy-weight tank combat vehicle with s:200/A:200/H:150 would weigh:
-    //  B:20 + H:30 + S:30 + A:50 + E:20 + W:10 = 160,
-    //  and therefore would have about 45% slower acceleration
-    //  but would take almost 550 damage, an 83% increase
-
-
-    //NOTE: lost armor does not contribute to weight, only the current value of armor matters
-    let vehicle_weight = (20.0 + vehicle.health.max * 20. / 100.)
-        + (vehicle.shield.max * 15. / 100.)
-        + (vehicle.armor.value * 25. / 100.)
-        + vehicle.engine_weight
-        + vehicle.weapon_weight;
-
-    vehicle_weight
-}
-
-pub fn determine_vehicle_weight_stats(vehicle: VehicleStats) -> f32 {
-    let vehicle_weight = (20.0 + vehicle.max_health * 20. / 100.)
-        + (vehicle.max_shield * 15. / 100.)
-        + (vehicle.max_armor * 25. / 100.)
-        + vehicle.engine_weight;
-
-    vehicle_weight
 }
 
 
@@ -210,6 +171,15 @@ impl Vehicle {
             malfunction: 0.0,
             malfunction_cooldown_timer: -1.0,
             ion_malfunction_pct: 0.0,
+            duration_damage_timer: 0.0,
+            duration_damage: DurationDamage {
+                damage_per_second: 0.0,
+                shield_damage_pct: 0.0,
+                armor_damage_pct: 0.0,
+                piercing_damage_pct: 0.0,
+                health_damage_pct: 0.0,
+                ion_malfunction_pct: 0.0,
+            },
             respawn_timer: 5.0,
             death_x: 0.0,
             death_y: 0.0,
@@ -220,10 +190,55 @@ impl Vehicle {
     }
 }
 
+
+pub fn determine_vehicle_weight(vehicle: &Vehicle) -> f32 {
+    //typical vehicle weight = 100 at S:100/A:100/H:100 with normal engine efficiency
+
+    //health makes up the main hull of the vehicle, and contributes 20 base weight + 20 per 100 health
+    //shields make up 15 weight
+    //armor another 25 weight
+    //engine another 20 weight
+
+    //typical weapon weight adds about 10.0
+    //  for a total of about 110.0
+
+    
+    //a lighter racing vehicle with s:25/A:0/H:100 would weigh:
+    //  B:20 + H:20 + S:3.75 + E:20 + W:10 = 73.75,
+    //  and therefore would have about 50% quicker acceleration
+    //  but could only take about 42% typical damage before blowing up
+
+    //a heavy-weight tank combat vehicle with s:200/A:200/H:150 would weigh:
+    //  B:20 + H:30 + S:30 + A:50 + E:20 + W:10 = 160,
+    //  and therefore would have about 45% slower acceleration
+    //  but would take almost 550 damage, an 83% increase
+
+
+    //NOTE: lost armor does not contribute to weight, only the current value of armor matters
+    let vehicle_weight = (20.0 + vehicle.health.max * 20. / 100.)
+        + (vehicle.shield.max * 15. / 100.)
+        + (vehicle.armor.value * 25. / 100.)
+        + vehicle.engine_weight
+        + vehicle.weapon_weight;
+
+    vehicle_weight
+}
+
+pub fn determine_vehicle_weight_stats(vehicle: VehicleStats) -> f32 {
+    let vehicle_weight = (20.0 + vehicle.max_health * 20. / 100.)
+        + (vehicle.max_shield * 15. / 100.)
+        + (vehicle.max_armor * 25. / 100.)
+        + vehicle.engine_weight;
+
+    vehicle_weight
+}
+
+
+
 pub fn kill_restart_vehicle(
     player: &Player,
     vehicle: &mut Vehicle,
-    transform: &mut Transform,
+    transform: &Transform,
     stock_lives: i32,
 ) {
     vehicle.death_x = transform.translation().x;
@@ -329,6 +344,8 @@ pub fn vehicle_damage_model(
     shield_damage_pct: f32,
     armor_damage_pct: f32,
     health_damage_pct: f32,
+    duration_damage_time: f32,
+    duration_damage: DurationDamage,
 ) -> bool {
     let mut piercing_damage: f32 = 0.0;
 
@@ -336,8 +353,6 @@ pub fn vehicle_damage_model(
         piercing_damage = damage * piercing_damage_pct / 100.0;
         damage -= piercing_damage;
     }
-
-    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3} P:{:>6.3}, D:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield, piercing_damage, damage);
 
     if vehicle.shield.value > 0.0 {
         vehicle.shield.value -= damage * shield_damage_pct / 100.0;
@@ -376,7 +391,11 @@ pub fn vehicle_damage_model(
         }
     }
 
-    //println!("H:{:>6.3} A:{:>6.3} S:{:>6.3}",vehicle.health, vehicle.armor, vehicle.shield);
+    if duration_damage_time > 0.0 {
+        vehicle.duration_damage = duration_damage;
+
+        vehicle.duration_damage_timer = duration_damage_time;
+    }
 
     vehicle_destroyed
 }

@@ -96,6 +96,17 @@ pub fn get_next_weapon_name(
 }
 
 
+#[derive(Copy, Clone, Debug, Deserialize, Default)]
+pub struct DurationDamage {
+    pub damage_per_second: f32,
+    pub shield_damage_pct: f32,
+    pub armor_damage_pct: f32,
+    pub piercing_damage_pct: f32,
+    pub health_damage_pct: f32,
+    pub ion_malfunction_pct: f32,
+}
+
+
 
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct WeaponStats {
@@ -121,8 +132,13 @@ pub struct WeaponStats {
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
     pub ion_malfunction_pct: f32,
+    pub duration_damage_time: f32,
+    pub duration_damage: DurationDamage,
     pub weight: f32,
 }
+
+
+
 
 #[derive(Clone)]
 pub struct WeaponStoreResource {
@@ -284,6 +300,8 @@ pub struct WeaponFire {
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
     pub ion_malfunction_pct: f32,
+    pub duration_damage_time: f32,
+    pub duration_damage: DurationDamage,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
     pub attached: bool,
@@ -317,6 +335,8 @@ impl WeaponFire {
         piercing_damage_pct: f32,
         health_damage_pct: f32,
         ion_malfunction_pct: f32,
+        duration_damage_time: f32,
+        duration_damage: DurationDamage,
     ) -> WeaponFire {
         let (width, height) = match weapon_type {
             WeaponTypes::LaserDouble => (3.0, 6.0),
@@ -357,6 +377,8 @@ impl WeaponFire {
             piercing_damage_pct,
             health_damage_pct,
             ion_malfunction_pct,
+            duration_damage_time,
+            duration_damage,
             heat_seeking,
             heat_seeking_agility,
             attached,
@@ -463,10 +485,20 @@ pub fn build_named_weapon(
             piercing_damage_pct: 0.0,
             health_damage_pct: 0.0,
             ion_malfunction_pct: 0.0,
+            duration_damage_time: 0.0,
+            duration_damage: DurationDamage {
+                damage_per_second: 0.0,
+                shield_damage_pct: 0.0,
+                armor_damage_pct: 0.0,
+                piercing_damage_pct: 0.0,
+                health_damage_pct: 0.0,
+                ion_malfunction_pct: 0.0,
+            },
             weight: 0.0,
         },
     }
 }
+
 
 pub fn build_named_weapon_from_world(
     weapon_name: WeaponNames,

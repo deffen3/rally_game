@@ -1,7 +1,7 @@
 use amethyst::{
     core::{Time, Transform},
     derive::SystemDesc,
-    ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
+    ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage, ReadExpect},
     input::{InputHandler, StringBindings},
     renderer::{palette::Srgba, resources::Tint},
 };
@@ -9,16 +9,21 @@ use amethyst::{
 use rand::Rng;
 use std::collections::HashMap;
 
-use crate::components::{Player, Vehicle, VehicleState, BotMode};
+use crate::components::{
+    Player, Vehicle, VehicleState, BotMode, vehicle_damage_model, kill_restart_vehicle, DurationDamage
+};
+use crate::resources::{GameModeSetup};
+
 
 #[derive(SystemDesc)]
 pub struct VehicleShieldArmorHealthSystem;
 
 impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
     type SystemData = (
-        ReadStorage<'s, Player>,
+        WriteStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Transform>,
+        ReadExpect<'s, GameModeSetup>,
         WriteStorage<'s, Tint>,
         Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>,
@@ -26,13 +31,41 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
 
     fn run(
         &mut self,
-        (players, mut vehicles, mut transforms, mut tints, time, input): Self::SystemData,
+        (mut players, mut vehicles, mut transforms, game_mode_setup, mut tints, time, input): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
         let mut owner_data_map = HashMap::new();
 
-        for (player, vehicle, vehicle_transform) in (&players, &mut vehicles, &transforms).join() {
+        for (player, vehicle, vehicle_transform) in (&mut players, &mut vehicles, &transforms).join() {
+            //Apply duration damage, such as poison/burns
+            if vehicle.duration_damage_timer > 0.0 {
+                let vehicle_destroyed: bool = vehicle_damage_model(
+                    vehicle,
+                    vehicle.duration_damage.damage_per_second * dt,
+                    vehicle.duration_damage.piercing_damage_pct,
+                    vehicle.duration_damage.shield_damage_pct,
+                    vehicle.duration_damage.armor_damage_pct,
+                    vehicle.duration_damage.health_damage_pct,
+                    0.0, //These are zero/default so as to not re-apply the effect to the vehicle. 
+                    DurationDamage::default(), //Otherwise this duration damage effect would stack continuously.
+                );
+
+                if vehicle_destroyed {
+                    player.deaths += 1;
+
+                    kill_restart_vehicle(
+                        player,
+                        vehicle,
+                        vehicle_transform,
+                        game_mode_setup.stock_lives,
+                    );
+                }
+                
+                vehicle.duration_damage_timer -= dt;
+            }
+
+
             //Healing is automatically done if health is damaged
             if (vehicle.heal_pulse_rate > 0.0 && vehicle.health.value > 0.0) && 
                     (vehicle.health.max > 0.0 && vehicle.health.value < vehicle.health.max) {

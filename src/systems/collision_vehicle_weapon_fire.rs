@@ -356,6 +356,8 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             weapon_fire.shield_damage_pct,
                             weapon_fire.armor_damage_pct,
                             weapon_fire.health_damage_pct,
+                            weapon_fire.duration_damage_time,
+                            weapon_fire.duration_damage,
                         );
                     
                         if vehicle_destroyed && vehicle.state == VehicleState::Active {
@@ -450,6 +452,8 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             weapon_fire.shield_damage_pct,
                             weapon_fire.armor_damage_pct,
                             weapon_fire.health_damage_pct,
+                            weapon_fire.duration_damage_time,
+                            weapon_fire.duration_damage,
                         );
                     
                         if vehicle_destroyed && vehicle.state == VehicleState::Active {
