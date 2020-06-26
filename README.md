@@ -86,16 +86,19 @@ There are various weapons with various properties, including:
 
 ## TODO:
 1. Game setup customization for Vehicles, Weapons, Arenas
-1. Bots should calculate time to collision and avoid colliding with walls
+1. Load arena/race tracks from config file
+1. Fix UI issues with Vehicle and Weapon icon sprites
+1. Allow for larger Arenas, with moving/zooming camera support
+1. Add weapon effects for: slow-down, burn/poison, chaining, and wall-bouncing
+1. Better/unique weapon icons
+1. Re-write bot AI to use Behavior Tree
 1. Survival mode? Team of Humans vs. waves of bots? Support for teams in other modes?
 1. Capture the flag mode?
-1. New bot modes to comprehend Racing, King of the Hill, repairing, and picking up new weapon boxes
-1. Support for 0, 1, or more weapons per vehicle.
-1. Load arena/race tracks from config file
 1. Create a generic Hitbox component, and create hitbox detection functions - used for some entities, but not all
 1. Make use of ncollide coarse and fine phase detection algorithm
 1. Improve missile heat-seeking tracking - pretty good now, still not great though
 1. UI Transform works different on Mac (based on DPI?). On Windows it also doesn't scale properly when window is resized.
+
 
 ---
 
