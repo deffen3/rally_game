@@ -129,6 +129,7 @@ pub struct WeaponStoreResource {
     pub properties: HashMap<WeaponNames, WeaponStats>,
     pub spawn_chance: HashMap<WeaponNames, u32>,
     pub gun_game_order: Vec<WeaponNames>,
+    pub selection_order: Vec<WeaponNames>,
 }
 
 pub fn build_weapon_store(world: &mut World) {
@@ -137,24 +138,29 @@ pub fn build_weapon_store(world: &mut World) {
 
     let input_path_weapon_props = format!("{}/assets/game/weapon_properties.ron", env!("CARGO_MANIFEST_DIR"));
     let input_path_spawn_chance = format!("{}/assets/game/weapon_spawn_chance.ron", env!("CARGO_MANIFEST_DIR"));
-    let input_path_weapon_order = format!("{}/assets/game/weapon_gun_game_order.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path_gun_game_order = format!("{}/assets/game/weapon_gun_game_order.ron", env!("CARGO_MANIFEST_DIR"));
+    let input_path_selection_order = format!("{}/assets/game/weapon_selection_order.ron", env!("CARGO_MANIFEST_DIR"));
 
     let f_weapon_props = File::open(&input_path_weapon_props).expect("Failed opening file");
     let f_spawn_chance = File::open(&input_path_spawn_chance).expect("Failed opening file");
-    let f_weapon_order = File::open(&input_path_weapon_order).expect("Failed opening file");
+    let f_gun_game_order = File::open(&input_path_gun_game_order).expect("Failed opening file");
+    let f_selection_order = File::open(&input_path_selection_order).expect("Failed opening file");
 
     let weapon_properties_map: HashMap<WeaponNames, WeaponStats> =
         from_reader(f_weapon_props).expect("Failed to load config");
     let weapon_spawn_chance_map: HashMap<WeaponNames, u32> =
         from_reader(f_spawn_chance).expect("Failed to load config");
-    let weapon_order_map: Vec<WeaponNames> =
-        from_reader(f_weapon_order).expect("Failed to load config");
+    let gun_game_order_map: Vec<WeaponNames> =
+        from_reader(f_gun_game_order).expect("Failed to load config");
+    let selection_order_map: Vec<WeaponNames> =
+        from_reader(f_selection_order).expect("Failed to load config");
 
 
     let weapon_store = WeaponStoreResource {
         properties: weapon_properties_map,
         spawn_chance: weapon_spawn_chance_map,
-        gun_game_order: weapon_order_map,
+        gun_game_order: gun_game_order_map,
+        selection_order: selection_order_map,
     };
 
     world.insert(weapon_store.clone());
