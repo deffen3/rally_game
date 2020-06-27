@@ -88,6 +88,10 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
 
                 for (weapon_index, weapon) in weapon_array.weapons.iter_mut().enumerate() {
                     if let Some(weapon) = weapon {
+                        if weapon.deploy_timer > 0.0 {
+                            weapon.deploy_timer -= dt;
+                        }
+
                         if let Some(fire) = vehicle_weapon_fire[weapon_index] {
                             if !vehicle.repair.activated {
                                 if fire && weapon.cooldown_timer <= 0.0 {
@@ -145,15 +149,31 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                         fire_angle += spread_angle_modifier;
                                     }
 
-                                    if !weapon.stats.attached || !weapon.stats.deployed {
-                                        if !weapon.stats.deployed {
-                                            weapon.stats.deployed = true;
-                                        }
 
+
+
+                                    //if attached weapon is already deployed, then undeploy it
+                                    if weapon.stats.attached && weapon.stats.deployed {
+                                        if weapon.deploy_timer <= 0.0 {
+                                            weapon.deploy_timer = 1.0; //reset cooldown
+                                            weapon.stats.deployed = false;
+                                        }
+                                    }
+                                    else if !weapon.stats.attached || !weapon.stats.deployed {
+                                        if !weapon.stats.deployed {
+                                            if weapon.deploy_timer <= 0.0 {
+                                                weapon.deploy_timer = 1.0; //reset cooldown
+                                                weapon.stats.deployed = true;
+                                            }
+                                        }
+                                    }
+
+                                    if weapon.stats.deployed {
                                         fire_weapon(
                                             &entities,
                                             &weapon_fire_resource,
                                             weapon.clone(),
+                                            weapon_index,
                                             fire_position,
                                             fire_angle,
                                             player.id,

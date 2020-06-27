@@ -14,6 +14,7 @@ pub fn fire_weapon(
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     weapon: Weapon,
+    weapon_array_id: usize,
     fire_position: Vector3<f32>,
     fire_angle: f32,
     player_id: usize,
@@ -22,6 +23,7 @@ pub fn fire_weapon(
     let fire_entity: Entity = entities.create();
 
     let mut weapon_fire = WeaponFire::new(
+        weapon_array_id,
         weapon.name.clone(),
         weapon.stats.weapon_type,
         player_id,

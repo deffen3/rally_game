@@ -229,6 +229,7 @@ pub struct Weapon {
     pub burst_shots: u32,
     pub dps_calc: f32,
     pub range_calc: f32,
+    pub deploy_timer: f32,
 }
 
 impl Weapon {
@@ -244,6 +245,7 @@ impl Weapon {
             burst_shots: 0,
             dps_calc: calculate_dps(stats),
             range_calc: calculate_range(stats),
+            deploy_timer: 0.0,
         }
     }
 }
@@ -302,6 +304,11 @@ pub fn calculate_range(stats: WeaponStats) -> f32 {
 
 #[derive(Clone)]
 pub struct WeaponFire {
+    pub weapon_array_id: usize,
+    pub weapon_type: WeaponTypes,
+    pub weapon_name: WeaponNames,
+    pub attached: bool,
+    pub deployed: bool,
     pub active: bool,
     pub width: f32,
     pub height: f32,
@@ -329,10 +336,6 @@ pub struct WeaponFire {
     pub slow_down_effect: SlowDownEffect,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
-    pub attached: bool,
-    pub deployed: bool,
-    pub weapon_type: WeaponTypes,
-    pub weapon_name: WeaponNames,
 }
 
 impl Component for WeaponFire {
@@ -341,6 +344,7 @@ impl Component for WeaponFire {
 
 impl WeaponFire {
     pub fn new(
+        weapon_array_id: usize,
         weapon_name: WeaponNames,
         weapon_type: WeaponTypes,
         owner_player_id: usize,
@@ -383,6 +387,11 @@ impl WeaponFire {
         };
 
         WeaponFire {
+            weapon_array_id,
+            weapon_name,
+            weapon_type,
+            attached,
+            deployed,
             active: true,
             width,
             height,
@@ -410,10 +419,7 @@ impl WeaponFire {
             slow_down_effect,
             heat_seeking,
             heat_seeking_agility,
-            attached,
-            deployed,
-            weapon_name,
-            weapon_type,
+            
         }
     }
 }

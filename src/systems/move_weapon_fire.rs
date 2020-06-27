@@ -88,10 +88,24 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                             let vehicle_rotation = vehicle_transform.rotation();
                             let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-                            for weapon in weapon_array.weapons.iter() {
+                            for (weapon_idx, weapon) in weapon_array.weapons.iter().enumerate() {
                                 if let Some(weapon) = weapon {
-                                    if weapon.name != weapon_fire.weapon_name {
+
+                                    //undeploy old attached weapons
+                                    if weapon_fire.weapon_array_id == weapon_idx 
+                                            && weapon.name != weapon_fire.weapon_name {
                                         weapon_fire.deployed = false;
+                                    }
+
+                                    if weapon.name == weapon_fire.weapon_name && weapon.stats.attached {
+                                        //pass on deployed status
+                                        if weapon.stats.deployed == false {
+                                            weapon_fire.deployed = false;
+                                            let _ = entities.delete(entity);
+                                        }
+                                        else if weapon.stats.deployed == true {
+                                            weapon_fire.deployed = true;
+                                        }
                                     }
 
                                     vehicle_owner_map.insert(
