@@ -579,8 +579,8 @@
       prongs: 0,
     ),
     slow_down_effect: SlowDownEffect (
-      timer: 0,
-      slow_down_pct: 0,
+      timer: 1.0,
+      slow_down_pct: 33.0,
     ),
     weight: 20.0,
   ),
@@ -984,8 +984,8 @@
       prongs: 0,
     ),
     slow_down_effect: SlowDownEffect (
-      timer: 0,
-      slow_down_pct: 0,
+      timer: 1.0,
+      slow_down_pct: 33.0,
     ),
     weight: 20.0,
   ),

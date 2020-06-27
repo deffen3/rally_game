@@ -370,6 +370,13 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             player_got_killed_map
                                 .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
                         }
+
+
+                        //Pass slow-down effect from weapon to vehicle
+                        if weapon_fire.slow_down_effect.timer > 0.0 {
+                            vehicle.restricted_velocity_timer = weapon_fire.slow_down_effect.timer;
+                            vehicle.restricted_max_velocity = vehicle.max_velocity * (1.0 - (weapon_fire.slow_down_effect.slow_down_pct/100.0));
+                        }
                     
                     
                         if vehicle.shield.value == 0.0 && weapon_fire.ion_malfunction_pct > 0.0 {
@@ -467,6 +474,14 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             player_got_killed_map
                                 .insert(player.id.clone(), weapon_fire.owner_player_id.clone());
                         }
+
+
+                        //Pass slow-down effect from weapon to vehicle
+                        if weapon_fire.slow_down_effect.timer > 0.0 {
+                            vehicle.restricted_velocity_timer = weapon_fire.slow_down_effect.timer;
+                            vehicle.restricted_max_velocity = vehicle.max_velocity * (1.0 - (weapon_fire.slow_down_effect.slow_down_pct/100.0));
+                        }
+                        
                     
                         if vehicle.shield.value == 0.0 && weapon_fire.ion_malfunction_pct > 0.0 {
                             vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;

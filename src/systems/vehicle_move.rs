@@ -781,11 +781,20 @@ impl<'s> System<'s> for VehicleMoveSystem {
             
 
             
-
-            if abs_vel > vehicle.max_velocity {
-                vehicle.dx *= vehicle.max_velocity / abs_vel;
-                vehicle.dy *= vehicle.max_velocity / abs_vel;
+            //Apply vehicle slow down effect
+            if vehicle.restricted_velocity_timer <= 0.0 {
+                //restore max velocity to unrestricted
+                vehicle.restricted_max_velocity = vehicle.max_velocity;
             }
+            else {
+                vehicle.restricted_velocity_timer -= dt;
+            }
+
+            if abs_vel > vehicle.restricted_max_velocity {
+                vehicle.dx *= vehicle.restricted_max_velocity / abs_vel;
+                vehicle.dy *= vehicle.restricted_max_velocity / abs_vel;
+            }
+
 
             //Transform on vehicle velocity
             if vehicle.dx.abs() > 0.001 {
