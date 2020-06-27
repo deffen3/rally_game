@@ -37,6 +37,7 @@ pub fn fire_weapon(
         weapon.stats.shot_life_limit,
         weapon.stats.damage,
         weapon.stats.trigger_radius,
+        weapon.stats.trigger_immediately,
         weapon.stats.damage_radius,
         weapon.stats.shield_damage_pct,
         weapon.stats.armor_damage_pct,

@@ -272,6 +272,24 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let fire_collider_pos = Isometry2::new(Vector2::new(fire_x, fire_y), fire_angle);
 
 
+                    //use for something like AoE damage
+                    if weapon_fire.trigger_immediately {
+                        explosion_map
+                            .push((player.id.clone(), weapon_fire.clone(), fire_x, fire_y));
+
+                        let position = Vector3::new(fire_x, fire_y, 0.5);
+                        
+                        explosion_shockwave(
+                            &entities,
+                            &weapon_fire_resource,
+                            position,
+                            weapon_fire.damage_radius, 
+                            &lazy_update,
+                        );
+
+                        let _ = entities.delete(weapon_fire_entity);
+                    }
+
                     let weapon_fire_hit;
                     if weapon_fire.trigger_radius > 0.0 {
                         //use old lightweight detection algorithm
