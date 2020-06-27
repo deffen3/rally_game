@@ -880,7 +880,7 @@
     duration_damage: DurationDamage (
       timer: 5.0,
       damage_per_second: 0.5,
-      shield_damage_pct: 80.0,
+      shield_damage_pct: 0.0,
       armor_damage_pct: 90.0,
       piercing_damage_pct: 0.0,
       health_damage_pct: 100.0,
