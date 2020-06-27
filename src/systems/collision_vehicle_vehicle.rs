@@ -171,7 +171,6 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         COLLISION_SHIELD_DAMAGE_PCT,
                         COLLISION_ARMOR_DAMAGE_PCT,
                         COLLISION_HEALTH_DAMAGE_PCT,
-                        0.0,
                         DurationDamage::default(),
                     );
 

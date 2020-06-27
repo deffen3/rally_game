@@ -356,7 +356,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             weapon_fire.shield_damage_pct,
                             weapon_fire.armor_damage_pct,
                             weapon_fire.health_damage_pct,
-                            weapon_fire.duration_damage_time,
                             weapon_fire.duration_damage,
                         );
                     
@@ -452,7 +451,6 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             weapon_fire.shield_damage_pct,
                             weapon_fire.armor_damage_pct,
                             weapon_fire.health_damage_pct,
-                            weapon_fire.duration_damage_time,
                             weapon_fire.duration_damage,
                         );
                     

@@ -41,7 +41,6 @@ pub fn fire_weapon(
         weapon.stats.piercing_damage_pct,
         weapon.stats.health_damage_pct,
         weapon.stats.ion_malfunction_pct,
-        weapon.stats.duration_damage_time,
         weapon.stats.duration_damage,
     );
 

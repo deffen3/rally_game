@@ -86,8 +86,7 @@ pub struct Vehicle {
     pub malfunction: f32,
     pub malfunction_cooldown_timer: f32,
     pub ion_malfunction_pct: f32,
-    pub duration_damage_timer: f32,
-    pub duration_damage: DurationDamage,
+    pub duration_damage: Vec<DurationDamage>,
     pub respawn_timer: f32,
     pub death_x: f32,
     pub death_y: f32,
@@ -171,15 +170,7 @@ impl Vehicle {
             malfunction: 0.0,
             malfunction_cooldown_timer: -1.0,
             ion_malfunction_pct: 0.0,
-            duration_damage_timer: 0.0,
-            duration_damage: DurationDamage {
-                damage_per_second: 0.0,
-                shield_damage_pct: 0.0,
-                armor_damage_pct: 0.0,
-                piercing_damage_pct: 0.0,
-                health_damage_pct: 0.0,
-                ion_malfunction_pct: 0.0,
-            },
+            duration_damage: Vec::<DurationDamage>::new(),
             respawn_timer: 5.0,
             death_x: 0.0,
             death_y: 0.0,
@@ -344,7 +335,6 @@ pub fn vehicle_damage_model(
     shield_damage_pct: f32,
     armor_damage_pct: f32,
     health_damage_pct: f32,
-    duration_damage_time: f32,
     duration_damage: DurationDamage,
 ) -> bool {
     let mut piercing_damage: f32 = 0.0;
@@ -391,10 +381,8 @@ pub fn vehicle_damage_model(
         }
     }
 
-    if duration_damage_time > 0.0 {
-        vehicle.duration_damage = duration_damage;
-
-        vehicle.duration_damage_timer = duration_damage_time;
+    if duration_damage.timer > 0.0 {
+        vehicle.duration_damage.push(duration_damage);
     }
 
     vehicle_destroyed

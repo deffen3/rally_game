@@ -1,7 +1,7 @@
 use amethyst::{
     core::{Time, Transform},
     derive::SystemDesc,
-    ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage, ReadExpect},
+    ecs::{Join, Read, System, SystemData, WriteStorage, ReadExpect},
     input::{InputHandler, StringBindings},
     renderer::{palette::Srgba, resources::Tint},
 };
@@ -39,31 +39,55 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
 
         for (player, vehicle, vehicle_transform) in (&mut players, &mut vehicles, &transforms).join() {
             //Apply duration damage, such as poison/burns
-            if vehicle.duration_damage_timer > 0.0 {
-                let vehicle_destroyed: bool = vehicle_damage_model(
-                    vehicle,
-                    vehicle.duration_damage.damage_per_second * dt,
-                    vehicle.duration_damage.piercing_damage_pct,
-                    vehicle.duration_damage.shield_damage_pct,
-                    vehicle.duration_damage.armor_damage_pct,
-                    vehicle.duration_damage.health_damage_pct,
-                    0.0, //These are zero/default so as to not re-apply the effect to the vehicle. 
-                    DurationDamage::default(), //Otherwise this duration damage effect would stack continuously.
-                );
+            let mut vehicle_destroyed = false;
 
-                if vehicle_destroyed {
-                    player.deaths += 1;
+            let mut duration_damage_list = vehicle.duration_damage.clone();
 
-                    kill_restart_vehicle(
-                        player,
+            for duration_damage in duration_damage_list.iter() {
+                if duration_damage.timer > 0.0 {
+                    let duration_damage_vehicle_destroyed: bool = vehicle_damage_model(
                         vehicle,
-                        vehicle_transform,
-                        game_mode_setup.stock_lives,
+                        duration_damage.damage_per_second.clone() * dt,
+                        duration_damage.piercing_damage_pct.clone(),
+                        duration_damage.shield_damage_pct.clone(),
+                        duration_damage.armor_damage_pct.clone(),
+                        duration_damage.health_damage_pct.clone(),
+                        DurationDamage::default(), //These are zero/default so as to not re-apply the effect to the vehicle. 
+                        //Otherwise this duration damage effect would stack continuously.
                     );
+
+                    if duration_damage_vehicle_destroyed {
+                        vehicle_destroyed = true;
+                    }
                 }
-                
-                vehicle.duration_damage_timer -= dt;
             }
+
+            //Remove duration damages that have expired
+            let mut lasting_duration_damages = Vec::<DurationDamage>::new();
+
+            for duration_damage in duration_damage_list.iter_mut() {
+                duration_damage.timer -= dt;
+
+                if duration_damage.timer > 0.0 {
+                    lasting_duration_damages.push(*duration_damage);
+                }
+            }
+
+            vehicle.duration_damage = lasting_duration_damages;
+
+            
+
+            if vehicle_destroyed {
+                player.deaths += 1;
+
+                kill_restart_vehicle(
+                    player,
+                    vehicle,
+                    vehicle_transform,
+                    game_mode_setup.stock_lives,
+                );
+            }
+
 
 
             //Healing is automatically done if health is damaged

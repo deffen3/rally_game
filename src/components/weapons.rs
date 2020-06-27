@@ -98,6 +98,7 @@ pub fn get_next_weapon_name(
 
 #[derive(Copy, Clone, Debug, Deserialize, Default)]
 pub struct DurationDamage {
+    pub timer: f32,
     pub damage_per_second: f32,
     pub shield_damage_pct: f32,
     pub armor_damage_pct: f32,
@@ -132,7 +133,6 @@ pub struct WeaponStats {
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
     pub ion_malfunction_pct: f32,
-    pub duration_damage_time: f32,
     pub duration_damage: DurationDamage,
     pub weight: f32,
 }
@@ -246,15 +246,21 @@ impl Component for WeaponArray {
 
 
 pub fn calculate_dps(stats: WeaponStats) -> f32 {
-    let dps;
+    let base_damage: f32 = stats.damage; //damage per shot
+    let fire_rate: f32; //shots per second
 
     if stats.burst_shot_limit > 0 {
-        dps = (stats.damage * ((stats.burst_shot_limit+1) as f32)) /
+        fire_rate = ((stats.burst_shot_limit+1) as f32) /
             (stats.cooldown_reset + ((stats.burst_shot_limit+1) as f32) *stats.burst_cooldown_reset);
     }
     else {
-        dps = stats.damage / stats.cooldown_reset
+        fire_rate = 1.0 / stats.cooldown_reset
     }
+
+    //let duration_damage: f32 = stats.duration_damage.damage_per_second * stats.duration_damage.timer;
+
+
+    let dps = base_damage * fire_rate;
 
     dps
 }
@@ -300,7 +306,6 @@ pub struct WeaponFire {
     pub piercing_damage_pct: f32,
     pub health_damage_pct: f32,
     pub ion_malfunction_pct: f32,
-    pub duration_damage_time: f32,
     pub duration_damage: DurationDamage,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
@@ -335,7 +340,6 @@ impl WeaponFire {
         piercing_damage_pct: f32,
         health_damage_pct: f32,
         ion_malfunction_pct: f32,
-        duration_damage_time: f32,
         duration_damage: DurationDamage,
     ) -> WeaponFire {
         let (width, height) = match weapon_type {
@@ -377,7 +381,6 @@ impl WeaponFire {
             piercing_damage_pct,
             health_damage_pct,
             ion_malfunction_pct,
-            duration_damage_time,
             duration_damage,
             heat_seeking,
             heat_seeking_agility,
@@ -485,15 +488,7 @@ pub fn build_named_weapon(
             piercing_damage_pct: 0.0,
             health_damage_pct: 0.0,
             ion_malfunction_pct: 0.0,
-            duration_damage_time: 0.0,
-            duration_damage: DurationDamage {
-                damage_per_second: 0.0,
-                shield_damage_pct: 0.0,
-                armor_damage_pct: 0.0,
-                piercing_damage_pct: 0.0,
-                health_damage_pct: 0.0,
-                ion_malfunction_pct: 0.0,
-            },
+            duration_damage: DurationDamage::default(),
             weight: 0.0,
         },
     }
