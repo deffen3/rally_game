@@ -378,7 +378,12 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             vehicle.restricted_max_velocity = vehicle.max_velocity * (1.0 - (weapon_fire.slow_down_effect.slow_down_pct/100.0));
                         }
                     
+                        //Pass stuck accel effect from weapon to vehicle
+                        if weapon_fire.stuck_accel_effect_timer > 0.0 {
+                            vehicle.stuck_accel_effect_timer = weapon_fire.stuck_accel_effect_timer;
+                        }
                     
+                        //Pass ion malfunction effect from weapon to vehicle
                         if vehicle.shield.value == 0.0 && weapon_fire.ion_malfunction_pct > 0.0 {
                             vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
                         }
@@ -482,7 +487,12 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             vehicle.restricted_max_velocity = vehicle.max_velocity * (1.0 - (weapon_fire.slow_down_effect.slow_down_pct/100.0));
                         }
                         
+                        //Pass stuck accel effect from weapon to vehicle
+                        if weapon_fire.stuck_accel_effect_timer > 0.0 {
+                            vehicle.stuck_accel_effect_timer = weapon_fire.stuck_accel_effect_timer;
+                        }
                     
+                        //Pass ion malfunction effect from weapon to vehicle
                         if vehicle.shield.value == 0.0 && weapon_fire.ion_malfunction_pct > 0.0 {
                             vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
                         }

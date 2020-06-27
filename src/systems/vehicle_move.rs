@@ -664,12 +664,18 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
 
             //Update vehicle velocity from vehicle speed accel input
+            if vehicle.stuck_accel_effect_timer > 0.0 {
+                vehicle.stuck_accel_effect_timer -= dt;
+            }
+
             if vehicle.state == VehicleState::Active {
                 if let Some(move_amount) = vehicle_accel {
                     let scaled_amount: f32 = if vehicle.repair.activated {
                         0.0 as f32
                     } else if vehicle.malfunction > 0.0 {
                         thrust_accel_rate * move_amount * (100.0-vehicle.malfunction) as f32
+                    } else if vehicle.stuck_accel_effect_timer > 0.0 {
+                        thrust_accel_rate
                     } else if move_amount > 0.0 {
                         thrust_accel_rate * move_amount as f32
                     } else {
@@ -779,6 +785,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 vehicle.dy -= tank_track_lateral_friction_decel_rate * velocity_y_comp * (slip_pct) * dt;
             }
             
+
+
 
             
             //Apply vehicle slow down effect

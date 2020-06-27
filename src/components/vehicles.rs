@@ -85,6 +85,7 @@ pub struct Vehicle {
     pub max_velocity: f32,
     pub restricted_max_velocity: f32,
     pub restricted_velocity_timer: f32,
+    pub stuck_accel_effect_timer: f32,
     pub malfunction: f32,
     pub malfunction_cooldown_timer: f32,
     pub ion_malfunction_pct: f32,
@@ -171,6 +172,7 @@ impl Vehicle {
             max_velocity,
             restricted_max_velocity: max_velocity,
             restricted_velocity_timer: 0.0,
+            stuck_accel_effect_timer: 0.0,
             malfunction: 0.0,
             malfunction_cooldown_timer: -1.0,
             ion_malfunction_pct: 0.0,
@@ -274,6 +276,15 @@ pub fn check_respawn_vehicle(
             vehicle.dx = 0.0;
             vehicle.dy = 0.0;
             vehicle.dr = 0.0;
+
+            vehicle.restricted_max_velocity = vehicle.max_velocity;
+            vehicle.restricted_velocity_timer = 0.0;
+            vehicle.stuck_accel_effect_timer = 0.0;
+            vehicle.malfunction = 0.0;
+            vehicle.malfunction_cooldown_timer = 0.0;
+            vehicle.ion_malfunction_pct = 0.0;
+            vehicle.duration_damage = Vec::new();
+
 
             vehicle.shield.value = vehicle.shield.max;
             vehicle.shield.cooldown_timer = -1.;

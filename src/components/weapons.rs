@@ -151,6 +151,7 @@ pub struct WeaponStats {
     pub bounces: u32,
     pub chaining_damage: ChainingDamage,
     pub slow_down_effect: SlowDownEffect,
+    pub stuck_accel_effect_timer: f32,
     pub weight: f32,
 }
 
@@ -334,6 +335,7 @@ pub struct WeaponFire {
     pub bounces: u32,
     pub chaining_damage: ChainingDamage,
     pub slow_down_effect: SlowDownEffect,
+    pub stuck_accel_effect_timer: f32,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
 }
@@ -368,6 +370,7 @@ impl WeaponFire {
         bounces: u32,
         chaining_damage: ChainingDamage,
         slow_down_effect: SlowDownEffect,
+        stuck_accel_effect_timer: f32,
     ) -> WeaponFire {
         let (width, height) = match weapon_type {
             WeaponTypes::LaserDouble => (3.0, 6.0),
@@ -402,6 +405,8 @@ impl WeaponFire {
             spawn_angle,
             owner_player_id,
             damage,
+            heat_seeking,
+            heat_seeking_agility,
             trigger_radius,
             damage_radius,
             shot_speed,
@@ -417,9 +422,7 @@ impl WeaponFire {
             bounces,
             chaining_damage,
             slow_down_effect,
-            heat_seeking,
-            heat_seeking_agility,
-            
+            stuck_accel_effect_timer,            
         }
     }
 }
@@ -524,6 +527,7 @@ pub fn build_named_weapon(
             bounces: 0,
             chaining_damage: ChainingDamage::default(),
             slow_down_effect: SlowDownEffect::default(),
+            stuck_accel_effect_timer: 0.0,
             weight: 0.0,
         },
     }

@@ -42,6 +42,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 12.0,
   ),
   LaserDouble : WeaponStats (
@@ -87,6 +88,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 10.0,
   ),
   LaserDoubleBurstSide : WeaponStats (
@@ -132,6 +134,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 20.0,
   ),
   LaserBeam : WeaponStats (
@@ -177,6 +180,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 10.0,
   ),
   LaserPulse : WeaponStats (
@@ -222,6 +226,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 10.0,
   ),
   LaserPulseGimballed : WeaponStats (
@@ -267,6 +272,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 12.0,
   ),
   ProjectileBurstFire : WeaponStats (
@@ -312,6 +318,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 10.0,
   ),
   Shotgun : WeaponStats (
@@ -357,6 +364,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 15.0,
   ),
   ProjectileSteadyFire : WeaponStats (
@@ -402,6 +410,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 10.0,
   ),
   PiercingProjectile : WeaponStats (
@@ -447,6 +456,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 10.0,
   ),
   ProjectileRapidFireTurret : WeaponStats (
@@ -492,6 +502,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 20.0,
   ),
   ProjectileRapidFire : WeaponStats (
@@ -537,6 +548,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 10.0,
   ),
   ProjectileCannonFire : WeaponStats (
@@ -582,6 +594,7 @@
       timer: 1.0,
       slow_down_pct: 33.0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 20.0,
   ),
   Missile : WeaponStats (
@@ -627,6 +640,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 20.0,
   ),
   Rockets : WeaponStats (
@@ -672,6 +686,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 15.0,
   ),
   Mine : WeaponStats (
@@ -717,6 +732,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 30.0,
   ),
   Trap : WeaponStats (
@@ -762,6 +778,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 10.0,
   ),
   LaserSword : WeaponStats (
@@ -807,6 +824,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 5.0,
   ),
   BackwardsLaserSword : WeaponStats (
@@ -852,6 +870,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 5.0,
   ),
   Flamethrower : WeaponStats (
@@ -897,6 +916,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 15.0,
   ),
   SmartRocketGrenade : WeaponStats (
@@ -942,6 +962,7 @@
       timer: 0,
       slow_down_pct: 0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 20.0,
   ),
   IonCannon : WeaponStats (
@@ -987,6 +1008,7 @@
       timer: 1.0,
       slow_down_pct: 33.0,
     ),
+    stuck_accel_effect_timer: 0.0,
     weight: 20.0,
   ),
 }
