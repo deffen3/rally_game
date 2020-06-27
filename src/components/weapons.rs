@@ -107,6 +107,14 @@ pub struct DurationDamage {
     pub ion_malfunction_pct: f32,
 }
 
+#[derive(Copy, Clone, Debug, Deserialize, Default)]
+pub struct ChainingDamage {
+    pub damage_pct: f32,
+    pub radius: f32,
+    pub jumps: u32,
+    pub prongs: u32,
+}
+
 
 
 #[derive(Copy, Clone, Debug, Deserialize)]
@@ -134,6 +142,8 @@ pub struct WeaponStats {
     pub health_damage_pct: f32,
     pub ion_malfunction_pct: f32,
     pub duration_damage: DurationDamage,
+    pub bounces: u32,
+    pub chaining_damage: ChainingDamage,
     pub weight: f32,
 }
 
@@ -307,6 +317,8 @@ pub struct WeaponFire {
     pub health_damage_pct: f32,
     pub ion_malfunction_pct: f32,
     pub duration_damage: DurationDamage,
+    pub bounces: u32,
+    pub chaining_damage: ChainingDamage,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
     pub attached: bool,
@@ -341,6 +353,8 @@ impl WeaponFire {
         health_damage_pct: f32,
         ion_malfunction_pct: f32,
         duration_damage: DurationDamage,
+        bounces: u32,
+        chaining_damage: ChainingDamage,
     ) -> WeaponFire {
         let (width, height) = match weapon_type {
             WeaponTypes::LaserDouble => (3.0, 6.0),
@@ -382,6 +396,8 @@ impl WeaponFire {
             health_damage_pct,
             ion_malfunction_pct,
             duration_damage,
+            bounces,
+            chaining_damage,
             heat_seeking,
             heat_seeking_agility,
             attached,
@@ -489,6 +505,8 @@ pub fn build_named_weapon(
             health_damage_pct: 0.0,
             ion_malfunction_pct: 0.0,
             duration_damage: DurationDamage::default(),
+            bounces: 0,
+            chaining_damage: ChainingDamage::default(),
             weight: 0.0,
         },
     }
