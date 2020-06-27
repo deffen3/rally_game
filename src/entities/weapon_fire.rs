@@ -44,6 +44,7 @@ pub fn fire_weapon(
         weapon.stats.duration_damage,
         weapon.stats.bounces,
         weapon.stats.chaining_damage,
+        weapon.stats.slow_down_effect,
     );
 
     let local_transform = {

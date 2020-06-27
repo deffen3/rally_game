@@ -115,6 +115,12 @@ pub struct ChainingDamage {
     pub prongs: u32,
 }
 
+#[derive(Copy, Clone, Debug, Deserialize, Default)]
+pub struct SlowDownEffect {
+    pub timer: f32,
+    pub slow_down_pct: f32,
+}
+
 
 
 #[derive(Copy, Clone, Debug, Deserialize)]
@@ -144,6 +150,7 @@ pub struct WeaponStats {
     pub duration_damage: DurationDamage,
     pub bounces: u32,
     pub chaining_damage: ChainingDamage,
+    pub slow_down_effect: SlowDownEffect,
     pub weight: f32,
 }
 
@@ -319,6 +326,7 @@ pub struct WeaponFire {
     pub duration_damage: DurationDamage,
     pub bounces: u32,
     pub chaining_damage: ChainingDamage,
+    pub slow_down_effect: SlowDownEffect,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
     pub attached: bool,
@@ -355,6 +363,7 @@ impl WeaponFire {
         duration_damage: DurationDamage,
         bounces: u32,
         chaining_damage: ChainingDamage,
+        slow_down_effect: SlowDownEffect,
     ) -> WeaponFire {
         let (width, height) = match weapon_type {
             WeaponTypes::LaserDouble => (3.0, 6.0),
@@ -398,6 +407,7 @@ impl WeaponFire {
             duration_damage,
             bounces,
             chaining_damage,
+            slow_down_effect,
             heat_seeking,
             heat_seeking_agility,
             attached,
@@ -507,6 +517,7 @@ pub fn build_named_weapon(
             duration_damage: DurationDamage::default(),
             bounces: 0,
             chaining_damage: ChainingDamage::default(),
+            slow_down_effect: SlowDownEffect::default(),
             weight: 0.0,
         },
     }

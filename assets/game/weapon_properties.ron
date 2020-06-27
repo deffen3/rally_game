@@ -38,6 +38,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 12.0,
   ),
   LaserDouble : WeaponStats (
@@ -78,6 +82,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 10.0,
   ),
@@ -120,6 +128,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 20.0,
   ),
   LaserBeam : WeaponStats (
@@ -160,6 +172,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 10.0,
   ),
@@ -202,6 +218,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 10.0,
   ),
   LaserPulseGimballed : WeaponStats (
@@ -242,6 +262,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 12.0,
   ),
@@ -284,6 +308,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 10.0,
   ),
   Shotgun : WeaponStats (
@@ -324,6 +352,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 15.0,
   ),
@@ -366,6 +398,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 10.0,
   ),
   PiercingProjectile : WeaponStats (
@@ -406,6 +442,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 10.0,
   ),
@@ -448,6 +488,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 20.0,
   ),
   ProjectileRapidFire : WeaponStats (
@@ -488,6 +532,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 10.0,
   ),
@@ -530,6 +578,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 20.0,
   ),
   Missile : WeaponStats (
@@ -570,6 +622,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 20.0,
   ),
@@ -612,6 +668,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 15.0,
   ),
   Mine : WeaponStats (
@@ -652,6 +712,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 30.0,
   ),
@@ -694,6 +758,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 10.0,
   ),
   LaserSword : WeaponStats (
@@ -734,6 +802,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 5.0,
   ),
@@ -776,6 +848,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 5.0,
   ),
   Flamethrower : WeaponStats (
@@ -816,6 +892,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 15.0,
   ),
@@ -858,6 +938,10 @@
       jumps: 0,
       prongs: 0,
     ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
+    ),
     weight: 20.0,
   ),
   IonCannon : WeaponStats (
@@ -898,6 +982,10 @@
       radius: 0.0,
       jumps: 0,
       prongs: 0,
+    ),
+    slow_down_effect: SlowDownEffect (
+      timer: 0,
+      slow_down_pct: 0,
     ),
     weight: 20.0,
   ),
