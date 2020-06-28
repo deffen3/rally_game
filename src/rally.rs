@@ -38,7 +38,7 @@ use crate::components::{
 use crate::systems::{
     CollisionVehToVehSystem, CollisionWeaponFireHitboxSystem, MoveWeaponFireSystem,
     VehicleMoveSystem, VehicleShieldArmorHealthSystem, VehicleStatusSystem, VehicleTrackingSystem,
-    VehicleWeaponsSystem, MoveParticlesSystem, PathingLinesSystem,
+    VehicleWeaponsSystem, MoveParticlesSystem, PathingLinesSystem, CameraTrackingSystem,
 };
 
 pub const PLAYER_CAMERA: bool = false;
@@ -329,6 +329,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         dispatcher_builder.add(MoveParticlesSystem, "move_particles_system", &[]);
 
         dispatcher_builder.add(PathingLinesSystem, "pathing_lines_system", &[]);
+
+        dispatcher_builder.add(CameraTrackingSystem, "camera_tracking_system", &[]);
         
 
         // Build and setup the `Dispatcher`.

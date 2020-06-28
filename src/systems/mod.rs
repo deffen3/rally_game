@@ -9,6 +9,7 @@ pub use self::vehicle_tracking::VehicleTrackingSystem;
 pub use self::vehicle_weapons::VehicleWeaponsSystem;
 pub use self::move_particles::MoveParticlesSystem;
 pub use self::pathing_lines::PathingLinesSystem;
+pub use self::camera_tracking::CameraTrackingSystem;
 
 mod collision_vehicle_vehicle;
 mod collision_weapon_fire_to_hitbox;
@@ -21,3 +22,4 @@ mod vehicle_tracking;
 mod vehicle_weapons;
 mod move_particles;
 mod pathing_lines;
+mod camera_tracking;

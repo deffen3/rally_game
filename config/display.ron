@@ -1,5 +1,7 @@
 (
   title: "Rocket Rally!",
-  dimensions: Some((1000, 1000)),
+  dimensions: Some((1920, 1080)),
   vysnc: false,
+  fullscreen: None,
+  decorations: true,
 )
