@@ -3,7 +3,8 @@ use amethyst::{
         transform::{Transform},
     },
     derive::SystemDesc,
-    ecs::{System, Join, SystemData, WriteStorage, ReadStorage},
+    ecs::{System, Join, SystemData, WriteStorage, ReadStorage, ReadExpect},
+    window::ScreenDimensions,
     renderer::{
         camera::{Camera, Projection},
     },
@@ -24,6 +25,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
         ReadStorage<'s, Vehicle>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Camera>,
+        ReadExpect<'s, ScreenDimensions>,
     );
 
     fn run(
@@ -32,6 +34,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
         vehicles,
         mut transforms,
         mut cameras,
+        screen_dimensions,
     ): Self::SystemData
     ) {
         let mut vehicle_xs = Vec::<f32>::new();
@@ -71,10 +74,10 @@ impl<'s> System<'s> for CameraTrackingSystem {
         vehicle_max_y = (vehicle_max_y + offset).min(ARENA_HEIGHT);
 
         for (camera, transform) in (&mut cameras, &mut transforms).join() {
-            let camera_x = transform.translation().x;
-            let camera_y = transform.translation().y;
+            let _camera_x = transform.translation().x;
+            let _camera_y = transform.translation().y;
 
-            let camera_projection = camera.projection();
+            let _camera_projection = camera.projection();
 
             //log::info!("{} {} {:?}", camera_x, camera_y, camera_projection);
 
@@ -88,7 +91,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
             //     20.0,
             // ));
 
-            let aspect_ratio = 16.0/9.0;
+            let aspect_ratio = screen_dimensions.aspect_ratio();
 
             let x_delta = vehicle_max_x - vehicle_min_x;
             let y_delta = vehicle_max_y - vehicle_min_y;
