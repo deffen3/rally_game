@@ -336,6 +336,7 @@ pub struct WeaponFire {
     pub duration_damage: DurationDamage,
     pub bounces: u32,
     pub chaining_damage: ChainingDamage,
+    pub chain_hit_ids: Vec<usize>,
     pub slow_down_effect: SlowDownEffect,
     pub stuck_accel_effect_timer: f32,
     pub heat_seeking: bool,
@@ -425,6 +426,7 @@ impl WeaponFire {
             duration_damage,
             bounces,
             chaining_damage,
+            chain_hit_ids: Vec::<usize>::new(),
             slow_down_effect,
             stuck_accel_effect_timer,            
         }

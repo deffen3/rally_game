@@ -244,7 +244,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         let mut player_got_killed_map = HashMap::new();
 
         let mut explosion_map: Vec<(usize, WeaponFire, f32, f32)> = Vec::new();
-        let mut chain_map: Vec<(usize, WeaponFire, f32, f32)> = Vec::new();
+        let mut chain_map: Vec<(WeaponFire, f32, f32)> = Vec::new();
 
         for (player, vehicle, vehicle_transform) in
             (&mut players, &mut vehicles, &transforms).join()
@@ -427,10 +427,11 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
 
                         if weapon_fire.chaining_damage.jumps > 0 {
-                            let weapon_fire_chain_prong = weapon_fire.clone();
+                            let mut weapon_fire_chain_prong = weapon_fire.clone();
+
+                            weapon_fire_chain_prong.chain_hit_ids.push(player.id.clone());
 
                             chain_map.push((
-                                player.id.clone(),
                                 weapon_fire_chain_prong,
                                 vehicle_x,
                                 vehicle_y,
@@ -474,24 +475,26 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
 
         //apply chain effect
-        for (player_id_already_hit, weapon_fire, hit_x, hit_y) in &chain_map {
+        for (weapon_fire, hit_x, hit_y) in &chain_map {
             let mut vehicles_within_chain_radius: Vec<(f32, f32, f32, f32)> = Vec::new();
 
             for (player, vehicle, vehicle_transform) in
                 (&mut players, &mut vehicles, &transforms).join()
             {
-                let vehicle_x = vehicle_transform.translation().x;
-                let vehicle_y = vehicle_transform.translation().y;
+                if vehicle.state == VehicleState::Active {
+                    let vehicle_x = vehicle_transform.translation().x;
+                    let vehicle_y = vehicle_transform.translation().y;
 
-                if player.id != *player_id_already_hit && player.id != weapon_fire.owner_player_id {
-                    if (hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)
-                        < (vehicle.width/2.0 + weapon_fire.chaining_damage.radius).powi(2)
-                    {
-                        let dist = ((hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)).sqrt();
+                    if !weapon_fire.chain_hit_ids.contains(&player.id) && player.id != weapon_fire.owner_player_id {
+                        if (hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)
+                            < (vehicle.width/2.0 + weapon_fire.chaining_damage.radius).powi(2)
+                        {
+                            let dist = ((hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)).sqrt();
 
-                        let vehicle_size_offset = vehicle.height.max(vehicle.width);
+                            let vehicle_size_offset = vehicle.height.max(vehicle.width);
 
-                        vehicles_within_chain_radius.push((dist, vehicle_x, vehicle_y, vehicle_size_offset));
+                            vehicles_within_chain_radius.push((dist, vehicle_x, vehicle_y, vehicle_size_offset));
+                        }
                     }
                 }
             }

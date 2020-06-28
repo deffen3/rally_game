@@ -53,6 +53,8 @@ pub fn chain_fire_weapon(
         spawner_weapon_fire.stuck_accel_effect_timer,
     );
 
+    weapon_fire.chain_hit_ids = spawner_weapon_fire.chain_hit_ids.clone();
+
     let local_transform = {
         let mut local_transform = Transform::default();
         local_transform.set_translation(fire_position);
