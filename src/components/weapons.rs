@@ -16,7 +16,6 @@ use std::env::current_dir;
 use log::{info};
 
 use crate::components::PlayerWeaponIcon;
-use crate::rally::UI_HEIGHT;
 use crate::resources::{GameWeaponSetup, WeaponFireResource};
 
 
@@ -451,7 +450,7 @@ pub fn update_weapon_properties(
     let icon_entity: Entity = entities.create();
 
     let x = 5. + (weapon_index as f32)*10.0;
-    let y = UI_HEIGHT - 10.;
+    let y = -10.;
     let dx = 32.;
     let dx2 = 4.;
 

@@ -3,7 +3,7 @@ use amethyst::derive::SystemDesc;
 use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage};
 
 use crate::components::{Player, Vehicle, VehicleState, WeaponArray, WeaponFire};
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 use log::debug;
 use std::collections::HashMap;
@@ -195,7 +195,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
                             || (fire_x < (-2.0 * weapon_fire.width))
                             || (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
-                            || (fire_y < (UI_HEIGHT - 2.0 * weapon_fire.width))
+                            || (fire_y < (- 2.0 * weapon_fire.width))
                         {
                             if !weapon_fire.attached {
                                 if weapon_fire.bounces > 0 {
@@ -212,7 +212,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                         transform.set_rotation_2d(new_angle);
                                     }
                                     else if (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
-                                        || (fire_y < (UI_HEIGHT - 2.0 * weapon_fire.width))
+                                        || (fire_y < (-2.0 * weapon_fire.width))
                                     {
                                         weapon_fire.dy *= -1.0;
 

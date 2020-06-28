@@ -12,7 +12,7 @@ use std::{collections::HashMap, fs::File};
 use std::env::current_dir;
 
 use crate::components::{Armor, Health, Player, Repair, Shield, DurationDamage};
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 use crate::resources::GameModes;
 use crate::entities::ui::PlayerStatusText;
 
@@ -304,7 +304,7 @@ pub fn check_respawn_vehicle(
                 }
 
                 let spacing_factor = 5.0;
-                let height = ARENA_HEIGHT + UI_HEIGHT;
+                let height = ARENA_HEIGHT;
 
                 let (starting_rotation, starting_x, starting_y) = match spawn_index {
                     0 => (

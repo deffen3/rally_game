@@ -267,30 +267,6 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
                                 weapon_fire.dx = weapon_fire_speed*-new_angle.sin();
                                 weapon_fire.dy = weapon_fire_speed*new_angle.cos();
-                                
-                                //weapon_fire_transform.set_rotation_2d(new_angle);
-
-
-                                // if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
-                                //     || (fire_x < (-2.0 * weapon_fire.width)) 
-                                // {
-                                //     weapon_fire.dx *= -1.0;
-
-                                //     let new_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0); 
-                                //     //rotate by PI/2 to line up with 0deg is pointed towards top
-                                    
-                                //     transform.set_rotation_2d(new_angle);
-                                // }
-                                // else if (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
-                                //     || (fire_y < (UI_HEIGHT - 2.0 * weapon_fire.width))
-                                // {
-                                //     weapon_fire.dy *= -1.0;
-
-                                //     let new_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0); 
-                                //     //rotate by PI/2 to line up with 0deg is pointed towards top
-                                    
-                                //     transform.set_rotation_2d(new_angle);
-                                // }
                             }
                             else {
                                 let _ = entities.delete(weapon_fire_entity);

@@ -11,7 +11,7 @@ use crate::resources::{WeaponFireResource, GameModes};
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 pub fn spawn_weapon_boxes(
     entities: &Entities,
@@ -36,31 +36,29 @@ pub fn spawn_weapon_boxes(
 
         let mut local_transform = Transform::default();
 
-        let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
-
         if game_mode_setup == GameModes::Race {
             let spacing_factor = 5.0;
 
             let (x, y) = match spawn_index {
                 0 => (
                     ARENA_WIDTH / spacing_factor,
-                    arena_ui_height / spacing_factor,
+                    ARENA_HEIGHT / spacing_factor,
                 ),
                 1 => (
                     ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    arena_ui_height - (arena_ui_height / spacing_factor),
+                    ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
                 ),
                 2 => (
                     ARENA_WIDTH / spacing_factor,
-                    arena_ui_height - (arena_ui_height / spacing_factor),
+                    ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
                 ),
                 3 => (
                     ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    arena_ui_height / spacing_factor,
+                    ARENA_HEIGHT / spacing_factor,
                 ),
                 _ => (
                     ARENA_WIDTH / spacing_factor,
-                    arena_ui_height / spacing_factor,
+                    ARENA_HEIGHT / spacing_factor,
                 ),
             };
 
@@ -77,19 +75,19 @@ pub fn spawn_weapon_boxes(
             
 
             let (x, y) = match spawn_index {
-                0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
-                1 => (ARENA_WIDTH / 2.0, arena_ui_height / spacing_factor),
+                0 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / 2.0),
+                1 => (ARENA_WIDTH / 2.0, ARENA_HEIGHT / spacing_factor),
                 2 => (
                     ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    arena_ui_height / 2.0,
+                    ARENA_HEIGHT / 2.0,
                 ),
                 3 => (
                     ARENA_WIDTH / 2.0,
-                    arena_ui_height - (arena_ui_height / spacing_factor),
+                    ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
                 ),
                 _ => (
                     ARENA_WIDTH / spacing_factor,
-                    arena_ui_height / spacing_factor,
+                    ARENA_HEIGHT / spacing_factor,
                 ),
             };
 

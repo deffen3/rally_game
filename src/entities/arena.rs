@@ -12,7 +12,7 @@ use amethyst::{
 use std::f32::{consts::PI};
 
 use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 use crate::resources::{
     GameModeSetup, GameModes, 
     ArenaNavMesh, ArenaInvertedNavMesh, ArenaNavMeshFinal
@@ -41,12 +41,10 @@ pub fn initialize_arena_walls(
         }
     }
 
-    let arena_ui_height = ARENA_HEIGHT + UI_HEIGHT;
-
     //arena floor
     let mut floor_transform = Transform::default();
-    floor_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, -0.05);
-    floor_transform.set_scale(Vector3::new(6.25, 5.75, 0.0));
+    floor_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, -0.05);
+    floor_transform.set_scale(Vector3::new(6.25, 6.25, 0.0));
 
     let floor_texture_render = SpriteRender {
         sprite_sheet: texture_sheet_handle,
@@ -76,7 +74,7 @@ pub fn initialize_arena_walls(
 
         finish_line_transform.set_translation_xyz(
             ARENA_WIDTH - scale_mult * scale,
-            arena_ui_height / 2.0,
+            ARENA_HEIGHT / 2.0,
             -0.02,
         );
         finish_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
@@ -99,7 +97,7 @@ pub fn initialize_arena_walls(
 
         finish_line_transform.set_translation_xyz(
             ARENA_WIDTH - scale_mult * scale,
-            arena_ui_height / 2.0 + 2.0 * scale,
+            ARENA_HEIGHT / 2.0 + 2.0 * scale,
             -0.02,
         );
         finish_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
@@ -158,7 +156,7 @@ pub fn initialize_arena_walls(
         let mut checkpoint_line_transform = Transform::default();
         let scale = 4.0;
 
-        checkpoint_line_transform.set_translation_xyz(scale_mult * scale, arena_ui_height / 2.0, -0.02);
+        checkpoint_line_transform.set_translation_xyz(scale_mult * scale, ARENA_HEIGHT / 2.0, -0.02);
         checkpoint_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let checkpoint_line_sprite_render = SpriteRender {
@@ -221,17 +219,17 @@ pub fn initialize_arena_walls(
         //track layout
         let scale = 4.0;
 
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0 + 8.0 * scale, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0 - 20.0 * scale, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, arena_ui_height / 2.0 + 20.0 * scale, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 40.0 * scale, arena_ui_height / 2.0 + 45.0 * scale, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 - 40.0 * scale, arena_ui_height / 2.0 + 45.0 * scale, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 - 20.0 * scale, arena_ui_height / 2.0, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 - 20.0 * scale, arena_ui_height / 2.0 + 20.0 * scale, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 - 30.0 * scale, arena_ui_height / 2.0 - 35.0 * scale, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0 - 20.0 * scale, scale));
-        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0 + 45.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0 + 8.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, ARENA_HEIGHT / 2.0, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, ARENA_HEIGHT / 2.0 - 20.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 20.0 * scale, ARENA_HEIGHT / 2.0 + 20.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 + 40.0 * scale, ARENA_HEIGHT / 2.0 + 45.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 - 40.0 * scale, ARENA_HEIGHT / 2.0 + 45.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 - 20.0 * scale, ARENA_HEIGHT / 2.0, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 - 20.0 * scale, ARENA_HEIGHT / 2.0 + 20.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0 - 30.0 * scale, ARENA_HEIGHT / 2.0 - 35.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0 - 20.0 * scale, scale));
+        arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0 + 45.0 * scale, scale));
 
 
     } else {
@@ -240,7 +238,7 @@ pub fn initialize_arena_walls(
             let mut circle_transform = Transform::default();
             let scale = 4.0;
 
-            circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, arena_ui_height / 2.0, -0.02);
+            circle_transform.set_translation_xyz(ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, -0.02);
             circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
             let circle_sprite_render = SpriteRender {
@@ -279,19 +277,19 @@ pub fn initialize_arena_walls(
     
             for idx in 0..4 {
                 let (starting_x, starting_y) = match idx {
-                    0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
-                    1 => (ARENA_WIDTH / 2.0, arena_ui_height / spacing_factor),
+                    0 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / 2.0),
+                    1 => (ARENA_WIDTH / 2.0, ARENA_HEIGHT / spacing_factor),
                     2 => (
                         ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                        arena_ui_height / 2.0,
+                        ARENA_HEIGHT / 2.0,
                     ),
                     3 => (
                         ARENA_WIDTH / 2.0,
-                        arena_ui_height - (arena_ui_height / spacing_factor),
+                        ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
                     ),
                     _ => (
                         ARENA_WIDTH / spacing_factor,
-                        arena_ui_height / spacing_factor,
+                        ARENA_HEIGHT / spacing_factor,
                     ),
                 };
     
@@ -300,11 +298,11 @@ pub fn initialize_arena_walls(
 
             for idx in 0..4 {
                 let (starting_x, starting_y) = match idx {
-                    0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / spacing_factor),
-                    1 => (ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), arena_ui_height / spacing_factor),
-                    2 => (ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), arena_ui_height - (arena_ui_height / spacing_factor)),
-                    3 => (ARENA_WIDTH / spacing_factor, arena_ui_height - (arena_ui_height / spacing_factor)),
-                    _ => (ARENA_WIDTH / spacing_factor, arena_ui_height / spacing_factor),
+                    0 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / spacing_factor),
+                    1 => (ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), ARENA_HEIGHT / spacing_factor),
+                    2 => (ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor)),
+                    3 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor)),
+                    _ => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / spacing_factor),
                 };
     
                 arena_circle_objects_x_y_scale.push((starting_x, starting_y, scale));
@@ -314,7 +312,7 @@ pub fn initialize_arena_walls(
             //central arena wall circle
             let scale = 4.0;
 
-            arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, arena_ui_height / 2.0, scale));
+            arena_circle_objects_x_y_scale.push((ARENA_WIDTH / 2.0, ARENA_HEIGHT / 2.0, scale));
         }
 
         //outer arena wall circles
@@ -323,19 +321,19 @@ pub fn initialize_arena_walls(
 
         for idx in 0..4 {
             let (starting_x, starting_y) = match idx {
-                0 => (ARENA_WIDTH / spacing_factor, arena_ui_height / 2.0),
-                1 => (ARENA_WIDTH / 2.0, arena_ui_height / spacing_factor),
+                0 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / 2.0),
+                1 => (ARENA_WIDTH / 2.0, ARENA_HEIGHT / spacing_factor),
                 2 => (
                     ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    arena_ui_height / 2.0,
+                    ARENA_HEIGHT / 2.0,
                 ),
                 3 => (
                     ARENA_WIDTH / 2.0,
-                    arena_ui_height - (arena_ui_height / spacing_factor),
+                    ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
                 ),
                 _ => (
                     ARENA_WIDTH / spacing_factor,
-                    arena_ui_height / spacing_factor,
+                    ARENA_HEIGHT / spacing_factor,
                 ),
             };
 
@@ -351,8 +349,8 @@ pub fn initialize_arena_walls(
     nav_mesh_grid_xs.push(ARENA_WIDTH - 3.0*nav_mesh_offset);
 
     let mut nav_mesh_grid_ys: Vec<f32> = Vec::new();
-    nav_mesh_grid_ys.push(UI_HEIGHT + nav_mesh_offset);
-    nav_mesh_grid_ys.push(UI_HEIGHT + 3.0*nav_mesh_offset);
+    nav_mesh_grid_ys.push(0.0 + nav_mesh_offset);
+    nav_mesh_grid_ys.push(0.0 + 3.0*nav_mesh_offset);
     nav_mesh_grid_ys.push(ARENA_HEIGHT - nav_mesh_offset);
     nav_mesh_grid_ys.push(ARENA_HEIGHT - 3.0*nav_mesh_offset);
 

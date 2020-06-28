@@ -12,7 +12,7 @@ use amethyst::{
 
 use crate::components::{Vehicle, Player, VehicleState};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 
 #[derive(SystemDesc)]

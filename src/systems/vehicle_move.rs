@@ -33,7 +33,6 @@ use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireReso
 use crate::rally::{
     ARENA_HEIGHT, ARENA_WIDTH, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
     COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
-    UI_HEIGHT,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -222,13 +221,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         player.path_target = Some((ARENA_WIDTH/2.0 - 20., ARENA_HEIGHT - 60.0, 0.0));
                     }
                     else if player.checkpoint_completed == 1 {
-                        player.path_target = Some((30.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 - 20., 0.0));
+                        player.path_target = Some((30.0, (ARENA_HEIGHT)/2.0 - 20., 0.0));
                     }
                     else if player.checkpoint_completed == 2 {
-                        player.path_target = Some((ARENA_WIDTH/2.0 + 20., UI_HEIGHT + 20., 0.0));
+                        player.path_target = Some((ARENA_WIDTH/2.0 + 20., 20., 0.0));
                     }
                     else if player.checkpoint_completed == 3 {
-                        player.path_target = Some((ARENA_WIDTH - 20., (UI_HEIGHT + ARENA_HEIGHT)/2.0 + 20., 0.0));
+                        player.path_target = Some((ARENA_WIDTH - 20., (ARENA_HEIGHT)/2.0 + 20., 0.0));
                     }
 
 
@@ -339,7 +338,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     {
                         if player.bot_mode == BotMode::TakeTheHill {
                             if player.on_hill == false {
-                                player.path_target = Some((ARENA_WIDTH/2.0, (UI_HEIGHT + ARENA_HEIGHT)/2.0 , 0.0));
+                                player.path_target = Some((ARENA_WIDTH/2.0, (ARENA_HEIGHT)/2.0 , 0.0));
                             }
                             else {
                                 player.path_target = None;
@@ -889,9 +888,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 //hit the top wall
                 transform.set_translation_y(ARENA_HEIGHT - veh_rect_height);
                 y_collision = true;
-            } else if vehicle_y < (UI_HEIGHT + veh_rect_height) {
+            } else if vehicle_y < (veh_rect_height) {
                 //hit the bottom wall
-                transform.set_translation_y(UI_HEIGHT + veh_rect_height);
+                transform.set_translation_y(veh_rect_height);
                 y_collision = true;
             }
 

@@ -17,7 +17,7 @@ use crate::components::{
 };
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, UI_HEIGHT};
+use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 pub fn intialize_player(
     world: &mut World,
@@ -65,19 +65,17 @@ pub fn intialize_player(
 
     let spacing_factor = 5.0;
 
-    let height = ARENA_HEIGHT + UI_HEIGHT;
-
     let starting_rotation;
     let starting_x;
     let starting_y;
 
     if game_mode == GameModes::Race {
         let (x, y) = match player_index {
-            0 => (ARENA_WIDTH - 70.0, height / 2.0 - 14.0),
-            1 => (ARENA_WIDTH - 50.0, height / 2.0 - 14.0),
-            2 => (ARENA_WIDTH - 30.0, height / 2.0 - 14.0),
-            3 => (ARENA_WIDTH - 10.0, height / 2.0 - 14.0),
-            _ => (ARENA_WIDTH - 40.0, height / 2.0 - 14.0),
+            0 => (ARENA_WIDTH - 70.0, ARENA_HEIGHT / 2.0 - 14.0),
+            1 => (ARENA_WIDTH - 50.0, ARENA_HEIGHT / 2.0 - 14.0),
+            2 => (ARENA_WIDTH - 30.0, ARENA_HEIGHT / 2.0 - 14.0),
+            3 => (ARENA_WIDTH - 10.0, ARENA_HEIGHT / 2.0 - 14.0),
+            _ => (ARENA_WIDTH - 40.0, ARENA_HEIGHT / 2.0 - 14.0),
         };
 
         starting_rotation = 0.0;
@@ -88,27 +86,27 @@ pub fn intialize_player(
             0 => (
                 -PI / 4.0,
                 ARENA_WIDTH / spacing_factor,
-                height / spacing_factor,
+                ARENA_HEIGHT / spacing_factor,
             ),
             1 => (
                 PI / 2.0 + PI / 4.0,
                 ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                height - (height / spacing_factor),
+                ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
             ),
             2 => (
                 PI + PI / 4.0,
                 ARENA_WIDTH / spacing_factor,
-                height - (height / spacing_factor),
+                ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
             ),
             3 => (
                 PI / 2.0 - PI / 4.0,
                 ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                height / spacing_factor,
+                ARENA_HEIGHT / spacing_factor,
             ),
             _ => (
                 -PI / 4.0,
                 ARENA_WIDTH / spacing_factor,
-                height / spacing_factor,
+                ARENA_HEIGHT / spacing_factor,
             ),
         };
 
@@ -233,7 +231,7 @@ pub fn intialize_player(
 
     //UI vehicle icons
     let x = 20.;
-    let y = UI_HEIGHT - 10.;
+    let y = -10.;
     let dx = 32.;
     let dx2 = 4.;
     {
@@ -263,7 +261,7 @@ pub fn intialize_player(
 
     //UI initial weapon icon
     let x = 5.;
-    let y = UI_HEIGHT - 10.;
+    let y = -10.;
     let dx = 32.;
     let dx2 = 4.;
 
