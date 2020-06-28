@@ -1,15 +1,13 @@
 use amethyst::{
-    core::math::Vector3,
-    core::transform::Transform,
     ecs::prelude::{Component, DenseVecStorage, Entities, Entity, LazyUpdate, ReadExpect, World},
     renderer::{palette::Srgba, resources::Tint, SpriteRender, Transparent},
     utils::{removal::Removal, application_root_dir},
+    ui::{UiTransform, UiImage, Anchor},
 };
 
 use rand::Rng;
 use ron::de::from_reader;
 use serde::Deserialize;
-use std::f32::consts::PI;
 use std::{collections::HashMap, fs::File};
 use std::env::current_dir;
 
@@ -375,22 +373,7 @@ impl WeaponFire {
         slow_down_effect: SlowDownEffect,
         stuck_accel_effect_timer: f32,
     ) -> WeaponFire {
-        let (width, height) = match weapon_type {
-            WeaponTypes::LaserDouble => (3.0, 6.0),
-            WeaponTypes::LaserBeam => (1.0, 12.0),
-            WeaponTypes::LaserPulse => (2.0, 5.0),
-            WeaponTypes::ProjectileBurstFire => (1.0, 4.0),
-            WeaponTypes::ProjectileRapidFire => (1.0, 2.0),
-            WeaponTypes::ProjectileCannonFire => (3.0, 3.0),
-            WeaponTypes::Missile => (5.0, 6.0),
-            WeaponTypes::Rockets => (5.0, 4.0),
-            WeaponTypes::Mine => (4.0, 4.0),
-            WeaponTypes::Grenade => (4.0, 4.0),
-            WeaponTypes::Trap => (2.0, 4.0),
-            WeaponTypes::LaserSword => (3.0, 15.0),
-            WeaponTypes::Flame => (6.0, 4.0),
-            WeaponTypes::Ion => (5.0, 5.0),
-        };
+        let (width, height) = get_weapon_width_height(weapon_type.clone());
 
         WeaponFire {
             weapon_array_id,
@@ -449,34 +432,41 @@ pub fn update_weapon_properties(
     //update UI icon
     let icon_entity: Entity = entities.create();
 
-    let x = 5. + (weapon_index as f32)*10.0;
-    let y = -10.;
-    let dx = 32.;
-    let dx2 = 4.;
-
-    let weapon_icon_dx = 70.0;
+    let x = -290. + (weapon_index as f32)*10.0;
+    let y = 45.;
+    let dx = 250.;
 
     let (icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, new_weapon_stats.weapon_type, weapon_fire_resource);
+        get_weapon_icon(player_id, new_weapon_stats.weapon_type, &weapon_fire_resource);
 
-    let mut icon_weapon_transform = Transform::default();
 
     let starting_x = match player_id {
         0 => (x),
-        1 => (x + 3.0 * dx + dx2),
-        2 => (x + 6.0 * dx + 2.0 * dx2),
-        3 => (x + 9.0 * dx + 3.0 * dx2),
+        1 => (x + dx),
+        2 => (x + 2.0*dx),
+        3 => (x + 3.0*dx),
         _ => (0.0),
     };
 
-    icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.4);
-    icon_weapon_transform.set_rotation_2d(-PI / 2.0);
-    icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
+    let (width, height) = get_weapon_width_height(weapon_type.clone());
 
+    let icon_weapon_transform = UiTransform::new(
+        "P1_WeaponIcon".to_string(),
+        Anchor::BottomMiddle,
+        Anchor::BottomMiddle,
+        starting_x,
+        y,
+        0.2,
+        width * icon_scale,
+        height * icon_scale,
+    );
+
+    // White shows the sprite as normal.
+    // You can change the color at any point to modify the sprite's tint.
     let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
 
     lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_type));
-    lazy_update.insert(icon_entity, weapon_sprite);
+    lazy_update.insert(icon_entity, UiImage::Sprite(weapon_sprite));
     lazy_update.insert(icon_entity, icon_weapon_transform);
     lazy_update.insert(icon_entity, icon_tint);
     lazy_update.insert(icon_entity, Transparent);
@@ -589,7 +579,7 @@ pub fn get_weapon_icon(
         weapon_sprite = get_trap_sprite(player_id, weapon_fire_resource);
     }
 
-    (icon_scale, weapon_sprite)
+    (icon_scale*3.0, weapon_sprite)
 }
 
 pub fn get_mine_sprite(
@@ -616,4 +606,27 @@ pub fn get_trap_sprite(
         3 => weapon_fire_resource.trap_p4_sprite_render.clone(),
         _ => weapon_fire_resource.trap_p1_sprite_render.clone(),
     }
+}
+
+
+pub fn get_weapon_width_height(weapon_type: WeaponTypes) -> (f32, f32)
+{
+    let (width, height) = match weapon_type {
+        WeaponTypes::LaserDouble => (3.0, 6.0),
+        WeaponTypes::LaserBeam => (1.0, 12.0),
+        WeaponTypes::LaserPulse => (2.0, 5.0),
+        WeaponTypes::ProjectileBurstFire => (1.0, 4.0),
+        WeaponTypes::ProjectileRapidFire => (1.0, 2.0),
+        WeaponTypes::ProjectileCannonFire => (3.0, 3.0),
+        WeaponTypes::Missile => (5.0, 6.0),
+        WeaponTypes::Rockets => (5.0, 4.0),
+        WeaponTypes::Mine => (4.0, 4.0),
+        WeaponTypes::Grenade => (4.0, 4.0),
+        WeaponTypes::Trap => (2.0, 4.0),
+        WeaponTypes::LaserSword => (3.0, 15.0),
+        WeaponTypes::Flame => (6.0, 4.0),
+        WeaponTypes::Ion => (5.0, 5.0),
+    };
+
+    (width, height)
 }

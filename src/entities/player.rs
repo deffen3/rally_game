@@ -5,6 +5,7 @@ use amethyst::{
     prelude::*,
     renderer::{palette::Srgba, resources::Tint, SpriteRender, SpriteSheet, Transparent},
     utils::removal::Removal,
+    ui::{UiTransform, UiImage, Anchor},
 };
 
 use crate::entities::ui::PlayerStatusText;
@@ -13,7 +14,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     build_named_weapon_from_world, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, WeaponArray, Weapon, WeaponNames,
-    VehicleMovementType, VehicleTypes, get_vehicle_sprites,
+    VehicleMovementType, VehicleTypes, get_vehicle_sprites, get_weapon_width_height,
 };
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -229,60 +230,66 @@ pub fn intialize_player(
 
 
 
-    //UI vehicle icons
-    let x = 20.;
-    let y = -10.;
-    let dx = 32.;
-    let dx2 = 4.;
-    {
-        let mut icon_transform = Transform::default();
 
+    //UI vehicle icons
+    let x = -450.;
+    let y = 45.;
+    let dx = 250.;
+    {
         let starting_x = match player_index {
             0 => (x),
-            1 => (x + 3.0 * dx + dx2),
-            2 => (x + 6.0 * dx + 2.0 * dx2),
-            3 => (x + 9.0 * dx + 3.0 * dx2),
+            1 => (x + dx),
+            2 => (x + 2.0*dx),
+            3 => (x + 3.0*dx),
             _ => (0.0),
         };
 
-        icon_transform.set_rotation_2d(-PI / 2.0);
-        icon_transform.set_translation_xyz(starting_x as f32, y, 0.4);
-
-        let vehicle_icon_scale = 1.0 / vehicle_sprite_scalar;
-        icon_transform.set_scale(Vector3::new(vehicle_icon_scale, vehicle_icon_scale, 0.0));
+        let icon_transform = UiTransform::new(
+            "PVehicle".to_string(),
+            Anchor::BottomMiddle,
+            Anchor::BottomMiddle,
+            starting_x,
+            y,
+            0.2,
+            vehicle_width*3.0,
+            vehicle_height*3.0,
+        );
 
         world
             .create_entity()
             .with(Removal::new(0 as u32))
             .with(icon_transform)
-            .with(vehicle_sprite_render.clone())
+            .with(UiImage::Sprite(vehicle_sprite_render.clone()))
             .build();
     }
 
     //UI initial weapon icon
-    let x = 5.;
-    let y = -10.;
-    let dx = 32.;
-    let dx2 = 4.;
-
-    let weapon_icon_dx = 70.0;
+    let x = -290.;
 
     let (icon_scale, weapon_sprite) =
-        get_weapon_icon(player_index, weapon_stats.weapon_type, &weapon_fire_resource);
+        get_weapon_icon(player_index, weapon_stats.weapon_type.clone(), &weapon_fire_resource);
 
-    let mut icon_weapon_transform = Transform::default();
 
     let starting_x = match player_index {
         0 => (x),
-        1 => (x + 3.0 * dx + dx2),
-        2 => (x + 6.0 * dx + 2.0 * dx2),
-        3 => (x + 9.0 * dx + 3.0 * dx2),
+        1 => (x + dx),
+        2 => (x + 2.0*dx),
+        3 => (x + 3.0*dx),
         _ => (0.0),
     };
 
-    icon_weapon_transform.set_translation_xyz((starting_x + weapon_icon_dx) as f32, y, 0.4);
-    icon_weapon_transform.set_rotation_2d(-PI / 2.0);
-    icon_weapon_transform.set_scale(Vector3::new(icon_scale, icon_scale, 0.0));
+    let (weapon_width, weapon_height) = get_weapon_width_height(weapon_stats.weapon_type.clone());
+
+    let icon_weapon_transform = UiTransform::new(
+        "PWeaponIcon".to_string(),
+        Anchor::BottomMiddle,
+        Anchor::BottomMiddle,
+        starting_x,
+        y,
+        0.2,
+        weapon_width * icon_scale,
+        weapon_height * icon_scale,
+    );
 
     // White shows the sprite as normal.
     // You can change the color at any point to modify the sprite's tint.
@@ -295,12 +302,14 @@ pub fn intialize_player(
             player_index,
             weapon_stats.weapon_type,
         ))
-        .with(weapon_sprite)
+        .with(UiImage::Sprite(weapon_sprite))
         .with(icon_weapon_transform)
         .with(icon_tint)
         .with(Transparent)
         .build();
 
+
+        
     let weapon = Weapon::new(weapon_name, weapon_icon, weapon_stats);
 
     //Create actual Player with Vehicle and Weapon
