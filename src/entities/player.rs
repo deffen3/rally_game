@@ -270,7 +270,7 @@ pub fn intialize_player(
     let weapon_icon_dx = 70.0;
 
     let (icon_scale, weapon_sprite) =
-        get_weapon_icon(player_index, weapon_stats, &weapon_fire_resource);
+        get_weapon_icon(player_index, weapon_stats.weapon_type, &weapon_fire_resource);
 
     let mut icon_weapon_transform = Transform::default();
 

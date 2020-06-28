@@ -10,6 +10,7 @@ use amethyst::{
     },
 };
 
+use std::f32::consts::PI;
 use std::collections::HashMap;
 
 extern crate nalgebra as na;
@@ -23,7 +24,7 @@ use crate::components::{
     WeaponFire, WeaponStoreResource,
 };
 
-use crate::entities::{spawn_weapon_boxes, hit_spray, explosion_shockwave};
+use crate::entities::{spawn_weapon_boxes, hit_spray, explosion_shockwave, chain_fire_weapon};
 
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -243,6 +244,7 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
         let mut player_got_killed_map = HashMap::new();
 
         let mut explosion_map: Vec<(usize, WeaponFire, f32, f32)> = Vec::new();
+        let mut chain_map: Vec<(usize, WeaponFire, f32, f32)> = Vec::new();
 
         for (player, vehicle, vehicle_transform) in
             (&mut players, &mut vehicles, &transforms).join()
@@ -422,6 +424,19 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                                 &lazy_update,
                             );
                         }
+
+
+                        if weapon_fire.chaining_damage.jumps > 0 {
+                            let weapon_fire_chain_prong = weapon_fire.clone();
+
+                            chain_map.push((
+                                player.id.clone(),
+                                weapon_fire_chain_prong,
+                                vehicle_x,
+                                vehicle_y,
+                            ));
+                        }
+
                     
                         if self.hit_spray_cooldown_timer < 0.0 
                             && vehicle.state == VehicleState::Active
@@ -457,6 +472,80 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             }
         }
 
+
+        //apply chain effect
+        for (player_id_already_hit, weapon_fire, hit_x, hit_y) in &chain_map {
+            let mut vehicles_within_chain_radius: Vec<(f32, f32, f32, f32)> = Vec::new();
+
+            for (player, vehicle, vehicle_transform) in
+                (&mut players, &mut vehicles, &transforms).join()
+            {
+                let vehicle_x = vehicle_transform.translation().x;
+                let vehicle_y = vehicle_transform.translation().y;
+
+                if player.id != *player_id_already_hit && player.id != weapon_fire.owner_player_id {
+                    if (hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)
+                        < (vehicle.width/2.0 + weapon_fire.chaining_damage.radius).powi(2)
+                    {
+                        let dist = ((hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)).sqrt();
+
+                        let vehicle_size_offset = vehicle.height.max(vehicle.width);
+
+                        vehicles_within_chain_radius.push((dist, vehicle_x, vehicle_y, vehicle_size_offset));
+                    }
+                }
+            }
+
+            let mut prongs_remaining = weapon_fire.chaining_damage.prongs.clone();
+
+            vehicles_within_chain_radius.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+
+            for (_dist, vehicle_x, vehicle_y, vehicle_size_offset) in vehicles_within_chain_radius.iter() {
+                let mut weapon_fire_chain_prong = weapon_fire.clone();
+
+                if prongs_remaining > 0 {
+                    //spawn chain prong
+                    weapon_fire_chain_prong.damage *= weapon_fire_chain_prong.chaining_damage.damage_pct/100.;
+                    weapon_fire_chain_prong.chaining_damage.jumps -= 1;
+                    weapon_fire_chain_prong.shot_life_limit = weapon_fire_chain_prong.chaining_damage.radius / weapon_fire_chain_prong.shot_speed;
+
+                    let diff_x = hit_x - vehicle_x;
+                    let diff_y = hit_y - vehicle_y;
+
+                    let fire_angle = diff_y.atan2(diff_x) + (PI / 2.0);
+                    //rotate by PI/2 to line up with 0deg is pointed towards top
+
+                    let angle_x_comp: f32 = -fire_angle.sin();
+                    let angle_y_comp: f32 = fire_angle.cos();
+                    
+                    let x_offset = vehicle_size_offset * angle_x_comp;
+                    let y_offset = vehicle_size_offset * angle_y_comp;
+
+                    let init_x = *hit_x;
+                    let init_y = *hit_y;
+
+                    let fire_position = Vector3::new(
+                        init_x + x_offset,
+                        init_y + y_offset,
+                        0.0,
+                    );
+
+                    chain_fire_weapon(
+                        &entities,
+                        &weapon_fire_resource,
+                        weapon_fire_chain_prong.clone(),
+                        fire_position,
+                        fire_angle,
+                        weapon_fire_chain_prong.owner_player_id.clone(),
+                        &lazy_update,
+                    );
+
+                    prongs_remaining -= 1;
+                }
+            }
+        }
+
+
         //apply splash explosion damage
         for (player, vehicle, vehicle_transform) in
             (&mut players, &mut vehicles, &transforms).join()
@@ -467,8 +556,8 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
             for (player_id_already_hit, weapon_fire, fire_x, fire_y) in &explosion_map {
                 if player.id != *player_id_already_hit {
                     if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
-                            < (vehicle.width/2.0 + weapon_fire.damage_radius).powi(2) {
-
+                        < (vehicle.width/2.0 + weapon_fire.damage_radius).powi(2) 
+                    {
                         player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
                         player.last_hit_timer = 0.0;
 

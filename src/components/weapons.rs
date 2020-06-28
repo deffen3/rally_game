@@ -304,7 +304,7 @@ pub fn calculate_range(stats: WeaponStats) -> f32 {
 
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct WeaponFire {
     pub weapon_array_id: usize,
     pub weapon_type: WeaponTypes,
@@ -456,7 +456,7 @@ pub fn update_weapon_properties(
     let weapon_icon_dx = 70.0;
 
     let (icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, new_weapon_stats, weapon_fire_resource);
+        get_weapon_icon(player_id, new_weapon_stats.weapon_type, weapon_fire_resource);
 
     let mut icon_weapon_transform = Transform::default();
 
@@ -553,11 +553,11 @@ pub fn build_named_weapon_from_world(
 
 pub fn get_weapon_icon(
     player_id: usize,
-    weapon_stats: WeaponStats,
+    weapon_type: WeaponTypes,
     weapon_fire_resource: &WeaponFireResource,
 ) -> (f32, SpriteRender) {
 
-    let (icon_scale, mut weapon_sprite) = match weapon_stats.weapon_type {
+    let (icon_scale, mut weapon_sprite) = match weapon_type {
         WeaponTypes::LaserDouble => (1.5, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponTypes::LaserBeam => (0.5, weapon_fire_resource.laser_beam_sprite_render.clone()),
         WeaponTypes::LaserPulse => (1.5, weapon_fire_resource.laser_burst_sprite_render.clone()),
@@ -582,9 +582,9 @@ pub fn get_weapon_icon(
     };
 
     //Player colored weapons
-    if weapon_stats.weapon_type == WeaponTypes::Mine {
+    if weapon_type == WeaponTypes::Mine {
         weapon_sprite = get_mine_sprite(player_id, weapon_fire_resource);
-    } else if weapon_stats.weapon_type == WeaponTypes::Trap {
+    } else if weapon_type == WeaponTypes::Trap {
         weapon_sprite = get_trap_sprite(player_id, weapon_fire_resource);
     }
 
