@@ -1,4 +1,5 @@
 (
   title: "Rocket Rally!",
   dimensions: Some((1000, 1000)),
+  vysnc: false,
 )
