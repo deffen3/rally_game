@@ -48,6 +48,7 @@ pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
 pub const ARENA_WIDTH: f32 = 400.0;
 
+//Damage at speed of 100
 pub const BASE_COLLISION_DAMAGE: f32 = 20.0;
 pub const COLLISION_PIERCING_DAMAGE_PCT: f32 = 0.0;
 pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 25.0;
@@ -254,7 +255,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                     vehicle_height = 12.0;
                     vehicle_sprite_scalar = 1.0;
 
-                    max_velocity = 1.0;
+                    max_velocity = 100.0;
 
                     vehicle_movement_type = VehicleMovementType::Hover;
                 }

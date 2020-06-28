@@ -134,8 +134,8 @@ pub fn acceleration_spray(
     let y_comp = spray_angle.cos();
 
     lazy_update.insert(particles_entity, Particles {
-        dx: thrust * x_comp,
-        dy: thrust * y_comp,
+        dx: thrust/100.0 * x_comp,
+        dy: thrust/100.0 * y_comp,
         life_timer: 0.2,
     });
     

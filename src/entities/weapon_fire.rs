@@ -138,8 +138,6 @@ pub fn fire_weapon(
         let x = local_transform.translation().x;
         let y = local_transform.translation().y;
 
-        //let x_offset = weapon_fire.height*0.5 * angle_x_comp + weapon_fire.width*0.5 * (1.0-angle_x_comp);
-        //let y_offset = weapon_fire.height*0.5 * angle_y_comp + weapon_fire.width*0.5 * (1.0-angle_y_comp);
         let x_offset = 0.0;
         let y_offset = 0.0;
 

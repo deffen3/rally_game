@@ -232,12 +232,29 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                                 let x_diff = hitbox_x - contact_pt.x;
                                 let y_diff = hitbox_y - contact_pt.y;
 
-                                let new_angle;
+                                let mut new_angle;
                                 if hitbox.shape == HitboxShape::Circle 
                                 {
-                                    let contact_perp_angle = y_diff.atan2(x_diff);
+                                    let mut contact_perp_angle = y_diff.atan2(x_diff) + PI/2.0;
+                                    if contact_perp_angle > PI {
+                                        contact_perp_angle -= 2.0*PI;
+                                    }
 
-                                    new_angle = contact_perp_angle - fire_angle;
+                                    log::info!("fire_angle: {}", fire_angle/PI*180.0);
+                                    log::info!("contact_perp_angle: {}", contact_perp_angle/PI*180.0);
+
+                                    new_angle = contact_perp_angle - fire_angle - PI/2.0;
+
+                                    log::info!("new_angle: {}", new_angle/PI*180.0);
+
+                                    if new_angle > PI {
+                                        new_angle -= 2.0*PI;
+                                    }
+                                    else if new_angle < -PI {
+                                        new_angle += 2.0*PI;
+                                    }
+
+                                    log::info!("new_angle: {}", new_angle/PI*180.0);
                                 }
                                 else 
                                 {
@@ -298,9 +315,6 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
             let angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI/2.0);
 
             weapon_fire_transform.set_rotation_2d(angle);
-
-            weapon_fire_transform.prepend_translation_x(weapon_fire.dx * dt);
-            weapon_fire_transform.prepend_translation_y(weapon_fire.dy * dt);
         }
         
 

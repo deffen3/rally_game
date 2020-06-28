@@ -26,7 +26,7 @@ use crate::rally::{
 use crate::resources::{GameModeSetup, GameModes};
 
 const VEHICLE_COLLISION_COOLDOWN_RESET: f32 = 0.1;
-const COLLISION_LOSS: f32 = 0.03;
+const COLLISION_LOSS: f32 = 0.3;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
@@ -149,17 +149,17 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                 vehicle.dx = vehicle.dx - impulse*(contact_pt.x - vehicle_x);
                 vehicle.dy = vehicle.dy - impulse*(contact_pt.y - vehicle_y);
 
-                transform.set_translation_x(vehicle_x + vehicle.dx);
-                transform.set_translation_y(vehicle_y + vehicle.dy);
+                transform.set_translation_x(vehicle_x + vehicle.dx*dt);
+                transform.set_translation_y(vehicle_y + vehicle.dy*dt);
 
 
 
                 if vehicle.collision_cooldown_timer <= 0.0 {
                     debug!("Player {} has collided", player.id);
 
-                    let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel_diff;
+                    let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel_diff/100.0;
 
-                    if abs_vel_diff > 1.0 {
+                    if abs_vel_diff > 75.0 {
                         play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                     }
                     vehicle.collision_cooldown_timer = VEHICLE_COLLISION_COOLDOWN_RESET;

@@ -165,19 +165,19 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let vehicle_weight = determine_vehicle_weight(vehicle);
 
 
-            let rotate_accel_rate: f32 = 1.0 * vehicle.engine_force / vehicle_weight;
-            let rotate_friction_decel_rate: f32 = 0.98 * vehicle.engine_force / vehicle_weight;
+            let rotate_accel_rate: f32 = 120.0 * vehicle.engine_force / vehicle_weight;
+            let rotate_friction_decel_rate: f32 = 75.0 * vehicle.engine_force / vehicle_weight;
 
-            let thrust_accel_rate: f32 = 0.9 * vehicle.engine_force / vehicle_weight;
-            let thrust_decel_rate: f32 = 0.6 * vehicle.engine_force / vehicle_weight;
-            let thrust_strafe_accel_rate: f32 = 0.6 * vehicle.engine_force / vehicle_weight;
-            let thrust_friction_decel_rate: f32 = 0.3 * vehicle.engine_force / vehicle_weight;
+            let thrust_accel_rate: f32 = 90.0 * vehicle.engine_force / vehicle_weight;
+            let thrust_decel_rate: f32 = 60.0 * vehicle.engine_force / vehicle_weight;
+            let thrust_strafe_accel_rate: f32 = 60.0 * vehicle.engine_force / vehicle_weight;
+            let thrust_friction_decel_rate: f32 = 30.0 * vehicle.engine_force / vehicle_weight;
 
-            let tire_longitudinal_friction_decel_rate: f32 = 0.3;
-            let tire_lateral_friction_decel_rate: f32 = 0.15;
+            let tire_longitudinal_friction_decel_rate: f32 = 30.0;
+            let tire_lateral_friction_decel_rate: f32 = 15.0;
 
-            let tank_track_longitudinal_friction_decel_rate: f32 = 0.8;
-            let tank_track_lateral_friction_decel_rate: f32 = 2.0;
+            let tank_track_longitudinal_friction_decel_rate: f32 = 80.0;
+            let tank_track_lateral_friction_decel_rate: f32 = 200.0;
 
             let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
             let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
@@ -805,12 +805,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
 
             //Transform on vehicle velocity
-            if vehicle.dx.abs() > 0.001 {
-                transform.prepend_translation_x(vehicle.dx);
+            if vehicle.dx.abs() > 0.1 {
+                transform.prepend_translation_x(vehicle.dx * dt);
             }
 
-            if vehicle.dy.abs() > 0.001 {
-                transform.prepend_translation_y(vehicle.dy);
+            if vehicle.dy.abs() > 0.1 {
+                transform.prepend_translation_y(vehicle.dy * dt);
             }
 
             //Apply vehicle rotation from turn input
@@ -840,16 +840,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     if turnable {
                         if scaled_amount > 0.1 || scaled_amount < -0.1 {
-                            if vehicle.dr > 0.01 {
+                            if vehicle.dr > 1.0 {
                                 vehicle.dr += (scaled_amount - rotate_friction_decel_rate) * dt;
-                            } else if vehicle.dr < -0.01 {
+                            } else if vehicle.dr < -1.0 {
                                 vehicle.dr += (scaled_amount + rotate_friction_decel_rate) * dt;
                             } else {
                                 vehicle.dr += (scaled_amount) * dt;
                             }
-                        } else if vehicle.dr > 0.01 {
+                        } else if vehicle.dr > 1.0 {
                             vehicle.dr += (-rotate_friction_decel_rate) * dt;
-                        } else if vehicle.dr < -0.01 {
+                        } else if vehicle.dr < -1.0 {
                             vehicle.dr += (rotate_friction_decel_rate) * dt;
                         } else {
                             vehicle.dr = 0.0;
@@ -860,9 +860,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     }
 
 
-                    vehicle.dr = vehicle.dr.min(0.025).max(-0.025);
+                    vehicle.dr = vehicle.dr.min(2.5).max(-2.5);
 
-                    transform.set_rotation_2d(vehicle_angle + vehicle.dr);
+                    transform.set_rotation_2d(vehicle_angle + vehicle.dr*dt);
                 }
             }
 
@@ -901,7 +901,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 if vehicle.state == VehicleState::Active {
                     if vehicle.collision_cooldown_timer <= 0.0 {
-                        let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_x_comp.abs();
+                        let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel/100.0 * velocity_x_comp.abs();
                         debug!("Player {} has collided with {} damage", player.id, damage);
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
@@ -931,7 +931,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             );
                         }
 
-                        if abs_vel > 0.5 {
+                        if abs_vel > 75.0 {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -944,7 +944,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 if vehicle.state == VehicleState::Active {
                     if vehicle.collision_cooldown_timer <= 0.0 {
-                        let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel * velocity_y_comp.abs();
+                        let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel/100.0 * velocity_y_comp.abs();
                         debug!("Player {} has collided with {} damage", player.id, damage);
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
@@ -974,7 +974,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             );
                         }
 
-                        if abs_vel > 0.5 {
+                        if abs_vel > 75.0 {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                         }
                         vehicle.collision_cooldown_timer = 1.0;
@@ -1154,7 +1154,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         }
 
                         if vehicle.collision_cooldown_timer <= 0.0 {
-                            let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel;
+                            let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel/100.0;
                             debug!("Player {} has collided with {} damage", player.id, damage);
 
                             let vehicle_destroyed: bool = vehicle_damage_model(
@@ -1272,8 +1272,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let vehicle_x = transform.translation().x;
                 let vehicle_y = transform.translation().y;
 
-                transform.set_translation_x(vehicle_x - (contact_x - vehicle_x)/10. + vehicle.dx);
-                transform.set_translation_y(vehicle_y - (contact_y - vehicle_y)/10. + vehicle.dy);
+                transform.set_translation_x(vehicle_x - (contact_x - vehicle_x)/10. + vehicle.dx*dt);
+                transform.set_translation_y(vehicle_y - (contact_y - vehicle_y)/10. + vehicle.dy*dt);
             }
         }
 
