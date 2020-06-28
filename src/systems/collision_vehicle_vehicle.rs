@@ -26,7 +26,7 @@ use crate::rally::{
 use crate::resources::{GameModeSetup, GameModes};
 
 const VEHICLE_COLLISION_COOLDOWN_RESET: f32 = 0.1;
-const COLLISION_LOSS: f32 = 0.3;
+const COLLISION_LOSS: f32 = 3.0;
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionVehToVehSystem;
