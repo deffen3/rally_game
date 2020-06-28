@@ -38,13 +38,13 @@ pub const SHOT_SPEED_TRIGGER: f32 = 500.0;
 
 
 #[derive(SystemDesc, Default)]
-pub struct CollisionVehicleWeaponFireSystem {
+pub struct CollisionWeaponFireHitboxSystem {
     pub hit_sound_cooldown_timer: f32,
     pub hit_spray_cooldown_timer: f32,
     pub weapon_spawner_cooldown_timer: f32,
 }
 
-impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
+impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
     type SystemData = (
         Entities<'s>,
         ReadStorage<'s, Hitbox>,
@@ -127,6 +127,12 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                     let fire_collider_shape = Cuboid::new(Vector2::new(weapon_fire.width/2.0, weapon_fire.height/2.0));
                     let fire_collider_pos = Isometry2::new(Vector2::new(fire_x, fire_y), fire_angle);
 
+                    let collision;
+
+                    let hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0);
+                    let hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0)); //unused
+                    let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
+
                     let weapon_fire_hit;
                     if weapon_fire.shot_speed == 0.0 {
                         weapon_fire_hit = false; //assumes hitboxes don't move
@@ -145,33 +151,19 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                             margin = 0.0;
                         }
 
-                        let collision;
-                        let hitbox_collider_pos;
-                        let hitbox_collider_shape_rect;
-                        let hitbox_collider_shape_circle;
-
                         if hitbox.shape == HitboxShape::Circle {
-                            hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0);
-                            hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0)); //unused
-                            hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
-
                             collision = query::proximity(
                                 &fire_collider_pos, &fire_collider_shape,
                                 &hitbox_collider_pos, &hitbox_collider_shape_circle,
                                 margin,
                             );
                         } else { //if hitbox.shape == HitboxShape::Rectangle {
-                            hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
-                            hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0); //unused
-                            hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
-
                             collision = query::proximity(
                                 &fire_collider_pos, &fire_collider_shape,
                                 &hitbox_collider_pos, &hitbox_collider_shape_rect,
                                 margin,
                             );
                         }
-
 
                         
                         if collision == Proximity::Intersecting {
@@ -208,8 +200,85 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
 
                     if weapon_fire_hit {
                         if !weapon_fire.attached {
-                            let _ = entities.delete(weapon_fire_entity);
-                            weapon_fire.active = false;
+                            if weapon_fire.bounces > 0 {
+                                weapon_fire.bounces -= 1;
+
+                                let contact_data;
+                                if hitbox.shape == HitboxShape::Circle 
+                                {
+                                    contact_data = query::contact(
+                                        &fire_collider_pos, &fire_collider_shape,
+                                        &hitbox_collider_pos, &hitbox_collider_shape_circle,
+                                        0.0);
+                                }
+                                else {
+                                    contact_data = query::contact(
+                                        &fire_collider_pos, &fire_collider_shape,
+                                        &hitbox_collider_pos, &hitbox_collider_shape_rect,
+                                        0.0);
+                                }
+        
+                                let contact_pt = contact_data.unwrap().world2;
+
+                                //Input:
+                                //contact_pt.x, contact_pt.y
+                                //hitbox_x, hitbox_y
+
+                                //Output:
+                                //weapon_fire.dx, weapon_fire.dy
+                                //weapon_fire_transform.set_rotation_2d
+
+                                
+                                let x_diff = hitbox_x - contact_pt.x;
+                                let y_diff = hitbox_y - contact_pt.y;
+
+                                let new_angle;
+                                if hitbox.shape == HitboxShape::Circle 
+                                {
+                                    let contact_perp_angle = y_diff.atan2(x_diff);
+
+                                    new_angle = contact_perp_angle - fire_angle;
+                                }
+                                else 
+                                {
+                                    let contact_perp_angle = y_diff.atan2(x_diff);
+
+                                    new_angle = contact_perp_angle - fire_angle;
+                                }
+
+                                let weapon_fire_speed = (weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2)).sqrt();
+
+                                weapon_fire.dx = weapon_fire_speed*-new_angle.sin();
+                                weapon_fire.dy = weapon_fire_speed*new_angle.cos();
+                                
+                                //weapon_fire_transform.set_rotation_2d(new_angle);
+
+
+                                // if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
+                                //     || (fire_x < (-2.0 * weapon_fire.width)) 
+                                // {
+                                //     weapon_fire.dx *= -1.0;
+
+                                //     let new_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0); 
+                                //     //rotate by PI/2 to line up with 0deg is pointed towards top
+                                    
+                                //     transform.set_rotation_2d(new_angle);
+                                // }
+                                // else if (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
+                                //     || (fire_y < (UI_HEIGHT - 2.0 * weapon_fire.width))
+                                // {
+                                //     weapon_fire.dy *= -1.0;
+
+                                //     let new_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0); 
+                                //     //rotate by PI/2 to line up with 0deg is pointed towards top
+                                    
+                                //     transform.set_rotation_2d(new_angle);
+                                // }
+                            }
+                            else {
+                                let _ = entities.delete(weapon_fire_entity);
+                                weapon_fire.active = false;
+                            }   
                         }
                     }
                 }
@@ -220,6 +289,21 @@ impl<'s> System<'s> for CollisionVehicleWeaponFireSystem {
                 }
             }
         }
+
+
+        //update weapon fire angle after potential bouncing
+        for (weapon_fire, weapon_fire_transform) in
+            (&weapon_fires, &mut transforms).join()
+        {
+            let angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI/2.0);
+
+            weapon_fire_transform.set_rotation_2d(angle);
+
+            weapon_fire_transform.prepend_translation_x(weapon_fire.dx * dt);
+            weapon_fire_transform.prepend_translation_y(weapon_fire.dy * dt);
+        }
+        
+
 
         //weapon box spawns
         if game_weapon_setup.random_weapon_spawns

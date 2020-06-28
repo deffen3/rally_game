@@ -36,13 +36,13 @@ use crate::components::{
 };
 
 use crate::systems::{
-    CollisionVehToVehSystem, CollisionVehicleWeaponFireSystem, MoveWeaponFireSystem,
+    CollisionVehToVehSystem, CollisionWeaponFireHitboxSystem, MoveWeaponFireSystem,
     VehicleMoveSystem, VehicleShieldArmorHealthSystem, VehicleStatusSystem, VehicleTrackingSystem,
     VehicleWeaponsSystem, MoveParticlesSystem, PathingLinesSystem,
 };
 
 pub const PLAYER_CAMERA: bool = false;
-pub const DEBUG_LINES: bool = true;
+pub const DEBUG_LINES: bool = false;
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const UI_HEIGHT: f32 = 35.0;
@@ -302,8 +302,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         dispatcher_builder.add(VehicleWeaponsSystem, "vehicle_weapons_system", &[]);
         dispatcher_builder.add(
-            CollisionVehicleWeaponFireSystem::default(),
-            "collision_vehicle_weapon_fire_system",
+            CollisionWeaponFireHitboxSystem::default(),
+            "collision_weapon_fire_hitbox_system",
             &[],
         );
         dispatcher_builder.add(

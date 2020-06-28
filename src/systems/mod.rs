@@ -1,5 +1,5 @@
 pub use self::collision_vehicle_vehicle::CollisionVehToVehSystem;
-pub use self::collision_vehicle_weapon_fire::CollisionVehicleWeaponFireSystem;
+pub use self::collision_weapon_fire_to_hitbox::CollisionWeaponFireHitboxSystem;
 pub use self::move_weapon_fire::MoveWeaponFireSystem;
 pub use self::ui_events::UiEventHandlerSystem;
 pub use self::vehicle_move::VehicleMoveSystem;
@@ -11,7 +11,7 @@ pub use self::move_particles::MoveParticlesSystem;
 pub use self::pathing_lines::PathingLinesSystem;
 
 mod collision_vehicle_vehicle;
-mod collision_vehicle_weapon_fire;
+mod collision_weapon_fire_to_hitbox;
 mod move_weapon_fire;
 mod ui_events;
 mod vehicle_move;
