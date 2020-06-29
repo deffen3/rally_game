@@ -134,7 +134,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let weapon_fire_hit;
-                    if weapon_fire.shot_speed == 0.0 {
+                    if weapon_fire.stats.shot_speed == 0.0 {
                         weapon_fire_hit = false; //assumes hitboxes don't move
                     }
                     else { //use ncollide algorithm
@@ -199,9 +199,9 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     }
 
                     if weapon_fire_hit {
-                        if !weapon_fire.attached {
-                            if weapon_fire.bounces > 0 {
-                                weapon_fire.bounces -= 1;
+                        if !weapon_fire.stats.attached {
+                            if weapon_fire.stats.bounces > 0 {
+                                weapon_fire.stats.bounces -= 1;
 
                                 let contact_data;
                                 if hitbox.shape == HitboxShape::Circle 
@@ -349,7 +349,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
 
                     //use for something like AoE damage
-                    if weapon_fire.trigger_immediately {
+                    if weapon_fire.stats.trigger_immediately {
                         explosion_map
                             .push((player.id.clone(), weapon_fire.clone(), fire_x, fire_y));
 
@@ -359,7 +359,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                             &entities,
                             &weapon_fire_resource,
                             position,
-                            weapon_fire.damage_radius, 
+                            weapon_fire.stats.damage_radius, 
                             &lazy_update,
                         );
 
@@ -367,17 +367,17 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     }
 
                     let weapon_fire_hit;
-                    if weapon_fire.trigger_radius > 0.0 {
+                    if weapon_fire.stats.trigger_radius > 0.0 {
                         //use old lightweight detection algorithm
                         if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
-                                < (vehicle.width/2.0 + weapon_fire.trigger_radius).powi(2) {
+                                < (vehicle.width/2.0 + weapon_fire.stats.trigger_radius).powi(2) {
                             weapon_fire_hit = true;
                         }
                         else {
                             weapon_fire_hit = false;
                         }
                     }
-                    else if weapon_fire.shot_speed == 0.0 {
+                    else if weapon_fire.stats.shot_speed == 0.0 {
                         //use old lightweight detection algorithm
                         if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
                                 < vehicle.width.powi(2) {
@@ -441,16 +441,16 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                         player_makes_hit_map.insert(weapon_fire.owner_player_id.clone(), player.id);
 
 
-                        let damage: f32 = weapon_fire.damage;
+                        let damage: f32 = weapon_fire.stats.damage;
                     
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
                             damage,
-                            weapon_fire.piercing_damage_pct,
-                            weapon_fire.shield_damage_pct,
-                            weapon_fire.armor_damage_pct,
-                            weapon_fire.health_damage_pct,
-                            weapon_fire.duration_damage,
+                            weapon_fire.stats.piercing_damage_pct,
+                            weapon_fire.stats.shield_damage_pct,
+                            weapon_fire.stats.armor_damage_pct,
+                            weapon_fire.stats.health_damage_pct,
+                            weapon_fire.stats.duration_damage,
                         );
                     
                         if vehicle_destroyed && vehicle.state == VehicleState::Active {
@@ -467,22 +467,22 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
 
                         //Pass slow-down effect from weapon to vehicle
-                        if weapon_fire.slow_down_effect.timer > 0.0 {
-                            vehicle.restricted_velocity_timer = weapon_fire.slow_down_effect.timer;
-                            vehicle.restricted_max_velocity = vehicle.max_velocity * (1.0 - (weapon_fire.slow_down_effect.slow_down_pct/100.0));
+                        if weapon_fire.stats.slow_down_effect.timer > 0.0 {
+                            vehicle.restricted_velocity_timer = weapon_fire.stats.slow_down_effect.timer;
+                            vehicle.restricted_max_velocity = vehicle.max_velocity * (1.0 - (weapon_fire.stats.slow_down_effect.slow_down_pct/100.0));
                         }
                     
                         //Pass stuck accel effect from weapon to vehicle
-                        if weapon_fire.stuck_accel_effect_timer > 0.0 {
-                            vehicle.stuck_accel_effect_timer = weapon_fire.stuck_accel_effect_timer;
+                        if weapon_fire.stats.stuck_accel_effect_timer > 0.0 {
+                            vehicle.stuck_accel_effect_timer = weapon_fire.stats.stuck_accel_effect_timer;
                         }
                     
                         //Pass ion malfunction effect from weapon to vehicle
-                        if vehicle.shield.value == 0.0 && weapon_fire.ion_malfunction_pct > 0.0 {
-                            vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
+                        if vehicle.shield.value == 0.0 && weapon_fire.stats.ion_malfunction_pct > 0.0 {
+                            vehicle.ion_malfunction_pct = weapon_fire.stats.ion_malfunction_pct;
                         }
 
-                        if weapon_fire.damage_radius > 0.0 {
+                        if weapon_fire.stats.damage_radius > 0.0 {
                             //spawn explosion entity and sprite
                             //check for hits below in a new join loop on vehicles and explosions
                             explosion_map
@@ -494,13 +494,13 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                                 &entities,
                                 &weapon_fire_resource,
                                 position,
-                                weapon_fire.damage_radius, 
+                                weapon_fire.stats.damage_radius, 
                                 &lazy_update,
                             );
                         }
 
 
-                        if weapon_fire.chaining_damage.jumps > 0 {
+                        if weapon_fire.stats.chaining_damage.jumps > 0 {
                             let mut weapon_fire_chain_prong = weapon_fire.clone();
 
                             weapon_fire_chain_prong.chain_hit_ids.push(player.id.clone());
@@ -538,7 +538,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                             self.hit_sound_cooldown_timer = HIT_SOUND_COOLDOWN_RESET;
                         }
                     
-                        if !weapon_fire.attached {
+                        if !weapon_fire.stats.attached {
                             let _ = entities.delete(weapon_fire_entity);
                             weapon_fire.active = false;
                         }
@@ -561,7 +561,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
                     if !weapon_fire.chain_hit_ids.contains(&player.id) && player.id != weapon_fire.owner_player_id {
                         if (hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)
-                            < (vehicle.width/2.0 + weapon_fire.chaining_damage.radius).powi(2)
+                            < (vehicle.width/2.0 + weapon_fire.stats.chaining_damage.radius).powi(2)
                         {
                             let dist = ((hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)).sqrt();
 
@@ -573,7 +573,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                 }
             }
 
-            let mut prongs_remaining = weapon_fire.chaining_damage.prongs.clone();
+            let mut prongs_remaining = weapon_fire.stats.chaining_damage.prongs.clone();
 
             vehicles_within_chain_radius.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
 
@@ -582,9 +582,10 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
                 if prongs_remaining > 0 {
                     //spawn chain prong
-                    weapon_fire_chain_prong.damage *= weapon_fire_chain_prong.chaining_damage.damage_pct/100.;
-                    weapon_fire_chain_prong.chaining_damage.jumps -= 1;
-                    weapon_fire_chain_prong.shot_life_limit = weapon_fire_chain_prong.chaining_damage.radius / weapon_fire_chain_prong.shot_speed;
+                    weapon_fire_chain_prong.stats.damage *= weapon_fire_chain_prong.stats.chaining_damage.damage_pct/100.;
+                    weapon_fire_chain_prong.stats.chaining_damage.jumps -= 1;
+                    weapon_fire_chain_prong.stats.shot_life_limit = 
+                        weapon_fire_chain_prong.stats.chaining_damage.radius / weapon_fire_chain_prong.stats.shot_speed;
 
                     let diff_x = hit_x - vehicle_x;
                     let diff_y = hit_y - vehicle_y;
@@ -633,21 +634,21 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
             for (player_id_already_hit, weapon_fire, fire_x, fire_y) in &explosion_map {
                 if player.id != *player_id_already_hit {
                     if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
-                        < (vehicle.width/2.0 + weapon_fire.damage_radius).powi(2) 
+                        < (vehicle.width/2.0 + weapon_fire.stats.damage_radius).powi(2) 
                     {
                         player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
                         player.last_hit_timer = 0.0;
 
-                        let damage: f32 = weapon_fire.damage;
+                        let damage: f32 = weapon_fire.stats.damage;
                     
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
                             damage,
-                            weapon_fire.piercing_damage_pct,
-                            weapon_fire.shield_damage_pct,
-                            weapon_fire.armor_damage_pct,
-                            weapon_fire.health_damage_pct,
-                            weapon_fire.duration_damage,
+                            weapon_fire.stats.piercing_damage_pct,
+                            weapon_fire.stats.shield_damage_pct,
+                            weapon_fire.stats.armor_damage_pct,
+                            weapon_fire.stats.health_damage_pct,
+                            weapon_fire.stats.duration_damage,
                         );
                     
                         if vehicle_destroyed && vehicle.state == VehicleState::Active {
@@ -666,19 +667,19 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
 
                         //Pass slow-down effect from weapon to vehicle
-                        if weapon_fire.slow_down_effect.timer > 0.0 {
-                            vehicle.restricted_velocity_timer = weapon_fire.slow_down_effect.timer;
-                            vehicle.restricted_max_velocity = vehicle.max_velocity * (1.0 - (weapon_fire.slow_down_effect.slow_down_pct/100.0));
+                        if weapon_fire.stats.slow_down_effect.timer > 0.0 {
+                            vehicle.restricted_velocity_timer = weapon_fire.stats.slow_down_effect.timer;
+                            vehicle.restricted_max_velocity = vehicle.max_velocity * (1.0 - (weapon_fire.stats.slow_down_effect.slow_down_pct/100.0));
                         }
                         
                         //Pass stuck accel effect from weapon to vehicle
-                        if weapon_fire.stuck_accel_effect_timer > 0.0 {
-                            vehicle.stuck_accel_effect_timer = weapon_fire.stuck_accel_effect_timer;
+                        if weapon_fire.stats.stuck_accel_effect_timer > 0.0 {
+                            vehicle.stuck_accel_effect_timer = weapon_fire.stats.stuck_accel_effect_timer;
                         }
                     
                         //Pass ion malfunction effect from weapon to vehicle
-                        if vehicle.shield.value == 0.0 && weapon_fire.ion_malfunction_pct > 0.0 {
-                            vehicle.ion_malfunction_pct = weapon_fire.ion_malfunction_pct;
+                        if vehicle.shield.value == 0.0 && weapon_fire.stats.ion_malfunction_pct > 0.0 {
+                            vehicle.ion_malfunction_pct = weapon_fire.stats.ion_malfunction_pct;
                         }
                     
                         if self.hit_spray_cooldown_timer < 0.0 
@@ -733,7 +734,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                         );
 
                         if let Some(new_weapon_name) = new_weapon_name.clone() {
-                            weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_type.clone());
+                            weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_fire_type.clone());
 
                             update_weapon_properties(
                                 &mut weapon_array,
@@ -769,8 +770,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
             let weapon_icons_old = weapon_icons_old_map.get(&player_icon.id);
 
             if let Some(weapon_icons_old) = weapon_icons_old {
-                let weapon_type = weapon_icons_old;
-                if *weapon_type == player_icon.weapon_type {
+                let weapon_fire_type = weapon_icons_old;
+                if *weapon_fire_type == player_icon.weapon_fire_type {
                     let _ = entities.delete(entity);
                 }
             }

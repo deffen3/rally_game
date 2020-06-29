@@ -36,15 +36,15 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         for (entity, weapon_fire, transform) in (&entities, &mut weapon_fires, &transforms).join() {
             weapon_fire.shot_life_timer += dt;
 
-            if weapon_fire.shot_life_limit >= 0.0
-                && weapon_fire.shot_life_timer >= weapon_fire.shot_life_limit
+            if weapon_fire.stats.shot_life_limit >= 0.0
+                && weapon_fire.shot_life_timer >= weapon_fire.stats.shot_life_limit
             {
                 let _ = entities.delete(entity);
             } else {
                 let fire_x = transform.translation().x;
                 let fire_y = transform.translation().y;
 
-                if weapon_fire.heat_seeking {
+                if weapon_fire.stats.heat_seeking {
                     let mut closest_vehicle_x_diff = 0.0;
                     let mut closest_vehicle_y_diff = 0.0;
                     let mut closest_vehicle_dist = 1_000_000_000.0;
@@ -80,7 +80,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     heat_seeking_angle_map.insert(entity.id(), target_angle);
                 }
 
-                if weapon_fire.attached {
+                if weapon_fire.stats.attached {
                     for (_vehicle, vehicle_transform, weapon_array, player) in
                         (&vehicles, &transforms, &weapon_arrays, &players).join()
                     {
@@ -94,17 +94,17 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                     //undeploy old attached weapons
                                     if weapon_fire.weapon_array_id == weapon_idx 
                                             && weapon.name != weapon_fire.weapon_name {
-                                        weapon_fire.deployed = false;
+                                        weapon_fire.stats.deployed = false;
                                     }
 
-                                    if weapon.name == weapon_fire.weapon_name && weapon.stats.attached {
+                                    if weapon.name == weapon_fire.weapon_name && weapon.stats.fire_stats.attached {
                                         //pass on deployed status
-                                        if weapon.stats.deployed == false {
-                                            weapon_fire.deployed = false;
+                                        if weapon.stats.fire_stats.deployed == false {
+                                            weapon_fire.stats.deployed = false;
                                             let _ = entities.delete(entity);
                                         }
-                                        else if weapon.stats.deployed == true {
-                                            weapon_fire.deployed = true;
+                                        else if weapon.stats.fire_stats.deployed == true {
+                                            weapon_fire.stats.deployed = true;
                                         }
                                     }
 
@@ -128,7 +128,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
             (&*entities, &mut weapon_fires, &mut transforms).join()
         {
             if weapon_fire.active {
-                if weapon_fire.heat_seeking {
+                if weapon_fire.stats.heat_seeking {
                     let heat_seeking_data = heat_seeking_angle_map.get(&entity.id());
 
                     if let Some(heat_seeking_data) = heat_seeking_data {
@@ -142,16 +142,16 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                         let abs_vel = sq_vel.sqrt();
 
-                        weapon_fire.dx += weapon_fire.heat_seeking_agility * velocity_x_comp * dt;
-                        weapon_fire.dx *= weapon_fire.shot_speed / abs_vel;
+                        weapon_fire.dx += weapon_fire.stats.heat_seeking_agility * velocity_x_comp * dt;
+                        weapon_fire.dx *= weapon_fire.stats.shot_speed / abs_vel;
 
-                        weapon_fire.dy += weapon_fire.heat_seeking_agility * velocity_y_comp * dt;
-                        weapon_fire.dy *= weapon_fire.shot_speed / abs_vel;
+                        weapon_fire.dy += weapon_fire.stats.heat_seeking_agility * velocity_y_comp * dt;
+                        weapon_fire.dy *= weapon_fire.stats.shot_speed / abs_vel;
                     }
                 }
 
-                if weapon_fire.attached {
-                    if weapon_fire.deployed {
+                if weapon_fire.stats.attached {
+                    if weapon_fire.stats.deployed {
                         let vehicle_owner_data = vehicle_owner_map.get(&weapon_fire.owner_player_id);
 
                         if let Some(vehicle_owner_data) = vehicle_owner_data {
@@ -172,13 +172,13 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let _ = entities.delete(entity);
                     }
                 } else { //move to updated position based on velocity
-                    if weapon_fire.shot_speed > 0.0 {
-                        if weapon_fire.accel_rate > 0.0 {
+                    if weapon_fire.stats.shot_speed > 0.0 {
+                        if weapon_fire.stats.accel_rate > 0.0 {
                             let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                             let abs_vel = sq_vel.sqrt();
 
-                            let new_speed = abs_vel + weapon_fire.accel_rate * dt;
-                            weapon_fire.shot_speed = new_speed;
+                            let new_speed = abs_vel + weapon_fire.stats.accel_rate * dt;
+                            weapon_fire.stats.shot_speed = new_speed;
 
                             let scalar = new_speed / abs_vel;
                             weapon_fire.dx *= scalar;
@@ -197,9 +197,9 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                             || (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
                             || (fire_y < (- 2.0 * weapon_fire.width))
                         {
-                            if !weapon_fire.attached {
-                                if weapon_fire.bounces > 0 {
-                                    weapon_fire.bounces -= 1;
+                            if !weapon_fire.stats.attached {
+                                if weapon_fire.stats.bounces > 0 {
+                                    weapon_fire.stats.bounces -= 1;
 
                                     if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
                                         || (fire_x < (-2.0 * weapon_fire.width)) 

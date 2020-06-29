@@ -267,7 +267,7 @@ pub fn intialize_player(
     let x = -290.;
 
     let (icon_scale, weapon_sprite) =
-        get_weapon_icon(player_index, weapon_stats.weapon_type.clone(), &weapon_fire_resource);
+        get_weapon_icon(player_index, weapon_stats.weapon_fire_type.clone(), &weapon_fire_resource);
 
 
     let starting_x = match player_index {
@@ -278,7 +278,7 @@ pub fn intialize_player(
         _ => (0.0),
     };
 
-    let (weapon_width, weapon_height) = get_weapon_width_height(weapon_stats.weapon_type.clone());
+    let (weapon_width, weapon_height) = get_weapon_width_height(weapon_stats.weapon_fire_type.clone());
 
     let icon_weapon_transform = UiTransform::new(
         "PWeaponIcon".to_string(),
@@ -300,7 +300,7 @@ pub fn intialize_player(
         .with(Removal::new(0 as u32))
         .with(PlayerWeaponIcon::new(
             player_index,
-            weapon_stats.weapon_type,
+            weapon_stats.weapon_fire_type,
         ))
         .with(UiImage::Sprite(weapon_sprite))
         .with(icon_weapon_transform)

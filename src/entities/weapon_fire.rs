@@ -25,32 +25,11 @@ pub fn chain_fire_weapon(
     let weapon_array_id = spawner_weapon_fire.weapon_array_id.clone();
 
     let mut weapon_fire = WeaponFire::new(
+        player_id,
         weapon_array_id,
         spawner_weapon_fire.weapon_name.clone(),
-        spawner_weapon_fire.weapon_type,
-        player_id,
-        spawner_weapon_fire.heat_seeking,
-        spawner_weapon_fire.heat_seeking_agility,
-        spawner_weapon_fire.attached,
-        spawner_weapon_fire.deployed,
-        spawner_weapon_fire.spawn_angle,
-        spawner_weapon_fire.shot_speed,
-        spawner_weapon_fire.accel_rate,
-        spawner_weapon_fire.shot_life_limit,
-        spawner_weapon_fire.damage,
-        spawner_weapon_fire.trigger_radius,
-        spawner_weapon_fire.trigger_immediately,
-        spawner_weapon_fire.damage_radius,
-        spawner_weapon_fire.shield_damage_pct,
-        spawner_weapon_fire.armor_damage_pct,
-        spawner_weapon_fire.piercing_damage_pct,
-        spawner_weapon_fire.health_damage_pct,
-        spawner_weapon_fire.ion_malfunction_pct,
-        spawner_weapon_fire.duration_damage,
-        spawner_weapon_fire.bounces,
-        spawner_weapon_fire.chaining_damage,
-        spawner_weapon_fire.slow_down_effect,
-        spawner_weapon_fire.stuck_accel_effect_timer,
+        spawner_weapon_fire.weapon_fire_type,
+        spawner_weapon_fire.stats,
     );
 
     weapon_fire.chain_hit_ids = spawner_weapon_fire.chain_hit_ids.clone();
@@ -64,15 +43,15 @@ pub fn chain_fire_weapon(
 
         local_transform.set_rotation_2d(fire_angle);
 
-        weapon_fire.dx = weapon_fire.shot_speed * angle_x_comp;
-        weapon_fire.dy = weapon_fire.shot_speed * angle_y_comp;
+        weapon_fire.dx = weapon_fire.stats.shot_speed * angle_x_comp;
+        weapon_fire.dy = weapon_fire.stats.shot_speed * angle_y_comp;
 
         local_transform
     };
     lazy_update.insert(fire_entity, weapon_fire);
 
     let (_icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, spawner_weapon_fire.weapon_type, weapon_fire_resource);
+        get_weapon_icon(player_id, spawner_weapon_fire.weapon_fire_type, weapon_fire_resource);
 
     lazy_update.insert(fire_entity, weapon_sprite);
     lazy_update.insert(fire_entity, local_transform);
@@ -94,32 +73,11 @@ pub fn fire_weapon(
     let fire_entity: Entity = entities.create();
 
     let mut weapon_fire = WeaponFire::new(
+        player_id,
         weapon_array_id,
         weapon.name.clone(),
-        weapon.stats.weapon_type,
-        player_id,
-        weapon.stats.heat_seeking,
-        weapon.stats.heat_seeking_agility,
-        weapon.stats.attached,
-        weapon.stats.deployed,
-        weapon.stats.mounted_angle,
-        weapon.stats.shot_speed,
-        weapon.stats.accel_rate,
-        weapon.stats.shot_life_limit,
-        weapon.stats.damage,
-        weapon.stats.trigger_radius,
-        weapon.stats.trigger_immediately,
-        weapon.stats.damage_radius,
-        weapon.stats.shield_damage_pct,
-        weapon.stats.armor_damage_pct,
-        weapon.stats.piercing_damage_pct,
-        weapon.stats.health_damage_pct,
-        weapon.stats.ion_malfunction_pct,
-        weapon.stats.duration_damage,
-        weapon.stats.bounces,
-        weapon.stats.chaining_damage,
-        weapon.stats.slow_down_effect,
-        weapon.stats.stuck_accel_effect_timer,
+        weapon.stats.weapon_fire_type,
+        weapon.stats.fire_stats,
     );
 
     let local_transform = {
@@ -131,8 +89,8 @@ pub fn fire_weapon(
 
         local_transform.set_rotation_2d(fire_angle);
 
-        weapon_fire.dx = weapon_fire.shot_speed * angle_x_comp;
-        weapon_fire.dy = weapon_fire.shot_speed * angle_y_comp;
+        weapon_fire.dx = weapon_fire.stats.shot_speed * angle_x_comp;
+        weapon_fire.dy = weapon_fire.stats.shot_speed * angle_y_comp;
 
         //adjust the first postion
         let x = local_transform.translation().x;
@@ -149,7 +107,7 @@ pub fn fire_weapon(
     lazy_update.insert(fire_entity, weapon_fire);
 
     let (_icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, weapon.stats.weapon_type, weapon_fire_resource);
+        get_weapon_icon(player_id, weapon.stats.weapon_fire_type, weapon_fire_resource);
 
     lazy_update.insert(fire_entity, weapon_sprite);
     lazy_update.insert(fire_entity, local_transform);

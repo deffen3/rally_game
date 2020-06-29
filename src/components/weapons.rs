@@ -122,18 +122,25 @@ pub struct SlowDownEffect {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct WeaponStats {
-    pub weapon_type: WeaponTypes,
     pub display_name: String,
+    pub weapon_fire_type: WeaponFireTypes,
+    pub tracking_angle: f32,
+    pub spread_angle: f32,
+    pub cooldown_reset: f32,
+    pub burst_shot_limit: u32,
+    pub burst_cooldown_reset: f32,
+    pub charge_timer_reset: f32,
+    pub weight: f32,
+    pub fire_stats: WeaponFireStats,
+}
+
+#[derive(Clone, Debug, Deserialize, Default)]
+pub struct WeaponFireStats {
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
     pub attached: bool,
     pub deployed: bool,
-    pub tracking_angle: f32,
-    pub spread_angle: f32,
     pub mounted_angle: f32,
-    pub cooldown_reset: f32,
-    pub burst_shot_limit: u32,
-    pub burst_cooldown_reset: f32,
     pub shot_life_limit: f32,
     pub damage: f32,
     pub trigger_radius: f32,
@@ -151,9 +158,7 @@ pub struct WeaponStats {
     pub chaining_damage: ChainingDamage,
     pub slow_down_effect: SlowDownEffect,
     pub stuck_accel_effect_timer: f32,
-    pub weight: f32,
 }
-
 
 
 
@@ -200,7 +205,7 @@ pub fn build_weapon_store(world: &mut World) {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
-pub enum WeaponTypes {
+pub enum WeaponFireTypes {
     LaserBeam,
     LaserPulse,
     LaserDouble,
@@ -226,6 +231,7 @@ pub struct Weapon {
     pub aim_angle: f32,
     pub stats: WeaponStats,
     pub cooldown_timer: f32,
+    pub charge_timer: f32,
     pub burst_shots: u32,
     pub dps_calc: f32,
     pub range_calc: f32,
@@ -242,9 +248,10 @@ impl Weapon {
             aim_angle: 0.0,
             stats: stats.clone(),
             cooldown_timer: 0.0,
+            charge_timer: 0.0,
             burst_shots: 0,
             dps_calc: calculate_dps(stats.clone()),
-            range_calc: calculate_range(stats),
+            range_calc: calculate_range(stats.fire_stats),
             deploy_timer: 0.0,
         }
     }
@@ -265,7 +272,7 @@ impl Component for WeaponArray {
 
 
 pub fn calculate_dps(stats: WeaponStats) -> f32 {
-    let base_damage: f32 = stats.damage; //damage per shot
+    let base_damage: f32 = stats.fire_stats.damage; //damage per shot
     let fire_rate: f32; //shots per second
 
     if stats.burst_shot_limit > 0 {
@@ -284,7 +291,7 @@ pub fn calculate_dps(stats: WeaponStats) -> f32 {
     dps
 }
 
-pub fn calculate_range(stats: WeaponStats) -> f32 {
+pub fn calculate_range(stats: WeaponFireStats) -> f32 {
     let range;
     
     if stats.shot_speed <= 0.0 {
@@ -305,10 +312,8 @@ pub fn calculate_range(stats: WeaponStats) -> f32 {
 #[derive(Clone, Debug)]
 pub struct WeaponFire {
     pub weapon_array_id: usize,
-    pub weapon_type: WeaponTypes,
+    pub weapon_fire_type: WeaponFireTypes,
     pub weapon_name: WeaponNames,
-    pub attached: bool,
-    pub deployed: bool,
     pub active: bool,
     pub width: f32,
     pub height: f32,
@@ -318,27 +323,9 @@ pub struct WeaponFire {
     pub spawn_y: f32,
     pub spawn_angle: f32,
     pub owner_player_id: usize,
-    pub shot_speed: f32,
-    pub accel_rate: f32,
     pub shot_life_timer: f32,
-    pub shot_life_limit: f32,
-    pub damage: f32,
-    pub trigger_radius: f32,
-    pub trigger_immediately: bool,
-    pub damage_radius: f32,
-    pub shield_damage_pct: f32,
-    pub armor_damage_pct: f32,
-    pub piercing_damage_pct: f32,
-    pub health_damage_pct: f32,
-    pub ion_malfunction_pct: f32,
-    pub duration_damage: DurationDamage,
-    pub bounces: u32,
-    pub chaining_damage: ChainingDamage,
     pub chain_hit_ids: Vec<usize>,
-    pub slow_down_effect: SlowDownEffect,
-    pub stuck_accel_effect_timer: f32,
-    pub heat_seeking: bool,
-    pub heat_seeking_agility: f32,
+    pub stats: WeaponFireStats,
 }
 
 impl Component for WeaponFire {
@@ -347,41 +334,18 @@ impl Component for WeaponFire {
 
 impl WeaponFire {
     pub fn new(
+        owner_player_id: usize,
         weapon_array_id: usize,
         weapon_name: WeaponNames,
-        weapon_type: WeaponTypes,
-        owner_player_id: usize,
-        heat_seeking: bool,
-        heat_seeking_agility: f32,
-        attached: bool,
-        deployed: bool,
-        spawn_angle: f32,
-        shot_speed: f32,
-        accel_rate: f32,
-        shot_life_limit: f32,
-        damage: f32,
-        trigger_radius: f32,
-        trigger_immediately: bool,
-        damage_radius: f32,
-        shield_damage_pct: f32,
-        armor_damage_pct: f32,
-        piercing_damage_pct: f32,
-        health_damage_pct: f32,
-        ion_malfunction_pct: f32,
-        duration_damage: DurationDamage,
-        bounces: u32,
-        chaining_damage: ChainingDamage,
-        slow_down_effect: SlowDownEffect,
-        stuck_accel_effect_timer: f32,
+        weapon_fire_type: WeaponFireTypes,
+        stats: WeaponFireStats,
     ) -> WeaponFire {
-        let (width, height) = get_weapon_width_height(weapon_type.clone());
+        let (width, height) = get_weapon_width_height(weapon_fire_type.clone());
 
         WeaponFire {
             weapon_array_id,
             weapon_name,
-            weapon_type,
-            attached,
-            deployed,
+            weapon_fire_type,
             active: true,
             width,
             height,
@@ -389,29 +353,11 @@ impl WeaponFire {
             dy: 0.0,
             spawn_x: 0.0,
             spawn_y: 0.0,
-            spawn_angle,
+            spawn_angle: 0.0,
             owner_player_id,
-            damage,
-            heat_seeking,
-            heat_seeking_agility,
-            trigger_radius,
-            trigger_immediately,
-            damage_radius,
-            shot_speed,
-            accel_rate,
             shot_life_timer: 0.0,
-            shot_life_limit,
-            shield_damage_pct,
-            armor_damage_pct,
-            piercing_damage_pct,
-            health_damage_pct,
-            ion_malfunction_pct,
-            duration_damage,
-            bounces,
-            chaining_damage,
             chain_hit_ids: Vec::<usize>::new(),
-            slow_down_effect,
-            stuck_accel_effect_timer,            
+            stats,  
         }
     }
 }
@@ -428,7 +374,7 @@ pub fn update_weapon_properties(
 ) {
     //Get new weapon data
     let new_weapon_stats = build_named_weapon(weapon_name.clone(), weapon_store);
-    let weapon_type = new_weapon_stats.weapon_type;
+    let weapon_fire_type = new_weapon_stats.weapon_fire_type;
 
     //update UI icon
     let icon_entity: Entity = entities.create();
@@ -438,7 +384,7 @@ pub fn update_weapon_properties(
     let dx = 250.;
 
     let (icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, new_weapon_stats.weapon_type, &weapon_fire_resource);
+        get_weapon_icon(player_id, new_weapon_stats.weapon_fire_type, &weapon_fire_resource);
 
 
     let starting_x = match player_id {
@@ -449,7 +395,7 @@ pub fn update_weapon_properties(
         _ => (0.0),
     };
 
-    let (width, height) = get_weapon_width_height(weapon_type.clone());
+    let (width, height) = get_weapon_width_height(weapon_fire_type.clone());
 
     let icon_weapon_transform = UiTransform::new(
         "P1_WeaponIcon".to_string(),
@@ -466,7 +412,7 @@ pub fn update_weapon_properties(
     // You can change the color at any point to modify the sprite's tint.
     let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
 
-    lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_type));
+    lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_fire_type));
     lazy_update.insert(icon_entity, UiImage::Sprite(weapon_sprite));
     lazy_update.insert(icon_entity, icon_weapon_transform);
     lazy_update.insert(icon_entity, icon_tint);
@@ -497,36 +443,16 @@ pub fn build_named_weapon(
     match weapon_configs_map.get(&weapon_name) {
         Some(weapon_config) => (*weapon_config).clone(),
         _ => WeaponStats {
-            weapon_type: WeaponTypes::LaserDouble,
+            weapon_fire_type: WeaponFireTypes::LaserDouble,
             display_name: "None".to_string(),
-            heat_seeking: false,
-            heat_seeking_agility: 0.0,
-            attached: false,
-            deployed: false,
             tracking_angle: 0.0,
             spread_angle: 0.0,
-            mounted_angle: 0.0,
-            cooldown_reset: 100.0,
+            cooldown_reset: 0.0,
+            charge_timer_reset: 0.0,
             burst_shot_limit: 0,
-            burst_cooldown_reset: 100.0,
-            shot_life_limit: 0.1,
-            damage: 0.0,
-            trigger_radius: 0.0,
-            trigger_immediately: false,
-            damage_radius: 0.0,
-            shot_speed: 0.0,
-            accel_rate: 0.0,
-            shield_damage_pct: 0.0,
-            armor_damage_pct: 0.0,
-            piercing_damage_pct: 0.0,
-            health_damage_pct: 0.0,
-            ion_malfunction_pct: 0.0,
-            duration_damage: DurationDamage::default(),
-            bounces: 0,
-            chaining_damage: ChainingDamage::default(),
-            slow_down_effect: SlowDownEffect::default(),
-            stuck_accel_effect_timer: 0.0,
+            burst_cooldown_reset: 0.0,
             weight: 0.0,
+            fire_stats: WeaponFireStats::default(),
         },
     }
 }
@@ -546,38 +472,38 @@ pub fn build_named_weapon_from_world(
 
 pub fn get_weapon_icon(
     player_id: usize,
-    weapon_type: WeaponTypes,
+    weapon_fire_type: WeaponFireTypes,
     weapon_fire_resource: &WeaponFireResource,
 ) -> (f32, SpriteRender) {
 
-    let (icon_scale, mut weapon_sprite) = match weapon_type {
-        WeaponTypes::LaserDouble => (1.5, weapon_fire_resource.laser_double_sprite_render.clone()),
-        WeaponTypes::LaserBeam => (0.5, weapon_fire_resource.laser_beam_sprite_render.clone()),
-        WeaponTypes::LaserPulse => (1.5, weapon_fire_resource.laser_burst_sprite_render.clone()),
-        WeaponTypes::ProjectileBurstFire => {
+    let (icon_scale, mut weapon_sprite) = match weapon_fire_type {
+        WeaponFireTypes::LaserDouble => (1.5, weapon_fire_resource.laser_double_sprite_render.clone()),
+        WeaponFireTypes::LaserBeam => (0.5, weapon_fire_resource.laser_beam_sprite_render.clone()),
+        WeaponFireTypes::LaserPulse => (1.5, weapon_fire_resource.laser_burst_sprite_render.clone()),
+        WeaponFireTypes::ProjectileBurstFire => {
             (1.5, weapon_fire_resource.projectile_burst_render.clone())
         }
-        WeaponTypes::ProjectileRapidFire => {
+        WeaponFireTypes::ProjectileRapidFire => {
             (1.5, weapon_fire_resource.projectile_rapid_render.clone())
         }
-        WeaponTypes::ProjectileCannonFire => (
+        WeaponFireTypes::ProjectileCannonFire => (
             1.5,
             weapon_fire_resource.projectile_cannon_sprite_render.clone(),
         ),
-        WeaponTypes::Missile => (1.0, weapon_fire_resource.missile_sprite_render.clone()),
-        WeaponTypes::Rockets => (1.0, weapon_fire_resource.rockets_sprite_render.clone()),
-        WeaponTypes::Mine => (1.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
-        WeaponTypes::Trap => (1.5, weapon_fire_resource.trap_p1_sprite_render.clone()),
-        WeaponTypes::LaserSword => (0.5, weapon_fire_resource.laser_sword_sprite_render.clone()),
-        WeaponTypes::Flame => (1.0, weapon_fire_resource.flame_sprite_render.clone()),
-        WeaponTypes::Grenade => (1.0, weapon_fire_resource.grenade_sprite_render.clone()),
-        WeaponTypes::Ion => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
+        WeaponFireTypes::Missile => (1.0, weapon_fire_resource.missile_sprite_render.clone()),
+        WeaponFireTypes::Rockets => (1.0, weapon_fire_resource.rockets_sprite_render.clone()),
+        WeaponFireTypes::Mine => (1.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
+        WeaponFireTypes::Trap => (1.5, weapon_fire_resource.trap_p1_sprite_render.clone()),
+        WeaponFireTypes::LaserSword => (0.5, weapon_fire_resource.laser_sword_sprite_render.clone()),
+        WeaponFireTypes::Flame => (1.0, weapon_fire_resource.flame_sprite_render.clone()),
+        WeaponFireTypes::Grenade => (1.0, weapon_fire_resource.grenade_sprite_render.clone()),
+        WeaponFireTypes::Ion => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
     };
 
     //Player colored weapons
-    if weapon_type == WeaponTypes::Mine {
+    if weapon_fire_type == WeaponFireTypes::Mine {
         weapon_sprite = get_mine_sprite(player_id, weapon_fire_resource);
-    } else if weapon_type == WeaponTypes::Trap {
+    } else if weapon_fire_type == WeaponFireTypes::Trap {
         weapon_sprite = get_trap_sprite(player_id, weapon_fire_resource);
     }
 
@@ -611,23 +537,23 @@ pub fn get_trap_sprite(
 }
 
 
-pub fn get_weapon_width_height(weapon_type: WeaponTypes) -> (f32, f32)
+pub fn get_weapon_width_height(weapon_fire_type: WeaponFireTypes) -> (f32, f32)
 {
-    let (width, height) = match weapon_type {
-        WeaponTypes::LaserDouble => (3.0, 6.0),
-        WeaponTypes::LaserBeam => (1.0, 12.0),
-        WeaponTypes::LaserPulse => (2.0, 5.0),
-        WeaponTypes::ProjectileBurstFire => (1.0, 4.0),
-        WeaponTypes::ProjectileRapidFire => (1.0, 2.0),
-        WeaponTypes::ProjectileCannonFire => (3.0, 3.0),
-        WeaponTypes::Missile => (5.0, 6.0),
-        WeaponTypes::Rockets => (5.0, 4.0),
-        WeaponTypes::Mine => (4.0, 4.0),
-        WeaponTypes::Grenade => (4.0, 4.0),
-        WeaponTypes::Trap => (2.0, 4.0),
-        WeaponTypes::LaserSword => (3.0, 15.0),
-        WeaponTypes::Flame => (6.0, 4.0),
-        WeaponTypes::Ion => (5.0, 5.0),
+    let (width, height) = match weapon_fire_type {
+        WeaponFireTypes::LaserDouble => (3.0, 6.0),
+        WeaponFireTypes::LaserBeam => (1.0, 12.0),
+        WeaponFireTypes::LaserPulse => (2.0, 5.0),
+        WeaponFireTypes::ProjectileBurstFire => (1.0, 4.0),
+        WeaponFireTypes::ProjectileRapidFire => (1.0, 2.0),
+        WeaponFireTypes::ProjectileCannonFire => (3.0, 3.0),
+        WeaponFireTypes::Missile => (5.0, 6.0),
+        WeaponFireTypes::Rockets => (5.0, 4.0),
+        WeaponFireTypes::Mine => (4.0, 4.0),
+        WeaponFireTypes::Grenade => (4.0, 4.0),
+        WeaponFireTypes::Trap => (2.0, 4.0),
+        WeaponFireTypes::LaserSword => (3.0, 15.0),
+        WeaponFireTypes::Flame => (6.0, 4.0),
+        WeaponFireTypes::Ion => (5.0, 5.0),
     };
 
     (width, height)

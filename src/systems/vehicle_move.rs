@@ -137,7 +137,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         let restart_weapon_name = game_weapon_setup.starter_weapon.clone();
 
                         if let Some(primary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
-                            weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_type.clone());
+                            weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_fire_type.clone());
                         }
 
                         update_weapon_properties(
@@ -308,13 +308,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             {
                                 if let Some(primary_weapon) = &weapon_array.weapons[0] {
                                     //change modes to attack
-                                    if primary_weapon.stats.attached {
+                                    if primary_weapon.stats.fire_stats.attached {
                                         //Typically just LaserSword
                                         player.bot_mode = BotMode::Swording;
                                         debug!("{} Swording", player.id);
                                         player.bot_move_cooldown = 5.0;
                                         player.last_made_hit_timer = 0.0;
-                                    } else if primary_weapon.stats.shot_speed <= 0.0 {
+                                    } else if primary_weapon.stats.fire_stats.shot_speed <= 0.0 {
                                         //Typically just Mines or Traps
                                         player.bot_mode = BotMode::Mining;
                                         debug!("{} Mining", player.id);
@@ -542,8 +542,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             if let Some(primary_weapon) = &weapon_array.weapons[PRIMARY_WEAPON_INDEX] {
                                 //Prepare magnitude of Turning and Acceleration input
                                 if player.bot_mode == BotMode::Swording {
-                                    if primary_weapon.stats.mounted_angle > PI / 2.0
-                                        || primary_weapon.stats.mounted_angle < -PI / 2.0
+                                    if primary_weapon.stats.fire_stats.mounted_angle > PI / 2.0
+                                        || primary_weapon.stats.fire_stats.mounted_angle < -PI / 2.0
                                     {
                                         vehicle_accel = Some(-1.0); //drive backwards sword fighting
                                     } else {
@@ -555,7 +555,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                 //Solve for Angle and Direction to turn
                                 let mut angle_diff =
-                                    vehicle_angle + primary_weapon.stats.mounted_angle - attack_angle;
+                                    vehicle_angle + primary_weapon.stats.fire_stats.mounted_angle - attack_angle;
 
                                 if angle_diff > PI {
                                     angle_diff = -(2.0 * PI - angle_diff);
@@ -1192,7 +1192,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             let new_weapon_name = get_random_weapon_name(&game_weapon_setup);
 
                             if let Some(primary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
-                                weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_type.clone());
+                                weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_fire_type.clone());
                             }
 
                             update_weapon_properties(
@@ -1295,8 +1295,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let weapon_icons_old = weapon_icons_old_map.get(&player_icon.id);
 
             if let Some(weapon_icons_old) = weapon_icons_old {
-                let weapon_type = weapon_icons_old;
-                if *weapon_type == player_icon.weapon_type {
+                let weapon_fire_type = weapon_icons_old;
+                if *weapon_fire_type == player_icon.weapon_fire_type {
                     let _ = entities.delete(entity);
                 }
             }

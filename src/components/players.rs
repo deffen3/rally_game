@@ -1,6 +1,6 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
-use crate::components::WeaponTypes;
+use crate::components::WeaponFireTypes;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BotMode {
@@ -78,7 +78,7 @@ impl Player {
 
 pub struct PlayerWeaponIcon {
     pub id: usize,
-    pub weapon_type: WeaponTypes,
+    pub weapon_fire_type: WeaponFireTypes,
 }
 
 impl Component for PlayerWeaponIcon {
@@ -86,7 +86,7 @@ impl Component for PlayerWeaponIcon {
 }
 
 impl PlayerWeaponIcon {
-    pub fn new(id: usize, weapon_type: WeaponTypes) -> PlayerWeaponIcon {
-        PlayerWeaponIcon { id, weapon_type }
+    pub fn new(id: usize, weapon_fire_type: WeaponFireTypes) -> PlayerWeaponIcon {
+        PlayerWeaponIcon { id, weapon_fire_type }
     }
 }
