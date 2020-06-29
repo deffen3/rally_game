@@ -18,7 +18,7 @@ use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 
 const CAMERA_ZOOM_RATE: f32 = 0.01;
-const CAMERA_TRANSLATE_MAX_RATE: f32 = 1.0;
+const CAMERA_TRANSLATE_MAX_RATE: f32 = 80.0;
 
 
 #[derive(SystemDesc)]
@@ -139,19 +139,19 @@ impl<'s> System<'s> for CameraTrackingSystem {
             // transform.set_translation_y(ARENA_HEIGHT/2.0);
 
             let mut dx = (camera_target_x - camera_x).min(CAMERA_TRANSLATE_MAX_RATE).max(-CAMERA_TRANSLATE_MAX_RATE);
-            if dx.abs() <= 0.001 {
+            if dx.abs() <= 0.01 {
                 dx = 0.0;
             }
 
             let mut dy = (camera_target_y - camera_y).min(CAMERA_TRANSLATE_MAX_RATE).max(-CAMERA_TRANSLATE_MAX_RATE);
-            if dy.abs() <= 0.001 {
+            if dy.abs() <= 0.01 {
                 dy = 0.0;
             }
 
-            //transform.set_translation_x(camera_x + dx*dt);
-            transform.set_translation_x(camera_target_x);
-            //transform.set_translation_y(camera_y + dy*dt);
-            transform.set_translation_y(camera_target_y);
+            transform.set_translation_x(camera_x + dx*dt);
+            //transform.set_translation_x(camera_target_x);
+            transform.set_translation_y(camera_y + dy*dt);
+            //transform.set_translation_y(camera_target_y);
 
             //log::info!("{} {}", camera_x, camera_y);
             //log::info!("{} {} {} {}", camera_left, camera_right, camera_top, camera_bottom);
