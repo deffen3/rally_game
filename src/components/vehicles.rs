@@ -354,6 +354,11 @@ pub fn vehicle_damage_model(
     health_damage_pct: f32,
     duration_damage: DurationDamage,
 ) -> bool {
+
+    let mut shield_damage_applied: bool = false;
+    let mut armor_damage_applied: bool = false;
+    let mut health_damage_applied: bool = false;
+
     let mut piercing_damage: f32 = 0.0;
 
     if piercing_damage_pct > 0.0 {
@@ -362,29 +367,41 @@ pub fn vehicle_damage_model(
     }
 
     if vehicle.shield.value > 0.0 {
-        vehicle.shield.value -= damage * shield_damage_pct / 100.0;
-        damage = 0.0;
+        if damage * shield_damage_pct > 0.0 {
+            shield_damage_applied = true;
 
-        if vehicle.shield.value < 0.0 {
-            damage -= vehicle.shield.value; //over damage on shields, needs taken from armor
-            vehicle.shield.value = 0.0;
-        } else {
-            //take damage to shields, but shields are still alive, reset shield recharge cooldown
-            vehicle.shield.cooldown_timer = vehicle.shield.cooldown_reset;
+            vehicle.shield.value -= damage * shield_damage_pct / 100.0;
+            damage = 0.0;
+
+            if vehicle.shield.value < 0.0 {
+                damage = vehicle.shield.value.abs(); //over damage on shields, needs taken from armor
+                vehicle.shield.value = 0.0;
+            } else {
+                //take damage to shields, but shields are still alive, reset shield recharge cooldown
+                vehicle.shield.cooldown_timer = vehicle.shield.cooldown_reset;
+            }
         }
     }
 
     if vehicle.armor.value > 0.0 {
-        vehicle.armor.value -= damage * armor_damage_pct / 100.0;
-        damage = 0.0;
+        if damage * armor_damage_pct > 0.0 {
+            armor_damage_applied = true;
 
-        if vehicle.armor.value < 0.0 {
-            damage -= vehicle.armor.value; //over damage on armor, needs taken from health
-            vehicle.armor.value = 0.0;
+            vehicle.armor.value -= damage * armor_damage_pct / 100.0;
+            damage = 0.0;
+
+            if vehicle.armor.value < 0.0 {
+                damage = vehicle.armor.value.abs(); //over damage on armor, needs taken from health
+                vehicle.armor.value = 0.0;
+            }
         }
     }
 
     let health_damage: f32 = (damage + piercing_damage) * health_damage_pct / 100.0;
+    if health_damage > 0.0 {
+        health_damage_applied = true;
+    }
+
 
     let mut vehicle_destroyed = false;
 
@@ -398,7 +415,14 @@ pub fn vehicle_damage_model(
         }
     }
 
-    if duration_damage.timer > 0.0 {
+    //Check if duration damage should be applied, 
+    //  which should only be in cases where the correct damage type was done
+    //  by the original damage shot
+    if duration_damage.timer >= 0.0 && 
+        ((shield_damage_applied && duration_damage.shield_damage_pct > 0.0) || 
+        (armor_damage_applied && duration_damage.armor_damage_pct > 0.0) || 
+        (health_damage_applied && duration_damage.health_damage_pct > 0.0))
+    {
         vehicle.duration_damages.push((damager_id, weapon_name, duration_damage));
     }
 

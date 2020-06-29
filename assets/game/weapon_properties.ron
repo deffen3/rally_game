@@ -1038,7 +1038,7 @@
       ion_malfunction_pct: 0.0,
       duration_damage: DurationDamage (
         timer: 5.0,
-        damage_per_second: 0.3,
+        damage_per_second: 0.22,
         shield_damage_pct: 0.0,
         armor_damage_pct: 90.0,
         piercing_damage_pct: 0.0,
