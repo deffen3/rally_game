@@ -35,7 +35,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
         for (entity, weapon_fire, transform) in (&entities, &mut weapon_fires, &transforms).join() {
             weapon_fire.shot_life_timer += dt;
-            weapon_fire.stats.damage = (weapon_fire.stats.damage - weapon_fire.stats.damage_reduction_rate * dt).max(0.0);
+            weapon_fire.stats.damage = (weapon_fire.stats.damage - (weapon_fire.stats.damage*(weapon_fire.stats.damage_reduction_pct_rate/100.0) * dt)).max(0.0);
 
             if weapon_fire.stats.shot_life_limit >= 0.0
                 && weapon_fire.shot_life_timer >= weapon_fire.stats.shot_life_limit
@@ -178,7 +178,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                             let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                             let abs_vel = sq_vel.sqrt();
 
-                            let new_speed = abs_vel + weapon_fire.stats.accel_rate * dt;
+                            let new_speed = (abs_vel + weapon_fire.stats.accel_rate * dt).max(0.0);
                             weapon_fire.stats.shot_speed = new_speed;
 
                             let scalar = new_speed / abs_vel;
