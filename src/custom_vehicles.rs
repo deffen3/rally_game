@@ -13,6 +13,7 @@ use amethyst::{
     utils::{
         removal::{exec_removal, Removal},
     },
+    ui::{UiTransform, UiImage, Anchor},
 };
 
 use std::collections::HashMap;
@@ -52,17 +53,17 @@ pub struct CustomVehiclesMenu {
 
     button_back_to_menu: Option<Entity>,
 
-    button_p1_prev_vehicle: [Option<Entity>; 4],
-    button_p1_next_vehicle: [Option<Entity>; 4],
+    button_player_prev_vehicle: [Option<Entity>; 4],
+    button_player_next_vehicle: [Option<Entity>; 4],
 
-    text_p1_vehicle_name: [Option<Entity>; 4],
-    text_p1_shields: [Option<Entity>; 4],
-    text_p1_armor: [Option<Entity>; 4],
-    text_p1_health: [Option<Entity>; 4],
-    text_p1_weight: [Option<Entity>; 4],
+    text_player_vehicle_name: [Option<Entity>; 4],
+    text_player_shields: [Option<Entity>; 4],
+    text_player_armor: [Option<Entity>; 4],
+    text_player_health: [Option<Entity>; 4],
+    text_player_weight: [Option<Entity>; 4],
 
-    p1_cur_vehicle_name: [Option<VehicleNames>; 4],
-    p1_vehicle_sprite: [Option<Entity>; 4],
+    player_cur_vehicle_name: [Option<VehicleNames>; 4],
+    player_vehicle_sprite: [Option<Entity>; 4],
 
     camera: Option<Entity>,
 }
@@ -85,7 +86,7 @@ impl SimpleState for CustomVehiclesMenu {
         self.ui_root =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/custom_vehicles.ron", ())));
 
-        self.p1_cur_vehicle_name = [None; 4];
+        self.player_cur_vehicle_name = [None; 4];
     }
 
     fn update(&mut self, state_data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -100,32 +101,33 @@ impl SimpleState for CustomVehiclesMenu {
         }
 
         for player_index in 0..4 {
-            if self.button_p1_prev_vehicle[player_index].is_none()
-                || self.button_p1_next_vehicle[player_index].is_none()
-                || self.text_p1_vehicle_name[player_index].is_none()
-                || self.text_p1_shields[player_index].is_none()
-                || self.text_p1_armor[player_index].is_none()
-                || self.text_p1_health[player_index].is_none()
-                || self.text_p1_weight[player_index].is_none()
+            if self.button_player_prev_vehicle[player_index].is_none()
+                || self.button_player_next_vehicle[player_index].is_none()
+                || self.text_player_vehicle_name[player_index].is_none()
+                || self.text_player_shields[player_index].is_none()
+                || self.text_player_armor[player_index].is_none()
+                || self.text_player_health[player_index].is_none()
+                || self.text_player_weight[player_index].is_none()
             {
                 world.exec(|ui_finder: UiFinder<'_>| {
-                    self.button_p1_prev_vehicle[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, BUTTON_PREV_VEHICLE));
-                    self.button_p1_next_vehicle[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, BUTTON_NEXT_VEHICLE));
+                    self.button_player_prev_vehicle[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, BUTTON_PREV_VEHICLE));
+                    self.button_player_next_vehicle[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, BUTTON_NEXT_VEHICLE));
 
-                    self.text_p1_vehicle_name[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_VEHICLE_NAME));
-                    self.text_p1_shields[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_SHIELDS));
-                    self.text_p1_armor[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_ARMOR));
-                    self.text_p1_health[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_HEALTH));
-                    self.text_p1_weight[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_WEIGHT));
+                    self.text_player_vehicle_name[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_VEHICLE_NAME));
+                    self.text_player_shields[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_SHIELDS));
+                    self.text_player_armor[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_ARMOR));
+                    self.text_player_health[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_HEALTH));
+                    self.text_player_weight[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_WEIGHT));
                 });
             }
         }
 
 
         for player_index in 0..4 {
-            let p1_vehicle_name: Option<VehicleNames>;
-            let p1_vehicle_sprite_type: Option<VehicleTypes>;
-            let p1_vehicle_sprite_scalar: f32;
+            let player_vehicle_name: Option<VehicleNames>;
+            let player_vehicle_sprite_type: Option<VehicleTypes>;
+            let player_vehicle_width: f32;
+            let player_vehicle_height: f32;
 
             {
                 let mut ui_text = world.write_storage::<UiText>();
@@ -134,57 +136,59 @@ impl SimpleState for CustomVehiclesMenu {
                 if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
                     let veh_stats = game_vehicle_setup.stats[player_index].clone();
 
-                    if let Some(veh_name) = self.text_p1_vehicle_name[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_name) = self.text_player_vehicle_name[player_index].and_then(|entity| ui_text.get_mut(entity)) {
                         veh_name.text = veh_stats.display_name.clone();
                     }
 
-                    if let Some(veh_shields) = self.text_p1_shields[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_shields) = self.text_player_shields[player_index].and_then(|entity| ui_text.get_mut(entity)) {
                         veh_shields.text = veh_stats.max_shield.to_string();
                     }
 
-                    if let Some(veh_armor) = self.text_p1_armor[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_armor) = self.text_player_armor[player_index].and_then(|entity| ui_text.get_mut(entity)) {
                         veh_armor.text = veh_stats.max_armor.to_string();
                     }
 
-                    if let Some(veh_health) = self.text_p1_health[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_health) = self.text_player_health[player_index].and_then(|entity| ui_text.get_mut(entity)) {
                         veh_health.text = veh_stats.max_health.to_string();
                     }
 
-                    if let Some(veh_weight) = self.text_p1_weight[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_weight) = self.text_player_weight[player_index].and_then(|entity| ui_text.get_mut(entity)) {
                         veh_weight.text = determine_vehicle_weight_stats(veh_stats.clone()).to_string();
                     }
 
-                    p1_vehicle_name = Some(game_vehicle_setup.names[player_index].clone());
-                    p1_vehicle_sprite_type = Some(game_vehicle_setup.stats[player_index].vehicle_type.clone());
-                    p1_vehicle_sprite_scalar = game_vehicle_setup.stats[player_index].sprite_scalar.clone();
+                    player_vehicle_name = Some(game_vehicle_setup.names[player_index].clone());
+                    player_vehicle_sprite_type = Some(game_vehicle_setup.stats[player_index].vehicle_type.clone());
+                    player_vehicle_width = game_vehicle_setup.stats[player_index].width.clone();
+                    player_vehicle_height = game_vehicle_setup.stats[player_index].height.clone();
                 }
                 else {
-                    p1_vehicle_name = None;
-                    p1_vehicle_sprite_type = None;
-                    p1_vehicle_sprite_scalar = 0.0;
+                    player_vehicle_name = None;
+                    player_vehicle_sprite_type = None;
+                    player_vehicle_width = 0.0;
+                    player_vehicle_height = 0.0;
                 }
             }
 
-            let p1_change_icon;
+            let player_change_icon;
 
-            if let Some(p1_cur_vehicle_name) = &self.p1_cur_vehicle_name[player_index] {
-                if let Some(vehicle_name) = p1_vehicle_name.clone() {
-                    if *p1_cur_vehicle_name != vehicle_name {
-                        p1_change_icon = true;
+            if let Some(player_cur_vehicle_name) = &self.player_cur_vehicle_name[player_index] {
+                if let Some(vehicle_name) = player_vehicle_name.clone() {
+                    if *player_cur_vehicle_name != vehicle_name {
+                        player_change_icon = true;
                     }
                     else {
-                        p1_change_icon = false;
+                        player_change_icon = false;
                     }
                 }
                 else {
-                    p1_change_icon = false;
+                    player_change_icon = false;
                 }
             }
             else {
-                p1_change_icon = true;
+                player_change_icon = true;
             }
 
-            if p1_change_icon {
+            if player_change_icon {
                 {
                     exec_removal(&world.entities(), &world.read_storage(), player_index as u32);
                 }
@@ -192,41 +196,47 @@ impl SimpleState for CustomVehiclesMenu {
 
 
             let (x, y) = match player_index {
-                0 => (100.0, 300.0),
-                1 => (300.0, 300.0),
-                2 => (100.0, 160.0),
-                3 => (300.0, 160.0),
-                _ => (100.0, 300.0),
+                0 => (-250.0, -250.0),
+                1 => (250.0, -250.0),
+                2 => (-250.0, -600.0),
+                3 => (250.0, -600.0),
+                _ => (0.0, 0.0),
             };
 
-            if p1_change_icon {
+            if player_change_icon {
                 //UI vehicle icon
-                let (vehicle_sprite_number, _, _) = get_vehicle_sprites(world, p1_vehicle_sprite_type.unwrap());
+                let (vehicle_sprite_number, _, _) = get_vehicle_sprites(world, player_vehicle_sprite_type.unwrap());
             
                 let vehicle_sprite_render = SpriteRender {
                     sprite_sheet: self.sprite_sheet_handle.clone().unwrap(),
                     sprite_number: vehicle_sprite_number + player_index,
                 };
 
-                let mut icon_transform = Transform::default();
+                let width = 10.0 * player_vehicle_width;
+                let height = 10.0 * player_vehicle_height;
 
-                icon_transform.set_rotation_2d(-PI / 2.0);
-                icon_transform.set_translation_xyz(x, y, 0.3);
+                let icon_transform = UiTransform::new(
+                    "PVehicle".to_string(),
+                    Anchor::TopMiddle,
+                    Anchor::Middle,
+                    x,
+                    y,
+                    0.3,
+                    width,
+                    height,
+                );
 
-                let scale = 7. / p1_vehicle_sprite_scalar;
-                icon_transform.set_scale(Vector3::new(scale, scale, 0.0));
-
-                let p1_vehicle_sprite;
+                let player_vehicle_sprite;
                 {
-                    p1_vehicle_sprite = world
+                    player_vehicle_sprite = world
                         .create_entity()
                         .with(icon_transform)
-                        .with(vehicle_sprite_render.clone())
+                        .with(UiImage::Sprite(vehicle_sprite_render.clone()))
                         .with(Removal::new(player_index as u32))
                         .build();
                 }
 
-                self.p1_vehicle_sprite[player_index] = Some(p1_vehicle_sprite);
+                self.player_vehicle_sprite[player_index] = Some(player_vehicle_sprite);
             }
         }
 
@@ -266,7 +276,7 @@ impl SimpleState for CustomVehiclesMenu {
                 if let Some(mut game_vehicle_setup) = fetched_game_vehicle_setup {
                     for player_index in 0..4 {
 
-                        if Some(target) == self.button_p1_next_vehicle[player_index] {
+                        if Some(target) == self.button_player_next_vehicle[player_index] {
                             game_vehicle_setup.names[player_index] = get_next_vehicle_name(
                                 data.world,
                                 game_vehicle_setup.names[player_index].clone()
@@ -285,7 +295,7 @@ impl SimpleState for CustomVehiclesMenu {
                                 game_vehicle_setup.stats[player_index] = veh_stats;
                             }
                         }
-                        if Some(target) == self.button_p1_prev_vehicle[player_index] {
+                        if Some(target) == self.button_player_prev_vehicle[player_index] {
                             game_vehicle_setup.names[player_index] = get_prev_vehicle_name(
                                 data.world,
                                 game_vehicle_setup.names[player_index].clone()
@@ -332,14 +342,14 @@ impl SimpleState for CustomVehiclesMenu {
 
         self.camera = None;
 
-        self.p1_vehicle_sprite = [None; 4];
+        self.player_vehicle_sprite = [None; 4];
 
-        self.button_p1_prev_vehicle = [None; 4];
-        self.button_p1_next_vehicle = [None; 4];
-        self.text_p1_vehicle_name = [None; 4];
-        self.text_p1_shields = [None; 4];
-        self.text_p1_armor = [None; 4];
-        self.text_p1_health = [None; 4];
-        self.text_p1_weight = [None; 4];
+        self.button_player_prev_vehicle = [None; 4];
+        self.button_player_next_vehicle = [None; 4];
+        self.text_player_vehicle_name = [None; 4];
+        self.text_player_shields = [None; 4];
+        self.text_player_armor = [None; 4];
+        self.text_player_health = [None; 4];
+        self.text_player_weight = [None; 4];
     }
 }
