@@ -94,7 +94,6 @@ There are various weapons with various properties, including:
 1. Create a generic Hitbox component, and create hitbox detection functions - used for some entities, but not all
 1. Make use of ncollide coarse and fine phase detection algorithm
 1. Improve missile heat-seeking tracking - pretty good now, still not great though
-1. UI Transform works different on Mac (based on DPI?). On Windows it also doesn't scale properly when window is resized.
 
 
 ---
