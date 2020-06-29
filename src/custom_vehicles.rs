@@ -1,7 +1,5 @@
 use amethyst::{
     assets::{Handle},
-    core::transform::Transform,
-    core::math::Vector3,
     ecs::prelude::Entity,
     input::{is_close_requested, is_key_down},
     prelude::*,
@@ -17,7 +15,6 @@ use amethyst::{
 };
 
 use std::collections::HashMap;
-use std::f32::consts::PI;
 
 use crate::menu::MainMenu;
 use crate::rally::load_sprite_sheet;
