@@ -12,7 +12,7 @@ use std::collections::HashMap;
 use crate::components::{
     Player, Vehicle, VehicleState, BotMode, vehicle_damage_model, kill_restart_vehicle, DurationDamage
 };
-use crate::resources::{GameModeSetup};
+use crate::resources::{GameModeSetup, GameModes};
 
 
 #[derive(SystemDesc)]
@@ -38,58 +38,6 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
         let mut owner_data_map = HashMap::new();
 
         for (player, vehicle, vehicle_transform) in (&mut players, &mut vehicles, &transforms).join() {
-            //Apply duration damage, such as poison/burns
-            let mut vehicle_destroyed = false;
-
-            let mut duration_damage_list = vehicle.duration_damage.clone();
-
-            for duration_damage in duration_damage_list.iter() {
-                if duration_damage.timer > 0.0 {
-                    let duration_damage_vehicle_destroyed: bool = vehicle_damage_model(
-                        vehicle,
-                        duration_damage.damage_per_second.clone() * dt,
-                        duration_damage.piercing_damage_pct.clone(),
-                        duration_damage.shield_damage_pct.clone(),
-                        duration_damage.armor_damage_pct.clone(),
-                        duration_damage.health_damage_pct.clone(),
-                        DurationDamage::default(), //These are zero/default so as to not re-apply the effect to the vehicle. 
-                        //Otherwise this duration damage effect would stack continuously.
-                    );
-
-                    if duration_damage_vehicle_destroyed {
-                        vehicle_destroyed = true;
-                    }
-                }
-            }
-
-            //Remove duration damages that have expired
-            let mut lasting_duration_damages = Vec::<DurationDamage>::new();
-
-            for duration_damage in duration_damage_list.iter_mut() {
-                duration_damage.timer -= dt;
-
-                if duration_damage.timer > 0.0 {
-                    lasting_duration_damages.push(*duration_damage);
-                }
-            }
-
-            vehicle.duration_damage = lasting_duration_damages;
-
-            
-
-            if vehicle_destroyed {
-                player.deaths += 1;
-
-                kill_restart_vehicle(
-                    player,
-                    vehicle,
-                    vehicle_transform,
-                    game_mode_setup.stock_lives,
-                );
-            }
-
-
-
             //Healing is automatically done if health is damaged
             if (vehicle.heal_pulse_rate > 0.0 && vehicle.health.value > 0.0) && 
                     (vehicle.health.max > 0.0 && vehicle.health.value < vehicle.health.max) {
@@ -205,6 +153,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
             );
         }
 
+        
         //visual updates
         for (player, vehicle) in (&players, &mut vehicles).join() {
             let owner_data = owner_data_map.get(&player.id);

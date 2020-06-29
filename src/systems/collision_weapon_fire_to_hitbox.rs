@@ -21,7 +21,7 @@ use ncollide2d::shape::{Ball, Cuboid};
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
     vehicle_damage_model, Hitbox, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
-    WeaponFire, WeaponStoreResource,
+    WeaponFire, WeaponStoreResource, DurationDamage, WeaponNames,
 };
 
 use crate::entities::{spawn_weapon_boxes, hit_spray, explosion_shockwave, chain_fire_weapon};
@@ -445,6 +445,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
+                            Some(weapon_fire.owner_player_id.clone()),
+                            Some(weapon_fire.weapon_name),
                             damage,
                             weapon_fire.stats.piercing_damage_pct,
                             weapon_fire.stats.shield_damage_pct,
@@ -643,6 +645,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
+                            Some(weapon_fire.owner_player_id.clone()),
+                            Some(weapon_fire.weapon_name),
                             damage,
                             weapon_fire.stats.piercing_damage_pct,
                             weapon_fire.stats.shield_damage_pct,
@@ -707,8 +711,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         //Kill tracking and gun-game weapon hot swap logic
         let mut weapon_icons_old_map = HashMap::new();
 
-        for (player, mut weapon_array, vehicle, transform) in
-            (&mut players, &mut weapon_arrays, &mut vehicles, &mut transforms).join()
+        for (player, weapon_array, vehicle, transform) in
+            (&mut players, &weapon_arrays, &mut vehicles, &mut transforms).join()
         {
             let hit_data = player_makes_hit_map.get(&player.id);
 
@@ -726,31 +730,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     if game_mode_setup.game_mode == GameModes::ClassicGunGame
                         && *weapon_name == primary_weapon.name.clone()
                     {
-                        //if kill was using player's current weapon
-                        player.kills += 1;
-                        let new_weapon_name = get_next_weapon_name(
-                            primary_weapon.name.clone(),
-                            &weapon_store_resource,
-                        );
-
-                        if let Some(new_weapon_name) = new_weapon_name.clone() {
-                            weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_fire_type.clone());
-
-                            update_weapon_properties(
-                                &mut weapon_array,
-                                0,
-                                new_weapon_name,
-                                &weapon_store_resource,
-                                &entities,
-                                &weapon_fire_resource,
-                                player.id,
-                                &lazy_update,
-                            );
-
-                            if let Some(new_primary_weapon) = &weapon_array.weapons[0] {
-                                vehicle.weapon_weight = new_primary_weapon.stats.weight;
-                            }
-                        } //else, keep current weapon installed, no kill in this mode
+                        player.gun_game_kills += 1; //handle gun game kills in special way below
                     } else {
                         player.kills += 1; //in all other modes the kill always counts
                     }
@@ -765,6 +745,120 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                 kill_restart_vehicle(player, vehicle, transform, game_mode_setup.stock_lives);
             }
         }
+
+
+
+        //Apply duration damage, such as poison/burns
+        let mut player_earned_duration_damage_kill: HashMap<(usize, WeaponNames), u32> = HashMap::new();
+
+        for (player, vehicle, vehicle_transform) in (&mut players, &mut vehicles, &transforms).join() {
+            
+            let mut vehicle_destroyed = false;
+            let mut duration_damage_list = vehicle.duration_damages.clone();
+
+            for (damager_id, weapon_name, duration_damage) in duration_damage_list.iter() {
+                if duration_damage.timer > 0.0 {
+                    let duration_damage_vehicle_destroyed: bool = vehicle_damage_model(
+                        vehicle,
+                        *damager_id,
+                        *weapon_name,
+                        duration_damage.damage_per_second.clone() * dt,
+                        duration_damage.piercing_damage_pct.clone(),
+                        duration_damage.shield_damage_pct.clone(),
+                        duration_damage.armor_damage_pct.clone(),
+                        duration_damage.health_damage_pct.clone(),
+                        DurationDamage::default(), //These are zero/default so as to not re-apply the effect to the vehicle. 
+                        //Otherwise this duration damage effect would stack continuously.
+                    );
+
+                    if duration_damage_vehicle_destroyed {
+                        vehicle_destroyed = true;
+
+                        if let Some(damager_id) = damager_id {
+                            if let Some(weapon_name) = weapon_name {
+                                *player_earned_duration_damage_kill.entry((*damager_id, *weapon_name)).or_insert(0) += 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //Remove duration damages that have expired
+            let mut lasting_duration_damages = Vec::new();
+
+            for (damager_id, weapon_name, duration_damage) in duration_damage_list.iter_mut() {
+                duration_damage.timer -= dt;
+
+                if duration_damage.timer > 0.0 {
+                    lasting_duration_damages.push((*damager_id, *weapon_name, *duration_damage));
+                }
+            }
+
+            vehicle.duration_damages = lasting_duration_damages;
+
+
+            if vehicle_destroyed {
+                player.deaths += 1;
+
+                kill_restart_vehicle(
+                    player,
+                    vehicle,
+                    vehicle_transform,
+                    game_mode_setup.stock_lives,
+                );
+            }
+        }
+
+
+
+        //Check for gun-game kills that haven't been awarded yet
+        for (player, mut weapon_array, vehicle) in
+            (&mut players, &mut weapon_arrays, &mut vehicles).join()
+        {
+
+            if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                //Update kills from duration damage effects
+                let kills_data = player_earned_duration_damage_kill.get(&(player.id, primary_weapon.name));
+
+                if let Some(kills) = kills_data {
+                    if game_mode_setup.game_mode == GameModes::ClassicGunGame {
+                        player.gun_game_kills += 1;
+                    }
+                    else {
+                        player.kills += *kills as i32;
+                    }
+                }
+
+                if player.gun_game_kills > player.kills {
+                    //if kill was using player's current weapon
+                    player.kills += 1;
+                    let new_weapon_name = get_next_weapon_name(
+                        primary_weapon.name.clone(),
+                        &weapon_store_resource,
+                    );
+
+                    if let Some(new_weapon_name) = new_weapon_name.clone() {
+                        weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_fire_type.clone());
+
+                        update_weapon_properties(
+                            &mut weapon_array,
+                            0,
+                            new_weapon_name,
+                            &weapon_store_resource,
+                            &entities,
+                            &weapon_fire_resource,
+                            player.id,
+                            &lazy_update,
+                        );
+
+                        if let Some(new_primary_weapon) = &weapon_array.weapons[0] {
+                            vehicle.weapon_weight = new_primary_weapon.stats.weight;
+                        }
+                    } //else, keep current weapon installed, no kill in this mode
+                }
+            }
+        }
+
 
         for (entity, player_icon) in (&*entities, &player_icons).join() {
             let weapon_icons_old = weapon_icons_old_map.get(&player_icon.id);

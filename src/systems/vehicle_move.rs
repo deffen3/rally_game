@@ -905,6 +905,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
+                            None,
+                            None,
                             damage,
                             COLLISION_PIERCING_DAMAGE_PCT,
                             COLLISION_SHIELD_DAMAGE_PCT,
@@ -948,6 +950,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
+                            None,
+                            None,
                             damage,
                             COLLISION_PIERCING_DAMAGE_PCT,
                             COLLISION_SHIELD_DAMAGE_PCT,
@@ -1158,6 +1162,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             let vehicle_destroyed: bool = vehicle_damage_model(
                                 vehicle,
+                                None,
+                                None,
                                 damage,
                                 COLLISION_PIERCING_DAMAGE_PCT,
                                 COLLISION_SHIELD_DAMAGE_PCT,

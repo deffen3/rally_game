@@ -1025,7 +1025,7 @@
       deployed: true,
       shot_speed: 150.0,
       accel_rate: 0.0,
-      damage: 2.0,
+      damage: 0.5,
       damage_reduction_rate: 0.0,
       trigger_radius: 0.0,
       trigger_immediately: false,
@@ -1038,7 +1038,7 @@
       ion_malfunction_pct: 0.0,
       duration_damage: DurationDamage (
         timer: 5.0,
-        damage_per_second: 0.1,
+        damage_per_second: 0.3,
         shield_damage_pct: 0.0,
         armor_damage_pct: 90.0,
         piercing_damage_pct: 0.0,

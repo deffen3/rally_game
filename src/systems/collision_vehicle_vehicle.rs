@@ -103,6 +103,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         let vehicle_2_weight = determine_vehicle_weight(vehicle_2);
 
                         collision_ids_map.insert(player_1.id, (
+                            player_2.id,
                             vehicle_2_weight,
                             vehicle_2.dx,
                             vehicle_2.dy,
@@ -110,6 +111,7 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
                         ));
                         
                         collision_ids_map.insert(player_2.id, (
+                            player_1.id,
                             vehicle_1_weight,
                             vehicle_1.dx,
                             vehicle_1.dy,
@@ -126,7 +128,12 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
             let collision_ids = collision_ids_map.get(&player.id);
 
             if let Some(collision_data) = collision_ids {
-                let (other_vehicle_weight, other_vehicle_dx, other_vehicle_dy, contact_pt) = collision_data;
+                let (other_player_id,
+                    other_vehicle_weight,
+                    other_vehicle_dx,
+                    other_vehicle_dy,
+                    contact_pt
+                ) = collision_data;
 
                 let sq_vel_diff = (vehicle.dx - other_vehicle_dx).powi(2)
                     + (vehicle.dy - other_vehicle_dy).powi(2);
@@ -166,6 +173,8 @@ impl<'s> System<'s> for CollisionVehToVehSystem {
 
                     let vehicle_destroyed: bool = vehicle_damage_model(
                         vehicle,
+                        Some(*other_player_id),
+                        None,
                         damage,
                         COLLISION_PIERCING_DAMAGE_PCT,
                         COLLISION_SHIELD_DAMAGE_PCT,

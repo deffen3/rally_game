@@ -11,7 +11,7 @@ use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
 use std::env::current_dir;
 
-use crate::components::{Armor, Health, Player, Repair, Shield, DurationDamage};
+use crate::components::{Armor, Health, Player, Repair, Shield, DurationDamage, WeaponNames};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 use crate::resources::GameModes;
 use crate::entities::ui::PlayerStatusText;
@@ -89,7 +89,7 @@ pub struct Vehicle {
     pub malfunction: f32,
     pub malfunction_cooldown_timer: f32,
     pub ion_malfunction_pct: f32,
-    pub duration_damage: Vec<DurationDamage>,
+    pub duration_damages: Vec<(Option<usize>, Option<WeaponNames>, DurationDamage)>,
     pub respawn_timer: f32,
     pub death_x: f32,
     pub death_y: f32,
@@ -176,7 +176,7 @@ impl Vehicle {
             malfunction: 0.0,
             malfunction_cooldown_timer: -1.0,
             ion_malfunction_pct: 0.0,
-            duration_damage: Vec::<DurationDamage>::new(),
+            duration_damages: Vec::new(),
             respawn_timer: 5.0,
             death_x: 0.0,
             death_y: 0.0,
@@ -283,7 +283,7 @@ pub fn check_respawn_vehicle(
             vehicle.malfunction = 0.0;
             vehicle.malfunction_cooldown_timer = 0.0;
             vehicle.ion_malfunction_pct = 0.0;
-            vehicle.duration_damage = Vec::new();
+            vehicle.duration_damages = Vec::new();
 
 
             vehicle.shield.value = vehicle.shield.max;
@@ -345,6 +345,8 @@ pub fn check_respawn_vehicle(
 
 pub fn vehicle_damage_model(
     vehicle: &mut Vehicle,
+    damager_id: Option<usize>,
+    weapon_name: Option<WeaponNames>,
     mut damage: f32,
     piercing_damage_pct: f32,
     shield_damage_pct: f32,
@@ -397,7 +399,7 @@ pub fn vehicle_damage_model(
     }
 
     if duration_damage.timer > 0.0 {
-        vehicle.duration_damage.push(duration_damage);
+        vehicle.duration_damages.push((damager_id, weapon_name, duration_damage));
     }
 
     vehicle_destroyed
