@@ -422,5 +422,11 @@ List((
             width: 1,
             height: 1,
         ),
+        ( //arena circle high-res #70
+            x: 130,
+            y: 1,
+            width: 40,
+            height: 40,
+        ),
     ],
 ))

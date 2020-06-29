@@ -362,11 +362,11 @@ pub fn initialize_arena_walls(
         let mut circle_transform = Transform::default();
         
         circle_transform.set_translation_xyz(x, y, 0.38);
-        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
+        circle_transform.set_scale(Vector3::new(scale/2.0, scale/2.0, 0.0));
 
         let circle_sprite_render = SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 14,
+            sprite_number: 70,
         };
 
         world
