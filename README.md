@@ -87,9 +87,6 @@ There are various weapons with various properties, including:
 ## TODO:
 1. Game setup customization for Vehicles, Weapons, Arenas
 1. Load arena/race tracks from config file
-1. Fix UI issues with Vehicle and Weapon icon sprites
-1. Allow for larger Arenas, with moving/zooming camera support
-1. Add weapon effects for: slow-down, burn/poison, chaining, and wall-bouncing
 1. Better/unique weapon icons
 1. Re-write bot AI to use Behavior Tree
 1. Survival mode? Team of Humans vs. waves of bots? Support for teams in other modes?
