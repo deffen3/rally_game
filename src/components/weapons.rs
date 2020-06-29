@@ -120,9 +120,10 @@ pub struct SlowDownEffect {
 
 
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct WeaponStats {
     pub weapon_type: WeaponTypes,
+    pub display_name: String,
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
     pub attached: bool,
@@ -239,10 +240,10 @@ impl Weapon {
             x: 0.0,
             y: 0.0,
             aim_angle: 0.0,
-            stats,
+            stats: stats.clone(),
             cooldown_timer: 0.0,
             burst_shots: 0,
-            dps_calc: calculate_dps(stats),
+            dps_calc: calculate_dps(stats.clone()),
             range_calc: calculate_range(stats),
             deploy_timer: 0.0,
         }
@@ -494,9 +495,10 @@ pub fn build_named_weapon(
     let weapon_configs_map: &HashMap<WeaponNames, WeaponStats> = &weapon_store.properties;
 
     match weapon_configs_map.get(&weapon_name) {
-        Some(weapon_config) => *weapon_config,
+        Some(weapon_config) => (*weapon_config).clone(),
         _ => WeaponStats {
             weapon_type: WeaponTypes::LaserDouble,
+            display_name: "None".to_string(),
             heat_seeking: false,
             heat_seeking_agility: 0.0,
             attached: false,

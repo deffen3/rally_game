@@ -310,7 +310,7 @@ pub fn intialize_player(
 
 
         
-    let weapon = Weapon::new(weapon_name, weapon_icon, weapon_stats);
+    let weapon = Weapon::new(weapon_name, weapon_icon, weapon_stats.clone());
 
     //Create actual Player with Vehicle and Weapon
     world

@@ -1,5 +1,6 @@
 {
   LaserDoubleGimballed : WeaponStats (
+    display_name: "Laser Double Gimballed",
     weapon_type: LaserDouble,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -47,6 +48,7 @@
     weight: 12.0,
   ),
   LaserDouble : WeaponStats (
+    display_name: "Laser Double Fixed",
     weapon_type: LaserDouble,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -94,6 +96,7 @@
     weight: 10.0,
   ),
   LaserDoubleBurstSide : WeaponStats (
+    display_name: "Laser Double Burst Turret",
     weapon_type: LaserDouble,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -141,6 +144,7 @@
     weight: 20.0,
   ),
   LaserBeam : WeaponStats (
+    display_name: "Laser Beam",
     weapon_type: LaserBeam,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -188,6 +192,7 @@
     weight: 10.0,
   ),
   LaserPulse : WeaponStats (
+    display_name: "Laser Reflector Pulse",
     weapon_type: LaserPulse,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -235,6 +240,7 @@
     weight: 10.0,
   ),
   LaserPulseGimballed : WeaponStats (
+    display_name: "Laser Reflector Pulse Gimballed",
     weapon_type: LaserPulse,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -282,6 +288,7 @@
     weight: 12.0,
   ),
   ProjectileBurstFire : WeaponStats (
+    display_name: "Projectile Burst Fire",
     weapon_type: ProjectileBurstFire,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -329,6 +336,7 @@
     weight: 10.0,
   ),
   Shotgun : WeaponStats (
+    display_name: "Projectile Shotgun",
     weapon_type: ProjectileRapidFire,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -376,6 +384,7 @@
     weight: 15.0,
   ),
   ProjectileSteadyFire : WeaponStats (
+    display_name: "Projectile Steady",
     weapon_type: ProjectileBurstFire,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -423,6 +432,7 @@
     weight: 10.0,
   ),
   PiercingProjectile : WeaponStats (
+    display_name: "Projectile Piercing",
     weapon_type: ProjectileBurstFire,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -470,6 +480,7 @@
     weight: 10.0,
   ),
   ProjectileRapidFireTurret : WeaponStats (
+    display_name: "Projectile Rapid-Fire Turret",
     weapon_type: ProjectileRapidFire,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -517,6 +528,7 @@
     weight: 20.0,
   ),
   ProjectileRapidFire : WeaponStats (
+    display_name: "Projectile Rapid-Fire",
     weapon_type: ProjectileRapidFire,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -564,6 +576,7 @@
     weight: 10.0,
   ),
   ProjectileCannonFire : WeaponStats (
+    display_name: "Heavy Cannon",
     weapon_type: ProjectileCannonFire,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -611,6 +624,7 @@
     weight: 20.0,
   ),
   Missile : WeaponStats (
+    display_name: "Heat-Seeker Missile",
     weapon_type: Missile,
     heat_seeking: true,
     heat_seeking_agility: 150.0,
@@ -658,6 +672,7 @@
     weight: 20.0,
   ),
   Rockets : WeaponStats (
+    display_name: "Rocket Launcher",
     weapon_type: Rockets,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -705,6 +720,7 @@
     weight: 15.0,
   ),
   Mine : WeaponStats (
+    display_name: "Mine",
     weapon_type: Mine,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -752,6 +768,7 @@
     weight: 30.0,
   ),
   Trap : WeaponStats (
+    display_name: "Laser Trap",
     weapon_type: Trap,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -799,6 +816,7 @@
     weight: 10.0,
   ),
   LaserSword : WeaponStats (
+    display_name: "Laser Sword",
     weapon_type: LaserSword,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -846,6 +864,7 @@
     weight: 5.0,
   ),
   BackwardsLaserSword : WeaponStats (
+    display_name: "Laser Sword (Backwards)",
     weapon_type: LaserSword,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -893,6 +912,7 @@
     weight: 5.0,
   ),
   Flamethrower : WeaponStats (
+    display_name: "Flamethrower",
     weapon_type: Flame,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -940,6 +960,7 @@
     weight: 15.0,
   ),
   SmartRocketGrenade : WeaponStats (
+    display_name: "Smart Rocket Grenade",
     weapon_type: Grenade,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
@@ -987,6 +1008,7 @@
     weight: 20.0,
   ),
   IonCannon : WeaponStats (
+    display_name: "Ion Cannon",
     weapon_type: Ion,
     heat_seeking: false,
     heat_seeking_agility: 0.0,
