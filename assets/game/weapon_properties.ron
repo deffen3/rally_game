@@ -8,6 +8,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 12.0,
     fire_stats: WeaponFireStats (
       mounted_angle: 0.0,
@@ -59,6 +60,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 10.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -110,6 +112,7 @@
     burst_shot_limit: 6,
     burst_cooldown_reset: 0.05,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 20.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -161,6 +164,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 2.0,
     weight: 10.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -212,6 +216,7 @@
     burst_shot_limit: 2,
     burst_cooldown_reset: 0.1,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 10.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -263,6 +268,7 @@
     burst_shot_limit: 2,
     burst_cooldown_reset: 0.1,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 12.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -314,6 +320,7 @@
     burst_shot_limit: 2,
     burst_cooldown_reset: 0.1,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 10.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -365,6 +372,7 @@
     burst_shot_limit: 7,
     burst_cooldown_reset: 0.001,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 15.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -416,6 +424,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 10.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -467,7 +476,8 @@
     cooldown_reset: 0.2,
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
-    charge_timer_reset: 0.0,    
+    charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 10.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -519,6 +529,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 20.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -570,6 +581,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 10.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -620,7 +632,8 @@
     cooldown_reset: 0.9,
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
-    charge_timer_reset: 0.0,
+    charge_timer_reset: 1.0,
+    spin_up_timer_reset: 0.0,
     weight: 20.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -672,6 +685,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 20.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -722,7 +736,8 @@
     cooldown_reset: 0.8,
     burst_shot_limit: 4,
     burst_cooldown_reset: 0.25,
-    charge_timer_reset: 0.0,    
+    charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 15.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -774,6 +789,7 @@
     burst_shot_limit: 3,
     burst_cooldown_reset: 0.25,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 30.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -825,6 +841,7 @@
     burst_shot_limit: 20,
     burst_cooldown_reset: 0.06,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 10.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -876,6 +893,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 5.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -927,6 +945,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 5.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 3.1415,
@@ -978,6 +997,7 @@
     burst_shot_limit: 15,
     burst_cooldown_reset: 0.01,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 15.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -1029,6 +1049,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 20.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
@@ -1080,6 +1101,7 @@
     burst_shot_limit: 0,
     burst_cooldown_reset: 0.0,
     charge_timer_reset: 0.0,
+    spin_up_timer_reset: 0.0,
     weight: 20.0,
     fire_stats : WeaponFireStats (
       mounted_angle: 0.0,
