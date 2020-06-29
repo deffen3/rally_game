@@ -17,8 +17,8 @@ use crate::components::{Vehicle, Player, VehicleState};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 
-const CAMERA_ZOOM_RATE: f32 = 0.01;
-const CAMERA_TRANSLATE_MAX_RATE: f32 = 80.0;
+const CAMERA_ZOOM_RATE: f32 = 120.0;
+const CAMERA_TRANSLATE_MAX_RATE: f32 = 100.0;
 
 
 #[derive(SystemDesc)]
@@ -97,10 +97,10 @@ impl<'s> System<'s> for CameraTrackingSystem {
             // ));
 
             let camera_projection = camera.projection().as_orthographic().unwrap();
-            let camera_left = camera_projection.left();
-            let camera_right = camera_projection.right();
-            let camera_top = camera_projection.top();
+            //let camera_left = camera_projection.left();
+            //let camera_right = camera_projection.right();
             let camera_bottom = camera_projection.bottom();
+            let camera_top = camera_projection.top();
 
             let camera_target_x = vehicle_min_x + (vehicle_max_x - vehicle_min_x)/2.0;
             let camera_target_y = vehicle_min_y + (vehicle_max_y - vehicle_min_y)/2.0;
@@ -109,23 +109,24 @@ impl<'s> System<'s> for CameraTrackingSystem {
             let y_delta = vehicle_max_y - vehicle_min_y;
 
             //keep aspect ratio consistent
-            let max_delta = (x_delta/aspect_ratio).max(y_delta);
+            let target_delta = (x_delta/aspect_ratio).max(y_delta);
 
-            let camera_target_left = -max_delta*aspect_ratio/2.0;
-            let camera_target_right = max_delta*aspect_ratio/2.0;
-            let camera_target_top = -max_delta/2.0;
-            let camera_target_bottom = max_delta/2.0;
+            let old_delta = camera_top - camera_bottom;
+            let d_delta = (target_delta - old_delta).min(CAMERA_ZOOM_RATE).max(-CAMERA_ZOOM_RATE);
 
-            let camera_new_left = camera_left + (camera_target_left - camera_left);
-            let camera_new_right = camera_right + (camera_target_right - camera_right);
-            let camera_new_top = camera_top + (camera_target_top - camera_top);
-            let camera_new_bottom = camera_bottom + (camera_target_bottom - camera_bottom);
+            let new_delta = old_delta + d_delta*dt;
+            //let new_delta = target_delta;
+
+            let camera_new_left = -new_delta*aspect_ratio/2.0;
+            let camera_new_right = new_delta*aspect_ratio/2.0;
+            let camera_new_bottom = -new_delta/2.0;
+            let camera_new_top = new_delta/2.0;
 
             camera.set_projection(Projection::orthographic(
                 camera_new_left,
                 camera_new_right,
-                camera_new_top,
                 camera_new_bottom,
+                camera_new_top,
                 0.0,
                 20.0,
             ));
@@ -149,12 +150,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
             }
 
             transform.set_translation_x(camera_x + dx*dt);
-            //transform.set_translation_x(camera_target_x);
             transform.set_translation_y(camera_y + dy*dt);
-            //transform.set_translation_y(camera_target_y);
-
-            //log::info!("{} {}", camera_x, camera_y);
-            //log::info!("{} {} {} {}", camera_left, camera_right, camera_top, camera_bottom);
         }
     }
 }
