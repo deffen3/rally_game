@@ -1,7 +1,7 @@
 use amethyst::{
     core::{Time, Transform},
     derive::SystemDesc,
-    ecs::{Join, Read, System, SystemData, WriteStorage, ReadExpect},
+    ecs::{Join, Read, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
     renderer::{palette::Srgba, resources::Tint},
 };
@@ -10,9 +10,8 @@ use rand::Rng;
 use std::collections::HashMap;
 
 use crate::components::{
-    Player, Vehicle, VehicleState, BotMode, vehicle_damage_model, kill_restart_vehicle, DurationDamage
+    Player, Vehicle, VehicleState, BotMode,
 };
-use crate::resources::{GameModeSetup, GameModes};
 
 
 #[derive(SystemDesc)]
@@ -23,7 +22,6 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
         WriteStorage<'s, Player>,
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, Transform>,
-        ReadExpect<'s, GameModeSetup>,
         WriteStorage<'s, Tint>,
         Read<'s, Time>,
         Read<'s, InputHandler<StringBindings>>,
@@ -31,7 +29,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
 
     fn run(
         &mut self,
-        (mut players, mut vehicles, mut transforms, game_mode_setup, mut tints, time, input): Self::SystemData,
+        (mut players, mut vehicles, mut transforms, mut tints, time, input): Self::SystemData,
     ) {
         let dt = time.delta_seconds();
 
@@ -153,7 +151,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
             );
         }
 
-        
+
         //visual updates
         for (player, vehicle) in (&players, &mut vehicles).join() {
             let owner_data = owner_data_map.get(&player.id);
