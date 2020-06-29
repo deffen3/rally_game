@@ -144,6 +144,7 @@ pub struct WeaponFireStats {
     pub mounted_angle: f32,
     pub shot_life_limit: f32,
     pub damage: f32,
+    pub damage_reduction_rate: f32,
     pub trigger_radius: f32,
     pub trigger_immediately: bool,
     pub damage_radius: f32,

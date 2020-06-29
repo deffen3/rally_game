@@ -35,6 +35,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
         for (entity, weapon_fire, transform) in (&entities, &mut weapon_fires, &transforms).join() {
             weapon_fire.shot_life_timer += dt;
+            weapon_fire.stats.damage = (weapon_fire.stats.damage - weapon_fire.stats.damage_reduction_rate * dt).max(0.0);
 
             if weapon_fire.stats.shot_life_limit >= 0.0
                 && weapon_fire.shot_life_timer >= weapon_fire.stats.shot_life_limit
@@ -173,7 +174,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     }
                 } else { //move to updated position based on velocity
                     if weapon_fire.stats.shot_speed > 0.0 {
-                        if weapon_fire.stats.accel_rate > 0.0 {
+                        if weapon_fire.stats.accel_rate.abs() > 0.0 {
                             let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                             let abs_vel = sq_vel.sqrt();
 
