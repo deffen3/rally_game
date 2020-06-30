@@ -37,8 +37,8 @@ use crate::rally::{
 
 use crate::audio::{play_bounce_sound, Sounds};
 
-const BOT_COLLISION_TURN_COOLDOWN_RESET: f32 = 0.7;
-const BOT_COLLISION_MOVE_COOLDOWN_RESET: f32 = 0.7;
+const BOT_COLLISION_TURN_COOLDOWN_RESET: f32 = 0.3;
+const BOT_COLLISION_MOVE_COOLDOWN_RESET: f32 = 0.3;
 
 const BOT_ENGAGE_DISTANCE: f32 = 160.0;
 const BOT_DISENGAGE_DISTANCE: f32 = 240.0;
