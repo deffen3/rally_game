@@ -62,7 +62,6 @@ pub fn intialize_arena(
 
 
 
-
     //Initialize Nav Mesh Grid
     let debug_line_z = 0.0;
     let nav_mesh_offset = 7.0;
@@ -291,17 +290,6 @@ pub fn intialize_arena(
                 )
             })
             .build();
-    }
-
-
-
-    for player_spawn_point in arena_properties.player_spawn_points.iter() {
-        
-    }
-
-
-    for weapon_spawn_box in arena_properties.weapon_spawn_boxes.iter() {
-        
     }
 
 

@@ -22,6 +22,7 @@ use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
     vehicle_damage_model, ArenaElement, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
     WeaponFire, WeaponStoreResource, DurationDamage, WeaponNames,
+    ArenaStoreResource, ArenaProperties, ArenaNames,
 };
 
 use crate::entities::{spawn_weapon_boxes, hit_spray, explosion_shockwave, chain_fire_weapon};
@@ -42,6 +43,7 @@ pub struct CollisionWeaponFireHitboxSystem {
     pub hit_sound_cooldown_timer: f32,
     pub hit_spray_cooldown_timer: f32,
     pub weapon_spawner_cooldown_timer: f32,
+    pub arena_properties: ArenaProperties,
 }
 
 impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
@@ -76,6 +78,32 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         }
         else {
             self.weapon_spawner_cooldown_timer = 20.0;
+        }
+
+
+        let arena_name;
+        {
+            let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+    
+            if let Some(game_mode_setup) = fetched_game_mode_setup {
+                arena_name = game_mode_setup.arena_name.clone();
+            } else {
+                arena_name = ArenaNames::OpenEmptyMap;
+            }
+        }
+    
+        {        
+            let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+    
+            if let Some(arena_store) = fetched_arena_store {
+                self.arena_properties = match arena_store.properties.get(&arena_name) {
+                    Some(arena_props_get) => (*arena_props_get).clone(),
+                    _ => ArenaProperties::default(),
+                };
+            }
+            else {
+                self.arena_properties = ArenaProperties::default();
+            }
         }
     }
 
@@ -309,7 +337,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     &weapon_fire_resource,
                     &lazy_update,
                     game_weapon_setup.weapon_spawn_count.clone(),
-                    game_mode_setup.game_mode.clone(),
+                    &self.arena_properties,
                 );
             }
         }

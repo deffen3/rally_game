@@ -13,12 +13,13 @@ use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
 use crate::components::{
-    build_named_weapon_from_world, get_weapon_icon, Player, PlayerWeaponIcon, Vehicle, WeaponArray, Weapon, WeaponNames,
-    VehicleMovementType, VehicleTypes, get_vehicle_sprites, get_weapon_width_height,
+    Player, PlayerWeaponIcon, 
+    build_named_weapon_from_world, get_weapon_icon, WeaponArray, Weapon, WeaponNames,
+    Vehicle, VehicleMovementType, VehicleTypes, get_vehicle_sprites, get_weapon_width_height,
+    ArenaStoreResource, ArenaNames, ArenaProperties,
 };
-use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameWeaponSetup, WeaponFireResource};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 pub fn intialize_player(
     world: &mut World,
@@ -42,17 +43,8 @@ pub fn intialize_player(
     vehicle_height: f32,
     vehicle_sprite_scalar: f32,
 ) -> Entity {
-    let game_mode;
     let weapon_name;
     {
-        let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
-
-        if let Some(game_mode_setup) = fetched_game_mode_setup {
-            game_mode = game_mode_setup.game_mode.clone();
-        } else {
-            game_mode = GameModes::ClassicGunGame;
-        }
-
         let fetched_game_weapon_setup = world.try_fetch::<GameWeaponSetup>();
 
         if let Some(game_weapon_setup) = fetched_game_weapon_setup {
@@ -64,60 +56,41 @@ pub fn intialize_player(
 
     let mut vehicle_transform = Transform::default();
 
-    let spacing_factor = 5.0;
 
-    let starting_rotation;
-    let starting_x;
-    let starting_y;
+    
+    //Get Arena's properties
+    let arena_name;
+    {
+        let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
-    if game_mode == GameModes::Race {
-        let (x, y) = match player_index {
-            0 => (ARENA_WIDTH - 70.0, ARENA_HEIGHT / 2.0 - 14.0),
-            1 => (ARENA_WIDTH - 50.0, ARENA_HEIGHT / 2.0 - 14.0),
-            2 => (ARENA_WIDTH - 30.0, ARENA_HEIGHT / 2.0 - 14.0),
-            3 => (ARENA_WIDTH - 10.0, ARENA_HEIGHT / 2.0 - 14.0),
-            _ => (ARENA_WIDTH - 40.0, ARENA_HEIGHT / 2.0 - 14.0),
-        };
-
-        starting_rotation = 0.0;
-        starting_x = x;
-        starting_y = y;
-    } else {
-        let (rotation, x, y) = match player_index {
-            0 => (
-                -PI / 4.0,
-                ARENA_WIDTH / spacing_factor,
-                ARENA_HEIGHT / spacing_factor,
-            ),
-            1 => (
-                PI / 2.0 + PI / 4.0,
-                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
-            ),
-            2 => (
-                PI + PI / 4.0,
-                ARENA_WIDTH / spacing_factor,
-                ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
-            ),
-            3 => (
-                PI / 2.0 - PI / 4.0,
-                ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                ARENA_HEIGHT / spacing_factor,
-            ),
-            _ => (
-                -PI / 4.0,
-                ARENA_WIDTH / spacing_factor,
-                ARENA_HEIGHT / spacing_factor,
-            ),
-        };
-
-        starting_rotation = rotation;
-        starting_x = x;
-        starting_y = y;
+        if let Some(game_mode_setup) = fetched_game_mode_setup {
+            arena_name = game_mode_setup.arena_name.clone();
+        } else {
+            arena_name = ArenaNames::OpenEmptyMap;
+        }
     }
 
-    vehicle_transform.set_rotation_2d(starting_rotation as f32);
-    vehicle_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+    let arena_properties;
+    {        
+        let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+
+        if let Some(arena_store) = fetched_arena_store {
+            arena_properties = match arena_store.properties.get(&arena_name) {
+                Some(arena_props_get) => (*arena_props_get).clone(),
+                _ => ArenaProperties::default(),
+            };
+        }
+        else {
+            arena_properties = ArenaProperties::default();
+        }
+    }
+
+    
+    
+    let player_spawn = arena_properties.player_spawn_points[player_index];
+
+    vehicle_transform.set_rotation_2d(player_spawn.rotation/180.0*PI);
+    vehicle_transform.set_translation_xyz(player_spawn.x, player_spawn.y, 0.0);
     vehicle_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
 
@@ -134,8 +107,8 @@ pub fn intialize_player(
 
     //Create Health Entity
     let mut health_transform = Transform::default();
-    health_transform.set_rotation_2d(starting_rotation as f32);
-    health_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.3);
+    health_transform.set_rotation_2d(player_spawn.rotation as f32);
+    health_transform.set_translation_xyz(player_spawn.x as f32, player_spawn.y as f32, 0.3);
     //health_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let health_sprite_render = SpriteRender {
@@ -158,8 +131,8 @@ pub fn intialize_player(
 
     //Create Repair Lines Entity
     let mut repair_transform = Transform::default();
-    repair_transform.set_rotation_2d(starting_rotation as f32);
-    repair_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.4);
+    repair_transform.set_rotation_2d(player_spawn.rotation as f32);
+    repair_transform.set_translation_xyz(player_spawn.x as f32, player_spawn.y as f32, 0.4);
     //repair_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let repair_sprite_render = SpriteRender {
@@ -182,8 +155,8 @@ pub fn intialize_player(
 
     //Create Armor Entity
     let mut armor_transform = Transform::default();
-    armor_transform.set_rotation_2d(starting_rotation as f32);
-    armor_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.2);
+    armor_transform.set_rotation_2d(player_spawn.rotation as f32);
+    armor_transform.set_translation_xyz(player_spawn.x as f32, player_spawn.y as f32, 0.2);
     armor_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let armor_sprite_render = SpriteRender {
@@ -206,8 +179,8 @@ pub fn intialize_player(
 
     //Create Shield Entity
     let mut shield_transform = Transform::default();
-    shield_transform.set_rotation_2d(starting_rotation as f32);
-    shield_transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.1);
+    shield_transform.set_rotation_2d(player_spawn.rotation as f32);
+    shield_transform.set_translation_xyz(player_spawn.x as f32, player_spawn.y as f32, 0.1);
     shield_transform.set_scale(Vector3::new(1./vehicle_sprite_scalar, 1./vehicle_sprite_scalar, 0.0));
 
     let shield_sprite_render = SpriteRender {

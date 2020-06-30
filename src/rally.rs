@@ -31,7 +31,8 @@ use crate::entities::{
 };
 
 use crate::components::{
-    Armor, Health, ArenaElement, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
+    ArenaElement, ArenaProperties, Hitbox, 
+    Player, PlayerWeaponIcon, Repair, Shield, Armor, Health, Vehicle,
     WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleTypes,
 };
 

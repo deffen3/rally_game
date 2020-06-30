@@ -7,107 +7,47 @@ use amethyst::{
 use rand::Rng;
 use std::f32::consts::PI;
 
-use crate::resources::{WeaponFireResource, GameModes};
+use crate::resources::{WeaponFireResource};
 
-use crate::components::{WeaponSpawnBox, reform_weapon_spawn_box};
+use crate::components::{
+    WeaponSpawnBox, reform_weapon_spawn_box, 
+    ArenaProperties,
+};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 pub fn spawn_weapon_boxes(
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     lazy_update: &ReadExpect<LazyUpdate>,
     weapon_box_count: u32,
-    game_mode_setup: GameModes, 
+    arena_properties: &ArenaProperties, 
 ) {
     let mut rng = rand::thread_rng();
     let mut spawn_index;
 
     let mut previous_indices = vec![];
 
-    for _idx in 0..weapon_box_count {
-        spawn_index = rng.gen_range(0, 4) as u32;
+    let number_of_spawn_locations = arena_properties.weapon_spawn_boxes.len();
+
+    for _idx in 0..weapon_box_count.min(number_of_spawn_locations as u32) {
+        
+        spawn_index = rng.gen_range(0, number_of_spawn_locations) as usize;
 
         while previous_indices.contains(&spawn_index) {
-            spawn_index = rng.gen_range(0, 4) as u32;
+            spawn_index = rng.gen_range(0, number_of_spawn_locations) as usize;
         }
+
+        let spawn_box = arena_properties.weapon_spawn_boxes[spawn_index];
 
         let box_entity: Entity = entities.create();
 
         let mut local_transform = Transform::default();
-
-        let x_out;
-        let y_out;
-
-        if game_mode_setup == GameModes::Race {
-            let spacing_factor = 5.0;
-
-            let (x, y) = match spawn_index {
-                0 => (
-                    ARENA_WIDTH / spacing_factor,
-                    ARENA_HEIGHT / spacing_factor,
-                ),
-                1 => (
-                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
-                ),
-                2 => (
-                    ARENA_WIDTH / spacing_factor,
-                    ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
-                ),
-                3 => (
-                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    ARENA_HEIGHT / spacing_factor,
-                ),
-                _ => (
-                    ARENA_WIDTH / spacing_factor,
-                    ARENA_HEIGHT / spacing_factor,
-                ),
-            };
-
-            local_transform.set_translation_xyz(x, y, 0.3);
-
-            x_out = x;
-            y_out = y;
-        }
-        else {
-            let spacing_factor;
-            if game_mode_setup == GameModes::KingOfTheHill {
-                spacing_factor = 3.3;
-            }
-            else {
-                spacing_factor = 3.0;
-            }
-            
-
-            let (x, y) = match spawn_index {
-                0 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / 2.0),
-                1 => (ARENA_WIDTH / 2.0, ARENA_HEIGHT / spacing_factor),
-                2 => (
-                    ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                    ARENA_HEIGHT / 2.0,
-                ),
-                3 => (
-                    ARENA_WIDTH / 2.0,
-                    ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
-                ),
-                _ => (
-                    ARENA_WIDTH / spacing_factor,
-                    ARENA_HEIGHT / spacing_factor,
-                ),
-            };
-
-            local_transform.set_translation_xyz(x, y, 0.3);
-
-            x_out = x;
-            y_out = y;
-        }
         
         local_transform.set_rotation_2d(PI / 8.0);
 
         let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
 
-        let weapon_spawn_box = WeaponSpawnBox {x: x_out, y: y_out, weapon_name: None};
+        let weapon_spawn_box = WeaponSpawnBox {x: spawn_box.x, y: spawn_box.y, weapon_name: spawn_box.weapon_name};
 
         lazy_update.insert(box_entity, reform_weapon_spawn_box(weapon_spawn_box));
         lazy_update.insert(box_entity, Removal::new(0 as u32));

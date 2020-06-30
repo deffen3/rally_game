@@ -1,7 +1,10 @@
 pub use self::armor::Armor;
 pub use self::health::Health;
 pub use self::hitbox::{
-    ArenaElement, Hitbox, HitboxShape, RaceCheckpointType, build_arena_store,
+    Hitbox, HitboxShape,
+};
+pub use self::arena::{
+    ArenaElement, RaceCheckpointType, build_arena_store,
     WeaponSpawnBox, reform_weapon_spawn_box,
     ArenaNames, ArenaStoreResource, ArenaProperties,
 };
@@ -27,6 +30,7 @@ pub use self::particles::{
 
 mod armor;
 mod health;
+mod arena;
 mod hitbox;
 mod players;
 mod repair;
