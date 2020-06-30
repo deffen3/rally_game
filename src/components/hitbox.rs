@@ -21,11 +21,6 @@ pub struct Hitbox {
     pub height: f32,
     pub angle: f32,
     pub shape: HitboxShape,
-    pub is_wall: bool,
-    pub is_hill: bool,
-    pub checkpoint: RaceCheckpointType,
-    pub checkpoint_id: i32,
-    pub is_weapon_box: bool,
 }
 
 impl Component for Hitbox {
@@ -38,22 +33,47 @@ impl Hitbox {
         height: f32,
         angle: f32,
         shape: HitboxShape,
-        is_wall: bool,
-        is_hill: bool,
-        checkpoint: RaceCheckpointType,
-        checkpoint_id: i32,
-        is_weapon_box: bool,
     ) -> Hitbox {
         Hitbox {
             width,
             height,
             angle,
             shape,
+        }
+    }
+}
+
+
+#[derive(Clone)]
+pub struct Arena {
+    pub is_wall: bool,
+    pub is_hill: bool,
+    pub checkpoint: RaceCheckpointType,
+    pub checkpoint_id: i32,
+    pub is_weapon_box: bool,
+    pub hitbox: Hitbox,
+}
+
+impl Component for Arena {
+    type Storage = DenseVecStorage<Self>;
+}
+
+impl Arena {
+    pub fn new(
+        is_wall: bool,
+        is_hill: bool,
+        checkpoint: RaceCheckpointType,
+        checkpoint_id: i32,
+        is_weapon_box: bool,
+        hitbox: Hitbox,
+    ) -> Arena {
+        Arena {
             is_wall,
             is_hill,
             checkpoint,
             checkpoint_id,
             is_weapon_box,
+            hitbox,
         }
     }
 }

@@ -9,7 +9,7 @@ use std::f32::consts::PI;
 
 use crate::resources::{WeaponFireResource, GameModes};
 
-use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
+use crate::components::{Arena, Hitbox, HitboxShape, RaceCheckpointType};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
@@ -100,16 +100,18 @@ pub fn spawn_weapon_boxes(
 
         lazy_update.insert(
             box_entity,
-            Hitbox::new(
-                11.0,
-                11.0,
-                0.0,
-                HitboxShape::Rectangle,
+            Arena::new(
                 false,
                 false,
                 RaceCheckpointType::NotCheckpoint,
                 0,
                 true,
+                Hitbox::new(
+                    11.0,
+                    11.0,
+                    0.0,
+                    HitboxShape::Rectangle,
+                )
             ),
         );
         lazy_update.insert(box_entity, Removal::new(0 as u32));

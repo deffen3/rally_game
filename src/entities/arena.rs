@@ -11,7 +11,7 @@ use amethyst::{
 
 use std::f32::{consts::PI};
 
-use crate::components::{Hitbox, HitboxShape, RaceCheckpointType};
+use crate::components::{Arena, Hitbox, HitboxShape, RaceCheckpointType};
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 use crate::resources::{
     GameModeSetup, GameModes, 
@@ -106,16 +106,18 @@ pub fn initialize_arena_walls(
             .create_entity()
             .with(Removal::new(0 as u32))
             .with(finish_line_transform)
-            .with(Hitbox::new(
-                20.0 * scale,
-                2.0 * scale,
-                0.0,
-                HitboxShape::Rectangle,
+            .with(Arena::new(
                 false,
                 false,
                 RaceCheckpointType::Lap,
                 0,
                 false,
+                Hitbox::new(
+                    20.0 * scale,
+                    2.0 * scale,
+                    0.0,
+                    HitboxShape::Rectangle,
+                )
             ))
             .build();
 
@@ -138,16 +140,18 @@ pub fn initialize_arena_walls(
             .with(Removal::new(0 as u32))
             .with(checkpoint_line_transform)
             .with(checkpoint_line_sprite_render)
-            .with(Hitbox::new(
-                2.0 * scale,
-                20.0 * scale,
-                0.0,
-                HitboxShape::Rectangle,
+            .with(Arena::new(
                 false,
                 false,
                 RaceCheckpointType::Checkpoint,
                 1,
                 false,
+                Hitbox::new(
+                    2.0 * scale,
+                    20.0 * scale,
+                    0.0,
+                    HitboxShape::Rectangle,
+                )
             ))
             .build();
 
@@ -169,16 +173,18 @@ pub fn initialize_arena_walls(
             .with(Removal::new(0 as u32))
             .with(checkpoint_line_transform)
             .with(checkpoint_line_sprite_render)
-            .with(Hitbox::new(
-                20.0 * scale,
-                2.0 * scale,
-                0.0,
-                HitboxShape::Rectangle,
+            .with(Arena::new(
                 false,
                 false,
                 RaceCheckpointType::Checkpoint,
                 2,
                 false,
+                Hitbox::new(
+                    20.0 * scale,
+                    2.0 * scale,
+                    0.0,
+                    HitboxShape::Rectangle,
+                )
             ))
             .build();
 
@@ -201,16 +207,18 @@ pub fn initialize_arena_walls(
             .with(Removal::new(0 as u32))
             .with(checkpoint_line_transform)
             .with(checkpoint_line_sprite_render)
-            .with(Hitbox::new(
-                2.0 * scale,
-                20.0 * scale,
-                0.0,
-                HitboxShape::Rectangle,
+            .with(Arena::new(
                 false,
                 false,
                 RaceCheckpointType::Checkpoint,
                 3,
                 false,
+                Hitbox::new(
+                    2.0 * scale,
+                    20.0 * scale,
+                    0.0,
+                    HitboxShape::Rectangle,
+                )
             ))
             .build();
 
@@ -255,16 +263,18 @@ pub fn initialize_arena_walls(
                 .with(Removal::new(0 as u32))
                 .with(circle_transform)
                 .with(circle_sprite_render)
-                .with(Hitbox::new(
-                    20.0 * scale,
-                    20.0 * scale,
-                    0.0,
-                    HitboxShape::Circle,
+                .with(Arena::new(
                     false,
                     true,
                     RaceCheckpointType::NotCheckpoint,
                     0,
                     false,
+                    Hitbox::new(
+                        20.0 * scale,
+                        20.0 * scale,
+                        0.0,
+                        HitboxShape::Circle,
+                    )
                 ))
                 .with(Transparent)
                 .with(king_tint)
@@ -374,16 +384,18 @@ pub fn initialize_arena_walls(
             .with(Removal::new(0 as u32))
             .with(circle_transform)
             .with(circle_sprite_render)
-            .with(Hitbox::new(
-                20.0 * scale,
-                20.0 * scale,
-                0.0,
-                HitboxShape::Circle,
+            .with(Arena::new(
                 true,
                 false,
                 RaceCheckpointType::NotCheckpoint,
                 0,
                 false,
+                Hitbox::new(
+                    20.0 * scale,
+                    20.0 * scale,
+                    0.0,
+                    HitboxShape::Circle,
+                )
             ))
             .build();
 

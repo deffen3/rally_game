@@ -20,7 +20,7 @@ use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
-    vehicle_damage_model, Hitbox, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
+    vehicle_damage_model, Arena, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
     WeaponFire, WeaponStoreResource, DurationDamage, WeaponNames,
 };
 
@@ -47,7 +47,7 @@ pub struct CollisionWeaponFireHitboxSystem {
 impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
     type SystemData = (
         Entities<'s>,
-        ReadStorage<'s, Hitbox>,
+        ReadStorage<'s, Arena>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Player>,
         ReadStorage<'s, PlayerWeaponIcon>,
@@ -83,7 +83,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         &mut self,
         (
             entities,
-            hitboxes,
+            arena_elements,
             mut transforms,
             mut players,
             player_icons,
@@ -110,8 +110,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         }
 
         //weapon to non-moving hitbox collisions
-        for (entity, hitbox, transform) in (&*entities, &hitboxes, &transforms).join() {
-            if hitbox.is_wall {
+        for (entity, arena_element, transform) in (&*entities, &arena_elements, &transforms).join() {
+            if arena_element.is_wall {
                 let hitbox_x = transform.translation().x;
                 let hitbox_y = transform.translation().y;
 
@@ -129,8 +129,10 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
                     let collision;
 
-                    let hitbox_collider_shape_circle = Ball::new(hitbox.width / 2.0);
-                    let hitbox_collider_shape_rect = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0)); //unused
+                    let hitbox_collider_shape_circle = Ball::new(arena_element.hitbox.width / 2.0);
+                    let hitbox_collider_shape_rect = Cuboid::new(
+                        Vector2::new(arena_element.hitbox.width/2.0, arena_element.hitbox.height/2.0)
+                    ); //unused
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let weapon_fire_hit;
@@ -151,7 +153,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                             margin = 0.0;
                         }
 
-                        if hitbox.shape == HitboxShape::Circle {
+                        if arena_element.hitbox.shape == HitboxShape::Circle {
                             collision = query::proximity(
                                 &fire_collider_pos, &fire_collider_shape,
                                 &hitbox_collider_pos, &hitbox_collider_shape_circle,
@@ -174,7 +176,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                             let fire_ray = Ray::new(Point2::new(fire_x, fire_y), Vector2::new(weapon_fire.dx, weapon_fire.dy));
 
                             let toi;
-                            if hitbox.shape == HitboxShape::Circle {
+                            if arena_element.hitbox.shape == HitboxShape::Circle {
                                 toi = hitbox_collider_shape_circle.toi_with_ray(&hitbox_collider_pos, &fire_ray, dt * PRE_IMPACT_DT_STEPS, true);
                             }
                             else {
@@ -204,7 +206,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                                 weapon_fire.stats.bounces -= 1;
 
                                 let contact_data;
-                                if hitbox.shape == HitboxShape::Circle 
+                                if arena_element.hitbox.shape == HitboxShape::Circle 
                                 {
                                     contact_data = query::contact(
                                         &fire_collider_pos, &fire_collider_shape,
@@ -233,7 +235,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                                 let y_diff = hitbox_y - contact_pt.y;
 
                                 let mut new_angle;
-                                if hitbox.shape == HitboxShape::Circle 
+                                if arena_element.hitbox.shape == HitboxShape::Circle 
                                 {
                                     let mut contact_perp_angle = y_diff.atan2(x_diff) + PI/2.0;
                                     if contact_perp_angle > PI {
@@ -275,7 +277,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                         }
                     }
                 }
-            } else if hitbox.is_weapon_box {
+            } else if arena_element.is_weapon_box {
                 //delete old weapon_boxes
                 if self.weapon_spawner_cooldown_timer <= 0.0 {
                     let _ = entities.delete(entity);

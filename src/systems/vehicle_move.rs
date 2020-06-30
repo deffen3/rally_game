@@ -21,7 +21,7 @@ use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle,
-    update_weapon_properties, vehicle_damage_model, BotMode, Hitbox, HitboxShape, Player,
+    update_weapon_properties, vehicle_damage_model, BotMode, Arena, HitboxShape, Player,
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, WeaponArray, WeaponStoreResource,
     determine_vehicle_weight, VehicleMovementType, DurationDamage,
 };
@@ -62,7 +62,7 @@ pub struct VehicleMoveSystem {
 impl<'s> System<'s> for VehicleMoveSystem {
     type SystemData = (
         Entities<'s>,
-        ReadStorage<'s, Hitbox>,
+        ReadStorage<'s, Arena>,
         WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,
@@ -90,7 +90,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         &mut self,
         (
             entities,
-            hitboxes,
+            arena_elements,
             mut players,
             mut transforms,
             mut vehicles,
@@ -1025,8 +1025,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             player.on_hill = false; //reset
 
-            for (hitbox_entity, hitbox, hitbox_transform) in
-                (&*entities, &hitboxes, &transforms).join()
+            for (hitbox_entity, arena_element, hitbox_transform) in
+                (&*entities, &arena_elements, &transforms).join()
             {
                 let hitbox_x = hitbox_transform.translation().x;
                 let hitbox_y = hitbox_transform.translation().y;
@@ -1034,8 +1034,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let hit;
                 let mut contact_data = None;
 
-                if hitbox.shape == HitboxShape::Circle {
-                    let hitbox_collider_shape = Ball::new(hitbox.width / 2.0);
+                if arena_element.hitbox.shape == HitboxShape::Circle {
+                    let hitbox_collider_shape = Ball::new(arena_element.hitbox.width / 2.0);
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let collision = query::proximity(
@@ -1058,8 +1058,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     else {
                         hit = false;
                     }
-                } else if hitbox.shape == HitboxShape::Rectangle {
-                    let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                } else if arena_element.hitbox.shape == HitboxShape::Rectangle {
+                    let hitbox_collider_shape = Cuboid::new(Vector2::new(
+                        arena_element.hitbox.width/2.0, arena_element.hitbox.height/2.0)
+                    );
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let collision = query::proximity(
@@ -1082,8 +1084,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     else {
                         hit = false;
                     }
-                } else if hitbox.shape == HitboxShape::InnerQuarterCircle {
-                    let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                } else if arena_element.hitbox.shape == HitboxShape::InnerQuarterCircle {
+                    let hitbox_collider_shape = Cuboid::new(Vector2::new(
+                        arena_element.hitbox.width/2.0, arena_element.hitbox.height/2.0)
+                    );
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let collision = query::proximity(
@@ -1106,8 +1110,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     else {
                         hit = false;
                     }
-                } else if hitbox.shape == HitboxShape::OuterQuarterCircle {
-                    let hitbox_collider_shape = Cuboid::new(Vector2::new(hitbox.width/2.0, hitbox.height/2.0));
+                } else if arena_element.hitbox.shape == HitboxShape::OuterQuarterCircle {
+                    let hitbox_collider_shape = Cuboid::new(Vector2::new(
+                        arena_element.hitbox.width/2.0, arena_element.hitbox.height/2.0)
+                    );
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let collision = query::proximity(
@@ -1135,7 +1141,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 }
 
                 if hit {
-                    if hitbox.is_wall {
+                    if arena_element.is_wall {
                         //let contact_depth = contact_data.unwrap().depth;
                         let contact_pt = contact_data.unwrap().world2;
 
@@ -1192,7 +1198,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         }
                     } else if vehicle.state == VehicleState::Active {
                         //Non-collision related actions can only occur on Active vehicles
-                        if hitbox.is_weapon_box {
+                        if arena_element.is_weapon_box {
                             let _ = entities.delete(hitbox_entity);
 
                             let new_weapon_name = get_random_weapon_name(&game_weapon_setup);
@@ -1218,7 +1224,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             else {
                                 vehicle.weapon_weight = 0.0;
                             }
-                        } else if hitbox.is_hill {
+                        } else if arena_element.is_hill {
                             players_on_hill.push(player.id.clone());
                             player.on_hill = true;
 
@@ -1231,13 +1237,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             };
 
                             color_for_hill.push((r, g, b));
-                        } else if (hitbox.checkpoint == RaceCheckpointType::Checkpoint)
-                                && (hitbox.checkpoint_id == player.checkpoint_completed + 1)
+                        } else if (arena_element.checkpoint == RaceCheckpointType::Checkpoint)
+                                && (arena_element.checkpoint_id == player.checkpoint_completed + 1)
                         {
-                            player.checkpoint_completed = hitbox.checkpoint_id;
+                            player.checkpoint_completed = arena_element.checkpoint_id;
                             debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
                         }
-                        else if hitbox.checkpoint == RaceCheckpointType::Lap {
+                        else if arena_element.checkpoint == RaceCheckpointType::Lap {
                             if player.checkpoint_completed == game_mode_setup.checkpoint_count {
                                 player.laps_completed += 1;
                             }
@@ -1282,7 +1288,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
         }
 
-        for (entity, _hitbox) in (&*entities, &hitboxes).join() {
+        for (entity, _arena_element) in (&*entities, &arena_elements).join() {
             if let Some(tint) = tints.get_mut(entity) {
                 if players_on_hill.len() == 1 {
                     *tint = Tint(Srgba::new(
