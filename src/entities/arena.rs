@@ -312,32 +312,36 @@ pub fn intialize_arena(
     let mut grid_drops: usize = 0;
 
     for (y_idx, y) in nav_mesh_grid_ys.iter().enumerate() {
-        for (x_idx, x) in nav_mesh_grid_xs.iter().enumerate() {
-            nav_mesh_vertices.push((*x, *y, debug_line_z));
+        if *y >= 0.0 && *y <= arena_properties.height {
+            for (x_idx, x) in nav_mesh_grid_xs.iter().enumerate() {
+                if *x >= 0.0 && *x <= arena_properties.width {
+                    nav_mesh_vertices.push((*x, *y, debug_line_z));
 
-            let vertex_idx = nav_mesh_vertices.len() - 1;
+                    let vertex_idx = nav_mesh_vertices.len() - 1;
 
-            if (x_idx > 0) && (y_idx > 0) {
-                let xr_minus = nav_mesh_vertices[vertex_idx - 1].0; //bottom-left x
-                let xr_plus = nav_mesh_vertices[vertex_idx - xs_len].0; //top-right x
-                let yr_minus = nav_mesh_vertices[vertex_idx - 1].1; //bottom-left y
-                let yr_plus = nav_mesh_vertices[vertex_idx - xs_len].1; //top-right y
+                    if (x_idx > 0) && (y_idx > 0) { //don't evaluate first index, otherwise underflow
+                        let xr_minus = nav_mesh_vertices[vertex_idx - 1].0; //bottom-left x
+                        let xr_plus = nav_mesh_vertices[vertex_idx - xs_len].0; //top-right x
+                        let yr_minus = nav_mesh_vertices[vertex_idx - 1].1; //bottom-left y
+                        let yr_plus = nav_mesh_vertices[vertex_idx - xs_len].1; //top-right y
 
-                let mut dropped = false;
-                for (drop_x_minus, drop_x_plus, drop_y_minus, drop_y_plus) in nav_mesh_grid_drop.iter() {
-                    if xr_minus >= *drop_x_minus && xr_minus <= *drop_x_plus && 
-                            xr_plus >= *drop_x_minus && xr_plus <= *drop_x_plus &&
-                            yr_minus >= *drop_y_minus && yr_minus <= *drop_y_plus &&
-                            yr_plus >= *drop_y_minus && yr_plus <= *drop_y_plus {
-                        dropped = true;
-                        grid_drops += 1;
-                        break;
+                        let mut dropped = false;
+                        for (drop_x_minus, drop_x_plus, drop_y_minus, drop_y_plus) in nav_mesh_grid_drop.iter() {
+                            if xr_minus >= *drop_x_minus && xr_minus <= *drop_x_plus && 
+                                    xr_plus >= *drop_x_minus && xr_plus <= *drop_x_plus &&
+                                    yr_minus >= *drop_y_minus && yr_minus <= *drop_y_plus &&
+                                    yr_plus >= *drop_y_minus && yr_plus <= *drop_y_plus {
+                                dropped = true;
+                                grid_drops += 1;
+                                break;
+                            }
+                        }
+
+                        if !dropped {
+                            nav_mesh_triangles.push((vertex_idx - 1, vertex_idx - xs_len - 1, vertex_idx - xs_len));
+                            nav_mesh_triangles.push((vertex_idx - 1, vertex_idx, vertex_idx - xs_len));
+                        }
                     }
-                }
-
-                if !dropped {
-                    nav_mesh_triangles.push((vertex_idx - 1, vertex_idx - xs_len - 1, vertex_idx - xs_len));
-                    nav_mesh_triangles.push((vertex_idx - 1, vertex_idx, vertex_idx - xs_len));
                 }
             }
         }
