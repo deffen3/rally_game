@@ -22,16 +22,16 @@ use crate::score_screen::ScoreScreen;
 use crate::resources::{initialize_weapon_fire_resource, 
     GameModeSetup, GameScore, 
     GameTeamSetup, WeaponFireResource, GameVehicleSetup, 
-    ArenaNavMesh, ArenaInvertedNavMesh, ArenaNavMeshFinal,
+    ArenaNavMesh, ArenaNavMeshFinal,
 };
 
 use crate::entities::{
-    initialize_arena_walls, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
+    intialize_arena, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
     connect_players_to_ui, intialize_player, PlayerStatusText,
 };
 
 use crate::components::{
-    Armor, Health, Arena, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
+    Armor, Health, ArenaElement, Hitbox, Player, PlayerWeaponIcon, Repair, Shield, Vehicle,
     WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleTypes,
 };
 
@@ -87,7 +87,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         world.register::<Armor>();
         world.register::<Health>();
-        world.register::<Arena>();
+        world.register::<ArenaElement>();
         world.register::<Hitbox>();
         world.register::<Player>();
         world.register::<Repair>();
@@ -140,17 +140,12 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             triangles: Vec::new(),
         });
 
-        world.insert(ArenaInvertedNavMesh {
-            vertices: Vec::new(),
-            triangles: Vec::new(),
-        });
-
         world.insert(ArenaNavMeshFinal {
             mesh: None,
         });
 
 
-        initialize_arena_walls(
+        intialize_arena(
             world,
             self.sprite_sheet_handle.clone().unwrap(),
             self.texture_sheet_handle.clone().unwrap(),

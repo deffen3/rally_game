@@ -1,6 +1,10 @@
 pub use self::armor::Armor;
 pub use self::health::Health;
-pub use self::hitbox::{Arena, Hitbox, HitboxShape, RaceCheckpointType};
+pub use self::hitbox::{
+    ArenaElement, Hitbox, HitboxShape, RaceCheckpointType, build_arena_store,
+    WeaponSpawnBox, reform_weapon_spawn_box,
+    ArenaNames, ArenaStoreResource, ArenaProperties,
+};
 pub use self::players::{BotMode, Player, PlayerWeaponIcon};
 pub use self::repair::Repair;
 pub use self::shields::Shield;

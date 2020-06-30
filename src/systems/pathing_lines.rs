@@ -15,7 +15,7 @@ use navmesh::{NavQuery, NavPathMode};
 
 
 use crate::components::{Vehicle, Player};
-use crate::resources::{ArenaNavMesh, ArenaInvertedNavMesh, ArenaNavMeshFinal};
+use crate::resources::{ArenaNavMesh, ArenaNavMeshFinal};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, DEBUG_LINES};
 
@@ -27,7 +27,6 @@ impl<'s> System<'s> for PathingLinesSystem {
     type SystemData = (
         Write<'s, DebugLines>,
         ReadExpect<'s, ArenaNavMesh>,
-        ReadExpect<'s, ArenaInvertedNavMesh>,
         ReadExpect<'s, ArenaNavMeshFinal>,
         WriteStorage<'s, Player>,
         ReadStorage<'s, Vehicle>,
@@ -38,19 +37,11 @@ impl<'s> System<'s> for PathingLinesSystem {
         &mut self, (
         mut debug_lines_resource, 
         arena_nav_mesh,
-        _arena_inv_nav_mesh,
         arena_nav_mesh_final,
         mut players,
         vehicles,
         transforms): Self::SystemData
-    ) {
-        // debug_lines_resource.draw_line(
-        //     [0.0, 0.0, 0.5].into(),
-        //     [ARENA_WIDTH, ARENA_HEIGHT, 0.5].into(),
-        //     Srgba::new(0.3, 0.3, 1.0, 1.0),
-        // );
-
-        
+    ) {       
         let nav_query_type = NavQuery::Accuracy;
         let nav_path_type = NavPathMode::Accuracy;
         /*
@@ -74,32 +65,6 @@ impl<'s> System<'s> for PathingLinesSystem {
             MidPoints,
         }
         */
-
-
-        //draw keep-out zone as red debug lines
-        // for (v1_index, v2_index, v3_index) in arena_inv_nav_mesh.triangles.iter() {
-        //     let v1 = arena_inv_nav_mesh.vertices[*v1_index];
-        //     let v2 = arena_inv_nav_mesh.vertices[*v2_index];
-        //     let v3 = arena_inv_nav_mesh.vertices[*v3_index];
-
-        //     debug_lines_resource.draw_line(
-        //         [v1.0, v1.1, v1.2].into(),
-        //         [v2.0, v2.1, v2.2].into(),
-        //         Srgba::new(1.0, 0.2, 0.2, 1.0),
-        //     );
-
-        //     debug_lines_resource.draw_line(
-        //         [v2.0, v2.1, v2.2].into(),
-        //         [v3.0, v3.1, v3.2].into(),
-        //         Srgba::new(1.0, 0.2, 0.2, 1.0),
-        //     );
-
-        //     debug_lines_resource.draw_line(
-        //         [v3.0, v3.1, v3.2].into(),
-        //         [v1.0, v1.1, v1.2].into(),
-        //         Srgba::new(1.0, 0.2, 0.2, 1.0),
-        //     );
-        // }
 
         //draw nav mesh zones as green debug lines
         if DEBUG_LINES {

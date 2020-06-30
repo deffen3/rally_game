@@ -14,9 +14,10 @@ use crate::custom_vehicles::CustomVehiclesMenu;
 use crate::custom_weapons::CustomWeaponsMenu;
 use crate::custom_arena::CustomArenaMenu;
 
-use crate::components::{WeaponNames, 
+use crate::components::{
+    build_weapon_store, WeaponNames, WeaponStoreResource,
     build_vehicle_store, VehicleNames, VehicleStats, get_none_vehicle, 
-    build_weapon_store, WeaponStoreResource
+    build_arena_store, ArenaNames, ArenaStoreResource,
 };
 
 use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
@@ -91,8 +92,11 @@ impl SimpleState for MainMenu {
         // create UI from prefab and save the reference.
         let world = data.world;
 
-        build_weapon_store(world);
 
+        build_arena_store(world);
+
+
+        build_weapon_store(world);
 
         let mut weapon_spawn_chances: Vec<(WeaponNames, f32)> = Vec::new();
         {
@@ -147,6 +151,7 @@ impl SimpleState for MainMenu {
                 max_players: INIT_PLAYER_COUNT,
                 bot_players: INIT_BOT_COUNT,
                 last_hit_threshold: 5.0,
+                arena_name: ArenaNames::StandardCombat,
             });
 
             //these are only defaults if a game-mode is not selected
@@ -471,6 +476,8 @@ impl SimpleState for MainMenu {
                 let fetched_game_weapon_setup = world.try_fetch_mut::<GameWeaponSetup>();
                 let fetched_game_team_setup = world.try_fetch_mut::<GameTeamSetup>();
 
+                let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
                     if Some(target) == self.button_classic_gun_game {
                         game_mode_setup.game_mode = GameModes::ClassicGunGame;
@@ -478,7 +485,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.points_to_win = 14;
                         game_mode_setup.stock_lives = -1;
                         game_mode_setup.checkpoint_count = 0;
-                        game_mode_setup.game_end_condition = GameEndCondition::First;
+                        game_mode_setup.game_end_condition = GameEndCondition::First;                        
                         self.init_base_rules = true;
                     } else if Some(target) == self.button_deathmatch_kills {
                         game_mode_setup.game_mode = GameModes::DeathmatchKills;
@@ -520,6 +527,18 @@ impl SimpleState for MainMenu {
                         game_mode_setup.checkpoint_count = 3;
                         game_mode_setup.game_end_condition = GameEndCondition::AllButOneExtended; //extended for a few seconds after
                         self.init_base_rules = true;
+                    }
+
+                    //Select default arena map
+                    if let Some(arena_store) = fetched_arena_store {
+                        let game_mode_arena = match arena_store.game_modes.get(&game_mode_setup.game_mode) {
+                            Some(game_mode_arenas) => game_mode_arenas[0],
+                            _ => ArenaNames::OpenEmptyMap,
+                        };
+                        game_mode_setup.arena_name = game_mode_arena;
+                    }
+                    else {
+                        game_mode_setup.arena_name = ArenaNames::OpenEmptyMap;
                     }
                 }
 

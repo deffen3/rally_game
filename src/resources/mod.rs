@@ -4,7 +4,7 @@ pub use self::game_mode_setup::{
 };
 pub use self::match_timer::MatchTimer;
 pub use self::weapon_fire_resource::{initialize_weapon_fire_resource, WeaponFireResource};
-pub use self::arena_navmesh::{ArenaNavMesh, ArenaInvertedNavMesh, ArenaNavMeshFinal};
+pub use self::arena_navmesh::{ArenaNavMesh, ArenaNavMeshFinal};
 
 mod game_mode_setup;
 mod match_timer;

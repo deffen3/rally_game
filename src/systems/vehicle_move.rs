@@ -21,7 +21,7 @@ use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle,
-    update_weapon_properties, vehicle_damage_model, BotMode, Arena, HitboxShape, Player,
+    update_weapon_properties, vehicle_damage_model, BotMode, ArenaElement, HitboxShape, Player,
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, WeaponArray, WeaponStoreResource,
     determine_vehicle_weight, VehicleMovementType, DurationDamage,
 };
@@ -62,7 +62,7 @@ pub struct VehicleMoveSystem {
 impl<'s> System<'s> for VehicleMoveSystem {
     type SystemData = (
         Entities<'s>,
-        ReadStorage<'s, Arena>,
+        ReadStorage<'s, ArenaElement>,
         WriteStorage<'s, Player>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Vehicle>,

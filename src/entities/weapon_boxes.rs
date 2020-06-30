@@ -9,7 +9,7 @@ use std::f32::consts::PI;
 
 use crate::resources::{WeaponFireResource, GameModes};
 
-use crate::components::{Arena, Hitbox, HitboxShape, RaceCheckpointType};
+use crate::components::{WeaponSpawnBox, reform_weapon_spawn_box};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
@@ -35,6 +35,9 @@ pub fn spawn_weapon_boxes(
         let box_entity: Entity = entities.create();
 
         let mut local_transform = Transform::default();
+
+        let x_out;
+        let y_out;
 
         if game_mode_setup == GameModes::Race {
             let spacing_factor = 5.0;
@@ -63,6 +66,9 @@ pub fn spawn_weapon_boxes(
             };
 
             local_transform.set_translation_xyz(x, y, 0.3);
+
+            x_out = x;
+            y_out = y;
         }
         else {
             let spacing_factor;
@@ -92,28 +98,18 @@ pub fn spawn_weapon_boxes(
             };
 
             local_transform.set_translation_xyz(x, y, 0.3);
+
+            x_out = x;
+            y_out = y;
         }
         
         local_transform.set_rotation_2d(PI / 8.0);
 
         let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
 
-        lazy_update.insert(
-            box_entity,
-            Arena::new(
-                false,
-                false,
-                RaceCheckpointType::NotCheckpoint,
-                0,
-                true,
-                Hitbox::new(
-                    11.0,
-                    11.0,
-                    0.0,
-                    HitboxShape::Rectangle,
-                )
-            ),
-        );
+        let weapon_spawn_box = WeaponSpawnBox {x: x_out, y: y_out, weapon_name: None};
+
+        lazy_update.insert(box_entity, reform_weapon_spawn_box(weapon_spawn_box));
         lazy_update.insert(box_entity, Removal::new(0 as u32));
         lazy_update.insert(box_entity, box_sprite);
         lazy_update.insert(box_entity, local_transform);

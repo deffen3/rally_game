@@ -1,6 +1,8 @@
-use crate::components::{WeaponNames, VehicleNames, VehicleStats};
+use serde::Deserialize;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+use crate::components::{WeaponNames, VehicleNames, VehicleStats, ArenaNames};
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Deserialize, Hash)]
 pub enum GameModes {
     ClassicGunGame, //First to get a kill with each weapon. Weapons are hot-swapped after kills.
     DeathmatchKills, //First to a certain number of kills. New weapons can be picked up from arena.
@@ -29,6 +31,7 @@ pub struct GameModeSetup {
     pub max_players: usize,
     pub bot_players: usize,
     pub last_hit_threshold: f32,
+    pub arena_name: ArenaNames, 
 }
 
 

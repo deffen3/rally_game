@@ -20,7 +20,7 @@ use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
-    vehicle_damage_model, Arena, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
+    vehicle_damage_model, ArenaElement, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
     WeaponFire, WeaponStoreResource, DurationDamage, WeaponNames,
 };
 
@@ -47,7 +47,7 @@ pub struct CollisionWeaponFireHitboxSystem {
 impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
     type SystemData = (
         Entities<'s>,
-        ReadStorage<'s, Arena>,
+        ReadStorage<'s, ArenaElement>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Player>,
         ReadStorage<'s, PlayerWeaponIcon>,

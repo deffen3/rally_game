@@ -86,7 +86,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
             
             let aspect_ratio = screen_dimensions.aspect_ratio();
 
-            //Standard full Arena Projection
+            //Standard full ArenaElement Projection
             // camera.set_projection(Projection::orthographic(
             //     -ARENA_WIDTH/2.0,
             //     ARENA_WIDTH/2.0,
