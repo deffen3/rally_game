@@ -13,6 +13,7 @@ use amethyst::{
 
 
 use crate::components::{Vehicle, Player, VehicleState};
+use crate::resources::{GameModeSetup, GameModes};
 
 use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
@@ -32,6 +33,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
         Read<'s, Time>,
         WriteStorage<'s, Camera>,
         ReadExpect<'s, ScreenDimensions>,
+        ReadExpect<'s, GameModeSetup>,
     );
 
     fn run(
@@ -42,6 +44,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
         time,
         mut cameras,
         screen_dimensions,
+        game_mode_setup,
     ): Self::SystemData
     ) {
         let dt = time.delta_seconds();
@@ -75,7 +78,16 @@ impl<'s> System<'s> for CameraTrackingSystem {
             vehicle_max_y = vehicle_ys[vehicle_ys.len()-1];
         }
 
-        let offset = 80.0;
+        
+        //this is the extra buffer space that the camera gives
+        let offset;
+        if game_mode_setup.game_mode == GameModes::Race {
+            offset = 160.0;
+        }
+        else {
+            offset = 80.0;
+        }
+        
 
         vehicle_min_x = (vehicle_min_x - offset).max(0.0);
         vehicle_max_x = (vehicle_max_x + offset).min(ARENA_WIDTH);
