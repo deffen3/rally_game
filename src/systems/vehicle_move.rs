@@ -270,7 +270,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             if angle_diff.abs() < 0.2 {
                                 if approx_t_to_arrival < approx_t_to_rest {
-                                    vehicle_accel = Some(thrust_friction_decel_rate * 1.05);
+                                    vehicle_accel = Some(0.2);
                                 }
                                 else {
                                     vehicle_accel = Some(0.8);
