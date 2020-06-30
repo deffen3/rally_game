@@ -43,7 +43,7 @@ use crate::systems::{
 };
 
 pub const PLAYER_CAMERA: bool = false;
-pub const DEBUG_LINES: bool = false;
+pub const DEBUG_LINES: bool = true;
 
 pub const ARENA_HEIGHT: f32 = 400.0;
 pub const ARENA_WIDTH: f32 = 400.0;

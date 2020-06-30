@@ -243,7 +243,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             let dist = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
 
                             let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
-                            let abs_vel = sq_vel.sqrt()*10.0; //Why does velocity not seem accurate without this weird multiplier???
+                            let abs_vel = sq_vel.sqrt(); //Why does velocity not seem accurate without this weird multiplier???
 
                             let approx_t_to_arrival = dist / abs_vel;
                             let approx_t_to_rest = abs_vel / thrust_friction_decel_rate;
@@ -412,7 +412,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                 if angle_diff.abs() < 0.2 {
                                     if approx_t_to_arrival < approx_t_to_rest {
-                                        vehicle_accel = Some(thrust_friction_decel_rate * 1.05);
+                                        vehicle_accel = Some(0.2);
                                     }
                                     else {
                                         vehicle_accel = Some(0.8);

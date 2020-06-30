@@ -116,35 +116,35 @@ impl<'s> System<'s> for PathingLinesSystem {
                         );
                     
                     if let Some(path) = path {
-                        if DEBUG_LINES {
-                            let mut prev_x = None;
-                            let mut prev_y = None;
-                            let mut prev_z = None;
+                        let mut prev_x = None;
+                        let mut prev_y = None;
+                        let mut prev_z = None;
 
-                            let mut path_plan = Vec::new();
+                        let mut path_plan = Vec::new();
 
-                            for nav_vector in path.iter() {
-                                let x = nav_vector.x;
-                                let y = nav_vector.y;
-                                let z = nav_vector.z;
+                        for nav_vector in path.iter() {
+                            let x = nav_vector.x;
+                            let y = nav_vector.y;
+                            let z = nav_vector.z;
 
-                                path_plan.push((x, y, z));
+                            path_plan.push((x, y, z));
 
-                                if !prev_x.is_none() {
+                            if !prev_x.is_none() {
+                                if DEBUG_LINES {
                                     debug_lines_resource.draw_line(
                                         [prev_x.unwrap(), prev_y.unwrap(), prev_z.unwrap()].into(),
                                         [x, y, z].into(),
                                         Srgba::new(0.2, 0.8, 1.0, 0.3),
                                     );
                                 }
-
-                                prev_x = Some(x);
-                                prev_y = Some(y);
-                                prev_z = Some(z);
                             }
 
-                            player.path_plan = Some(path_plan.clone());
+                            prev_x = Some(x);
+                            prev_y = Some(y);
+                            prev_z = Some(z);
                         }
+
+                        player.path_plan = Some(path_plan.clone());
                     }
                 }
                 else {
