@@ -85,6 +85,7 @@ pub fn intialize_arena(
 
     //Build Arena from properties
 
+    //Arena Floor
     for arena_floor in arena_properties.floor.iter() {
         let mut floor_transform = Transform::default();
         floor_transform.set_translation_xyz(arena_floor.x, arena_floor.y, -0.05);
@@ -104,7 +105,7 @@ pub fn intialize_arena(
     }
 
 
-
+    //Arena Circles
     for arena_circle in arena_properties.arena_circles.iter() {
         let sprite_scale_mult = 10.0;
         let scale = arena_circle.radius / sprite_scale_mult;
@@ -182,7 +183,7 @@ pub fn intialize_arena(
     }
 
 
-
+    //Arena King Hill
     for king_hill in arena_properties.king_hills.iter() {
         let sprite_scale_mult = 10.0;
         let scale = king_hill.radius / sprite_scale_mult;
@@ -232,7 +233,7 @@ pub fn intialize_arena(
     }
 
 
-
+    //Race Checkpoints and Finish Lines
     for (idx, race_checkpoint) in arena_properties.race_checkpoints.iter().enumerate() {
         let scale = race_checkpoint.length / 20.0;
 

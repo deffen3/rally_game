@@ -38,6 +38,7 @@
     ],
     arena_circles: [
         ArenaCircle (x:200.0, y:200.0, radius:40.0),
+
         ArenaCircle (x:80.0, y:200.0, radius:20.0),
         ArenaCircle (x:200.0, y:80.0, radius:20.0),
         ArenaCircle (x:320, y:200.0, radius:20.0),
@@ -75,6 +76,16 @@
         ArenaCircle (x:200.0, y:80.0, radius:20.0),
         ArenaCircle (x:320, y:200.0, radius:20.0),
         ArenaCircle (x:200.0, y:320.0, radius:20.0),
+
+        ArenaCircle (x:255.0, y:200.0, radius:10.0),
+        ArenaCircle (x:145.0, y:200.0, radius:10.0),
+        ArenaCircle (x:200.0, y:255.0, radius:10.0),
+        ArenaCircle (x:200.0, y:145.0, radius:10.0),
+
+        ArenaCircle (x:255.0, y:145.0, radius:10.0),
+        ArenaCircle (x:255.0, y:255.0, radius:10.0),
+        ArenaCircle (x:145.0, y:255.0, radius:10.0),
+        ArenaCircle (x:145.0, y:145.0, radius:10.0),
     ],
     arena_rectangles: [],
     weapon_spawn_boxes: [
