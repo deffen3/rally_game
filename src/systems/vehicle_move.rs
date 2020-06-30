@@ -197,181 +197,43 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             let vehicle_rotation = transform.rotation();
             let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
-
-            player.bot_move_cooldown -= dt;
+            
+            
 
             //Issue Bot commands
-            if player.is_bot && vehicle.state == VehicleState::Active {
-                if player.bot_mode == BotMode::Sleep {
-                    //Wakeup-logic needed here
-                    //In most game modes the bot should immediately wake up
-                    if game_mode_setup.game_mode == GameModes::Race {
-                        player.bot_mode = BotMode::Racing;
-                        debug!("{} Racing", player.id);
-                    }
-                    else {
-                        player.bot_mode = BotMode::RunRandom;
-                        debug!("{} Run Random", player.id);
-                    }
-                }
-                else if player.bot_mode == BotMode::Racing {
-                    //Determine which point to race to
+            if player.is_bot {
+                player.bot_move_cooldown -= dt;
+                player.path_cooldown -= dt;
 
-                    if player.checkpoint_completed == 0 {
-                        player.path_target = Some((ARENA_WIDTH/2.0 - 20., ARENA_HEIGHT - 60.0, 0.0));
-                    }
-                    else if player.checkpoint_completed == 1 {
-                        player.path_target = Some((30.0, (ARENA_HEIGHT)/2.0 - 20., 0.0));
-                    }
-                    else if player.checkpoint_completed == 2 {
-                        player.path_target = Some((ARENA_WIDTH/2.0 + 20., 20., 0.0));
-                    }
-                    else if player.checkpoint_completed == 3 {
-                        player.path_target = Some((ARENA_WIDTH - 20., (ARENA_HEIGHT)/2.0 + 20., 0.0));
-                    }
-
-
-                    if let Some(path_plan) = player.path_plan.clone() {
-                        if path_plan.len() >= 2 {
-                            let first_target = path_plan[1];
-                            let path_x = first_target.0;
-                            let path_y = first_target.1;
-
-                            let x_diff = vehicle_x - path_x;
-                            let y_diff = vehicle_y - path_y;
-
-                            let dist = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
-
-                            let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
-                            let abs_vel = sq_vel.sqrt(); //Why does velocity not seem accurate without this weird multiplier???
-
-                            let approx_t_to_arrival = dist / abs_vel;
-                            let approx_t_to_rest = abs_vel / thrust_friction_decel_rate;
-
-                            let target_angle = y_diff.atan2(x_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
-
-                            let mut angle_diff = vehicle_angle - target_angle;
-
-                            if angle_diff > PI {
-                                angle_diff = -(2.0 * PI - angle_diff);
-                            } else if angle_diff < -PI {
-                                angle_diff = -(-2.0 * PI - angle_diff);
-                            }
-
-                            let turn_value = 0.2;
-
-                            if angle_diff > 0.001 {
-                                vehicle_turn = Some(-turn_value);
-                            } else if angle_diff < -0.001 {
-                                vehicle_turn = Some(turn_value);
-                            } else {
-                                vehicle_turn = Some(0.0);
-                            }
-
-                            if angle_diff.abs() < 0.2 {
-                                if approx_t_to_arrival < approx_t_to_rest {
-                                    vehicle_accel = Some(0.2);
-                                }
-                                else {
-                                    vehicle_accel = Some(0.8);
-                                }
-                            }
+                if vehicle.state == VehicleState::Active {
+                    if player.bot_mode == BotMode::Sleep {
+                        //Wakeup-logic needed here
+                        //In most game modes the bot should immediately wake up
+                        if game_mode_setup.game_mode == GameModes::Race {
+                            player.bot_mode = BotMode::Racing;
+                            debug!("{} Racing", player.id);
                         }
                         else {
-                            vehicle_accel = Some(0.0);
-                            vehicle_turn = Some(0.0);
-                        }                                
-                    }
-                    player.last_accel_input = vehicle_accel;
-                    player.last_turn_input = vehicle_turn;
-
-                    if player.bot_move_cooldown < 0.0 {
-                        player.bot_move_cooldown = player.bot_move_cooldown_reset;
-                    }
-                }
-                else if player.bot_mode == BotMode::RunTo
-                    || player.bot_mode == BotMode::RunRandom
-                    || player.bot_mode == BotMode::RunBlind
-                    || player.bot_mode == BotMode::TakeTheHill
-                    || player.bot_mode == BotMode::Mining
-                    || player.bot_mode == BotMode::Repairing
-                {
-                    if game_mode_setup.game_mode == GameModes::KingOfTheHill && player.on_hill == false {
-                        player.bot_mode = BotMode::TakeTheHill;
-                        debug!("{} TakeTheHill", player.id);
-                    }
-                    else {
-                        //check to change mode
-                        if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-                            if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
-                                && player.bot_move_cooldown < 0.0
-                            {
-                                if let Some(primary_weapon) = &weapon_array.weapons[0] {
-                                    //change modes to attack
-                                    if primary_weapon.stats.fire_stats.attached {
-                                        //Typically just LaserSword
-                                        player.bot_mode = BotMode::Swording;
-                                        debug!("{} Swording", player.id);
-                                        player.bot_move_cooldown = 5.0;
-                                        player.last_made_hit_timer = 0.0;
-                                    } else if primary_weapon.stats.fire_stats.shot_speed <= 0.0 {
-                                        //Typically just Mines or Traps
-                                        player.bot_mode = BotMode::Mining;
-                                        debug!("{} Mining", player.id);
-                                    } else {
-                                        player.bot_mode = BotMode::StopAim;
-                                        debug!("{} StopAim", player.id);
-                                        player.bot_move_cooldown = 1.0;
-                                        player.last_made_hit_timer = 0.0;
-                                    }
-                                }
-                            }
+                            player.bot_mode = BotMode::RunRandom;
+                            debug!("{} Run Random", player.id);
                         }
                     }
+                    else if player.bot_mode == BotMode::Racing {
+                        //Determine which point to race to
 
-                    if player.bot_mode == BotMode::RunTo
-                        || player.bot_mode == BotMode::RunRandom
-                        || player.bot_mode == BotMode::RunBlind
-                        || player.bot_mode == BotMode::TakeTheHill
-                        || player.bot_mode == BotMode::Mining
-                        || player.bot_mode == BotMode::Repairing
-                    {
-                        if player.bot_mode == BotMode::TakeTheHill {
-                            if player.on_hill == false {
-                                player.path_target = Some((ARENA_WIDTH/2.0, (ARENA_HEIGHT)/2.0 , 0.0));
-                            }
-                            else {
-                                player.path_target = None;
-                            }   
+                        if player.checkpoint_completed == 0 {
+                            player.path_target = Some((ARENA_WIDTH/2.0 - 20., ARENA_HEIGHT - 60.0, 0.0));
                         }
-                        else if player.bot_mode == BotMode::RunTo
-                                || player.bot_mode == BotMode::RunRandom
-                                || player.bot_mode == BotMode::Mining
-                                || player.bot_mode == BotMode::Repairing
-                        {
-                            if player.path_target.is_none() || player.bot_move_cooldown < 0.0 {
-                                let random_x = rng.gen_range(0.0, ARENA_WIDTH) as f32;
-                                let random_y = rng.gen_range(0.0, ARENA_HEIGHT) as f32;
-
-                                player.path_target = Some((random_x, random_y, 0.0));
-                            }
+                        else if player.checkpoint_completed == 1 {
+                            player.path_target = Some((30.0, (ARENA_HEIGHT)/2.0 - 20., 0.0));
                         }
-                        else if player.bot_mode == BotMode::RunBlind {
-                            player.path_target = None;
+                        else if player.checkpoint_completed == 2 {
+                            player.path_target = Some((ARENA_WIDTH/2.0 + 20., 20., 0.0));
                         }
-                        else {
-                            player.path_target = None;
+                        else if player.checkpoint_completed == 3 {
+                            player.path_target = Some((ARENA_WIDTH - 20., (ARENA_HEIGHT)/2.0 + 20., 0.0));
                         }
 
-
-                        if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-                            if (vehicle.health.value < vehicle.health.max ||
-                                    (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0)) && 
-                                    dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE &&
-                                    player.last_hit_timer > 1.0 {
-                                player.bot_mode = BotMode::Repairing;
-                            }
-                        }
 
                         if let Some(path_plan) = player.path_plan.clone() {
                             if path_plan.len() >= 2 {
@@ -385,7 +247,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 let dist = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
 
                                 let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
-                                let abs_vel = sq_vel.sqrt()*10.0; //Why does velocity not seem accurate without this weird multiplier???
+                                let abs_vel = sq_vel.sqrt(); //Why does velocity not seem accurate without this weird multiplier???
 
                                 let approx_t_to_arrival = dist / abs_vel;
                                 let approx_t_to_rest = abs_vel / thrust_friction_decel_rate;
@@ -412,7 +274,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                 if angle_diff.abs() < 0.2 {
                                     if approx_t_to_arrival < approx_t_to_rest {
-                                        vehicle_accel = Some(0.2);
+                                        vehicle_accel = Some(0.5);
                                     }
                                     else {
                                         vehicle_accel = Some(0.8);
@@ -424,18 +286,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 vehicle_turn = Some(0.0);
                             }                                
                         }
-                        else { //random movement input when no path is specified
-                            if player.bot_move_cooldown < 0.0 {
-                                //issue new move command
-                                vehicle_accel = Some(rng.gen_range(0.3, 0.5) as f32);
-                                vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
-                            }
-                            else {
-                                //hold previous random move
-                                vehicle_accel = player.last_accel_input;
-                                vehicle_turn = player.last_turn_input;
-                            }
-                        }
                         player.last_accel_input = vehicle_accel;
                         player.last_turn_input = vehicle_turn;
 
@@ -443,21 +293,212 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             player.bot_move_cooldown = player.bot_move_cooldown_reset;
                         }
                     }
-                } else if player.bot_mode == BotMode::StopAim
-                    || player.bot_mode == BotMode::StrafeAim
-                    || player.bot_mode == BotMode::Chasing
-                    || player.bot_mode == BotMode::Swording
-                {
-                    player.last_made_hit_timer += dt;
+                    else if player.bot_mode == BotMode::RunTo
+                        || player.bot_mode == BotMode::RunRandom
+                        || player.bot_mode == BotMode::RunBlind
+                        || player.bot_mode == BotMode::TakeTheHill
+                        || player.bot_mode == BotMode::Mining
+                        || player.bot_mode == BotMode::Repairing
+                    {
+                        if game_mode_setup.game_mode == GameModes::KingOfTheHill && player.on_hill == false {
+                            player.bot_mode = BotMode::TakeTheHill;
+                            debug!("{} TakeTheHill", player.id);
+                        }
+                        else {
+                            //check to change mode
+                            if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
+                                if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
+                                    && player.bot_move_cooldown < 0.0
+                                {
+                                    if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                                        //change modes to attack
+                                        if primary_weapon.stats.fire_stats.attached {
+                                            //Typically just LaserSword
+                                            player.bot_mode = BotMode::Swording;
+                                            debug!("{} Swording", player.id);
+                                            player.bot_move_cooldown = 5.0;
+                                            player.last_made_hit_timer = 0.0;
+                                        } else if primary_weapon.stats.fire_stats.shot_speed <= 0.0 {
+                                            //Typically just Mines or Traps
+                                            player.bot_mode = BotMode::Mining;
+                                            debug!("{} Mining", player.id);
+                                        } else {
+                                            player.bot_mode = BotMode::StopAim;
+                                            debug!("{} StopAim", player.id);
+                                            player.bot_move_cooldown = 1.0;
+                                            player.last_made_hit_timer = 0.0;
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
-                    let continue_with_attacking_mode;
-
-                    if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-
-                        //if the closest vehicle is too far away to engage
-                        if dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE
-                            && player.bot_move_cooldown < 0.0
+                        if player.bot_mode == BotMode::RunTo
+                            || player.bot_mode == BotMode::RunRandom
+                            || player.bot_mode == BotMode::RunBlind
+                            || player.bot_mode == BotMode::TakeTheHill
+                            || player.bot_mode == BotMode::Mining
+                            || player.bot_mode == BotMode::Repairing
                         {
+                            if player.bot_mode == BotMode::TakeTheHill {
+                                if player.on_hill == false {
+                                    player.path_target = Some((ARENA_WIDTH/2.0, (ARENA_HEIGHT)/2.0 , 0.0));
+                                }
+                                else {
+                                    player.path_target = None;
+                                }   
+                            }
+                            else if player.bot_mode == BotMode::RunTo
+                                    || player.bot_mode == BotMode::RunRandom
+                                    || player.bot_mode == BotMode::Mining
+                                    || player.bot_mode == BotMode::Repairing
+                            {
+                                if player.path_target.is_none() || player.path_cooldown <= 0.0 {
+                                    let random_x = rng.gen_range(0.0, ARENA_WIDTH) as f32;
+                                    let random_y = rng.gen_range(0.0, ARENA_HEIGHT) as f32;
+
+                                    player.path_target = Some((random_x, random_y, 0.0));
+
+                                    player.path_cooldown = player.path_cooldown_reset;
+                                }
+                            }
+                            else if player.bot_mode == BotMode::RunBlind {
+                                player.path_target = None;
+                            }
+                            else {
+                                player.path_target = None;
+                            }
+
+
+                            if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
+                                if (vehicle.health.value < vehicle.health.max ||
+                                        (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0)) && 
+                                        dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE &&
+                                        player.last_hit_timer > 1.0 {
+                                    player.bot_mode = BotMode::Repairing;
+                                }
+                            }
+
+                            if let Some(path_plan) = player.path_plan.clone() {
+                                if path_plan.len() >= 2 {
+                                    let first_target = path_plan[1];
+                                    let path_x = first_target.0;
+                                    let path_y = first_target.1;
+
+                                    let x_diff = vehicle_x - path_x;
+                                    let y_diff = vehicle_y - path_y;
+
+                                    let dist = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
+
+                                    let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+                                    let abs_vel = sq_vel.sqrt()*10.0; //Why does velocity not seem accurate without this weird multiplier???
+
+                                    let approx_t_to_arrival = dist / abs_vel;
+                                    let approx_t_to_rest = abs_vel / thrust_friction_decel_rate;
+
+                                    let target_angle = y_diff.atan2(x_diff) + (PI / 2.0); //rotate by PI/2 to line up with 0deg is pointed towards top
+
+                                    let mut angle_diff = vehicle_angle - target_angle;
+
+                                    if angle_diff > PI {
+                                        angle_diff = -(2.0 * PI - angle_diff);
+                                    } else if angle_diff < -PI {
+                                        angle_diff = -(-2.0 * PI - angle_diff);
+                                    }
+
+                                    let turn_value = 0.2;
+
+                                    if angle_diff > 0.001 {
+                                        vehicle_turn = Some(-turn_value);
+                                    } else if angle_diff < -0.001 {
+                                        vehicle_turn = Some(turn_value);
+                                    } else {
+                                        vehicle_turn = Some(0.0);
+                                    }
+
+                                    if angle_diff.abs() < 0.2 {
+                                        if approx_t_to_arrival < approx_t_to_rest {
+                                            vehicle_accel = Some(0.5);
+                                        }
+                                        else {
+                                            vehicle_accel = Some(0.8);
+                                        }
+                                    }
+                                }
+                                else {
+                                    vehicle_accel = Some(0.0);
+                                    vehicle_turn = Some(0.0);
+                                }                                
+                            }
+                            else { //random movement input when no path is specified
+                                if player.bot_move_cooldown < 0.0 {
+                                    //issue new move command
+                                    vehicle_accel = Some(rng.gen_range(0.3, 0.5) as f32);
+                                    vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
+                                }
+                                else {
+                                    //hold previous random move
+                                    vehicle_accel = player.last_accel_input;
+                                    vehicle_turn = player.last_turn_input;
+                                }
+                            }
+                            player.last_accel_input = vehicle_accel;
+                            player.last_turn_input = vehicle_turn;
+
+                            if player.bot_move_cooldown < 0.0 {
+                                player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                            }
+                        }
+                    } else if player.bot_mode == BotMode::StopAim
+                        || player.bot_mode == BotMode::StrafeAim
+                        || player.bot_mode == BotMode::Chasing
+                        || player.bot_mode == BotMode::Swording
+                    {
+                        player.last_made_hit_timer += dt;
+
+                        let continue_with_attacking_mode;
+
+                        if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
+
+                            //if the closest vehicle is too far away to engage
+                            if dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE
+                                && player.bot_move_cooldown < 0.0
+                            {
+                                continue_with_attacking_mode = false;
+
+                                player.bot_move_cooldown = player.bot_move_cooldown_reset;
+
+                                let run_or_chase = rng.gen::<bool>();
+
+                                if run_or_chase {
+                                    player.bot_mode = BotMode::RunRandom;
+                                    debug!("{} Run Random", player.id);
+                                } else {
+                                    player.bot_mode = BotMode::Chasing;
+                                    debug!("{} Chasing", player.id);
+                                    player.last_made_hit_timer = 0.0;
+                                }
+                            } else { //closest vehicle is close enough to engage
+                                //vehicle is close, but the bot isn't hitting it within 3 seconds
+                                if player.last_made_hit_timer > 3.0 && player.bot_mode != BotMode::Swording {
+                                    continue_with_attacking_mode = false;
+
+                                    player.bot_mode = BotMode::RunRandom;
+                                    player.bot_move_cooldown = BOT_NO_HIT_MOVE_COOLDOWN;
+                                }
+                                else {
+                                    //closest vehicle is out of current weapon range though
+                                    if let Some(primary_weapon) = &weapon_array.weapons[PRIMARY_WEAPON_INDEX] {
+                                        if dist_to_closest_vehicle > primary_weapon.range_calc {
+                                            player.bot_mode = BotMode::Chasing;
+                                            debug!("{} Chasing", player.id);
+                                            player.last_made_hit_timer = 0.0;
+                                        }
+                                    }
+                                    continue_with_attacking_mode = true;
+                                }
+                            }
+                        } else { //no closest vehicle exists, only vehicle alive right now?
                             continue_with_attacking_mode = false;
 
                             player.bot_move_cooldown = player.bot_move_cooldown_reset;
@@ -472,127 +513,93 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 debug!("{} Chasing", player.id);
                                 player.last_made_hit_timer = 0.0;
                             }
-                        } else { //closest vehicle is close enough to engage
-                            //vehicle is close, but the bot isn't hitting it within 3 seconds
-                            if player.last_made_hit_timer > 3.0 && player.bot_mode != BotMode::Swording {
-                                continue_with_attacking_mode = false;
+                        }
+                        
 
-                                player.bot_mode = BotMode::RunRandom;
-                                player.bot_move_cooldown = BOT_NO_HIT_MOVE_COOLDOWN;
+                        if continue_with_attacking_mode {
+                            //continue with Attacking mode
+                            if player.bot_mode == BotMode::StopAim && player.last_hit_timer < 2.0 {
+                                player.bot_mode = BotMode::StrafeAim;
+                                debug!("{} StrafeAim {}", player.id, player.bot_move_cooldown);
                             }
-                            else {
-                                //closest vehicle is out of current weapon range though
-                                if let Some(primary_weapon) = &weapon_array.weapons[PRIMARY_WEAPON_INDEX] {
-                                    if dist_to_closest_vehicle > primary_weapon.range_calc {
-                                        player.bot_mode = BotMode::Chasing;
-                                        debug!("{} Chasing", player.id);
-                                        player.last_made_hit_timer = 0.0;
+
+                            if player.bot_move_cooldown < 0.0 {
+                                if player.bot_mode == BotMode::StrafeAim {
+                                    let left_or_right_strafe = rng.gen::<bool>();
+
+                                    player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                                    if left_or_right_strafe {
+                                        vehicle_strafe = Some(0.8);
                                     }
-                                }
-                                continue_with_attacking_mode = true;
-                            }
-                        }
-                    } else { //no closest vehicle exists, only vehicle alive right now?
-                        continue_with_attacking_mode = false;
-
-                        player.bot_move_cooldown = player.bot_move_cooldown_reset;
-
-                        let run_or_chase = rng.gen::<bool>();
-
-                        if run_or_chase {
-                            player.bot_mode = BotMode::RunRandom;
-                            debug!("{} Run Random", player.id);
-                        } else {
-                            player.bot_mode = BotMode::Chasing;
-                            debug!("{} Chasing", player.id);
-                            player.last_made_hit_timer = 0.0;
-                        }
-                    }
-                    
-
-                    if continue_with_attacking_mode {
-                        //continue with Attacking mode
-                        if player.bot_mode == BotMode::StopAim && player.last_hit_timer < 2.0 {
-                            player.bot_mode = BotMode::StrafeAim;
-                            debug!("{} StrafeAim {}", player.id, player.bot_move_cooldown);
-                        }
-
-                        if player.bot_move_cooldown < 0.0 {
-                            if player.bot_mode == BotMode::StrafeAim {
-                                let left_or_right_strafe = rng.gen::<bool>();
-
-                                player.bot_move_cooldown = player.bot_move_cooldown_reset;
-                                if left_or_right_strafe {
-                                    vehicle_strafe = Some(0.8);
+                                    else {
+                                        vehicle_strafe = Some(-0.8);
+                                    }
+                                    
                                 }
                                 else {
-                                    vehicle_strafe = Some(-0.8);
+                                    player.bot_move_cooldown = player.bot_move_cooldown_reset;
+                                    vehicle_strafe = Some(0.0);
                                 }
-                                
                             }
-                            else {
-                                player.bot_move_cooldown = player.bot_move_cooldown_reset;
-                                vehicle_strafe = Some(0.0);
-                            }
-                        }
 
-                        if let Some(attack_angle) = vehicle.angle_to_closest_vehicle {
-                            let turn_value = 1.0;
+                            if let Some(attack_angle) = vehicle.angle_to_closest_vehicle {
+                                let turn_value = 1.0;
 
-                            if let Some(primary_weapon) = &weapon_array.weapons[PRIMARY_WEAPON_INDEX] {
-                                //Prepare magnitude of Turning and Acceleration input
-                                if player.bot_mode == BotMode::Swording {
-                                    if primary_weapon.stats.fire_stats.mounted_angle > PI / 2.0
-                                        || primary_weapon.stats.fire_stats.mounted_angle < -PI / 2.0
-                                    {
-                                        vehicle_accel = Some(-1.0); //drive backwards sword fighting
-                                    } else {
-                                        vehicle_accel = Some(1.0); //drive forwards sword fighting
+                                if let Some(primary_weapon) = &weapon_array.weapons[PRIMARY_WEAPON_INDEX] {
+                                    //Prepare magnitude of Turning and Acceleration input
+                                    if player.bot_mode == BotMode::Swording {
+                                        if primary_weapon.stats.fire_stats.mounted_angle > PI / 2.0
+                                            || primary_weapon.stats.fire_stats.mounted_angle < -PI / 2.0
+                                        {
+                                            vehicle_accel = Some(-1.0); //drive backwards sword fighting
+                                        } else {
+                                            vehicle_accel = Some(1.0); //drive forwards sword fighting
+                                        }
+                                    } else if player.bot_mode == BotMode::Chasing {
+                                        vehicle_accel = Some(0.6);
                                     }
-                                } else if player.bot_mode == BotMode::Chasing {
-                                    vehicle_accel = Some(0.6);
-                                }
 
-                                //Solve for Angle and Direction to turn
-                                let mut angle_diff =
-                                    vehicle_angle + primary_weapon.stats.fire_stats.mounted_angle - attack_angle;
+                                    //Solve for Angle and Direction to turn
+                                    let mut angle_diff =
+                                        vehicle_angle + primary_weapon.stats.fire_stats.mounted_angle - attack_angle;
 
-                                if angle_diff > PI {
-                                    angle_diff = -(2.0 * PI - angle_diff);
-                                } else if angle_diff < -PI {
-                                    angle_diff = -(-2.0 * PI - angle_diff);
-                                }
+                                    if angle_diff > PI {
+                                        angle_diff = -(2.0 * PI - angle_diff);
+                                    } else if angle_diff < -PI {
+                                        angle_diff = -(-2.0 * PI - angle_diff);
+                                    }
 
-                                if angle_diff > 0.001 {
-                                    vehicle_turn = Some(-turn_value);
-                                } else if angle_diff < -0.001 {
-                                    vehicle_turn = Some(turn_value);
-                                } else {
-                                    vehicle_turn = Some(0.0);
+                                    if angle_diff > 0.001 {
+                                        vehicle_turn = Some(-turn_value);
+                                    } else if angle_diff < -0.001 {
+                                        vehicle_turn = Some(turn_value);
+                                    } else {
+                                        vehicle_turn = Some(0.0);
+                                    }
                                 }
                             }
                         }
-                    }
-                } else if player.bot_mode == BotMode::CollisionTurn {
-                    vehicle_accel = Some(0.5);
-                    vehicle_turn = Some(1.0);
+                    } else if player.bot_mode == BotMode::CollisionTurn {
+                        vehicle_accel = Some(0.5);
+                        vehicle_turn = Some(1.0);
 
-                    if player.bot_move_cooldown < 0.0 {
-                        player.bot_mode = BotMode::CollisionMove;
-                        debug!("{} CollisionMove", player.id);
-                        player.bot_move_cooldown = BOT_COLLISION_MOVE_COOLDOWN_RESET;
-                    }
-                } else if player.bot_mode == BotMode::CollisionMove {
-                    vehicle_accel = Some(0.5);
-                    vehicle_turn = Some(0.0);
+                        if player.bot_move_cooldown < 0.0 {
+                            player.bot_mode = BotMode::CollisionMove;
+                            debug!("{} CollisionMove", player.id);
+                            player.bot_move_cooldown = BOT_COLLISION_MOVE_COOLDOWN_RESET;
+                        }
+                    } else if player.bot_mode == BotMode::CollisionMove {
+                        vehicle_accel = Some(0.5);
+                        vehicle_turn = Some(0.0);
 
-                    if game_mode_setup.game_mode == GameModes::Race {
-                        player.bot_mode = BotMode::Racing;
-                        debug!("{} Racing", player.id);
-                    }
-                    else if player.bot_move_cooldown < 0.0 {
-                        player.bot_mode = BotMode::RunRandom;
-                        debug!("{} Run Random", player.id);
+                        if game_mode_setup.game_mode == GameModes::Race {
+                            player.bot_mode = BotMode::Racing;
+                            debug!("{} Racing", player.id);
+                        }
+                        else if player.bot_move_cooldown < 0.0 {
+                            player.bot_mode = BotMode::RunRandom;
+                            debug!("{} Run Random", player.id);
+                        }
                     }
                 }
             }
