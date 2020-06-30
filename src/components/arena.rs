@@ -169,29 +169,6 @@ pub fn build_arena_store(world: &mut World) {
 
 
 
-pub fn reform_player_spawn_point(point: PlayerSpawnPoint) -> ArenaElement {
-    ArenaElement {
-        is_wall: false,
-        is_hill: false,
-        checkpoint: RaceCheckpointType::NotCheckpoint,
-        checkpoint_id: 0,
-        is_weapon_box: false,
-        is_spawn_point: true,
-        x: point.x,
-        y: point.y,
-        z: 0.0,
-        is_sprite: false,
-        sprite: 0,
-        sprite_scale: 0.0,
-        hitbox: Hitbox {
-            width: 11.0,
-            height: 11.0,
-            angle: 0.0,
-            shape: HitboxShape::Rectangle,
-        },
-    }
-}
-
 pub fn reform_weapon_spawn_box(spawn_box: WeaponSpawnBox) -> ArenaElement {
     ArenaElement {
         is_wall: false,
