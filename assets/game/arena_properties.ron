@@ -127,7 +127,7 @@
     ],
     king_hills: [],
     race_checkpoints: [
-        ArenaRaceCheckpoint (x: 360.0, y: 208.0, rotation: 0.0, length: 80.0),
+        ArenaRaceCheckpoint (x: 360.0, y: 200.0, rotation: 0.0, length: 80.0),
         ArenaRaceCheckpoint (x: 200.0, y: 360.0, rotation: -90.0, length: 80.0),
         ArenaRaceCheckpoint (x: 40.0, y: 200.0, rotation: 0.0, length: 80.0),
         ArenaRaceCheckpoint (x: 200.0, y: 75.0, rotation: 90.0, length: 80.0),
