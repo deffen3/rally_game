@@ -15,7 +15,7 @@ use crate::components::{
     ArenaElement, ArenaNames, ArenaStoreResource, ArenaProperties,
     Hitbox, HitboxShape, RaceCheckpointType
 };
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
+
 use crate::resources::{
     GameModeSetup, 
     ArenaNavMesh, ArenaNavMeshFinal
@@ -69,14 +69,14 @@ pub fn intialize_arena(
     let mut nav_mesh_grid_xs: Vec<f32> = Vec::new();
     nav_mesh_grid_xs.push(0.0 + nav_mesh_offset);
     nav_mesh_grid_xs.push(0.0 + 3.0*nav_mesh_offset);
-    nav_mesh_grid_xs.push(ARENA_WIDTH - nav_mesh_offset);
-    nav_mesh_grid_xs.push(ARENA_WIDTH - 3.0*nav_mesh_offset);
+    nav_mesh_grid_xs.push(arena_properties.width - nav_mesh_offset);
+    nav_mesh_grid_xs.push(arena_properties.width - 3.0*nav_mesh_offset);
 
     let mut nav_mesh_grid_ys: Vec<f32> = Vec::new();
     nav_mesh_grid_ys.push(0.0 + nav_mesh_offset);
     nav_mesh_grid_ys.push(0.0 + 3.0*nav_mesh_offset);
-    nav_mesh_grid_ys.push(ARENA_HEIGHT - nav_mesh_offset);
-    nav_mesh_grid_ys.push(ARENA_HEIGHT - 3.0*nav_mesh_offset);
+    nav_mesh_grid_ys.push(arena_properties.height - nav_mesh_offset);
+    nav_mesh_grid_ys.push(arena_properties.height - 3.0*nav_mesh_offset);
 
     let mut nav_mesh_grid_drop: Vec<(f32, f32, f32, f32)> = Vec::new();
 
@@ -292,51 +292,6 @@ pub fn intialize_arena(
             })
             .build();
     }
-
-
-    // } else {
-    //     if game_mode == GameModes::KingOfTheHill {
-    //         //the "hill"
-    //         
-
-
-    //         //small hill blockers
-    //         let spacing_factor = 11.0 / 7.0;
-    //         let scale = 1.0;
-    
-    //         for idx in 0..4 {
-    //             let (starting_x, starting_y) = match idx {
-    //                 0 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / 2.0),
-    //                 1 => (ARENA_WIDTH / 2.0, ARENA_HEIGHT / spacing_factor),
-    //                 2 => (
-    //                     ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-    //                     ARENA_HEIGHT / 2.0,
-    //                 ),
-    //                 3 => (
-    //                     ARENA_WIDTH / 2.0,
-    //                     ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor),
-    //                 ),
-    //                 _ => (
-    //                     ARENA_WIDTH / spacing_factor,
-    //                     ARENA_HEIGHT / spacing_factor,
-    //                 ),
-    //             };
-    
-    //             arena_circle_objects_x_y_scale.push((starting_x, starting_y, scale));
-    //         }
-
-    //         for idx in 0..4 {
-    //             let (starting_x, starting_y) = match idx {
-    //                 0 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / spacing_factor),
-    //                 1 => (ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), ARENA_HEIGHT / spacing_factor),
-    //                 2 => (ARENA_WIDTH - (ARENA_WIDTH / spacing_factor), ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor)),
-    //                 3 => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT - (ARENA_HEIGHT / spacing_factor)),
-    //                 _ => (ARENA_WIDTH / spacing_factor, ARENA_HEIGHT / spacing_factor),
-    //             };
-    
-    //             arena_circle_objects_x_y_scale.push((starting_x, starting_y, scale));
-    //         }
-
 
 
     //Build navigation mesh from grid

@@ -1,5 +1,7 @@
 {
   OpenEmptyMap: ArenaProperties (
+    width: 400.0,
+    height: 400.0,
     floor: [
         ArenaFloor (
             x: 200.0,
@@ -28,6 +30,8 @@
     custom_elements: [],
   ),
   StandardCombat: ArenaProperties (
+    width: 400.0,
+    height: 400.0,
     floor: [
         ArenaFloor (
             x: 200.0,
@@ -63,6 +67,8 @@
     custom_elements: [],
   ),
   StandardKingOfTheHill: ArenaProperties (
+    width: 400.0,
+    height: 400.0,
     floor: [
         ArenaFloor (
             x: 200.0,
@@ -108,6 +114,8 @@
     custom_elements: [],
   ),
   StandardRace: ArenaProperties (
+    width: 400.0,
+    height: 400.0,
     floor: [
         ArenaFloor (
             x: 200.0,

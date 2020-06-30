@@ -109,6 +109,8 @@ impl Component for ArenaElement {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Default)]
 pub struct ArenaProperties {
+    pub width: f32,
+    pub height: f32,
     pub floor: Vec<ArenaFloor>,
     pub arena_circles: Vec<ArenaCircle>,
     pub arena_rectangles: Vec<ArenaRectangle>, //not implemented yet
