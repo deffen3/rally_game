@@ -152,7 +152,10 @@ impl<'s> System<'s> for VehicleStatusSystem {
                         !self.losers.contains(&player.id) &&
                         !self.winners.contains(&player.id) {
                     self.player_active_timer[player.id] = match_timer.time;
-
+                }
+                
+                if !self.losers.contains(&player.id) &&
+                        !self.winners.contains(&player.id) {
                     self.stats[player.id.clone()] = (displayed_player_score, player.kills, player.deaths);
                 }
                 
