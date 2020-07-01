@@ -383,7 +383,7 @@ pub fn update_weapon_properties(
     //update UI icon
     let icon_entity: Entity = entities.create();
 
-    let x = -290. + (weapon_index as f32)*10.0;
+    let x = -290. + (weapon_index as f32)*25.0;
     let y = 45.;
     let dx = 250.;
 
