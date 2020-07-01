@@ -237,7 +237,7 @@ pub fn intialize_player(
     }
 
     //UI initial weapon icon
-    let x = -290.;
+    let x = -320.;
 
     let (icon_scale, weapon_sprite) =
         get_weapon_icon(player_index, weapon_stats.weapon_fire_type.clone(), &weapon_fire_resource);
@@ -273,6 +273,7 @@ pub fn intialize_player(
         .with(Removal::new(0 as u32))
         .with(PlayerWeaponIcon::new(
             player_index,
+            0,
             weapon_stats.weapon_fire_type,
         ))
         .with(UiImage::Sprite(weapon_sprite))

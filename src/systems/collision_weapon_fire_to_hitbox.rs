@@ -37,6 +37,8 @@ pub const HIT_SPRAY_COOLDOWN_RESET: f32 = 0.05;
 pub const PRE_IMPACT_DT_STEPS: f32 = 1.2;
 pub const SHOT_SPEED_TRIGGER: f32 = 500.0;
 
+const PRIMARY_WEAPON_INDEX: usize = 0;
+
 
 #[derive(SystemDesc, Default)]
 pub struct CollisionWeaponFireHitboxSystem {
@@ -114,7 +116,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
             arena_elements,
             mut transforms,
             mut players,
-            player_icons,
+            player_weapon_icons,
             mut vehicles,
             mut weapon_arrays,
             mut weapon_fires,
@@ -868,12 +870,13 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     );
 
                     if let Some(new_weapon_name) = new_weapon_name.clone() {
-                        weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_fire_type.clone());
+                        weapon_icons_old_map.insert(player.id,
+                            (PRIMARY_WEAPON_INDEX, primary_weapon.stats.weapon_fire_type.clone()));
 
                         update_weapon_properties(
                             &mut weapon_array,
                             0,
-                            new_weapon_name,
+                            Some(new_weapon_name),
                             &weapon_store_resource,
                             &entities,
                             &weapon_fire_resource,
@@ -890,12 +893,14 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         }
 
 
-        for (entity, player_icon) in (&*entities, &player_icons).join() {
-            let weapon_icons_old = weapon_icons_old_map.get(&player_icon.id);
+        //Remove inactive Weapon UI Icons
+        for (entity, player_icon) in (&*entities, &player_weapon_icons).join() {
+            let weapon_icons_old = weapon_icons_old_map.get(&player_icon.player_id);
 
             if let Some(weapon_icons_old) = weapon_icons_old {
-                let weapon_fire_type = weapon_icons_old;
-                if *weapon_fire_type == player_icon.weapon_fire_type {
+                let (weapon_id, weapon_fire_type) = weapon_icons_old;
+
+                if *weapon_id == player_icon.weapon_id && *weapon_fire_type == player_icon.weapon_fire_type {
                     let _ = entities.delete(entity);
                 }
             }

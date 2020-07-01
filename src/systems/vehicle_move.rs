@@ -166,16 +166,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 //if just now respawned and state changed into VehicleState::Active
                 if vehicle.state == VehicleState::Active {
                     if game_weapon_setup.random_weapon_spawns && !game_weapon_setup.keep_picked_up_weapons {
-                        let restart_weapon_name = game_weapon_setup.starter_weapon.clone();
-
-                        if let Some(primary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
-                            weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_fire_type.clone());
+                        if let Some(secondary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
+                            weapon_icons_old_map.insert(
+                                player.id,
+                                (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
                         }
 
                         update_weapon_properties(
                             &mut weapon_array,
                             SECONDARY_WEAPON_INDEX,
-                            restart_weapon_name,
+                            None,
                             &weapon_store_resource,
                             &entities,
                             &weapon_fire_resource,
@@ -183,12 +183,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             &lazy_update,
                         );
 
-                        if let Some(new_primary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
-                            vehicle.weapon_weight = new_primary_weapon.stats.weight;
-                        }
-                        else {
-                            vehicle.weapon_weight = 0.0;
-                        }
+                        vehicle.weapon_weight = 0.0;
                     }
                 }
             }
@@ -1241,13 +1236,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             let new_weapon_name = get_random_weapon_name(&game_weapon_setup);
 
                             if let Some(primary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
-                                weapon_icons_old_map.insert(player.id, primary_weapon.stats.weapon_fire_type.clone());
+                                weapon_icons_old_map.insert(player.id,
+                                    (SECONDARY_WEAPON_INDEX, primary_weapon.stats.weapon_fire_type.clone()));
                             }
 
                             update_weapon_properties(
                                 &mut weapon_array,
                                 SECONDARY_WEAPON_INDEX,
-                                new_weapon_name,
+                                Some(new_weapon_name),
                                 &weapon_store_resource,
                                 &entities,
                                 &weapon_fire_resource,
@@ -1325,6 +1321,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
         }
 
+        //King of the Hill - Hill tint
         for (entity, _arena_element) in (&*entities, &arena_elements).join() {
             if let Some(tint) = tints.get_mut(entity) {
                 if players_on_hill.len() == 1 {
@@ -1340,12 +1337,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
         }
 
+
+        //Remove inactive Weapon UI Icons
         for (entity, player_icon) in (&*entities, &player_weapon_icons).join() {
-            let weapon_icons_old = weapon_icons_old_map.get(&player_icon.id);
+            let weapon_icons_old = weapon_icons_old_map.get(&player_icon.player_id);
 
             if let Some(weapon_icons_old) = weapon_icons_old {
-                let weapon_fire_type = weapon_icons_old;
-                if *weapon_fire_type == player_icon.weapon_fire_type {
+                let (weapon_id, weapon_fire_type) = weapon_icons_old;
+
+                if *weapon_id == player_icon.weapon_id && *weapon_fire_type == player_icon.weapon_fire_type {
                     let _ = entities.delete(entity);
                 }
             }

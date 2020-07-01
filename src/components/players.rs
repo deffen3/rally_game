@@ -83,7 +83,8 @@ impl Player {
 }
 
 pub struct PlayerWeaponIcon {
-    pub id: usize,
+    pub player_id: usize,
+    pub weapon_id: usize,
     pub weapon_fire_type: WeaponFireTypes,
 }
 
@@ -92,7 +93,7 @@ impl Component for PlayerWeaponIcon {
 }
 
 impl PlayerWeaponIcon {
-    pub fn new(id: usize, weapon_fire_type: WeaponFireTypes) -> PlayerWeaponIcon {
-        PlayerWeaponIcon { id, weapon_fire_type }
+    pub fn new(player_id: usize, weapon_id: usize, weapon_fire_type: WeaponFireTypes) -> PlayerWeaponIcon {
+        PlayerWeaponIcon { player_id, weapon_id, weapon_fire_type }
     }
 }

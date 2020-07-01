@@ -369,73 +369,82 @@ impl WeaponFire {
 pub fn update_weapon_properties(
     weapon_array: &mut WeaponArray,
     weapon_index: usize,
-    weapon_name: WeaponNames,
+    weapon_name: Option<WeaponNames>,
     weapon_store: &ReadExpect<WeaponStoreResource>,
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
     player_id: usize,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
-    //Get new weapon data
-    let new_weapon_stats = build_named_weapon(weapon_name.clone(), weapon_store);
-    let weapon_fire_type = new_weapon_stats.weapon_fire_type;
+    if let Some(weapon_name) = weapon_name {
+        //Get new weapon data
+        let new_weapon_stats = build_named_weapon(weapon_name.clone(), weapon_store);
+        let weapon_fire_type = new_weapon_stats.weapon_fire_type;
 
-    //update UI icon
-    let icon_entity: Entity = entities.create();
+        //update UI icon
+        let icon_entity: Entity = entities.create();
 
-    let x = -290. + (weapon_index as f32)*25.0;
-    let y = 45.;
-    let dx = 250.;
+        let x = -320. + (weapon_index as f32)*30.0;
+        let y = 45.;
+        let dx = 250.;
 
-    let (icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, new_weapon_stats.weapon_fire_type, &weapon_fire_resource);
-
-
-    let starting_x = match player_id {
-        0 => (x),
-        1 => (x + dx),
-        2 => (x + 2.0*dx),
-        3 => (x + 3.0*dx),
-        _ => (0.0),
-    };
-
-    let (width, height) = get_weapon_width_height(weapon_fire_type.clone());
-
-    let icon_weapon_transform = UiTransform::new(
-        "P1_WeaponIcon".to_string(),
-        Anchor::BottomMiddle,
-        Anchor::BottomMiddle,
-        starting_x,
-        y,
-        0.2,
-        width * icon_scale,
-        height * icon_scale,
-    );
-
-    // White shows the sprite as normal.
-    // You can change the color at any point to modify the sprite's tint.
-    let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
-
-    lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_fire_type));
-    lazy_update.insert(icon_entity, UiImage::Sprite(weapon_sprite));
-    lazy_update.insert(icon_entity, icon_weapon_transform);
-    lazy_update.insert(icon_entity, icon_tint);
-    lazy_update.insert(icon_entity, Transparent);
-    lazy_update.insert(icon_entity, Removal::new(0 as u32));
+        let (icon_scale, weapon_sprite) =
+            get_weapon_icon(player_id, new_weapon_stats.weapon_fire_type, &weapon_fire_resource);
 
 
-    //update Weapon
-    let new_weapon = Weapon::new(weapon_name, icon_entity, new_weapon_stats);
+        let starting_x = match player_id {
+            0 => (x),
+            1 => (x + dx),
+            2 => (x + 2.0*dx),
+            3 => (x + 3.0*dx),
+            _ => (0.0),
+        };
 
-    info!("{:?} {:?} {:?}", new_weapon.name, new_weapon.dps_calc, new_weapon.range_calc);
+        let (width, height) = get_weapon_width_height(weapon_fire_type.clone());
 
-    if weapon_index >= WEAPON_ARRAY_SIZE {
-        weapon_array.weapons[WEAPON_ARRAY_SIZE-1] = Some(new_weapon);
+        let icon_weapon_transform = UiTransform::new(
+            "P1_WeaponIcon".to_string(),
+            Anchor::BottomMiddle,
+            Anchor::BottomMiddle,
+            starting_x,
+            y,
+            0.2,
+            width * icon_scale,
+            height * icon_scale,
+        );
+
+        // White shows the sprite as normal.
+        // You can change the color at any point to modify the sprite's tint.
+        let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
+
+        lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_index, weapon_fire_type));
+        lazy_update.insert(icon_entity, UiImage::Sprite(weapon_sprite));
+        lazy_update.insert(icon_entity, icon_weapon_transform);
+        lazy_update.insert(icon_entity, icon_tint);
+        lazy_update.insert(icon_entity, Transparent);
+        lazy_update.insert(icon_entity, Removal::new(0 as u32));
+
+
+        //update Weapon
+        let new_weapon = Weapon::new(weapon_name, icon_entity, new_weapon_stats);
+
+        info!("{:?} {:?} {:?}", new_weapon.name, new_weapon.dps_calc, new_weapon.range_calc);
+
+        if weapon_index >= WEAPON_ARRAY_SIZE {
+            weapon_array.weapons[WEAPON_ARRAY_SIZE-1] = Some(new_weapon);
+        }
+        else {
+            weapon_array.weapons[weapon_index] = Some(new_weapon);
+        }
     }
     else {
-        weapon_array.weapons[weapon_index] = Some(new_weapon);
+        if weapon_index >= WEAPON_ARRAY_SIZE {
+            weapon_array.weapons[WEAPON_ARRAY_SIZE-1] = None;
+        }
+        else {
+            weapon_array.weapons[weapon_index] = None;
+        }
     }
-    
 }
 
 pub fn build_named_weapon(
