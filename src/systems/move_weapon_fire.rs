@@ -227,17 +227,17 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let fire_y = transform.translation().y;
 
                         //out of arena logic
-                        if (fire_x > (self.arena_properties.width + 2.0 * weapon_fire.width))
-                            || (fire_x < (-2.0 * weapon_fire.width))
-                            || (fire_y > (self.arena_properties.height + 2.0 * weapon_fire.width))
-                            || (fire_y < (- 2.0 * weapon_fire.width))
+                        if (fire_x > self.arena_properties.width)
+                            || (fire_x < 0.0)
+                            || (fire_y > self.arena_properties.height)
+                            || (fire_y < 0.0)
                         {
                             if !weapon_fire.stats.attached {
                                 if weapon_fire.stats.bounces > 0 {
                                     weapon_fire.stats.bounces -= 1;
 
-                                    if (fire_x > (self.arena_properties.width + 2.0 * weapon_fire.width))
-                                        || (fire_x < (-2.0 * weapon_fire.width)) 
+                                    if (fire_x > self.arena_properties.width)
+                                        || (fire_x < 0.0) 
                                     {
                                         weapon_fire.dx *= -1.0;
 
@@ -246,8 +246,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                         
                                         transform.set_rotation_2d(new_angle);
                                     }
-                                    else if (fire_y > (self.arena_properties.height + 2.0 * weapon_fire.width))
-                                        || (fire_y < (-2.0 * weapon_fire.width))
+                                    else if (fire_y > self.arena_properties.height)
+                                        || (fire_y < 0.0)
                                     {
                                         weapon_fire.dy *= -1.0;
 
