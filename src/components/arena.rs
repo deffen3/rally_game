@@ -8,6 +8,20 @@ use crate::resources::{GameModes};
 use crate::components::{WeaponNames, Hitbox, HitboxShape};
 
 
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
+pub enum ArenaNames {
+    OpenEmptyMap,
+    StandardCombat,
+    StandardKingOfTheHill,
+    StandardRace,
+    ChaosCombat,
+    LargeCombat,
+}
+
+
+
+
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum RaceCheckpointType {
     NotCheckpoint,
@@ -122,14 +136,6 @@ pub struct ArenaProperties {
     pub custom_elements: Vec<ArenaElement>, //not implemented yet
 }
 
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
-pub enum ArenaNames {
-    OpenEmptyMap,
-    StandardCombat,
-    StandardKingOfTheHill,
-    StandardRace,
-}
 
 
 

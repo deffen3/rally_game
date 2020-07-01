@@ -1,7 +1,7 @@
 {
-  ClassicGunGame: [StandardCombat, OpenEmptyMap],
-  DeathmatchKills: [StandardCombat, OpenEmptyMap],
-  DeathmatchStock: [StandardCombat, OpenEmptyMap],
+  ClassicGunGame: [StandardCombat, StandardCombat, OpenEmptyMap],
+  DeathmatchKills: [ChaosCombat, StandardCombat, OpenEmptyMap],
+  DeathmatchStock: [LargeCombat, StandardCombat, OpenEmptyMap],
   DeathmatchTimedKD: [StandardCombat, OpenEmptyMap],
   KingOfTheHill: [StandardKingOfTheHill],
   Race: [StandardRace],

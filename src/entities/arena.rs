@@ -87,9 +87,13 @@ pub fn intialize_arena(
 
     //Arena Floor
     for arena_floor in arena_properties.floor.iter() {
+        let sprite_scale_mult = 64.0;
+        let x_scale = arena_floor.width / sprite_scale_mult;
+        let y_scale = arena_floor.height / sprite_scale_mult;
+
         let mut floor_transform = Transform::default();
         floor_transform.set_translation_xyz(arena_floor.x, arena_floor.y, -0.05);
-        floor_transform.set_scale(Vector3::new(6.25, 6.25, 0.0));
+        floor_transform.set_scale(Vector3::new(x_scale, y_scale, 0.0));
 
         let floor_texture_render = SpriteRender {
             sprite_sheet: texture_sheet_handle.clone(),
