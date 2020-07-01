@@ -24,6 +24,7 @@ const CAMERA_TRANSLATE_MAX_RATE: f32 = 100.0;
 #[derive(SystemDesc, Default)]
 pub struct CameraTrackingSystem {
     pub arena_properties: ArenaProperties,
+    pub init_state: bool
 }
 
 impl<'s> System<'s> for CameraTrackingSystem {
@@ -38,6 +39,8 @@ impl<'s> System<'s> for CameraTrackingSystem {
     );
 
     fn setup(&mut self, world: &mut World) {
+        self.init_state = true;
+
         let arena_name;
         {
             let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
@@ -122,75 +125,97 @@ impl<'s> System<'s> for CameraTrackingSystem {
         vehicle_min_y = (vehicle_min_y - offset).max(0.0);
         vehicle_max_y = (vehicle_max_y + offset).min(self.arena_properties.height);
 
+
         for (camera, transform) in (&mut cameras, &mut transforms).join() {
-            
             let aspect_ratio = screen_dimensions.aspect_ratio();
 
-            //Standard full ArenaElement Projection
-            // camera.set_projection(Projection::orthographic(
-            //     -self.arena_properties.width/2.0,
-            //     self.arena_properties.width/2.0,
-            //     -self.arena_properties.height/2.0,
-            //     self.arena_properties.height/2.0,
-            //     0.0,
-            //     20.0,
-            // ));
+            if self.init_state {
+                self.init_state = false; //never goes back to true, until this system is re-dispatched
 
-            let camera_projection = camera.projection().as_orthographic().unwrap();
-            //let camera_left = camera_projection.left();
-            //let camera_right = camera_projection.right();
-            let camera_bottom = camera_projection.bottom();
-            let camera_top = camera_projection.top();
-
-            let camera_target_x = vehicle_min_x + (vehicle_max_x - vehicle_min_x)/2.0;
-            let camera_target_y = vehicle_min_y + (vehicle_max_y - vehicle_min_y)/2.0;
-
-            let x_delta = vehicle_max_x - vehicle_min_x;
-            let y_delta = vehicle_max_y - vehicle_min_y;
-
-            //keep aspect ratio consistent
-            let target_delta = (x_delta/aspect_ratio).max(y_delta);
-
-            let old_delta = camera_top - camera_bottom;
-            let d_delta = (target_delta - old_delta).min(CAMERA_ZOOM_RATE).max(-CAMERA_ZOOM_RATE);
-
-            let new_delta = old_delta + d_delta*dt;
-            //let new_delta = target_delta;
-
-            let camera_new_left = -new_delta*aspect_ratio/2.0;
-            let camera_new_right = new_delta*aspect_ratio/2.0;
-            let camera_new_bottom = -new_delta/2.0;
-            let camera_new_top = new_delta/2.0;
-
-            camera.set_projection(Projection::orthographic(
-                camera_new_left,
-                camera_new_right,
-                camera_new_bottom,
-                camera_new_top,
-                0.0,
-                20.0,
-            ));
+                //Standard full Arena translation
+                transform.set_translation_x(self.arena_properties.width/2.0);
+                transform.set_translation_y(self.arena_properties.height/2.0);
 
 
-            let camera_x = transform.translation().x;
-            let camera_y = transform.translation().y;
+                //Standard full Arena Projection
+                let x_delta = self.arena_properties.width;
+                let y_delta = self.arena_properties.height;
 
-            //Standard full Arena translation
-            // transform.set_translation_x(self.arena_properties.width/2.0);
-            // transform.set_translation_y(self.arena_properties.height/2.0);
+                //keep aspect ratio consistent
+                let target_delta = (x_delta/aspect_ratio).max(y_delta);
 
-            let mut dx = (camera_target_x - camera_x).min(CAMERA_TRANSLATE_MAX_RATE).max(-CAMERA_TRANSLATE_MAX_RATE);
-            if dx.abs() <= 0.01 {
-                dx = 0.0;
+                let camera_left = -target_delta*aspect_ratio/2.0;
+                let camera_right = target_delta*aspect_ratio/2.0;
+                let camera_bottom = -target_delta/2.0;
+                let camera_top = target_delta/2.0;
+                
+                camera.set_projection(Projection::orthographic(
+                    camera_left,
+                    camera_right,
+                    camera_bottom,
+                    camera_top,
+                    0.0,
+                    20.0,
+                ));
             }
+            else {
+                //Update as game progresses
+                
+                let camera_projection = camera.projection().as_orthographic().unwrap();
+                //let camera_left = camera_projection.left();
+                //let camera_right = camera_projection.right();
+                let camera_bottom = camera_projection.bottom();
+                let camera_top = camera_projection.top();
 
-            let mut dy = (camera_target_y - camera_y).min(CAMERA_TRANSLATE_MAX_RATE).max(-CAMERA_TRANSLATE_MAX_RATE);
-            if dy.abs() <= 0.01 {
-                dy = 0.0;
+                let camera_target_x = vehicle_min_x + (vehicle_max_x - vehicle_min_x)/2.0;
+                let camera_target_y = vehicle_min_y + (vehicle_max_y - vehicle_min_y)/2.0;
+
+                let x_delta = vehicle_max_x - vehicle_min_x;
+                let y_delta = vehicle_max_y - vehicle_min_y;
+
+                //keep aspect ratio consistent
+                let target_delta = (x_delta/aspect_ratio).max(y_delta);
+
+                let old_delta = camera_top - camera_bottom;
+                let d_delta = (target_delta - old_delta).min(CAMERA_ZOOM_RATE).max(-CAMERA_ZOOM_RATE);
+
+                let new_delta = old_delta + d_delta*dt;
+                //let new_delta = target_delta;
+
+                let camera_new_left = -new_delta*aspect_ratio/2.0;
+                let camera_new_right = new_delta*aspect_ratio/2.0;
+                let camera_new_bottom = -new_delta/2.0;
+                let camera_new_top = new_delta/2.0;
+
+
+                //Updated Projection
+                camera.set_projection(Projection::orthographic(
+                    camera_new_left,
+                    camera_new_right,
+                    camera_new_bottom,
+                    camera_new_top,
+                    0.0,
+                    20.0,
+                ));
+
+
+                //Updated Translation
+                let camera_x = transform.translation().x;
+                let camera_y = transform.translation().y;
+
+                let mut dx = (camera_target_x - camera_x).min(CAMERA_TRANSLATE_MAX_RATE).max(-CAMERA_TRANSLATE_MAX_RATE);
+                if dx.abs() <= 0.01 {
+                    dx = 0.0;
+                }
+
+                let mut dy = (camera_target_y - camera_y).min(CAMERA_TRANSLATE_MAX_RATE).max(-CAMERA_TRANSLATE_MAX_RATE);
+                if dy.abs() <= 0.01 {
+                    dy = 0.0;
+                }
+
+                transform.set_translation_x(camera_x + dx*dt);
+                transform.set_translation_y(camera_y + dy*dt);
             }
-
-            transform.set_translation_x(camera_x + dx*dt);
-            transform.set_translation_y(camera_y + dy*dt);
         }
     }
 }
