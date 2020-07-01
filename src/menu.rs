@@ -533,7 +533,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.arena_name = game_mode_arena;
 
                         let checkpoint_count = match arena_store.properties.get(&game_mode_arena) {
-                            Some(arena_props) => arena_props.race_checkpoints.len() - 1,
+                            Some(arena_props) => arena_props.race_checkpoints.len(),
                             _ => 0,
                         };
                         game_mode_setup.checkpoint_count = checkpoint_count as i32;

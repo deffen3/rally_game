@@ -1281,7 +1281,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
                         }
                         else if arena_element.checkpoint == RaceCheckpointType::Lap {
-                            if player.checkpoint_completed == game_mode_setup.checkpoint_count {
+                            if player.checkpoint_completed == game_mode_setup.checkpoint_count-1 {
                                 player.laps_completed += 1;
                             }
                             player.checkpoint_completed = 0;
