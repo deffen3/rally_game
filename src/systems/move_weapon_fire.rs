@@ -1,16 +1,23 @@
-use amethyst::core::{Time, Transform};
-use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage};
+use amethyst::{
+    core::{Time, Transform},
+    derive::SystemDesc,
+    ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage, World}
+};
 
-use crate::components::{Player, Vehicle, VehicleState, WeaponArray, WeaponFire};
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::components::{
+    Player, Vehicle, VehicleState, WeaponArray, WeaponFire,
+    ArenaProperties, ArenaNames, ArenaStoreResource
+};
+use crate::resources::{GameModeSetup};
 
 use log::debug;
 use std::collections::HashMap;
 use std::f32::consts::PI;
 
-#[derive(SystemDesc)]
-pub struct MoveWeaponFireSystem;
+#[derive(SystemDesc, Default)]
+pub struct MoveWeaponFireSystem {
+    pub arena_properties: ArenaProperties,
+}
 
 
 impl<'s> System<'s> for MoveWeaponFireSystem {
@@ -23,6 +30,33 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         ReadStorage<'s, Player>,
         Read<'s, Time>,
     );
+
+    fn setup(&mut self, world: &mut World) {
+        let arena_name;
+        {
+            let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+    
+            if let Some(game_mode_setup) = fetched_game_mode_setup {
+                arena_name = game_mode_setup.arena_name.clone();
+            } else {
+                arena_name = ArenaNames::OpenEmptyMap;
+            }
+        }
+    
+        {        
+            let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+    
+            if let Some(arena_store) = fetched_arena_store {
+                self.arena_properties = match arena_store.properties.get(&arena_name) {
+                    Some(arena_props_get) => (*arena_props_get).clone(),
+                    _ => ArenaProperties::default(),
+                };
+            }
+            else {
+                self.arena_properties = ArenaProperties::default();
+            }
+        }
+    }
 
     fn run(
         &mut self,
@@ -193,16 +227,16 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let fire_y = transform.translation().y;
 
                         //out of arena logic
-                        if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
+                        if (fire_x > (self.arena_properties.width + 2.0 * weapon_fire.width))
                             || (fire_x < (-2.0 * weapon_fire.width))
-                            || (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
+                            || (fire_y > (self.arena_properties.height + 2.0 * weapon_fire.width))
                             || (fire_y < (- 2.0 * weapon_fire.width))
                         {
                             if !weapon_fire.stats.attached {
                                 if weapon_fire.stats.bounces > 0 {
                                     weapon_fire.stats.bounces -= 1;
 
-                                    if (fire_x > (ARENA_WIDTH + 2.0 * weapon_fire.width))
+                                    if (fire_x > (self.arena_properties.width + 2.0 * weapon_fire.width))
                                         || (fire_x < (-2.0 * weapon_fire.width)) 
                                     {
                                         weapon_fire.dx *= -1.0;
@@ -212,7 +246,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                         
                                         transform.set_rotation_2d(new_angle);
                                     }
-                                    else if (fire_y > (ARENA_HEIGHT + 2.0 * weapon_fire.width))
+                                    else if (fire_y > (self.arena_properties.height + 2.0 * weapon_fire.width))
                                         || (fire_y < (-2.0 * weapon_fire.width))
                                     {
                                         weapon_fire.dy *= -1.0;

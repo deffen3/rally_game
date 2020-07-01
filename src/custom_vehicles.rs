@@ -21,8 +21,6 @@ use crate::rally::load_sprite_sheet;
 
 use crate::resources::{GameVehicleSetup};
 
-use crate::entities::initialize_camera;
-
 use crate::components::{determine_vehicle_weight_stats, 
     VehicleStoreResource, get_next_vehicle_name, get_prev_vehicle_name,
     VehicleNames, VehicleStats, VehicleTypes, get_none_vehicle, get_vehicle_sprites,
@@ -71,8 +69,6 @@ impl SimpleState for CustomVehiclesMenu {
         let world = data.world;
 
         world.register::<Removal<u32>>();
-
-        self.camera = Some(initialize_camera(world));
 
         self.sprite_sheet_handle.replace(load_sprite_sheet(
             world,

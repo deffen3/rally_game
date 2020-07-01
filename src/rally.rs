@@ -34,6 +34,7 @@ use crate::components::{
     ArenaElement, Hitbox, 
     Player, PlayerWeaponIcon, Repair, Shield, Armor, Health, Vehicle,
     WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleTypes,
+    ArenaNames, ArenaStoreResource, ArenaProperties,
 };
 
 use crate::systems::{
@@ -44,9 +45,6 @@ use crate::systems::{
 
 pub const PLAYER_CAMERA: bool = false;
 pub const DEBUG_LINES: bool = true;
-
-pub const ARENA_HEIGHT: f32 = 400.0;
-pub const ARENA_WIDTH: f32 = 400.0;
 
 //Damage at speed of 100
 pub const BASE_COLLISION_DAMAGE: f32 = 20.0;
@@ -153,19 +151,42 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         );
 
 
+
         let max_players;
         let bot_players;
+        let arena_name;
         {
             let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
             if let Some(game_mode_setup) = fetched_game_mode_setup {
                 max_players = game_mode_setup.max_players;
                 bot_players = game_mode_setup.bot_players;
+                arena_name = game_mode_setup.arena_name.clone();
             } else {
                 max_players = 4;
                 bot_players = 3;
+                arena_name = ArenaNames::OpenEmptyMap;
             }
         }
+
+        
+        let arena_properties;
+        {        
+            let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+
+            if let Some(arena_store) = fetched_arena_store {
+                arena_properties = match arena_store.properties.get(&arena_name) {
+                    Some(arena_props_get) => (*arena_props_get).clone(),
+                    _ => ArenaProperties::default(),
+                };
+            }
+            else {
+                arena_properties = ArenaProperties::default();
+            }
+        }
+
+
+
 
         let player_to_team;
         {
@@ -177,6 +198,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 player_to_team = [0, 1, 2, 3];
             }
         }
+        
 
 
         
@@ -284,12 +306,12 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             );
 
             if PLAYER_CAMERA && !is_bot {
-                initialize_camera_to_player(world, player);
+                initialize_camera_to_player(world, &arena_properties, player);
             }
         }
 
         if !PLAYER_CAMERA {
-            initialize_camera(world);
+            initialize_camera(world, &arena_properties);
         }
 
         // Create the `DispatcherBuilder` and register some `System`s that should only run for this `State`.
@@ -304,7 +326,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             &[],
         );
         dispatcher_builder.add(
-            MoveWeaponFireSystem,
+            MoveWeaponFireSystem::default(),
             "move_weapon_fire_system",
             &[],
         );
@@ -324,9 +346,9 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         dispatcher_builder.add(MoveParticlesSystem, "move_particles_system", &[]);
 
-        dispatcher_builder.add(PathingLinesSystem, "pathing_lines_system", &[]);
+        dispatcher_builder.add(PathingLinesSystem::default(), "pathing_lines_system", &[]);
 
-        dispatcher_builder.add(CameraTrackingSystem, "camera_tracking_system", &[]);
+        dispatcher_builder.add(CameraTrackingSystem::default(), "camera_tracking_system", &[]);
         
 
         // Build and setup the `Dispatcher`.

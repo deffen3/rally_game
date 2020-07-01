@@ -23,7 +23,8 @@ use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle,
     update_weapon_properties, vehicle_damage_model, BotMode, ArenaElement, HitboxShape, Player,
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, WeaponArray, WeaponStoreResource,
-    determine_vehicle_weight, VehicleMovementType, DurationDamage,
+    determine_vehicle_weight, VehicleMovementType, DurationDamage, 
+    ArenaStoreResource, ArenaNames, ArenaProperties,
 };
 
 use crate::entities::{malfunction_sparking, acceleration_spray};
@@ -31,7 +32,7 @@ use crate::entities::{malfunction_sparking, acceleration_spray};
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
 use crate::rally::{
-    ARENA_HEIGHT, ARENA_WIDTH, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
+    BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
     COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
     DEBUG_LINES,
 };
@@ -58,6 +59,7 @@ const SECONDARY_WEAPON_INDEX: usize = 1;
 pub struct VehicleMoveSystem {
     pub last_spawn_index: u32,
     pub rocket_spray_timer: f32,
+    pub arena_properties: ArenaProperties,
 }
 
 impl<'s> System<'s> for VehicleMoveSystem {
@@ -83,9 +85,35 @@ impl<'s> System<'s> for VehicleMoveSystem {
         Write<'s, DebugLines>,
     );
 
-    fn setup(&mut self, _world: &mut World) {
+    fn setup(&mut self, world: &mut World) {
         let mut rng = rand::thread_rng();
         self.last_spawn_index = rng.gen_range(0, 4);
+
+
+        let arena_name;
+        {
+            let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+    
+            if let Some(game_mode_setup) = fetched_game_mode_setup {
+                arena_name = game_mode_setup.arena_name.clone();
+            } else {
+                arena_name = ArenaNames::OpenEmptyMap;
+            }
+        }
+    
+        {        
+            let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+    
+            if let Some(arena_store) = fetched_arena_store {
+                self.arena_properties = match arena_store.properties.get(&arena_name) {
+                    Some(arena_props_get) => (*arena_props_get).clone(),
+                    _ => ArenaProperties::default(),
+                };
+            }
+            else {
+                self.arena_properties = ArenaProperties::default();
+            }
+        }
     }
 
     fn run(
@@ -132,6 +160,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     dt,
                     game_mode_setup.game_mode.clone(),
                     self.last_spawn_index,
+                    &self.arena_properties,
                 );
 
                 //if just now respawned and state changed into VehicleState::Active
@@ -225,16 +254,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         //Determine which point to race to
 
                         if player.checkpoint_completed == 0 {
-                            player.path_target = Some((ARENA_WIDTH/2.0 - 20., ARENA_HEIGHT - 60.0, 0.0));
+                            player.path_target = Some((self.arena_properties.width/2.0 - 20., self.arena_properties.height - 60.0, 0.0));
                         }
                         else if player.checkpoint_completed == 1 {
-                            player.path_target = Some((30.0, (ARENA_HEIGHT)/2.0 - 20., 0.0));
+                            player.path_target = Some((30.0, (self.arena_properties.height)/2.0 - 20., 0.0));
                         }
                         else if player.checkpoint_completed == 2 {
-                            player.path_target = Some((ARENA_WIDTH/2.0 + 100., 20., 0.0));
+                            player.path_target = Some((self.arena_properties.width/2.0 + 100., 20., 0.0));
                         }
                         else if player.checkpoint_completed == 3 {
-                            player.path_target = Some((ARENA_WIDTH - 20., (ARENA_HEIGHT)/2.0 + 20., 0.0));
+                            player.path_target = Some((self.arena_properties.width - 20., (self.arena_properties.height)/2.0 + 20., 0.0));
                         }
 
 
@@ -345,7 +374,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         {
                             if player.bot_mode == BotMode::TakeTheHill {
                                 if player.on_hill == false {
-                                    player.path_target = Some((ARENA_WIDTH/2.0, (ARENA_HEIGHT)/2.0 , 0.0));
+                                    player.path_target = Some((self.arena_properties.width/2.0, (self.arena_properties.height)/2.0 , 0.0));
                                 }
                                 else {
                                     player.path_target = None;
@@ -357,8 +386,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     || player.bot_mode == BotMode::Repairing
                             {
                                 if player.path_target.is_none() || player.path_cooldown <= 0.0 {
-                                    let random_x = rng.gen_range(0.0, ARENA_WIDTH) as f32;
-                                    let random_y = rng.gen_range(0.0, ARENA_HEIGHT) as f32;
+                                    let random_x = rng.gen_range(0.0, self.arena_properties.width) as f32;
+                                    let random_y = rng.gen_range(0.0, self.arena_properties.height) as f32;
 
                                     player.path_target = Some((random_x, random_y, 0.0));
 
@@ -884,9 +913,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let mut x_collision = false;
             let mut y_collision = false;
 
-            if vehicle_x > (ARENA_WIDTH - veh_rect_width) {
+            if vehicle_x > (self.arena_properties.width - veh_rect_width) {
                 //hit the right wall
-                transform.set_translation_x(ARENA_WIDTH - veh_rect_width);
+                transform.set_translation_x(self.arena_properties.width - veh_rect_width);
                 x_collision = true;
             } else if vehicle_x < (veh_rect_width) {
                 //hit the left wall
@@ -894,9 +923,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 x_collision = true;
             }
 
-            if vehicle_y > (ARENA_HEIGHT - veh_rect_height) {
+            if vehicle_y > (self.arena_properties.height - veh_rect_height) {
                 //hit the top wall
-                transform.set_translation_y(ARENA_HEIGHT - veh_rect_height);
+                transform.set_translation_y(self.arena_properties.height - veh_rect_height);
                 y_collision = true;
             } else if vehicle_y < (veh_rect_height) {
                 //hit the bottom wall

@@ -11,8 +11,10 @@ use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
 use std::env::current_dir;
 
-use crate::components::{Armor, Health, Player, Repair, Shield, DurationDamage, WeaponNames};
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
+use crate::components::{
+    Armor, Health, Player, Repair, Shield, DurationDamage, 
+    WeaponNames, ArenaProperties
+};
 use crate::resources::GameModes;
 use crate::entities::ui::PlayerStatusText;
 
@@ -244,8 +246,8 @@ pub fn kill_restart_vehicle(
     let (_, _, vehicle_angle) = transform.rotation().euler_angles();
     vehicle.death_angle = vehicle_angle;
 
-    //transform.set_translation_x(10.0 * ARENA_WIDTH);
-    //transform.set_translation_y(10.0 * ARENA_HEIGHT);
+    //transform.set_translation_x(10.0 * self.arena_properties.width);
+    //transform.set_translation_y(10.0 * self.arena_properties.height);
 
     if stock_lives > 0 && player.deaths >= stock_lives {
         vehicle.state = VehicleState::InActive;
@@ -260,6 +262,7 @@ pub fn check_respawn_vehicle(
     dt: f32,
     game_mode: GameModes,
     last_spawn_index: u32,
+    arena_properties: &ArenaProperties,
 ) -> u32 {
     let mut rng = rand::thread_rng();
 
@@ -297,45 +300,15 @@ pub fn check_respawn_vehicle(
                 transform.set_translation_xyz(vehicle.death_x, vehicle.death_y, 0.0);
             } else {
                 //Ensure that the spawn_index != last_spawn_index
-                spawn_index = rng.gen_range(0, 3) as u32;
-
+                spawn_index = rng.gen_range(0, arena_properties.player_spawn_points.len()-1) as u32;
                 if spawn_index >= last_spawn_index {
                     spawn_index += 1;
                 }
-
-                let spacing_factor = 5.0;
-                let height = ARENA_HEIGHT;
-
-                let (starting_rotation, starting_x, starting_y) = match spawn_index {
-                    0 => (
-                        -PI / 4.0,
-                        ARENA_WIDTH / spacing_factor,
-                        height / spacing_factor,
-                    ),
-                    1 => (
-                        PI + PI / 4.0,
-                        ARENA_WIDTH / spacing_factor,
-                        height - (height / spacing_factor),
-                    ),
-                    2 => (
-                        PI / 2.0 - PI / 4.0,
-                        ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                        height / spacing_factor,
-                    ),
-                    3 => (
-                        PI / 2.0 + PI / 4.0,
-                        ARENA_WIDTH - (ARENA_WIDTH / spacing_factor),
-                        height - (height / spacing_factor),
-                    ),
-                    _ => (
-                        -PI / 4.0,
-                        ARENA_WIDTH / spacing_factor,
-                        height / spacing_factor,
-                    ),
-                };
-
-                transform.set_rotation_2d(starting_rotation as f32);
-                transform.set_translation_xyz(starting_x as f32, starting_y as f32, 0.0);
+                
+                let player_spawn = arena_properties.player_spawn_points[spawn_index as usize];
+            
+                transform.set_rotation_2d(player_spawn.rotation/180.0*PI);
+                transform.set_translation_xyz(player_spawn.x, player_spawn.y, 0.0);
             }
         }
     }

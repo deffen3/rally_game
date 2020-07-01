@@ -3,7 +3,7 @@ use amethyst::{
         transform::{Transform},
     },
     derive::SystemDesc,
-    ecs::{System, Join, SystemData, Write, ReadExpect, WriteStorage, ReadStorage},
+    ecs::{System, Join, SystemData, Write, ReadExpect, WriteStorage, ReadStorage, World},
     renderer::{
         debug_drawing::{DebugLines},
         palette::Srgba,
@@ -14,14 +14,16 @@ use amethyst::{
 use navmesh::{NavQuery, NavPathMode};
 
 
-use crate::components::{Vehicle, Player};
-use crate::resources::{ArenaNavMesh, ArenaNavMeshFinal};
+use crate::components::{Vehicle, Player, ArenaProperties, ArenaNames, ArenaStoreResource};
+use crate::resources::{ArenaNavMesh, ArenaNavMeshFinal, GameModeSetup};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH, DEBUG_LINES};
+use crate::rally::{DEBUG_LINES};
 
 
-#[derive(SystemDesc)]
-pub struct PathingLinesSystem;
+#[derive(SystemDesc, Default)]
+pub struct PathingLinesSystem {
+    pub arena_properties: ArenaProperties,
+}
 
 impl<'s> System<'s> for PathingLinesSystem {
     type SystemData = (
@@ -32,6 +34,33 @@ impl<'s> System<'s> for PathingLinesSystem {
         ReadStorage<'s, Vehicle>,
         ReadStorage<'s, Transform>,
     );
+
+    fn setup(&mut self, world: &mut World) {
+        let arena_name;
+        {
+            let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+    
+            if let Some(game_mode_setup) = fetched_game_mode_setup {
+                arena_name = game_mode_setup.arena_name.clone();
+            } else {
+                arena_name = ArenaNames::OpenEmptyMap;
+            }
+        }
+    
+        {        
+            let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+    
+            if let Some(arena_store) = fetched_arena_store {
+                self.arena_properties = match arena_store.properties.get(&arena_name) {
+                    Some(arena_props_get) => (*arena_props_get).clone(),
+                    _ => ArenaProperties::default(),
+                };
+            }
+            else {
+                self.arena_properties = ArenaProperties::default();
+            }
+        }
+    }
 
     fn run(
         &mut self, (
@@ -103,7 +132,7 @@ impl<'s> System<'s> for PathingLinesSystem {
 
                 if !player.is_bot {
                     //player.path_target = Some((0.0, 0.0, 0.0));
-                    player.path_target = Some((ARENA_WIDTH/2.0, (ARENA_HEIGHT)/2.0 , 0.0));
+                    player.path_target = Some((self.arena_properties.width/2.0, (self.arena_properties.height)/2.0 , 0.0));
                 }
 
                 if let Some(target) = player.path_target {

@@ -4,7 +4,7 @@ use amethyst::{
         transform::{Transform},
     },
     derive::SystemDesc,
-    ecs::{System, Join, SystemData, WriteStorage, ReadStorage, ReadExpect, Read},
+    ecs::{System, Join, SystemData, WriteStorage, ReadStorage, ReadExpect, Read, World},
     window::ScreenDimensions,
     renderer::{
         camera::{Camera, Projection},
@@ -12,18 +12,19 @@ use amethyst::{
 };
 
 
-use crate::components::{Vehicle, Player, VehicleState};
+use crate::components::{Vehicle, Player, VehicleState, ArenaProperties, ArenaNames, ArenaStoreResource};
 use crate::resources::{GameModeSetup, GameModes};
 
-use crate::rally::{ARENA_HEIGHT, ARENA_WIDTH};
 
 
 const CAMERA_ZOOM_RATE: f32 = 120.0;
 const CAMERA_TRANSLATE_MAX_RATE: f32 = 100.0;
 
 
-#[derive(SystemDesc)]
-pub struct CameraTrackingSystem;
+#[derive(SystemDesc, Default)]
+pub struct CameraTrackingSystem {
+    pub arena_properties: ArenaProperties,
+}
 
 impl<'s> System<'s> for CameraTrackingSystem {
     type SystemData = (
@@ -35,6 +36,33 @@ impl<'s> System<'s> for CameraTrackingSystem {
         ReadExpect<'s, ScreenDimensions>,
         ReadExpect<'s, GameModeSetup>,
     );
+
+    fn setup(&mut self, world: &mut World) {
+        let arena_name;
+        {
+            let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
+    
+            if let Some(game_mode_setup) = fetched_game_mode_setup {
+                arena_name = game_mode_setup.arena_name.clone();
+            } else {
+                arena_name = ArenaNames::OpenEmptyMap;
+            }
+        }
+    
+        {        
+            let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
+    
+            if let Some(arena_store) = fetched_arena_store {
+                self.arena_properties = match arena_store.properties.get(&arena_name) {
+                    Some(arena_props_get) => (*arena_props_get).clone(),
+                    _ => ArenaProperties::default(),
+                };
+            }
+            else {
+                self.arena_properties = ArenaProperties::default();
+            }
+        }
+    }
 
     fn run(
         &mut self, (
@@ -90,9 +118,9 @@ impl<'s> System<'s> for CameraTrackingSystem {
         
 
         vehicle_min_x = (vehicle_min_x - offset).max(0.0);
-        vehicle_max_x = (vehicle_max_x + offset).min(ARENA_WIDTH);
+        vehicle_max_x = (vehicle_max_x + offset).min(self.arena_properties.width);
         vehicle_min_y = (vehicle_min_y - offset).max(0.0);
-        vehicle_max_y = (vehicle_max_y + offset).min(ARENA_HEIGHT);
+        vehicle_max_y = (vehicle_max_y + offset).min(self.arena_properties.height);
 
         for (camera, transform) in (&mut cameras, &mut transforms).join() {
             
@@ -100,10 +128,10 @@ impl<'s> System<'s> for CameraTrackingSystem {
 
             //Standard full ArenaElement Projection
             // camera.set_projection(Projection::orthographic(
-            //     -ARENA_WIDTH/2.0,
-            //     ARENA_WIDTH/2.0,
-            //     -ARENA_HEIGHT/2.0,
-            //     ARENA_HEIGHT/2.0,
+            //     -self.arena_properties.width/2.0,
+            //     self.arena_properties.width/2.0,
+            //     -self.arena_properties.height/2.0,
+            //     self.arena_properties.height/2.0,
             //     0.0,
             //     20.0,
             // ));
@@ -148,8 +176,8 @@ impl<'s> System<'s> for CameraTrackingSystem {
             let camera_y = transform.translation().y;
 
             //Standard full Arena translation
-            // transform.set_translation_x(ARENA_WIDTH/2.0);
-            // transform.set_translation_y(ARENA_HEIGHT/2.0);
+            // transform.set_translation_x(self.arena_properties.width/2.0);
+            // transform.set_translation_y(self.arena_properties.height/2.0);
 
             let mut dx = (camera_target_x - camera_x).min(CAMERA_TRANSLATE_MAX_RATE).max(-CAMERA_TRANSLATE_MAX_RATE);
             if dx.abs() <= 0.01 {
