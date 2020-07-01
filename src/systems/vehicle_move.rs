@@ -253,18 +253,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     else if player.bot_mode == BotMode::Racing {
                         //Determine which point to race to
 
-                        if player.checkpoint_completed == 0 {
-                            player.path_target = Some((self.arena_properties.width/2.0 - 20., self.arena_properties.height - 60.0, 0.0));
+                        let next_checkpoint;
+                        if player.checkpoint_completed as usize >= (self.arena_properties.race_checkpoints.len() - 1) {
+                            next_checkpoint = self.arena_properties.race_checkpoints[0]; //return to finish line
                         }
-                        else if player.checkpoint_completed == 1 {
-                            player.path_target = Some((30.0, (self.arena_properties.height)/2.0 - 20., 0.0));
+                        else { //go to next checkpoint
+                            next_checkpoint = self.arena_properties.race_checkpoints[(player.checkpoint_completed + 1) as usize];
                         }
-                        else if player.checkpoint_completed == 2 {
-                            player.path_target = Some((self.arena_properties.width/2.0 + 100., 20., 0.0));
-                        }
-                        else if player.checkpoint_completed == 3 {
-                            player.path_target = Some((self.arena_properties.width - 20., (self.arena_properties.height)/2.0 + 20., 0.0));
-                        }
+                        
+
+                        player.path_target = Some((next_checkpoint.x, next_checkpoint.y, 0.0));
 
 
                         if let Some(path_plan) = player.path_plan.clone() {

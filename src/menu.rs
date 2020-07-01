@@ -484,7 +484,6 @@ impl SimpleState for MainMenu {
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 14;
                         game_mode_setup.stock_lives = -1;
-                        game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.game_end_condition = GameEndCondition::First;                        
                         self.init_base_rules = true;
                     } else if Some(target) == self.button_deathmatch_kills {
@@ -492,7 +491,6 @@ impl SimpleState for MainMenu {
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
-                        game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.game_end_condition = GameEndCondition::First;
                         self.init_base_rules = true;
                     } else if Some(target) == self.button_deathmatch_stock {
@@ -500,7 +498,6 @@ impl SimpleState for MainMenu {
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = -1;
                         game_mode_setup.stock_lives = 5;
-                        game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.game_end_condition = GameEndCondition::AllButOne;
                         self.init_base_rules = true;
                     } else if Some(target) == self.button_deathmatch_time {
@@ -508,7 +505,6 @@ impl SimpleState for MainMenu {
                         game_mode_setup.match_time_limit = 5.0 * 60.0; //in seconds, 5mins
                         game_mode_setup.points_to_win = -1;
                         game_mode_setup.stock_lives = -1;
-                        game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.game_end_condition = GameEndCondition::AllButOne; //but usually just ends by time
                         self.init_base_rules = true;
                     } else if Some(target) == self.button_king_of_the_hill {
@@ -516,7 +512,6 @@ impl SimpleState for MainMenu {
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 50;
                         game_mode_setup.stock_lives = -1;
-                        game_mode_setup.checkpoint_count = 0;
                         game_mode_setup.game_end_condition = GameEndCondition::First;
                         self.init_base_rules = true;
                     } else if Some(target) == self.button_combat_race {
@@ -524,7 +519,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
-                        game_mode_setup.checkpoint_count = 3;
+                        
                         game_mode_setup.game_end_condition = GameEndCondition::AllButOneExtended; //extended for a few seconds after
                         self.init_base_rules = true;
                     }
@@ -536,9 +531,16 @@ impl SimpleState for MainMenu {
                             _ => ArenaNames::OpenEmptyMap,
                         };
                         game_mode_setup.arena_name = game_mode_arena;
+
+                        let checkpoint_count = match arena_store.properties.get(&game_mode_arena) {
+                            Some(arena_props) => arena_props.race_checkpoints.len() - 1,
+                            _ => 0,
+                        };
+                        game_mode_setup.checkpoint_count = checkpoint_count as i32;
                     }
                     else {
                         game_mode_setup.arena_name = ArenaNames::OpenEmptyMap;
+                        game_mode_setup.checkpoint_count = 0;
                     }
                 }
 
