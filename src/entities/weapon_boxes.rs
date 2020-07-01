@@ -44,6 +44,7 @@ pub fn spawn_weapon_boxes(
         let mut local_transform = Transform::default();
         
         local_transform.set_rotation_2d(PI / 8.0);
+        local_transform.set_translation_xyz(spawn_box.x, spawn_box.y, 0.3);
 
         let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
 
