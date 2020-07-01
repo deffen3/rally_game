@@ -228,7 +228,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             player.path_target = Some((30.0, (ARENA_HEIGHT)/2.0 - 20., 0.0));
                         }
                         else if player.checkpoint_completed == 2 {
-                            player.path_target = Some((ARENA_WIDTH/2.0 + 20., 20., 0.0));
+                            player.path_target = Some((ARENA_WIDTH/2.0 + 100., 20., 0.0));
                         }
                         else if player.checkpoint_completed == 3 {
                             player.path_target = Some((ARENA_WIDTH - 20., (ARENA_HEIGHT)/2.0 + 20., 0.0));

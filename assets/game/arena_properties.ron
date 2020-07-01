@@ -125,7 +125,7 @@
         ),
     ],
     arena_circles: [
-        ArenaCircle (x:200.0, y:224.0, radius:40.0),
+        ArenaCircle (x:200.0, y:225.0, radius:40.0),
         ArenaCircle (x:280.0, y:200.0, radius:40.0),
         ArenaCircle (x:280.0, y:120.0, radius:40.0),
         ArenaCircle (x:280.0, y:280.0, radius:40.0),
@@ -133,13 +133,13 @@
         ArenaCircle (x:40.0, y:380.0, radius:40.0),
         ArenaCircle (x:120.0, y:200.0, radius:40.0),
         ArenaCircle (x:120.0, y:280.0, radius:40.0),
-        ArenaCircle (x:80.0, y:60.0, radius:40.0),
-        ArenaCircle (x:200.0, y:120.0, radius:40.0),
+        ArenaCircle (x:80.0, y:40.0, radius:40.0),
+        ArenaCircle (x:200.0, y:145.0, radius:40.0),
         ArenaCircle (x:200.0, y:380.0, radius:40.0),
     ],
     arena_rectangles: [],
     weapon_spawn_boxes: [
-        WeaponSpawnBox (x: 80.0, y: 80.0, weapon_name: None),
+        WeaponSpawnBox (x: 80.0, y: 120.0, weapon_name: None),
         WeaponSpawnBox (x: 80.0, y: 320.0, weapon_name: None),
         WeaponSpawnBox (x: 320.0, y: 80.0, weapon_name: None),
         WeaponSpawnBox (x: 320.0, y: 320.0, weapon_name: None),
@@ -147,9 +147,9 @@
     king_hills: [],
     race_checkpoints: [
         ArenaRaceCheckpoint (x: 360.0, y: 200.0, rotation: 0.0, length: 80.0),
-        ArenaRaceCheckpoint (x: 200.0, y: 360.0, rotation: -90.0, length: 80.0),
+        ArenaRaceCheckpoint (x: 200.0, y: 300.0, rotation: -90.0, length: 80.0),
         ArenaRaceCheckpoint (x: 40.0, y: 200.0, rotation: 0.0, length: 80.0),
-        ArenaRaceCheckpoint (x: 200.0, y: 75.0, rotation: 90.0, length: 80.0),
+        ArenaRaceCheckpoint (x: 280.0, y: 40.0, rotation: 90.0, length: 80.0),
     ],
     player_spawn_points: [
         PlayerSpawnPoint (x: 330.0, y: 186.0, rotation: 0.0),
