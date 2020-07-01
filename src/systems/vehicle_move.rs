@@ -1,10 +1,10 @@
 use amethyst::{
     core::{math::Vector3, Time, Transform},
     derive::SystemDesc,
-    ecs::{Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
+    ecs::{Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, Write, System, SystemData, World,
         WriteStorage},
     input::{InputHandler, StringBindings},
-    renderer::{palette::Srgba, resources::Tint},
+    renderer::{debug_drawing::{DebugLines}, palette::Srgba, resources::Tint},
     assets::AssetStorage,
     audio::{output::Output, Source},
 };
@@ -33,6 +33,7 @@ use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireReso
 use crate::rally::{
     ARENA_HEIGHT, ARENA_WIDTH, BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
     COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
+    DEBUG_LINES,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -79,6 +80,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
         ReadExpect<'s, WeaponStoreResource>,
+        Write<'s, DebugLines>,
     );
 
     fn setup(&mut self, _world: &mut World) {
@@ -107,6 +109,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             weapon_fire_resource,
             lazy_update,
             weapon_store_resource,
+            mut debug_lines_resource,
         ): Self::SystemData,
     ) {
         let mut rng = rand::thread_rng();
@@ -1323,6 +1326,40 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
         if self.rocket_spray_timer < 0.0 {
             self.rocket_spray_timer = ROCKET_SPRAY_COOLDOWN_RESET;
+        }
+
+
+        if DEBUG_LINES {
+            for (arena_element, hitbox_transform) in
+                (&arena_elements, &transforms).join()
+            {
+                let hitbox_x = hitbox_transform.translation().x;
+                let hitbox_y = hitbox_transform.translation().y;
+
+                debug_lines_resource.draw_line(
+                    [hitbox_x - arena_element.hitbox.width/2.0, hitbox_y - arena_element.hitbox.height/2.0, 0.3].into(),
+                    [hitbox_x - arena_element.hitbox.width/2.0, hitbox_y + arena_element.hitbox.height/2.0, 0.3].into(),
+                    Srgba::new(0.7, 0.2, 0.2, 0.2),
+                );
+
+                debug_lines_resource.draw_line(
+                    [hitbox_x - arena_element.hitbox.width/2.0, hitbox_y + arena_element.hitbox.height/2.0, 0.3].into(),
+                    [hitbox_x + arena_element.hitbox.width/2.0, hitbox_y + arena_element.hitbox.height/2.0, 0.3].into(),
+                    Srgba::new(0.7, 0.2, 0.2, 0.2),
+                );
+
+                debug_lines_resource.draw_line(
+                    [hitbox_x + arena_element.hitbox.width/2.0, hitbox_y + arena_element.hitbox.height/2.0, 0.3].into(),
+                    [hitbox_x + arena_element.hitbox.width/2.0, hitbox_y - arena_element.hitbox.height/2.0, 0.3].into(),
+                    Srgba::new(0.7, 0.2, 0.2, 0.2),
+                );
+
+                debug_lines_resource.draw_line(
+                    [hitbox_x + arena_element.hitbox.width/2.0, hitbox_y - arena_element.hitbox.height/2.0, 0.3].into(),
+                    [hitbox_x - arena_element.hitbox.width/2.0, hitbox_y - arena_element.hitbox.height/2.0, 0.3].into(),
+                    Srgba::new(0.7, 0.2, 0.2, 0.2),
+                );
+            }
         }
     }
 }

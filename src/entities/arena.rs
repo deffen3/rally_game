@@ -264,6 +264,10 @@ pub fn intialize_arena(
         checkpoint_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         
+        let width = (20.0 * scale * (race_checkpoint.rotation/180.0*PI).cos().abs())
+            + (2.0 * scale * (race_checkpoint.rotation/180.0*PI).sin().abs());
+        let height = (2.0 * scale * (race_checkpoint.rotation/180.0*PI).cos().abs()) 
+            + (20.0 * scale * (race_checkpoint.rotation/180.0*PI).sin().abs());
 
         world
             .create_entity()
@@ -284,8 +288,8 @@ pub fn intialize_arena(
                 sprite: 31,
                 sprite_scale: scale,
                 hitbox: Hitbox::new(
-                    2.0 * scale,
-                    20.0 * scale,
+                    width,
+                    height,
                     0.0,
                     HitboxShape::Rectangle,
                 )
