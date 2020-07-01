@@ -44,7 +44,7 @@ use crate::systems::{
 };
 
 pub const PLAYER_CAMERA: bool = false;
-pub const DEBUG_LINES: bool = true;
+pub const DEBUG_LINES: bool = false;
 
 //Damage at speed of 100
 pub const BASE_COLLISION_DAMAGE: f32 = 20.0;
