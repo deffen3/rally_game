@@ -37,11 +37,11 @@ Container(
         Container(
             transform: (
                 id: "container_gun_game",
-                x: -220,
+                x: 280,
                 y: 330,
                 width: 460.,
-                height: 100.,
-                anchor: Middle,
+                height: 80.,
+                anchor: MiddleLeft,
             ),
             background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
@@ -50,7 +50,7 @@ Container(
                     transform: (
                         id: "classic_gun_game",
                         width: 450.,
-                        height: 90.,
+                        height: 70.,
                         tab_order: 1,
                         anchor: Middle,
                         mouse_reactive: true,
@@ -72,11 +72,11 @@ Container(
         Container(
             transform: (
                 id: "container_deathmatch_kills",
-                x: -220,
-                y: 220,
+                x: 280,
+                y: 240,
                 width: 460.,
-                height: 100.,
-                anchor: Middle,
+                height: 80.,
+                anchor: MiddleLeft,
             ),
             background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
@@ -86,7 +86,7 @@ Container(
                     transform: (
                         id: "deathmatch_kills",
                         width: 450.,
-                        height: 90.,
+                        height: 70.,
                         tab_order: 2,
                         anchor: Middle,
                         mouse_reactive: true,
@@ -108,11 +108,11 @@ Container(
         Container(
             transform: (
                 id: "container_deathmatch_stock",
-                x: -220,
-                y: 110,
+                x: 280,
+                y: 150,
                 width: 460.,
-                height: 100.,
-                anchor: Middle,
+                height: 80.,
+                anchor: MiddleLeft,
             ),
             background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
@@ -122,7 +122,7 @@ Container(
                     transform: (
                         id: "deathmatch_stock",
                         width: 450.,
-                        height: 90.,
+                        height: 70.,
                         tab_order: 3,
                         anchor: Middle,
                         mouse_reactive: true,
@@ -144,11 +144,11 @@ Container(
         Container(
             transform: (
                 id: "container_deathmatch_time",
-                x: -220,
-                y: 0.,
+                x: 280,
+                y: 60.,
                 width: 460.,
-                height: 100.,
-                anchor: Middle,
+                height: 80.,
+                anchor: MiddleLeft,
             ),
             background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
@@ -158,7 +158,7 @@ Container(
                     transform: (
                         id: "deathmatch_time",
                         width: 450.,
-                        height: 90.,
+                        height: 70.,
                         tab_order: 4,
                         anchor: Middle,
                         mouse_reactive: true,
@@ -180,11 +180,11 @@ Container(
         Container(
             transform: (
                 id: "container_king_of_the_hill",
-                x: -220,
-                y: -110,
+                x: 280,
+                y: -30,
                 width: 460.,
-                height: 100.,
-                anchor: Middle,
+                height: 80.,
+                anchor: MiddleLeft,
             ),
             background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
@@ -194,7 +194,7 @@ Container(
                     transform: (
                         id: "king_of_the_hill",
                         width: 450.,
-                        height: 90.,
+                        height: 70.,
                         tab_order: 5,
                         anchor: Middle,
                         mouse_reactive: true,
@@ -215,12 +215,49 @@ Container(
 
         Container(
             transform: (
-                id: "container_combat_race",
-                x: -220,
-                y: -220,
+                id: "container_capture_the_flag",
+                x: 280,
+                y: -120,
                 width: 460.,
-                height: 100.,
-                anchor: Middle,
+                height: 80.,
+                anchor: MiddleLeft,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                // Complex Button
+                Button(
+                    transform: (
+                        id: "capture_the_flag",
+                        width: 450.,
+                        height: 70.,
+                        tab_order: 6,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "CAPTURE THE FLAG",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 40.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+
+        Container(
+            transform: (
+                id: "container_combat_race",
+                x: 280,
+                y: -210,
+                width: 460.,
+                height: 80.,
+                anchor: MiddleLeft,
             ),
             background: SolidColor(0.8, 0.1, 0.05, 1.0),
             children: [
@@ -230,7 +267,7 @@ Container(
                     transform: (
                         id: "combat_race",
                         width: 450.,
-                        height: 90.,
+                        height: 70.,
                         tab_order: 6,
                         anchor: Middle,
                         mouse_reactive: true,
@@ -247,6 +284,44 @@ Container(
                 ),
             ]
         ),
+
+
+
+        Container(
+            transform: (
+                id: "container_survival_waves",
+                x: 280,
+                y: -300,
+                width: 460.,
+                height: 80.,
+                anchor: MiddleLeft,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                // Complex Button
+                Button(
+                    transform: (
+                        id: "survival_waves",
+                        width: 450.,
+                        height: 70.,
+                        tab_order: 6,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "SURVIVAL - WAVES",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 40.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
 
 
 
