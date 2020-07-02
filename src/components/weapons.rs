@@ -140,8 +140,7 @@ pub struct WeaponFireStats {
     pub heat_seeking: bool,
     pub heat_seeking_agility: f32,
     pub attached: bool,
-    pub deployed: bool,
-    pub mounted_angle: f32,
+    pub mount_angle_special_offset: f32,
     pub shot_life_limit: f32,
     pub damage: f32,
     pub damage_reduction_pct_rate: f32,
@@ -237,6 +236,7 @@ pub struct Weapon {
     pub burst_shots: u32,
     pub dps_calc: f32,
     pub range_calc: f32,
+    pub deployed: bool,
     pub deploy_timer: f32,
 }
 
@@ -254,6 +254,7 @@ impl Weapon {
             burst_shots: 0,
             dps_calc: calculate_dps(stats.clone()),
             range_calc: calculate_range(stats.fire_stats),
+            deployed: false,
             deploy_timer: 0.0,
         }
     }
@@ -328,6 +329,7 @@ pub struct WeaponFire {
     pub shot_life_timer: f32,
     pub chain_hit_ids: Vec<usize>,
     pub stats: WeaponFireStats,
+    pub deployed: bool,
 }
 
 impl Component for WeaponFire {
@@ -359,7 +361,8 @@ impl WeaponFire {
             owner_player_id,
             shot_life_timer: 0.0,
             chain_hit_ids: Vec::<usize>::new(),
-            stats,  
+            stats,
+            deployed: false,
         }
     }
 }

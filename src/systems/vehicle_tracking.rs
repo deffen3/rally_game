@@ -38,7 +38,7 @@ impl<'s> System<'s> for VehicleTrackingSystem {
                 let (_, _, vehicle_angle) = vehicle1_transform.rotation().euler_angles();
 
                 //typical angle this weapon should fire at
-                let standard_angle = vehicle_angle + primary_weapon.stats.fire_stats.mounted_angle;
+                let standard_angle = vehicle_angle + primary_weapon.stats.fire_stats.mount_angle_special_offset;
 
                 for (player2, vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join()
                 {

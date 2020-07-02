@@ -129,17 +129,17 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                     //undeploy old attached weapons
                                     if weapon_fire.weapon_array_id == weapon_idx 
                                             && weapon.name != weapon_fire.weapon_name {
-                                        weapon_fire.stats.deployed = false;
+                                        weapon_fire.deployed = false;
                                     }
 
                                     if weapon.name == weapon_fire.weapon_name && weapon.stats.fire_stats.attached {
                                         //pass on deployed status
-                                        if weapon.stats.fire_stats.deployed == false {
-                                            weapon_fire.stats.deployed = false;
+                                        if weapon.deployed == false {
+                                            weapon_fire.deployed = false;
                                             let _ = entities.delete(entity);
                                         }
-                                        else if weapon.stats.fire_stats.deployed == true {
-                                            weapon_fire.stats.deployed = true;
+                                        else if weapon.deployed == true {
+                                            weapon_fire.deployed = true;
                                         }
                                     }
 
@@ -186,7 +186,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                 }
 
                 if weapon_fire.stats.attached {
-                    if weapon_fire.stats.deployed {
+                    if weapon_fire.deployed {
                         let vehicle_owner_data = vehicle_owner_map.get(&weapon_fire.owner_player_id);
 
                         if let Some(vehicle_owner_data) = vehicle_owner_data {

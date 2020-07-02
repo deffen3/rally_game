@@ -113,7 +113,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                             );
 
                                             //typical angle this weapon should fire at
-                                            let standard_angle = vehicle_angle + weapon.stats.fire_stats.mounted_angle;
+                                            let standard_angle = vehicle_angle + weapon.stats.fire_stats.mount_angle_special_offset;
 
                                             //result angle the weapon fires at, after adding any auto-aim or spread modifiers
                                             let mut fire_angle: f32;
@@ -158,22 +158,22 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
 
 
                                             //if attached weapon is already deployed, then undeploy it
-                                            if weapon.stats.fire_stats.attached && weapon.stats.fire_stats.deployed {
+                                            if weapon.stats.fire_stats.attached && weapon.deployed {
                                                 if weapon.deploy_timer <= 0.0 {
                                                     weapon.deploy_timer = 1.0; //reset cooldown
-                                                    weapon.stats.fire_stats.deployed = false;
+                                                    weapon.deployed = false;
                                                 }
                                             }
-                                            else if !weapon.stats.fire_stats.attached || !weapon.stats.fire_stats.deployed {
-                                                if !weapon.stats.fire_stats.deployed {
+                                            else if !weapon.stats.fire_stats.attached || !weapon.deployed {
+                                                if !weapon.deployed {
                                                     if weapon.deploy_timer <= 0.0 {
                                                         weapon.deploy_timer = 1.0; //reset cooldown
-                                                        weapon.stats.fire_stats.deployed = true;
+                                                        weapon.deployed = true;
                                                     }
                                                 }
                                             }
 
-                                            if weapon.stats.fire_stats.deployed {
+                                            if weapon.deployed {
                                                 fire_weapon(
                                                     &entities,
                                                     &weapon_fire_resource,

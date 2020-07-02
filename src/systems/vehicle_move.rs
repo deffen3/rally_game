@@ -573,8 +573,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 if let Some(primary_weapon) = &weapon_array.weapons[PRIMARY_WEAPON_INDEX] {
                                     //Prepare magnitude of Turning and Acceleration input
                                     if player.bot_mode == BotMode::Swording {
-                                        if primary_weapon.stats.fire_stats.mounted_angle > PI / 2.0
-                                            || primary_weapon.stats.fire_stats.mounted_angle < -PI / 2.0
+                                        if primary_weapon.stats.fire_stats.mount_angle_special_offset > PI / 2.0
+                                            || primary_weapon.stats.fire_stats.mount_angle_special_offset < -PI / 2.0
                                         {
                                             vehicle_accel = Some(-1.0); //drive backwards sword fighting
                                         } else {
@@ -586,7 +586,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                     //Solve for Angle and Direction to turn
                                     let mut angle_diff =
-                                        vehicle_angle + primary_weapon.stats.fire_stats.mounted_angle - attack_angle;
+                                        vehicle_angle + primary_weapon.stats.fire_stats.mount_angle_special_offset - attack_angle;
 
                                     if angle_diff > PI {
                                         angle_diff = -(2.0 * PI - angle_diff);
