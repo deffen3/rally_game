@@ -20,6 +20,7 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
+    default_weapons: Some([(0, LaserDoubleGimballed), (1, ProjectileRapidFireTurret)]),
   ),
   LightRacer : VehicleStats (
     display_name: "Light Racer",
@@ -42,6 +43,7 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
+    default_weapons: Some([(0, LaserDoubleGimballed), (1, BackwardsLaserSword)]),
   ),
   HeavyTank : VehicleStats (
     display_name: "Heavy Tank",
@@ -64,6 +66,7 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 17.0,
+    default_weapons: Some([(0, LaserDoubleGimballed), (0, LaserBeam), (1, ProjectileCannonFire)]),
   ),
   CivilianCruiser : VehicleStats (
     display_name: "Civilian Cruiser",
@@ -86,6 +89,7 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
+    default_weapons: None,
   ),
   Interceptor : VehicleStats (
     display_name: "Interceptor",
@@ -108,6 +112,7 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 17.0,
+    default_weapons: Some([(0, LaserDoubleGimballed), (1, LaserBeam)]),
   ),
   TSpeeder : VehicleStats (
     display_name: "T-Speeder",
@@ -130,5 +135,6 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
+    default_weapons: Some([(0, LaserDoubleGimballed)]),
   ),
 }

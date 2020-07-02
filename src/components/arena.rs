@@ -43,11 +43,13 @@ pub struct PlayerSpawnPoint {
     pub rotation: f32, //degrees
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct WeaponSpawnBox {
     pub x: f32,
     pub y: f32,
-    pub weapon_name: Option<WeaponNames>,
+    pub weapon_name: Option<Vec<WeaponNames>>,
+    pub first_spawn_timer: Option<f32>,
+    pub spawn_timer: Option<f32>,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]

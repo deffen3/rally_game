@@ -54,7 +54,7 @@ pub fn get_random_weapon_name(game_setup: &ReadExpect<GameWeaponSetup>) -> Weapo
 
     let mut weapon_selector = game_setup.starter_weapon.clone();
 
-    for (weapon_name, chance) in game_setup.weapon_spawn_chances.iter() {
+    for (weapon_name, chance) in game_setup.random_weapon_spawn_chances.iter() {
         if *chance >= chance_selector {
             break; //stay on previously selected weapon
         }

@@ -21,7 +21,9 @@ use crate::components::{
 };
 
 use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
-    GameWeaponSetup, GameVehicleSetup, GameTeamSetup, TeamSetupTypes};
+    GameWeaponSetup, GameVehicleSetup, GameTeamSetup, TeamSetupTypes,
+    GameWeaponMode,
+};
 
 
 pub const MAX_PLAYER_COUNT: usize = 4;
@@ -157,13 +159,16 @@ impl SimpleState for MainMenu {
             //these are only defaults if a game-mode is not selected
             //  and classic-gun-game mode is launched straight from the start game button
             world.insert(GameWeaponSetup {
+                mode: GameWeaponMode::GunGameForward,
                 starter_weapon: WeaponNames::LaserDoubleGimballed,
-                random_weapon_spawns: false,
+                allowable_starter_weapons: vec![WeaponNames::LaserDoubleGimballed],
+                random_weapon_spawns: false,                
+                random_weapon_spawn_count: 2,
+                random_weapon_spawn_timer: 20.0,
+                random_weapon_spawn_first_timer: 20.0,
+                random_weapon_spawn_chances: weapon_spawn_chances,
+                allow_map_specific_spawn_weapons: true,
                 keep_picked_up_weapons: false,
-                weapon_spawn_count: 2,
-                weapon_spawn_timer: 20.0,
-                weapon_spawn_first_timer: 20.0,
-                weapon_spawn_chances: weapon_spawn_chances,
             });
 
             world.insert(GameTeamSetup {
@@ -546,26 +551,32 @@ impl SimpleState for MainMenu {
 
                 if let Some(mut game_weapon_setup) = fetched_game_weapon_setup {
                     if Some(target) == self.button_classic_gun_game {
+                        game_weapon_setup.mode = GameWeaponMode::GunGameForward;
                         game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_weapon_setup.random_weapon_spawns = false;
                         game_weapon_setup.keep_picked_up_weapons = false;
                     } else if Some(target) == self.button_deathmatch_kills {
+                        game_weapon_setup.mode = GameWeaponMode::StarterAndPickup;
                         game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_weapon_setup.random_weapon_spawns = true;
                         game_weapon_setup.keep_picked_up_weapons = false;
                     } else if Some(target) == self.button_deathmatch_stock {
+                        game_weapon_setup.mode = GameWeaponMode::StarterAndPickup;
                         game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_weapon_setup.random_weapon_spawns = true;
                         game_weapon_setup.keep_picked_up_weapons = false;
                     } else if Some(target) == self.button_deathmatch_time {
+                        game_weapon_setup.mode = GameWeaponMode::StarterAndPickup;
                         game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_weapon_setup.random_weapon_spawns = true;
                         game_weapon_setup.keep_picked_up_weapons = false;
                     } else if Some(target) == self.button_king_of_the_hill {
+                        game_weapon_setup.mode = GameWeaponMode::StarterAndPickup;
                         game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_weapon_setup.random_weapon_spawns = true;
                         game_weapon_setup.keep_picked_up_weapons = false;
                     } else if Some(target) == self.button_combat_race {
+                        game_weapon_setup.mode = GameWeaponMode::StarterAndPickup;
                         game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_weapon_setup.random_weapon_spawns = true;
                         game_weapon_setup.keep_picked_up_weapons = true;

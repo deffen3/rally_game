@@ -27,13 +27,13 @@ use crate::resources::{initialize_weapon_fire_resource,
 
 use crate::entities::{
     intialize_arena, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
-    connect_players_to_ui, intialize_player, PlayerStatusText,
+    connect_players_to_ui, intialize_player, PlayerStatusText, 
 };
 
 use crate::components::{
     ArenaElement, Hitbox, 
     Player, PlayerWeaponIcon, Repair, Shield, Armor, Health, Vehicle,
-    WeaponArray, WeaponFire, Particles, VehicleMovementType, VehicleTypes,
+    WeaponArray, WeaponFire, Particles, get_none_vehicle,
     ArenaNames, ArenaStoreResource, ArenaProperties,
 };
 
@@ -211,71 +211,16 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         };
 
         for player_index in 0..max_players {
-            let vehicle_type: VehicleTypes;
-
-            let max_health: f32;
-            let max_armor: f32;
-            let max_shield: f32;
-
-            let heal_pulse_amount: f32;
-            let heal_pulse_rate: f32;
-
-            let engine_force: f32;
-            let engine_weight: f32;
-
-            let vehicle_width: f32;
-            let vehicle_height: f32;
-            let vehicle_sprite_scalar: f32;
-
-            let max_velocity: f32;
-
-            let vehicle_movement_type: VehicleMovementType;
+            let vehicle_stats;
 
             {
                 let fetched_game_vehicle_setup = world.try_fetch::<GameVehicleSetup>();
 
                 if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
-                    vehicle_type = game_vehicle_setup.stats[player_index].vehicle_type;
-
-                    max_health = game_vehicle_setup.stats[player_index].max_health;
-                    max_armor = game_vehicle_setup.stats[player_index].max_armor;
-                    max_shield = game_vehicle_setup.stats[player_index].max_shield;
-
-                    heal_pulse_amount = game_vehicle_setup.stats[player_index].heal_pulse_amount;
-                    heal_pulse_rate = game_vehicle_setup.stats[player_index].heal_pulse_rate;
-
-                    engine_force = game_vehicle_setup.stats[player_index].engine_force;
-                    engine_weight = game_vehicle_setup.stats[player_index].engine_weight;
-
-                    vehicle_width = game_vehicle_setup.stats[player_index].width;
-                    vehicle_height = game_vehicle_setup.stats[player_index].height;
-                    vehicle_sprite_scalar = game_vehicle_setup.stats[player_index].sprite_scalar;
-
-                    max_velocity = game_vehicle_setup.stats[player_index].max_velocity;
-
-                    vehicle_movement_type = VehicleMovementType::Hover;
+                    vehicle_stats = game_vehicle_setup.stats[player_index].clone();
                 }
                 else {
-                    vehicle_type = VehicleTypes::MediumCombat;
-
-                    max_health = 100.0;
-                    max_armor = 100.0;
-                    max_shield = 100.0;
-
-                    heal_pulse_amount = 0.0;
-                    heal_pulse_rate = 0.0;
-
-                    engine_force = 100.0;
-                    let engine_efficiency = 1.0;
-                    engine_weight = engine_force / engine_efficiency * 20. / 100.;
-
-                    vehicle_width = 7.0;
-                    vehicle_height = 12.0;
-                    vehicle_sprite_scalar = 1.0;
-
-                    max_velocity = 100.0;
-
-                    vehicle_movement_type = VehicleMovementType::Hover;
+                    vehicle_stats = get_none_vehicle();
                 }
             }
 
@@ -290,19 +235,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 player_to_team[player_index],
                 is_bot,
                 player_status_text.clone(),
-                vehicle_type.clone(),
-                heal_pulse_amount,
-                heal_pulse_rate,
-                max_health,
-                max_armor,
-                max_shield,
-                engine_force,
-                engine_weight,
-                max_velocity,
-                vehicle_movement_type,
-                vehicle_width,
-                vehicle_height,
-                vehicle_sprite_scalar,
+                vehicle_stats,
             );
 
             if PLAYER_CAMERA && !is_bot {

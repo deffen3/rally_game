@@ -31,18 +31,34 @@ pub struct GameModeSetup {
     pub max_players: usize,
     pub bot_players: usize,
     pub last_hit_threshold: f32,
-    pub arena_name: ArenaNames, 
+    pub arena_name: ArenaNames,
 }
 
 
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum GameWeaponMode {
+    GunGameForward,
+    GunGameReverse,
+    StarterAndPickup,
+    CustomStarterAndPickup,
+    FullCustom,
+    VehiclePreset,
+}
+
+
+
 pub struct GameWeaponSetup {
+    pub mode: GameWeaponMode,
     pub starter_weapon: WeaponNames,
-    pub random_weapon_spawns: bool, //Applies to all game modes except GunGame
+    pub allowable_starter_weapons: Vec<WeaponNames>,
+    pub random_weapon_spawns: bool,
+    pub random_weapon_spawn_count: u32,
+    pub random_weapon_spawn_first_timer: f32,
+    pub random_weapon_spawn_timer: f32,
+    pub random_weapon_spawn_chances: Vec<(WeaponNames, f32)>,
+    pub allow_map_specific_spawn_weapons: bool,
     pub keep_picked_up_weapons: bool,
-    pub weapon_spawn_count: u32,
-    pub weapon_spawn_first_timer: f32,
-    pub weapon_spawn_timer: f32,
-    pub weapon_spawn_chances: Vec<(WeaponNames, f32)>,
 }
 
 

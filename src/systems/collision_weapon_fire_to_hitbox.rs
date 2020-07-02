@@ -6,8 +6,9 @@ use amethyst::{
     derive::SystemDesc,
     ecs::{
         Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
-        WriteStorage,
+        WriteStorage, Entity,
     },
+    utils::removal::Removal,
 };
 
 use std::f32::consts::PI;
@@ -22,10 +23,10 @@ use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
     vehicle_damage_model, ArenaElement, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
     WeaponFire, WeaponStoreResource, DurationDamage, WeaponNames,
-    ArenaStoreResource, ArenaProperties, ArenaNames,
+    ArenaStoreResource, ArenaProperties, ArenaNames, reform_weapon_spawn_box,
 };
 
-use crate::entities::{spawn_weapon_boxes, hit_spray, explosion_shockwave, chain_fire_weapon};
+use crate::entities::{spawn_random_weapon_boxes, hit_spray, explosion_shockwave, chain_fire_weapon};
 
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -76,7 +77,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         let fetched_game_weapon_setup = world.try_fetch::<GameWeaponSetup>();
 
         if let Some(game_weapon_setup) = fetched_game_weapon_setup {
-            self.weapon_spawner_cooldown_timer = game_weapon_setup.weapon_spawn_first_timer;
+            self.weapon_spawner_cooldown_timer = game_weapon_setup.random_weapon_spawn_first_timer;
         }
         else {
             self.weapon_spawner_cooldown_timer = 20.0;
@@ -134,7 +135,6 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         let dt = time.delta_seconds();
 
         if game_weapon_setup.random_weapon_spawns
-            && game_mode_setup.game_mode != GameModes::ClassicGunGame
         {
             self.weapon_spawner_cooldown_timer -= dt;
         }
@@ -329,20 +329,44 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
         //weapon box spawns
         if game_weapon_setup.random_weapon_spawns
-            && game_mode_setup.game_mode != GameModes::ClassicGunGame
         {
             if self.weapon_spawner_cooldown_timer <= 0.0 {
-                self.weapon_spawner_cooldown_timer = game_weapon_setup.weapon_spawn_timer;
+                self.weapon_spawner_cooldown_timer = game_weapon_setup.random_weapon_spawn_timer;
 
-                spawn_weapon_boxes(
+                spawn_random_weapon_boxes(
                     &entities,
                     &weapon_fire_resource,
                     &lazy_update,
-                    game_weapon_setup.weapon_spawn_count.clone(),
+                    &game_weapon_setup,
                     &self.arena_properties,
                 );
             }
         }
+
+        //special map-defined weapon box spawns
+        if game_weapon_setup.allow_map_specific_spawn_weapons {
+            //Find all of the map-define weapon box spawns, check if they need spawned
+            for spawn_box in self.arena_properties.weapon_spawn_boxes.iter() {
+                if game_weapon_setup.allow_map_specific_spawn_weapons && spawn_box.weapon_name != None {
+                    let box_entity: Entity = entities.create();
+
+                    let mut local_transform = Transform::default();
+                    
+                    local_transform.set_rotation_2d(PI / 8.0);
+                    local_transform.set_translation_xyz(spawn_box.x, spawn_box.y, 0.3);
+
+                    let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
+
+                    lazy_update.insert(box_entity, reform_weapon_spawn_box(spawn_box.clone()));
+                    lazy_update.insert(box_entity, Removal::new(0 as u32));
+                    lazy_update.insert(box_entity, box_sprite);
+                    lazy_update.insert(box_entity, local_transform);
+                }
+            }
+        }
+
+
+
 
         //weapon to vehicle collisions
         let mut player_makes_hit_map = HashMap::new();
