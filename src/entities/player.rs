@@ -42,6 +42,7 @@ pub fn intialize_player(
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
                     weapon_name: game_weapon_setup.starter_weapon.clone(),
+                    ammo: None,
                     mounted_angle: None,
                     x_offset: None,
                     y_offset: None,
@@ -51,6 +52,7 @@ pub fn intialize_player(
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
                     weapon_name: game_weapon_setup.starter_weapon.clone(),
+                    ammo: None,
                     mounted_angle: None,
                     x_offset: None,
                     y_offset: None,
@@ -60,6 +62,7 @@ pub fn intialize_player(
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
                     weapon_name: game_weapon_setup.starter_weapon.clone(),
+                    ammo: None,
                     mounted_angle: None,
                     x_offset: None,
                     y_offset: None,
@@ -70,6 +73,7 @@ pub fn intialize_player(
                     weapon_named_installs.push(WeaponNameInstall {
                         firing_group: weapon_name_install.firing_group,
                         weapon_name: weapon_name_install.weapon_name,
+                        ammo: weapon_name_install.ammo,
                         mounted_angle: weapon_name_install.mounted_angle,
                         x_offset: weapon_name_install.x_offset,
                         y_offset: weapon_name_install.y_offset,
@@ -81,6 +85,7 @@ pub fn intialize_player(
                     weapon_named_installs.push(WeaponNameInstall {
                         firing_group: weapon_name_install.firing_group,
                         weapon_name: weapon_name_install.weapon_name,
+                        ammo: weapon_name_install.ammo,
                         mounted_angle: weapon_name_install.mounted_angle,
                         x_offset: weapon_name_install.x_offset,
                         y_offset: weapon_name_install.y_offset,
@@ -324,10 +329,17 @@ pub fn intialize_player(
             .build();
 
 
-        let weapon = Weapon::new(weapon_name_install.weapon_name, weapon_icon, weapon_stats.clone());
+        let weapon = Weapon::new(
+            weapon_name_install.weapon_name,
+            weapon_icon,
+            weapon_stats.clone(),
+            weapon_name_install.ammo,
+        );
+
         installed_weapons.push(WeaponInstall{
             weapon,
             firing_group: weapon_name_install.firing_group,
+            ammo: weapon_name_install.ammo,
             mounted_angle: weapon_name_install.mounted_angle,
             x_offset: weapon_name_install.x_offset,
             y_offset: weapon_name_install.y_offset,

@@ -904,6 +904,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                             &mut weapon_array,
                             PRIMARY_WEAPON_INDEX,
                             0,
+                            None,
                             Some(new_weapon_name),
                             &weapon_store_resource,
                             &entities,

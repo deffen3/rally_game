@@ -237,10 +237,11 @@ pub struct Weapon {
     pub range_calc: f32,
     pub deployed: bool,
     pub deploy_timer: f32,
+    pub ammo: Option<u32>,
 }
 
 impl Weapon {
-    pub fn new(name: WeaponNames, icon_entity: Entity, stats: WeaponStats) -> Weapon {
+    pub fn new(name: WeaponNames, icon_entity: Entity, stats: WeaponStats, ammo: Option<u32>) -> Weapon {
         Weapon {
             name,
             icon_entity,
@@ -255,6 +256,7 @@ impl Weapon {
             range_calc: calculate_range(stats.fire_stats),
             deployed: false,
             deploy_timer: 0.0,
+            ammo: ammo,
         }
     }
 }
@@ -264,6 +266,7 @@ impl Weapon {
 pub struct WeaponInstall {
     pub weapon: Weapon,
     pub firing_group: u8,
+    pub ammo: Option<u32>,
     pub mounted_angle: Option<f32>,
     pub x_offset: Option<f32>,
     pub y_offset: Option<f32>,
@@ -274,6 +277,7 @@ pub struct WeaponInstall {
 pub struct WeaponNameInstall {
     pub weapon_name: WeaponNames,
     pub firing_group: u8,
+    pub ammo: Option<u32>,
     pub mounted_angle: Option<f32>,
     pub x_offset: Option<f32>,
     pub y_offset: Option<f32>,
@@ -390,6 +394,7 @@ pub fn update_weapon_properties(
     weapon_array: &mut WeaponArray,
     weapon_array_id: usize,
     firing_group: u8,
+    ammo: Option<u32>,
     weapon_name: Option<WeaponNames>,
     weapon_store: &ReadExpect<WeaponStoreResource>,
     entities: &Entities,
@@ -447,7 +452,7 @@ pub fn update_weapon_properties(
 
 
         //update Weapon
-        let new_weapon = Weapon::new(weapon_name, icon_entity, new_weapon_stats);
+        let new_weapon = Weapon::new(weapon_name, icon_entity, new_weapon_stats, ammo);
 
         info!("{:?} {:?} {:?}", new_weapon.name, new_weapon.dps_calc, new_weapon.range_calc);
 
@@ -455,6 +460,7 @@ pub fn update_weapon_properties(
             weapon_array.installed.push(WeaponInstall{
                 weapon: new_weapon,
                 firing_group,
+                ammo,
                 mounted_angle: None,
                 x_offset: None,
                 y_offset: None,
@@ -464,6 +470,7 @@ pub fn update_weapon_properties(
             weapon_array.installed[weapon_array_id] = WeaponInstall{
                 weapon: new_weapon,
                 firing_group,
+                ammo,
                 mounted_angle: None,
                 x_offset: None,
                 y_offset: None,

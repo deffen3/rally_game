@@ -146,6 +146,7 @@ pub fn intialize_arena(
                 first_spawn_time: None,
                 spawn_time: None,
                 spawn_timer: None,
+                ammo: None,
                 hitbox: Hitbox::new(
                     20.0 * scale,
                     20.0 * scale,
@@ -230,6 +231,7 @@ pub fn intialize_arena(
                 first_spawn_time: None,
                 spawn_time: None,
                 spawn_timer: None,
+                ammo: None,
                 hitbox: Hitbox::new(
                     20.0 * scale,
                     20.0 * scale,
@@ -300,6 +302,7 @@ pub fn intialize_arena(
                 first_spawn_time: None,
                 spawn_time: None,
                 spawn_timer: None,
+                ammo: None,
                 hitbox: Hitbox::new(
                     width,
                     height,
