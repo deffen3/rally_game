@@ -233,7 +233,13 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                             weapon.burst_shots = 0;
                                         }
 
-                                        weapon.charge_timer = weapon.stats.charge_timer_reset;
+                                        weapon.charges += 1;
+                                        weapon.charge_timer = weapon.stats.charge_timer_reset 
+                                            - (weapon.charges as f32)*weapon.stats.charge_timer_decrease;
+                                            
+                                        if weapon.charge_timer < weapon.stats.charge_timer_decrease_min {
+                                            weapon.charge_timer = weapon.stats.charge_timer_decrease_min;
+                                        }
                                     }
                                     else {
                                         //out of ammo, some type UI interaction here?
@@ -250,6 +256,9 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                     }
                     else { //stopped firing, reset spin-up timer
                         weapon.spin_up_timer = weapon.stats.spin_up_timer_reset;
+
+                        weapon.charge_timer = weapon.stats.charge_timer_reset;
+                        weapon.charges = 0;
                     }
 
 
