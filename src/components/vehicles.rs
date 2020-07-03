@@ -13,7 +13,7 @@ use std::env::current_dir;
 
 use crate::components::{
     Armor, Health, Player, Repair, Shield, DurationDamage, 
-    WeaponNames, ArenaProperties
+    WeaponNames, WeaponNameInstall, ArenaProperties,
 };
 use crate::resources::GameModes;
 use crate::entities::ui::PlayerStatusText;
@@ -461,7 +461,7 @@ pub fn get_none_vehicle() -> VehicleStats {
         shield_radius: 0.0,
         heal_pulse_amount: 0.0,
         heal_pulse_rate: 0.0,
-        default_weapons: None,
+        default_weapons: vec![],
     }
 }
 
@@ -543,5 +543,5 @@ pub struct VehicleStats {
     pub shield_radius: f32,
     pub heal_pulse_amount: f32,
     pub heal_pulse_rate: f32,
-    pub default_weapons: Option<Vec<(u8,WeaponNames)>>,
+    pub default_weapons: Vec<WeaponNameInstall>,
 }

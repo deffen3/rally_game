@@ -20,7 +20,10 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
-    default_weapons: Some([(0, LaserDoubleGimballed), (1, ProjectileRapidFireTurret)]),
+    default_weapons: [
+      WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
+      WeaponNameInstall(firing_group: 1, weapon_name: ProjectileRapidFireTurret),
+    ],
   ),
   LightRacer : VehicleStats (
     display_name: "Light Racer",
@@ -43,7 +46,10 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
-    default_weapons: Some([(0, LaserDoubleGimballed), (1, BackwardsLaserSword)]),
+    default_weapons: [
+      WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
+      WeaponNameInstall(firing_group: 1, weapon_name: BackwardsLaserSword),
+    ],
   ),
   HeavyTank : VehicleStats (
     display_name: "Heavy Tank",
@@ -66,7 +72,11 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 17.0,
-    default_weapons: Some([(0, LaserDoubleGimballed), (0, LaserBeam), (1, ProjectileCannonFire)]),
+    default_weapons: [
+      WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
+      WeaponNameInstall(firing_group: 0, weapon_name: LaserBeam),
+      WeaponNameInstall(firing_group: 1, weapon_name: ProjectileCannonFire),
+    ],
   ),
   CivilianCruiser : VehicleStats (
     display_name: "Civilian Cruiser",
@@ -89,7 +99,7 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
-    default_weapons: None,
+    default_weapons: [],
   ),
   Interceptor : VehicleStats (
     display_name: "Interceptor",
@@ -112,7 +122,10 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 17.0,
-    default_weapons: Some([(0, LaserDoubleGimballed), (1, LaserBeam)]),
+    default_weapons: [
+      WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
+      WeaponNameInstall(firing_group: 1, weapon_name: LaserBeam),
+    ],
   ),
   TSpeeder : VehicleStats (
     display_name: "T-Speeder",
@@ -135,6 +148,8 @@
     shield_cooldown: 3.5,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
-    default_weapons: Some([(0, LaserDoubleGimballed)]),
+    default_weapons: [
+      WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
+    ],
   ),
 }

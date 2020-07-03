@@ -270,6 +270,16 @@ pub struct WeaponInstall {
 }
 
 
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct WeaponNameInstall {
+    pub weapon_name: WeaponNames,
+    pub firing_group: u8,
+    pub mounted_angle: Option<f32>,
+    pub x_offset: Option<f32>,
+    pub y_offset: Option<f32>,
+}
+
+
 
 #[derive(Clone)]
 pub struct WeaponArray {
