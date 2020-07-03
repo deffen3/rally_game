@@ -59,6 +59,7 @@ pub struct GameWeaponSetup {
     pub random_weapon_spawn_chances: Vec<(WeaponNames, f32)>,
     pub allow_map_specific_spawn_weapons: bool,
     pub keep_picked_up_weapons: bool,
+    pub new_ammo_on_respawn: bool,
 }
 
 

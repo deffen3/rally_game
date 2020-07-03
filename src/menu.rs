@@ -169,6 +169,7 @@ impl SimpleState for MainMenu {
                 random_weapon_spawn_chances: weapon_spawn_chances,
                 allow_map_specific_spawn_weapons: true,
                 keep_picked_up_weapons: false,
+                new_ammo_on_respawn: true,
             });
 
             world.insert(GameTeamSetup {

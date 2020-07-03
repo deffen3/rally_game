@@ -164,36 +164,43 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 );
 
                 //if just now respawned and state changed into VehicleState::Active
-                if vehicle.state == VehicleState::Active {
-                    if (game_weapon_setup.mode == GameWeaponMode::StarterAndPickup ||
-                        game_weapon_setup.mode == GameWeaponMode::CustomStarterAndPickup)
-                        && !game_weapon_setup.keep_picked_up_weapons 
-                    {
-                        if weapon_array.installed.len() >= 2 {
-                            let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
-
-                            vehicle.weapon_weight -= secondary_weapon.stats.weight;
-                            
-                            weapon_icons_old_map.insert(
-                                player.id,
-                                (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
-
-                            update_weapon_properties(
-                                &mut weapon_array,
-                                SECONDARY_WEAPON_INDEX,
-                                1,
-                                None,
-                                None,
-                                &weapon_store_resource,
-                                &entities,
-                                &weapon_fire_resource,
-                                player.id,
-                                &lazy_update,
-                            );
-
-                            
-                        } //else, hadn't picked up a weapon spawn box yet
+                if vehicle.state == VehicleState::Active 
+                    && (game_weapon_setup.mode == GameWeaponMode::StarterAndPickup ||
+                    game_weapon_setup.mode == GameWeaponMode::CustomStarterAndPickup)
+                    && !game_weapon_setup.keep_picked_up_weapons
+                {
+                    if game_weapon_setup.new_ammo_on_respawn {
+                        for weapon_install in weapon_array.installed.iter_mut() {
+                            if !weapon_install.ammo.is_none() {
+                                let mut weapon = &mut weapon_install.weapon;
+                                weapon.ammo = Some(weapon_install.ammo.unwrap());
+                            }
+                        }
                     }
+
+                    if weapon_array.installed.len() >= 2
+                    {
+                        let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+
+                        vehicle.weapon_weight -= secondary_weapon.stats.weight;
+                        
+                        weapon_icons_old_map.insert(
+                            player.id,
+                            (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
+
+                        update_weapon_properties(
+                            &mut weapon_array,
+                            SECONDARY_WEAPON_INDEX,
+                            1,
+                            None,
+                            None,
+                            &weapon_store_resource,
+                            &entities,
+                            &weapon_fire_resource,
+                            player.id,
+                            &lazy_update,
+                        );
+                    } //else, hadn't picked up a weapon spawn box yet
                 }
             }
             
