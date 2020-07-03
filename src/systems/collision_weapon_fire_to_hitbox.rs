@@ -308,8 +308,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     }
                 }
             } else if arena_element.is_weapon_box {
-                //delete old weapon_boxes
-                if self.weapon_spawner_cooldown_timer <= 0.0 {
+                //delete old weapon_boxes if they do not have their own spawn timer
+                if arena_element.spawn_time.is_none() && self.weapon_spawner_cooldown_timer <= 0.0 {
                     let _ = entities.delete(entity);
                 }
             }

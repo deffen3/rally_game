@@ -143,6 +143,9 @@ pub fn intialize_arena(
                 is_sprite: true,
                 sprite: 70,
                 sprite_scale: scale,
+                first_spawn_time: None,
+                spawn_time: None,
+                spawn_timer: None,
                 hitbox: Hitbox::new(
                     20.0 * scale,
                     20.0 * scale,
@@ -224,6 +227,9 @@ pub fn intialize_arena(
                 is_sprite: true,
                 sprite: 29,
                 sprite_scale: scale,
+                first_spawn_time: None,
+                spawn_time: None,
+                spawn_timer: None,
                 hitbox: Hitbox::new(
                     20.0 * scale,
                     20.0 * scale,
@@ -291,6 +297,9 @@ pub fn intialize_arena(
                 is_sprite: true,
                 sprite: 31,
                 sprite_scale: scale,
+                first_spawn_time: None,
+                spawn_time: None,
+                spawn_timer: None,
                 hitbox: Hitbox::new(
                     width,
                     height,

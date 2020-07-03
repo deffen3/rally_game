@@ -48,8 +48,8 @@ pub struct WeaponSpawnBox {
     pub x: f32,
     pub y: f32,
     pub weapon_name: Option<Vec<WeaponNames>>,
-    pub first_spawn_timer: Option<f32>,
-    pub spawn_timer: Option<f32>,
+    pub first_spawn_time: Option<f32>,
+    pub spawn_time: Option<f32>,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
@@ -114,6 +114,9 @@ pub struct ArenaElement {
     pub is_sprite: bool,
     pub sprite: usize,
     pub sprite_scale: f32,
+    pub first_spawn_time: Option<f32>,
+    pub spawn_time: Option<f32>,
+    pub spawn_timer: Option<f32>,
     pub hitbox: Hitbox,
 }
 
@@ -193,6 +196,9 @@ pub fn reform_weapon_spawn_box(spawn_box: WeaponSpawnBox) -> ArenaElement {
         is_sprite: false,
         sprite: 0,
         sprite_scale: 0.0,
+        first_spawn_time: spawn_box.first_spawn_time,
+        spawn_time: spawn_box.spawn_time,
+        spawn_timer: spawn_box.first_spawn_time,
         hitbox: Hitbox {
             width: 11.0,
             height: 11.0,
