@@ -86,9 +86,10 @@ There are various weapons with various properties, including:
 
 ## TODO:
 1. Game setup customization for Vehicles, Weapons, Arenas
-1. Load arena/race tracks from config file
 1. Better/unique weapon icons
 1. Re-write bot AI to use Behavior Tree
+1. Implement feature to play through a series of games, with best of 3, 5, or 7. Between each game enter the vehicle/weapon customization screen - call this the pit stop. 1st place has about 15s to change up their layout. 2nd place has 15s on top of that, etc...
+1. Implement controller support.
 1. Survival mode? Team of Humans vs. waves of bots? Support for teams in other modes?
 1. Capture the flag mode?
 1. Create a generic Hitbox component, and create hitbox detection functions - used for some entities, but not all
