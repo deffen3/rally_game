@@ -14,6 +14,7 @@ use std::f32::{consts::PI};
 use crate::components::{
     ArenaElement, ArenaNames, ArenaStoreResource, ArenaProperties,
     Hitbox, HitboxShape, RaceCheckpointType, reform_weapon_spawner,
+    ObstacleType,
 };
 
 use crate::resources::{
@@ -131,7 +132,7 @@ pub fn intialize_arena(
             .with(circle_transform)
             .with(circle_sprite_render)
             .with(ArenaElement {
-                is_wall: true,
+                obstacle_type: arena_circle.obstacle_type,
                 is_hill: false,
                 checkpoint: RaceCheckpointType::NotCheckpoint,
                 checkpoint_id: 0,
@@ -218,7 +219,7 @@ pub fn intialize_arena(
             .with(circle_transform)
             .with(circle_sprite_render)
             .with(ArenaElement {
-                is_wall: false,
+                obstacle_type: ObstacleType::Open,
                 is_hill: true,
                 checkpoint: RaceCheckpointType::NotCheckpoint,
                 checkpoint_id: 0,
@@ -291,7 +292,7 @@ pub fn intialize_arena(
             .with(checkpoint_line_transform)
             .with(checkpoint_line_sprite_render)
             .with(ArenaElement {
-                is_wall: false,
+                obstacle_type: ObstacleType::Open,
                 is_hill: false,
                 checkpoint: checkpoint_type,
                 checkpoint_id: idx as i32,

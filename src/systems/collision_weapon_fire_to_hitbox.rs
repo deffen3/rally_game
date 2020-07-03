@@ -23,7 +23,7 @@ use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
     vehicle_damage_model, ArenaElement, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
     WeaponFire, WeaponStoreResource, DurationDamage, WeaponNames,
-    ArenaStoreResource, ArenaProperties, ArenaNames,
+    ArenaStoreResource, ArenaProperties, ArenaNames, ObstacleType,
 };
 
 use crate::entities::{spawn_weapon_box_from_spawner, hit_spray, explosion_shockwave, chain_fire_weapon};
@@ -141,7 +141,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
         //weapon to non-moving hitbox collisions
         for (entity, mut arena_element, transform) in (&*entities, &mut arena_elements, &transforms).join() {
-            if arena_element.is_wall {
+            if arena_element.obstacle_type == ObstacleType::Wall {
                 let hitbox_x = transform.translation().x;
                 let hitbox_y = transform.translation().y;
 

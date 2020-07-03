@@ -24,7 +24,7 @@ use crate::components::{
     update_weapon_properties, vehicle_damage_model, BotMode, ArenaElement, HitboxShape, Player,
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, WeaponArray, WeaponStoreResource,
     determine_vehicle_weight, VehicleMovementType, DurationDamage, 
-    ArenaStoreResource, ArenaNames, ArenaProperties,
+    ArenaStoreResource, ArenaNames, ArenaProperties, ObstacleType,
 };
 
 use crate::entities::{malfunction_sparking, acceleration_spray};
@@ -1196,7 +1196,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 }
 
                 if hit {
-                    if arena_element.is_wall {
+                    if arena_element.obstacle_type == ObstacleType::Wall {
                         //let contact_depth = contact_data.unwrap().depth;
                         let contact_pt = contact_data.unwrap().world2;
 

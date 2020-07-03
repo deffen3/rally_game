@@ -29,6 +29,14 @@ pub enum RaceCheckpointType {
     Lap,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
+pub enum ObstacleType {
+    Open,
+    Wall,
+    Damage,
+    Slow
+}
+
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum EnemyNames {
@@ -70,6 +78,7 @@ pub struct EnemySpawnPoint {
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub struct ArenaCircle {
+    pub obstacle_type: ObstacleType,
     pub x: f32,
     pub y: f32,
     pub radius: f32,
@@ -77,6 +86,7 @@ pub struct ArenaCircle {
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub struct ArenaRectangle {
+    pub obstacle_type: ObstacleType,
     pub x: f32,
     pub y: f32,
     pub width: f32,
@@ -111,7 +121,7 @@ pub struct ArenaFloor {
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ArenaElement {
-    pub is_wall: bool,
+    pub obstacle_type: ObstacleType,
     pub is_hill: bool,
     pub checkpoint: RaceCheckpointType,
     pub checkpoint_id: i32,
@@ -196,7 +206,7 @@ pub fn build_arena_store(world: &mut World) {
 
 pub fn reform_weapon_spawner(spawner: WeaponBoxSpawner) -> ArenaElement {
     ArenaElement {
-        is_wall: false,
+        obstacle_type: ObstacleType::Open,
         is_hill: false,
         checkpoint: RaceCheckpointType::NotCheckpoint,
         checkpoint_id: 0,

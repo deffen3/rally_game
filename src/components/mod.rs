@@ -7,6 +7,7 @@ pub use self::arena::{
     ArenaElement, RaceCheckpointType, build_arena_store,
     WeaponBoxSpawner, WeaponBox, reform_weapon_spawner,
     ArenaNames, ArenaStoreResource, ArenaProperties,
+    ObstacleType,
 };
 pub use self::players::{BotMode, Player, PlayerWeaponIcon};
 pub use self::repair::Repair;
