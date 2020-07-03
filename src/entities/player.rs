@@ -15,7 +15,7 @@ use std::f32::consts::PI;
 use crate::components::{
     Player, PlayerWeaponIcon, 
     build_named_weapon_from_world, get_weapon_icon, WeaponArray, Weapon, WeaponNames,
-    Vehicle, VehicleStats, get_vehicle_sprites, get_weapon_width_height,
+    Vehicle, VehicleStats, get_vehicle_sprites, get_weapon_width_height, WeaponInstall,
     ArenaStoreResource, ArenaNames, ArenaProperties,
 };
 use crate::resources::{GameModeSetup, GameWeaponSetup, WeaponFireResource};
@@ -224,9 +224,9 @@ pub fn intialize_player(
 
     
     let mut total_weapon_weight = 0.0;
-    let mut weapon_array = [None, None, None, None];
+    let mut installed_weapons: Vec<WeaponInstall> = Vec::new();
 
-    for (firing_idx, weapon_name) in weapon_names.iter() {
+    for (firing_group, weapon_name) in weapon_names.iter() {
         let weapon_stats = build_named_weapon_from_world(weapon_name.clone(), world);
 
         //UI initial weapon icon
@@ -277,7 +277,13 @@ pub fn intialize_player(
 
 
         let weapon = Weapon::new(*weapon_name, weapon_icon, weapon_stats.clone());
-        weapon_array[0] = Some(weapon);
+        installed_weapons.push(WeaponInstall{
+            weapon,
+            firing_group: *firing_group,
+            mounted_angle: None,
+            x_offset: None,
+            y_offset: None,
+        });
         
         total_weapon_weight += weapon_stats.weight;
     }
@@ -298,7 +304,7 @@ pub fn intialize_player(
             total_weapon_weight,
         ))
         .with(WeaponArray {
-            weapons: weapon_array,
+            installed: installed_weapons,
         })
         .with(Player::new(player_index, team, is_bot))
         .build()

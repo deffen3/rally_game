@@ -17,7 +17,6 @@ use crate::components::PlayerWeaponIcon;
 use crate::resources::{GameWeaponSetup, WeaponFireResource};
 
 
-pub const WEAPON_ARRAY_SIZE: usize = 4;
 
 
 #[derive(Clone, Copy, Debug, PartialEq, Deserialize, Hash, Eq)]
@@ -261,10 +260,20 @@ impl Weapon {
 }
 
 
+#[derive(Clone)]
+pub struct WeaponInstall {
+    pub weapon: Weapon,
+    pub firing_group: u8,
+    pub mounted_angle: Option<f32>,
+    pub x_offset: Option<f32>,
+    pub y_offset: Option<f32>,
+}
+
+
 
 #[derive(Clone)]
 pub struct WeaponArray {
-    pub weapons: [Option<Weapon>; WEAPON_ARRAY_SIZE],
+    pub installed: Vec<WeaponInstall>,
 }
 
 impl Component for WeaponArray {
@@ -369,7 +378,8 @@ impl WeaponFire {
 
 pub fn update_weapon_properties(
     weapon_array: &mut WeaponArray,
-    weapon_index: usize,
+    weapon_array_id: usize,
+    firing_group: u8,
     weapon_name: Option<WeaponNames>,
     weapon_store: &ReadExpect<WeaponStoreResource>,
     entities: &Entities,
@@ -385,7 +395,7 @@ pub fn update_weapon_properties(
         //update UI icon
         let icon_entity: Entity = entities.create();
 
-        let x = -320. + (weapon_index as f32)*30.0;
+        let x = -320. + (weapon_array_id as f32)*30.0;
         let y = 45.;
         let dx = 250.;
 
@@ -418,7 +428,7 @@ pub fn update_weapon_properties(
         // You can change the color at any point to modify the sprite's tint.
         let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
 
-        lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_index, weapon_fire_type));
+        lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_array_id, weapon_fire_type));
         lazy_update.insert(icon_entity, UiImage::Sprite(weapon_sprite));
         lazy_update.insert(icon_entity, icon_weapon_transform);
         lazy_update.insert(icon_entity, icon_tint);
@@ -431,19 +441,31 @@ pub fn update_weapon_properties(
 
         info!("{:?} {:?} {:?}", new_weapon.name, new_weapon.dps_calc, new_weapon.range_calc);
 
-        if weapon_index >= WEAPON_ARRAY_SIZE {
-            weapon_array.weapons[WEAPON_ARRAY_SIZE-1] = Some(new_weapon);
+        if weapon_array_id >= weapon_array.installed.len() {
+            weapon_array.installed.push(WeaponInstall{
+                weapon: new_weapon,
+                firing_group,
+                mounted_angle: None,
+                x_offset: None,
+                y_offset: None,
+            });
         }
         else {
-            weapon_array.weapons[weapon_index] = Some(new_weapon);
+            weapon_array.installed[weapon_array_id] = WeaponInstall{
+                weapon: new_weapon,
+                firing_group,
+                mounted_angle: None,
+                x_offset: None,
+                y_offset: None,
+            };
         }
     }
     else {
-        if weapon_index >= WEAPON_ARRAY_SIZE {
-            weapon_array.weapons[WEAPON_ARRAY_SIZE-1] = None;
+        if weapon_array_id >= weapon_array.installed.len() { //weapon already removed
+
         }
         else {
-            weapon_array.weapons[weapon_index] = None;
+            weapon_array.installed.remove(weapon_array_id); //remove weapon at this index
         }
     }
 }

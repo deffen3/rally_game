@@ -781,7 +781,9 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
             if let Some(killer_data) = killer_data {
                 let weapon_name = killer_data;
 
-                if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                if weapon_array.installed.len() > 0 {
+                    let primary_weapon = &weapon_array.installed[0].weapon;
+
                     //classic gun-game rules: hot-swap upgrade weapon type for player who got the kill
                     if game_mode_setup.game_mode == GameModes::ClassicGunGame
                         && *weapon_name == primary_weapon.name.clone()
@@ -872,7 +874,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
             (&mut players, &mut weapon_arrays, &mut vehicles).join()
         {
 
-            if let Some(primary_weapon) = &weapon_array.weapons[0] {
+            if weapon_array.installed.len() > 0 {
+                let primary_weapon = &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
                 //Update kills from duration damage effects
                 let kills_data = player_earned_duration_damage_kill.get(&(player.id, primary_weapon.name));
 
@@ -899,6 +902,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
                         update_weapon_properties(
                             &mut weapon_array,
+                            PRIMARY_WEAPON_INDEX,
                             0,
                             Some(new_weapon_name),
                             &weapon_store_resource,
@@ -908,8 +912,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                             &lazy_update,
                         );
 
-                        if let Some(new_primary_weapon) = &weapon_array.weapons[0] {
-                            vehicle.weapon_weight = new_primary_weapon.stats.weight;
+                        if weapon_array.installed.len() > 0 {
+                            vehicle.weapon_weight = weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon.stats.weight;
                         }
                     } //else, keep current weapon installed, no kill in this mode
                 }

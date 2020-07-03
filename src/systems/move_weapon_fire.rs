@@ -123,35 +123,34 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                             let vehicle_rotation = vehicle_transform.rotation();
                             let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-                            for (weapon_idx, weapon) in weapon_array.weapons.iter().enumerate() {
-                                if let Some(weapon) = weapon {
+                            for (weapon_idx, weapon_install) in weapon_array.installed.iter().enumerate() {
+                                let weapon = &weapon_install.weapon;
 
-                                    //undeploy old attached weapons
-                                    if weapon_fire.weapon_array_id == weapon_idx 
-                                            && weapon.name != weapon_fire.weapon_name {
-                                        weapon_fire.deployed = false;
-                                    }
-
-                                    if weapon.name == weapon_fire.weapon_name && weapon.stats.fire_stats.attached {
-                                        //pass on deployed status
-                                        if weapon.deployed == false {
-                                            weapon_fire.deployed = false;
-                                            let _ = entities.delete(entity);
-                                        }
-                                        else if weapon.deployed == true {
-                                            weapon_fire.deployed = true;
-                                        }
-                                    }
-
-                                    vehicle_owner_map.insert(
-                                        weapon_fire.owner_player_id,
-                                        (
-                                            vehicle_transform.translation().x,
-                                            vehicle_transform.translation().y,
-                                            yaw,
-                                        ),
-                                    );
+                                //undeploy old attached weapons
+                                if weapon_fire.weapon_array_id == weapon_idx 
+                                        && weapon.name != weapon_fire.weapon_name {
+                                    weapon_fire.deployed = false;
                                 }
+
+                                if weapon.name == weapon_fire.weapon_name && weapon.stats.fire_stats.attached {
+                                    //pass on deployed status
+                                    if weapon.deployed == false {
+                                        weapon_fire.deployed = false;
+                                        let _ = entities.delete(entity);
+                                    }
+                                    else if weapon.deployed == true {
+                                        weapon_fire.deployed = true;
+                                    }
+                                }
+
+                                vehicle_owner_map.insert(
+                                    weapon_fire.owner_player_id,
+                                    (
+                                        vehicle_transform.translation().x,
+                                        vehicle_transform.translation().y,
+                                        yaw,
+                                    ),
+                                );
                             }
                         }
                     }

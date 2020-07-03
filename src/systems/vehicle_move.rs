@@ -29,7 +29,7 @@ use crate::components::{
 
 use crate::entities::{malfunction_sparking, acceleration_spray};
 
-use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource, GameWeaponMode};
 
 use crate::rally::{
     BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
@@ -165,25 +165,33 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 //if just now respawned and state changed into VehicleState::Active
                 if vehicle.state == VehicleState::Active {
-                    if game_weapon_setup.random_weapon_spawns && !game_weapon_setup.keep_picked_up_weapons {
-                        if let Some(secondary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
+                    if (game_weapon_setup.mode == GameWeaponMode::StarterAndPickup ||
+                        game_weapon_setup.mode == GameWeaponMode::CustomStarterAndPickup)
+                        && !game_weapon_setup.keep_picked_up_weapons 
+                    {
+                        if weapon_array.installed.len() >= 2 {
+                            let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+
+                            vehicle.weapon_weight -= secondary_weapon.stats.weight;
+                            
                             weapon_icons_old_map.insert(
                                 player.id,
                                 (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
-                        }
 
-                        update_weapon_properties(
-                            &mut weapon_array,
-                            SECONDARY_WEAPON_INDEX,
-                            None,
-                            &weapon_store_resource,
-                            &entities,
-                            &weapon_fire_resource,
-                            player.id,
-                            &lazy_update,
-                        );
+                            update_weapon_properties(
+                                &mut weapon_array,
+                                SECONDARY_WEAPON_INDEX,
+                                1,
+                                None,
+                                &weapon_store_resource,
+                                &entities,
+                                &weapon_fire_resource,
+                                player.id,
+                                &lazy_update,
+                            );
 
-                        vehicle.weapon_weight = 0.0;
+                            
+                        } //else, hadn't picked up a weapon spawn box yet
                     }
                 }
             }
@@ -335,7 +343,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
                                     && player.bot_move_cooldown < 0.0
                                 {
-                                    if let Some(primary_weapon) = &weapon_array.weapons[0] {
+                                    if weapon_array.installed.len() > 0 {
+                                        let primary_weapon = &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
                                         //change modes to attack
                                         if primary_weapon.stats.fire_stats.attached {
                                             //Typically just LaserSword
@@ -513,7 +522,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 }
                                 else {
                                     //closest vehicle is out of current weapon range though
-                                    if let Some(primary_weapon) = &weapon_array.weapons[PRIMARY_WEAPON_INDEX] {
+                                    if weapon_array.installed.len() > 0 { 
+                                        let primary_weapon = &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
                                         if dist_to_closest_vehicle > primary_weapon.range_calc {
                                             player.bot_mode = BotMode::Chasing;
                                             debug!("{} Chasing", player.id);
@@ -570,7 +580,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             if let Some(attack_angle) = vehicle.angle_to_closest_vehicle {
                                 let turn_value = 1.0;
 
-                                if let Some(primary_weapon) = &weapon_array.weapons[PRIMARY_WEAPON_INDEX] {
+                                if weapon_array.installed.len() > 0 {
+                                    let primary_weapon = &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
                                     //Prepare magnitude of Turning and Acceleration input
                                     if player.bot_mode == BotMode::Swording {
                                         if primary_weapon.stats.fire_stats.mount_angle_special_offset > PI / 2.0
@@ -1235,14 +1246,19 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             let new_weapon_name = get_random_weapon_name(&game_weapon_setup);
 
-                            if let Some(primary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
+                            if weapon_array.installed.len() >= 2 {
+                                let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+
+                                vehicle.weapon_weight -= secondary_weapon.stats.weight;
+
                                 weapon_icons_old_map.insert(player.id,
-                                    (SECONDARY_WEAPON_INDEX, primary_weapon.stats.weapon_fire_type.clone()));
+                                    (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
                             }
 
                             update_weapon_properties(
                                 &mut weapon_array,
                                 SECONDARY_WEAPON_INDEX,
+                                1,
                                 Some(new_weapon_name),
                                 &weapon_store_resource,
                                 &entities,
@@ -1251,11 +1267,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 &lazy_update,
                             );
 
-                            if let Some(new_primary_weapon) = &weapon_array.weapons[SECONDARY_WEAPON_INDEX] {
-                                vehicle.weapon_weight = new_primary_weapon.stats.weight;
-                            }
-                            else {
-                                vehicle.weapon_weight = 0.0;
+                            if weapon_array.installed.len() >= 2 {
+                                let new_secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+                                vehicle.weapon_weight += new_secondary_weapon.stats.weight;
                             }
                         } else if arena_element.is_hill {
                             players_on_hill.push(player.id.clone());

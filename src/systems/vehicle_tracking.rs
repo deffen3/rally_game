@@ -25,7 +25,10 @@ impl<'s> System<'s> for VehicleTrackingSystem {
         for (player1, _vehicle1, vehicle1_transform, weapon_array) in
             (&players, &vehicles, &transforms, &weapon_arrays).join()
         {
-            if let Some(primary_weapon) = &weapon_array.weapons[0] {
+
+            if weapon_array.installed.len() > 0 {
+                let primary_weapon = &weapon_array.installed[0].weapon;
+
                 let mut closest_vehicle_dist: Option<f32> = None;
                 let mut closest_vehicle_target_angle: Option<f32> = None;
 
@@ -37,8 +40,17 @@ impl<'s> System<'s> for VehicleTrackingSystem {
 
                 let (_, _, vehicle_angle) = vehicle1_transform.rotation().euler_angles();
 
+                let install_mounted_angle;
+                if weapon_array.installed[0].mounted_angle.is_none() {
+                    install_mounted_angle = 0.0;
+                }
+                else {
+                    install_mounted_angle = weapon_array.installed[0].mounted_angle.unwrap();
+                }
+
                 //typical angle this weapon should fire at
-                let standard_angle = vehicle_angle + primary_weapon.stats.fire_stats.mount_angle_special_offset;
+                let standard_angle = vehicle_angle + install_mounted_angle + 
+                    primary_weapon.stats.fire_stats.mount_angle_special_offset;
 
                 for (player2, vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join()
                 {
@@ -71,10 +83,12 @@ impl<'s> System<'s> for VehicleTrackingSystem {
                         //...and closest targetable vehicle
                         let mut angle_diff = standard_angle - target_angle;
 
-                        if angle_diff > PI {
-                            angle_diff = -(2.0 * PI - angle_diff);
-                        } else if angle_diff < -PI {
-                            angle_diff = -(-2.0 * PI - angle_diff);
+                        while angle_diff > PI || angle_diff < -PI {
+                            if angle_diff > PI {
+                                angle_diff = -(2.0 * PI - angle_diff);
+                            } else if angle_diff < -PI {
+                                angle_diff = -(-2.0 * PI - angle_diff);
+                            }
                         }
 
                         let targetable;
