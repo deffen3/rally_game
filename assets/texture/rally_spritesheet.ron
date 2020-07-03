@@ -422,9 +422,15 @@ List((
             width: 1,
             height: 1,
         ),
-        ( //arena circle high-res #70
+        ( //arena circle wall high-res #70
             x: 130,
             y: 1,
+            width: 40,
+            height: 40,
+        ),
+        ( //arena rect wall high-res #71
+            x: 130,
+            y: 42,
             width: 40,
             height: 40,
         ),

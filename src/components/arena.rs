@@ -154,7 +154,7 @@ pub struct ArenaProperties {
     pub height: f32,
     pub floor: Vec<ArenaFloor>,
     pub arena_circles: Vec<ArenaCircle>,
-    pub arena_rectangles: Vec<ArenaRectangle>, //not implemented yet
+    pub arena_rectangles: Vec<ArenaRectangle>,
     pub weapon_spawners: Vec<WeaponBoxSpawner>,
     pub king_hills: Vec<ArenaKingHill>,
     pub race_checkpoints: Vec<ArenaRaceCheckpoint>,

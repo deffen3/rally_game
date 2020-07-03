@@ -110,16 +110,104 @@ pub fn intialize_arena(
     }
 
 
+
+    //Arena Rectangles
+    for arena_rect in arena_properties.arena_rectangles.iter() {
+        let sprite_scale_mult = 20.0;
+        let x_scale = arena_rect.width/2.0 / sprite_scale_mult;
+        let y_scale = arena_rect.height/2.0 / sprite_scale_mult;
+
+        //add visual sprite
+        let mut circle_transform = Transform::default();
+        
+        circle_transform.set_translation_xyz(arena_rect.x, arena_rect.y, 0.38);
+        circle_transform.set_scale(Vector3::new(x_scale, y_scale, 0.0));
+
+        let circle_sprite_render = SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 71,
+        };
+
+        world
+            .create_entity()
+            .with(Removal::new(0 as u32))
+            .with(circle_transform)
+            .with(circle_sprite_render)
+            .with(ArenaElement {
+                obstacle_type: arena_rect.obstacle_type,
+                is_hill: false,
+                checkpoint: RaceCheckpointType::NotCheckpoint,
+                checkpoint_id: 0,
+                is_weapon_box: false,
+                is_spawn_point: false,
+                is_weapon_spawn_point: false,
+                x: arena_rect.x,
+                y: arena_rect.y,
+                z: 0.0,
+                is_sprite: true,
+                sprite: 71,
+                sprite_scale: x_scale,
+                weapon_names: None,
+                first_spawn_time: None,
+                spawn_time: None,
+                spawn_timer: None,
+                ammo: None,
+                hitbox: Hitbox::new(
+                    2.0*sprite_scale_mult * x_scale,
+                    2.0*sprite_scale_mult * y_scale,
+                    0.0,
+                    HitboxShape::Rectangle,
+                )
+            })
+            .build();        
+        
+        //setup nav mesh grid
+        let x_offset = sprite_scale_mult*x_scale + nav_mesh_offset;
+    
+        let xr_minus = (arena_rect.x - x_offset).round();
+        let xr_plus = (arena_rect.x + x_offset).round();
+
+        let xr_minus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_minus);
+        let xr_plus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_plus);
+
+        if xr_minus_find_index.is_none() {
+            nav_mesh_grid_xs.push(xr_minus);
+        }
+        if xr_plus_find_index.is_none() {
+            nav_mesh_grid_xs.push(xr_plus);
+        }
+
+
+        let y_offset = sprite_scale_mult*y_scale + nav_mesh_offset;
+
+        let yr_minus = (arena_rect.y - y_offset).round();
+        let yr_plus = (arena_rect.y + y_offset).round();
+
+        let yr_minus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_minus);
+        let yr_plus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_plus);
+
+        if yr_minus_find_index.is_none() {
+            nav_mesh_grid_ys.push(yr_minus);
+        }
+        if yr_plus_find_index.is_none() {
+            nav_mesh_grid_ys.push(yr_plus);
+        }
+
+
+        nav_mesh_grid_drop.push((xr_minus, xr_plus, yr_minus, yr_plus));
+    }
+
+
     //Arena Circles
     for arena_circle in arena_properties.arena_circles.iter() {
-        let sprite_scale_mult = 10.0;
+        let sprite_scale_mult = 20.0;
         let scale = arena_circle.radius / sprite_scale_mult;
 
         //add visual sprite
         let mut circle_transform = Transform::default();
         
         circle_transform.set_translation_xyz(arena_circle.x, arena_circle.y, 0.38);
-        circle_transform.set_scale(Vector3::new(scale/2.0, scale/2.0, 0.0));
+        circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
         let circle_sprite_render = SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),
@@ -151,8 +239,8 @@ pub fn intialize_arena(
                 spawn_timer: None,
                 ammo: None,
                 hitbox: Hitbox::new(
-                    20.0 * scale,
-                    20.0 * scale,
+                    2.0*sprite_scale_mult * scale,
+                    2.0*sprite_scale_mult * scale,
                     0.0,
                     HitboxShape::Circle,
                 )
