@@ -12,11 +12,11 @@
     ],
     arena_circles: [],
     arena_rectangles: [],
-    weapon_spawn_boxes: [
-        WeaponSpawnBox (x: 133.0, y: 133.0, weapon_name: None),
-        WeaponSpawnBox (x: 133.0, y: 267.0, weapon_name: None),
-        WeaponSpawnBox (x: 267.0, y: 133.0, weapon_name: None),
-        WeaponSpawnBox (x: 267.0, y: 267.0, weapon_name: None),
+    weapon_spawners: [
+        WeaponBoxSpawner (x: 133.0, y: 133.0),
+        WeaponBoxSpawner (x: 133.0, y: 267.0),
+        WeaponBoxSpawner (x: 267.0, y: 133.0),
+        WeaponBoxSpawner (x: 267.0, y: 267.0),
     ],
     king_hills: [],
     race_checkpoints: [],
@@ -49,11 +49,11 @@
         ArenaCircle (x:200.0, y:320.0, radius:20.0),
     ],
     arena_rectangles: [],
-    weapon_spawn_boxes: [
-        WeaponSpawnBox (x: 133.0, y: 133.0, weapon_name: None),
-        WeaponSpawnBox (x: 133.0, y: 267.0, weapon_name: None),
-        WeaponSpawnBox (x: 267.0, y: 133.0, weapon_name: None),
-        WeaponSpawnBox (x: 267.0, y: 267.0, weapon_name: None),
+    weapon_spawners: [
+        WeaponBoxSpawner (x: 133.0, y: 133.0),
+        WeaponBoxSpawner (x: 133.0, y: 267.0),
+        WeaponBoxSpawner (x: 267.0, y: 133.0),
+        WeaponBoxSpawner (x: 267.0, y: 267.0),
     ],
     king_hills: [],
     race_checkpoints: [],
@@ -94,11 +94,11 @@
         ArenaCircle (x:145.0, y:145.0, radius:10.0),
     ],
     arena_rectangles: [],
-    weapon_spawn_boxes: [
-        WeaponSpawnBox (x: 120.0, y: 120.0, weapon_name: None),
-        WeaponSpawnBox (x: 120.0, y: 280.0, weapon_name: None),
-        WeaponSpawnBox (x: 280.0, y: 120.0, weapon_name: None),
-        WeaponSpawnBox (x: 280.0, y: 280.0, weapon_name: None),
+    weapon_spawners: [
+        WeaponBoxSpawner (x: 120.0, y: 120.0),
+        WeaponBoxSpawner (x: 120.0, y: 280.0),
+        WeaponBoxSpawner (x: 280.0, y: 120.0),
+        WeaponBoxSpawner (x: 280.0, y: 280.0),
     ],
     king_hills: [
         ArenaKingHill (x:200.0, y:200.0, radius:40.0),
@@ -138,11 +138,11 @@
         ArenaCircle (x:200.0, y:380.0, radius:40.0),
     ],
     arena_rectangles: [],
-    weapon_spawn_boxes: [
-        WeaponSpawnBox (x: 80.0, y: 120.0, weapon_name: None),
-        WeaponSpawnBox (x: 80.0, y: 320.0, weapon_name: None),
-        WeaponSpawnBox (x: 320.0, y: 80.0, weapon_name: None),
-        WeaponSpawnBox (x: 320.0, y: 320.0, weapon_name: None),
+    weapon_spawners: [
+        WeaponBoxSpawner (x: 80.0, y: 120.0),
+        WeaponBoxSpawner (x: 80.0, y: 320.0),
+        WeaponBoxSpawner (x: 320.0, y: 80.0),
+        WeaponBoxSpawner (x: 320.0, y: 320.0),
     ],
     king_hills: [],
     race_checkpoints: [
@@ -178,11 +178,11 @@
         ArenaCircle (x:100.0, y:160.0, radius:10.0),
     ],
     arena_rectangles: [],
-    weapon_spawn_boxes: [
-        WeaponSpawnBox (x: 67.0, y: 67.0, weapon_name: None),
-        WeaponSpawnBox (x: 67.0, y: 133.0, weapon_name: None),
-        WeaponSpawnBox (x: 133.0, y: 67.0, weapon_name: None),
-        WeaponSpawnBox (x: 133.0, y: 133.0, weapon_name: None),
+    weapon_spawners: [
+        WeaponBoxSpawner (x: 67.0, y: 67.0),
+        WeaponBoxSpawner (x: 67.0, y: 133.0),
+        WeaponBoxSpawner (x: 133.0, y: 67.0),
+        WeaponBoxSpawner (x: 133.0, y: 133.0),
     ],
     king_hills: [],
     race_checkpoints: [],
@@ -229,11 +229,11 @@
         ArenaCircle (x:820, y:250.0, radius:40.0),
     ],
     arena_rectangles: [],
-    weapon_spawn_boxes: [
-        WeaponSpawnBox (x: 450.0, y: 100.0, weapon_name: None),
-        WeaponSpawnBox (x: 450.0, y: 200.0, weapon_name: None),
-        WeaponSpawnBox (x: 450.0, y: 300.0, weapon_name: None),
-        WeaponSpawnBox (x: 450.0, y: 400.0, weapon_name: None),
+    weapon_spawners: [
+        WeaponBoxSpawner (x: 450.0, y: 100.0),
+        WeaponBoxSpawner (x: 450.0, y: 200.0),
+        WeaponBoxSpawner (x: 450.0, y: 300.0),
+        WeaponBoxSpawner (x: 450.0, y: 400.0),
     ],
     king_hills: [],
     race_checkpoints: [],

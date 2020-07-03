@@ -44,12 +44,20 @@ pub struct PlayerSpawnPoint {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
-pub struct WeaponSpawnBox {
+pub struct WeaponBoxSpawner {
     pub x: f32,
     pub y: f32,
-    pub weapon_name: Option<Vec<WeaponNames>>,
+    pub weapon_names: Option<Vec<(WeaponNames, u32)>>,
     pub first_spawn_time: Option<f32>,
     pub spawn_time: Option<f32>,
+    pub ammo: Option<u32>,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct WeaponBox {
+    pub x: f32,
+    pub y: f32,
+    pub weapon_names: Option<Vec<(WeaponNames, u32)>>,
     pub ammo: Option<u32>,
 }
 
@@ -101,7 +109,7 @@ pub struct ArenaFloor {
 
 
 
-#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ArenaElement {
     pub is_wall: bool,
     pub is_hill: bool,
@@ -109,12 +117,14 @@ pub struct ArenaElement {
     pub checkpoint_id: i32,
     pub is_weapon_box: bool,
     pub is_spawn_point: bool,
+    pub is_weapon_spawn_point: bool,
     pub x: f32,
     pub y: f32,
     pub z: f32,
     pub is_sprite: bool,
     pub sprite: usize,
     pub sprite_scale: f32,
+    pub weapon_names: Option<Vec<(WeaponNames, u32)>>,
     pub first_spawn_time: Option<f32>,
     pub spawn_time: Option<f32>,
     pub spawn_timer: Option<f32>,
@@ -135,7 +145,7 @@ pub struct ArenaProperties {
     pub floor: Vec<ArenaFloor>,
     pub arena_circles: Vec<ArenaCircle>,
     pub arena_rectangles: Vec<ArenaRectangle>, //not implemented yet
-    pub weapon_spawn_boxes: Vec<WeaponSpawnBox>,
+    pub weapon_spawners: Vec<WeaponBoxSpawner>,
     pub king_hills: Vec<ArenaKingHill>,
     pub race_checkpoints: Vec<ArenaRaceCheckpoint>,
     pub player_spawn_points: Vec<PlayerSpawnPoint>,
@@ -184,7 +194,36 @@ pub fn build_arena_store(world: &mut World) {
 
 
 
-pub fn reform_weapon_spawn_box(spawn_box: WeaponSpawnBox) -> ArenaElement {
+pub fn reform_weapon_spawner(spawner: WeaponBoxSpawner) -> ArenaElement {
+    ArenaElement {
+        is_wall: false,
+        is_hill: false,
+        checkpoint: RaceCheckpointType::NotCheckpoint,
+        checkpoint_id: 0,
+        is_weapon_box: false,
+        is_spawn_point: false,
+        is_weapon_spawn_point: true,
+        x: spawner.x,
+        y: spawner.y,
+        z: 0.0,
+        is_sprite: false,
+        sprite: 0,
+        sprite_scale: 0.0,
+        weapon_names: None,
+        first_spawn_time: spawner.first_spawn_time,
+        spawn_time: spawner.spawn_time,
+        spawn_timer: spawner.first_spawn_time,
+        ammo: spawner.ammo,
+        hitbox: Hitbox {
+            width: 11.0,
+            height: 11.0,
+            angle: 0.0,
+            shape: HitboxShape::Rectangle,
+        },
+    }
+}
+
+pub fn reform_weapon_spawn_box(spawn_box: WeaponBox) -> ArenaElement {
     ArenaElement {
         is_wall: false,
         is_hill: false,
@@ -192,15 +231,17 @@ pub fn reform_weapon_spawn_box(spawn_box: WeaponSpawnBox) -> ArenaElement {
         checkpoint_id: 0,
         is_weapon_box: true,
         is_spawn_point: false,
+        is_weapon_spawn_point: false,
         x: spawn_box.x,
         y: spawn_box.y,
         z: 0.0,
         is_sprite: false,
         sprite: 0,
         sprite_scale: 0.0,
-        first_spawn_time: spawn_box.first_spawn_time,
-        spawn_time: spawn_box.spawn_time,
-        spawn_timer: spawn_box.first_spawn_time,
+        weapon_names: spawn_box.weapon_names,
+        first_spawn_time: None,
+        spawn_time: None,
+        spawn_timer: None,
         ammo: spawn_box.ammo,
         hitbox: Hitbox {
             width: 11.0,

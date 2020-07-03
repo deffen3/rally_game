@@ -47,18 +47,61 @@ pub enum WeaponNames {
 
 
 //For when picking up weapon spawn boxes, or other random weapon selections
-pub fn get_random_weapon_name(game_setup: &ReadExpect<GameWeaponSetup>) -> WeaponNames {
+//This one is built to use pre-made chance lists
+pub fn get_random_weapon_name(
+    random_weapon_spawn_chances: &Vec<(WeaponNames, f32)>,
+) -> Option<WeaponNames> {
     let mut rng = rand::thread_rng();
     let chance_selector = rng.gen_range(0.0, 1.0);
 
-    let mut weapon_selector = game_setup.starter_weapon.clone();
+    let mut weapon_selector = None;
 
-    for (weapon_name, chance) in game_setup.random_weapon_spawn_chances.iter() {
+    for (weapon_name, chance) in random_weapon_spawn_chances.iter() {
         if *chance >= chance_selector {
             break; //stay on previously selected weapon
         }
         else {
-            weapon_selector = weapon_name.clone();
+            weapon_selector = Some(weapon_name.clone()); //keep setting selected weapon, until break
+        }
+    }
+
+    weapon_selector
+}
+
+//This one can build the chance list on the fly from the relative chance list
+pub fn get_random_weapon_name_build_chance(
+    random_weapon_spawn_relative_chance: &Option<Vec<(WeaponNames, u32)>>,
+) -> Option<WeaponNames> {
+    let mut weapon_selector = None;
+
+    if let Some(random_weapon_spawn_relative_chance) = random_weapon_spawn_relative_chance {
+        let mut rng = rand::thread_rng();
+        let chance_selector = rng.gen_range(0.0, 1.0);
+
+        let mut chance_total: u32 = 0;
+
+        for (weapon_name, value) in random_weapon_spawn_relative_chance.iter() {
+            chance_total += value;
+        }
+
+        let mut chance_aggregate: f32 = 0.0;
+        let mut weapon_spawn_chances = vec![];
+
+        for (weapon_name, value) in random_weapon_spawn_relative_chance.iter() {
+            if *value > 0 {
+                weapon_spawn_chances.push((weapon_name.clone(), chance_aggregate));
+
+                chance_aggregate += (*value as f32) / (chance_total as f32);
+            }
+        }
+
+        for (weapon_name, chance) in weapon_spawn_chances.iter() {
+            if *chance >= chance_selector {
+                break; //stay on previously selected weapon
+            }
+            else {
+                weapon_selector = Some(weapon_name.clone()); //keep setting selected weapon, until break
+            }
         }
     }
 

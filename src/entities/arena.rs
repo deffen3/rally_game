@@ -13,7 +13,7 @@ use std::f32::{consts::PI};
 
 use crate::components::{
     ArenaElement, ArenaNames, ArenaStoreResource, ArenaProperties,
-    Hitbox, HitboxShape, RaceCheckpointType
+    Hitbox, HitboxShape, RaceCheckpointType, reform_weapon_spawner,
 };
 
 use crate::resources::{
@@ -137,12 +137,14 @@ pub fn intialize_arena(
                 checkpoint_id: 0,
                 is_weapon_box: false,
                 is_spawn_point: false,
+                is_weapon_spawn_point: false,
                 x: arena_circle.x,
                 y: arena_circle.y,
                 z: 0.0,
                 is_sprite: true,
                 sprite: 70,
                 sprite_scale: scale,
+                weapon_names: None,
                 first_spawn_time: None,
                 spawn_time: None,
                 spawn_timer: None,
@@ -222,12 +224,14 @@ pub fn intialize_arena(
                 checkpoint_id: 0,
                 is_weapon_box: false,
                 is_spawn_point: false,
+                is_weapon_spawn_point: false,
                 x: king_hill.x,
                 y: king_hill.y,
                 z: 0.0,
                 is_sprite: true,
                 sprite: 29,
                 sprite_scale: scale,
+                weapon_names: None,
                 first_spawn_time: None,
                 spawn_time: None,
                 spawn_timer: None,
@@ -293,12 +297,14 @@ pub fn intialize_arena(
                 checkpoint_id: idx as i32,
                 is_weapon_box: false,
                 is_spawn_point: false,
+                is_weapon_spawn_point: false,
                 x: race_checkpoint.x,
                 y: race_checkpoint.y,
                 z: 0.0,
                 is_sprite: true,
                 sprite: 31,
                 sprite_scale: scale,
+                weapon_names: None,
                 first_spawn_time: None,
                 spawn_time: None,
                 spawn_timer: None,
@@ -312,6 +318,18 @@ pub fn intialize_arena(
             })
             .build();
     }
+
+
+    //Add non-mesh Arena items
+
+    for weapon_spawner in arena_properties.weapon_spawners.iter() {
+        world
+            .create_entity()
+            .with(Removal::new(0 as u32))
+            .with(reform_weapon_spawner((*weapon_spawner).clone()))
+            .build();
+    }
+
 
 
     //Build navigation mesh from grid

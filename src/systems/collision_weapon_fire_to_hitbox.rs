@@ -6,13 +6,13 @@ use amethyst::{
     derive::SystemDesc,
     ecs::{
         Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
-        WriteStorage, Entity,
+        WriteStorage,
     },
-    utils::removal::Removal,
 };
 
 use std::f32::consts::PI;
 use std::collections::HashMap;
+use rand::Rng;
 
 extern crate nalgebra as na;
 use na::{Isometry2, Vector2, Point2};
@@ -23,10 +23,10 @@ use crate::components::{
     get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
     vehicle_damage_model, ArenaElement, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
     WeaponFire, WeaponStoreResource, DurationDamage, WeaponNames,
-    ArenaStoreResource, ArenaProperties, ArenaNames, reform_weapon_spawn_box,
+    ArenaStoreResource, ArenaProperties, ArenaNames,
 };
 
-use crate::entities::{spawn_random_weapon_boxes, hit_spray, explosion_shockwave, chain_fire_weapon};
+use crate::entities::{spawn_weapon_box_from_spawner, hit_spray, explosion_shockwave, chain_fire_weapon};
 
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
@@ -45,14 +45,14 @@ const PRIMARY_WEAPON_INDEX: usize = 0;
 pub struct CollisionWeaponFireHitboxSystem {
     pub hit_sound_cooldown_timer: f32,
     pub hit_spray_cooldown_timer: f32,
-    pub weapon_spawner_cooldown_timer: f32,
     pub arena_properties: ArenaProperties,
+    pub global_weapon_spawner_cooldown_timer: f32,
 }
 
 impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
     type SystemData = (
         Entities<'s>,
-        ReadStorage<'s, ArenaElement>,
+        WriteStorage<'s, ArenaElement>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Player>,
         ReadStorage<'s, PlayerWeaponIcon>,
@@ -77,10 +77,10 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         let fetched_game_weapon_setup = world.try_fetch::<GameWeaponSetup>();
 
         if let Some(game_weapon_setup) = fetched_game_weapon_setup {
-            self.weapon_spawner_cooldown_timer = game_weapon_setup.random_weapon_spawn_first_timer;
+            self.global_weapon_spawner_cooldown_timer = game_weapon_setup.random_weapon_spawn_first_timer;
         }
         else {
-            self.weapon_spawner_cooldown_timer = 20.0;
+            self.global_weapon_spawner_cooldown_timer = 20.0;
         }
 
 
@@ -114,7 +114,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         &mut self,
         (
             entities,
-            arena_elements,
+            mut arena_elements,
             mut transforms,
             mut players,
             player_weapon_icons,
@@ -136,11 +136,11 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
 
         if game_weapon_setup.random_weapon_spawns
         {
-            self.weapon_spawner_cooldown_timer -= dt;
+            self.global_weapon_spawner_cooldown_timer -= dt;
         }
 
         //weapon to non-moving hitbox collisions
-        for (entity, arena_element, transform) in (&*entities, &arena_elements, &transforms).join() {
+        for (entity, mut arena_element, transform) in (&*entities, &mut arena_elements, &transforms).join() {
             if arena_element.is_wall {
                 let hitbox_x = transform.translation().x;
                 let hitbox_y = transform.translation().y;
@@ -307,10 +307,33 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                         }
                     }
                 }
-            } else if arena_element.is_weapon_box {
+            } 
+            else if arena_element.is_weapon_box {
                 //delete old weapon_boxes if they do not have their own spawn timer
-                if arena_element.spawn_time.is_none() && self.weapon_spawner_cooldown_timer <= 0.0 {
-                    let _ = entities.delete(entity);
+                if arena_element.spawn_time.is_none() {
+                    if self.global_weapon_spawner_cooldown_timer <= 0.0 {
+                        let _ = entities.delete(entity);
+                    }
+                }
+            }
+            else if arena_element.is_weapon_spawn_point {
+                //check for special map-defined weapon box spawns here
+                //the generic global-rules weapon box spawns will be handled below
+                if game_weapon_setup.allow_map_specific_spawn_weapons {
+                    if arena_element.is_weapon_spawn_point && !arena_element.spawn_time.is_none() {
+                        arena_element.spawn_timer = Some(arena_element.spawn_timer.unwrap() - dt);
+
+                        if arena_element.spawn_timer.unwrap() <= 0.0 {  
+                            arena_element.spawn_timer = arena_element.spawn_time;
+                            
+                            spawn_weapon_box_from_spawner(
+                                &entities,
+                                &weapon_fire_resource,
+                                &lazy_update,
+                                arena_element,
+                            );
+                        }
+                    }
                 }
             }
         }
@@ -327,44 +350,49 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         
 
 
-        //weapon box spawns
+        //global rules weapon box spawns
         if game_weapon_setup.random_weapon_spawns
         {
-            if self.weapon_spawner_cooldown_timer <= 0.0 {
-                self.weapon_spawner_cooldown_timer = game_weapon_setup.random_weapon_spawn_timer;
+            if self.global_weapon_spawner_cooldown_timer <= 0.0 {
+                self.global_weapon_spawner_cooldown_timer = game_weapon_setup.random_weapon_spawn_timer;
 
-                spawn_random_weapon_boxes(
-                    &entities,
-                    &weapon_fire_resource,
-                    &lazy_update,
-                    &game_weapon_setup,
-                    &self.arena_properties,
-                );
-            }
-        }
+                let mut rng = rand::thread_rng();
+            
+                //Filter to only spawn from the spawners that don't have their own timer
+                let mut random_weapon_spawn_boxes: Vec<&ArenaElement> = Vec::new();
 
-        //special map-defined weapon box spawns
-        if game_weapon_setup.allow_map_specific_spawn_weapons {
-            //Find all of the map-define weapon box spawns, check if they need spawned
-            for spawn_box in self.arena_properties.weapon_spawn_boxes.iter() {
-                if game_weapon_setup.allow_map_specific_spawn_weapons && spawn_box.weapon_name != None {
-                    let box_entity: Entity = entities.create();
+                for arena_element in (&arena_elements).join() {
+                    if arena_element.is_weapon_spawn_point && arena_element.spawn_time.is_none() {
+                        random_weapon_spawn_boxes.push(arena_element);
+                    }
+                }
+                
+                let number_of_random_spawn_locations = random_weapon_spawn_boxes.len();
 
-                    let mut local_transform = Transform::default();
-                    
-                    local_transform.set_rotation_2d(PI / 8.0);
-                    local_transform.set_translation_xyz(spawn_box.x, spawn_box.y, 0.3);
+                let mut available_indices = (0..number_of_random_spawn_locations).collect::<Vec<usize>>();
+            
+                for _idx in 0..game_weapon_setup.random_weapon_spawn_count.min(number_of_random_spawn_locations as u32) {
+                    let remove_index = rng.gen_range(0, available_indices.len()) as usize;
+            
+                    available_indices.remove(remove_index);
+                }
 
-                    let box_sprite = weapon_fire_resource.weapon_box_sprite_render.clone();
+                log::info!("available_locations: {}", number_of_random_spawn_locations);
+                log::info!("spawns_required: {}", game_weapon_setup.random_weapon_spawn_count.min(number_of_random_spawn_locations as u32));
+                log::info!("spawn_indices: {:?}", available_indices);
 
-                    lazy_update.insert(box_entity, reform_weapon_spawn_box(spawn_box.clone()));
-                    lazy_update.insert(box_entity, Removal::new(0 as u32));
-                    lazy_update.insert(box_entity, box_sprite);
-                    lazy_update.insert(box_entity, local_transform);
+                for (idx, arena_element) in random_weapon_spawn_boxes.iter().enumerate() {
+                    if available_indices.contains(&idx) {
+                        spawn_weapon_box_from_spawner(
+                            &entities,
+                            &weapon_fire_resource,
+                            &lazy_update,
+                            arena_element,
+                        );
+                    }
                 }
             }
         }
-
 
 
 

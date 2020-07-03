@@ -5,7 +5,7 @@ pub use self::hitbox::{
 };
 pub use self::arena::{
     ArenaElement, RaceCheckpointType, build_arena_store,
-    WeaponSpawnBox, reform_weapon_spawn_box,
+    WeaponBoxSpawner, WeaponBox, reform_weapon_spawner, reform_weapon_spawn_box,
     ArenaNames, ArenaStoreResource, ArenaProperties,
 };
 pub use self::players::{BotMode, Player, PlayerWeaponIcon};
@@ -20,7 +20,7 @@ pub use self::vehicles::{
 };
 pub use self::weapons::{
     build_named_weapon, build_named_weapon_from_world, build_weapon_store, get_mine_sprite,
-    get_next_weapon_name, get_random_weapon_name, get_trap_sprite, get_weapon_icon,
+    get_next_weapon_name, get_random_weapon_name, get_random_weapon_name_build_chance, get_trap_sprite, get_weapon_icon,
     update_weapon_properties, Weapon, WeaponFire, WeaponNames, WeaponStats, WeaponInstall, WeaponNameInstall,
     WeaponStoreResource, WeaponFireTypes, WeaponArray, DurationDamage, get_weapon_width_height,
 };

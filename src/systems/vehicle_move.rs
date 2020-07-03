@@ -20,7 +20,7 @@ use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
-    check_respawn_vehicle, get_random_weapon_name, kill_restart_vehicle,
+    check_respawn_vehicle, get_random_weapon_name, get_random_weapon_name_build_chance, kill_restart_vehicle,
     update_weapon_properties, vehicle_damage_model, BotMode, ArenaElement, HitboxShape, Player,
     PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, WeaponArray, WeaponStoreResource,
     determine_vehicle_weight, VehicleMovementType, DurationDamage, 
@@ -1256,7 +1256,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if arena_element.is_weapon_box {
                             let _ = entities.delete(hitbox_entity);
 
-                            let new_weapon_name = get_random_weapon_name(&game_weapon_setup);
+                            let new_weapon_name;
+                            if arena_element.weapon_names.is_none() {
+                                //get random weapon from global list
+                                new_weapon_name = get_random_weapon_name(&game_weapon_setup.random_weapon_spawn_chances);
+                            }
+                            else {
+                                //get random weapon based on special chances list just for this weapon spawner
+                                new_weapon_name = get_random_weapon_name_build_chance(&arena_element.weapon_names);
+                            }
 
                             if weapon_array.installed.len() >= 2 {
                                 let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
@@ -1272,7 +1280,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 SECONDARY_WEAPON_INDEX,
                                 1,
                                 None,
-                                Some(new_weapon_name),
+                                new_weapon_name,
                                 &weapon_store_resource,
                                 &entities,
                                 &weapon_fire_resource,
