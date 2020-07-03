@@ -1,7 +1,7 @@
 use amethyst::{
     core::Transform,
     ecs::prelude::{Component, DenseVecStorage, Entity, World},
-    utils::{application_root_dir},
+    //utils::{application_root_dir},
 };
 
 use rand::Rng;
@@ -9,7 +9,7 @@ use std::f32::consts::PI;
 use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
-use std::env::current_dir;
+//use std::env::current_dir;
 
 use crate::components::{
     Armor, Health, Player, Repair, Shield, DurationDamage, 

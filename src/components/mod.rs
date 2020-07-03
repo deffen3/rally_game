@@ -5,7 +5,7 @@ pub use self::hitbox::{
 };
 pub use self::arena::{
     ArenaElement, RaceCheckpointType, build_arena_store,
-    WeaponBoxSpawner, WeaponBox, reform_weapon_spawner, reform_weapon_spawn_box,
+    WeaponBoxSpawner, WeaponBox, reform_weapon_spawner,
     ArenaNames, ArenaStoreResource, ArenaProperties,
 };
 pub use self::players::{BotMode, Player, PlayerWeaponIcon};

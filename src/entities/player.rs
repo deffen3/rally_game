@@ -14,7 +14,7 @@ use std::f32::consts::PI;
 
 use crate::components::{
     Player, PlayerWeaponIcon, 
-    build_named_weapon_from_world, get_weapon_icon, WeaponArray, Weapon, WeaponNames,
+    build_named_weapon_from_world, get_weapon_icon, WeaponArray, Weapon,
     Vehicle, VehicleStats, get_vehicle_sprites, get_weapon_width_height, WeaponInstall, WeaponNameInstall,
     ArenaStoreResource, ArenaNames, ArenaProperties,
 };

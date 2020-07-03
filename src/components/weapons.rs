@@ -1,7 +1,7 @@
 use amethyst::{
     ecs::prelude::{Component, DenseVecStorage, Entities, Entity, LazyUpdate, ReadExpect, World},
     renderer::{palette::Srgba, resources::Tint, SpriteRender, Transparent},
-    utils::{removal::Removal, application_root_dir},
+    utils::{removal::Removal}, //application_root_dir},
     ui::{UiTransform, UiImage, Anchor},
 };
 
@@ -9,12 +9,12 @@ use rand::Rng;
 use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
-use std::env::current_dir;
+//use std::env::current_dir;
 
 use log::{info};
 
 use crate::components::PlayerWeaponIcon;
-use crate::resources::{GameWeaponSetup, WeaponFireResource};
+use crate::resources::{WeaponFireResource};
 
 
 
@@ -80,7 +80,7 @@ pub fn get_random_weapon_name_build_chance(
 
         let mut chance_total: u32 = 0;
 
-        for (weapon_name, value) in random_weapon_spawn_relative_chance.iter() {
+        for (_weapon_name, value) in random_weapon_spawn_relative_chance.iter() {
             chance_total += value;
         }
 

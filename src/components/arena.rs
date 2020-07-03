@@ -222,32 +222,3 @@ pub fn reform_weapon_spawner(spawner: WeaponBoxSpawner) -> ArenaElement {
         },
     }
 }
-
-pub fn reform_weapon_spawn_box(spawn_box: WeaponBox) -> ArenaElement {
-    ArenaElement {
-        is_wall: false,
-        is_hill: false,
-        checkpoint: RaceCheckpointType::NotCheckpoint,
-        checkpoint_id: 0,
-        is_weapon_box: true,
-        is_spawn_point: false,
-        is_weapon_spawn_point: false,
-        x: spawn_box.x,
-        y: spawn_box.y,
-        z: 0.0,
-        is_sprite: false,
-        sprite: 0,
-        sprite_scale: 0.0,
-        weapon_names: spawn_box.weapon_names,
-        first_spawn_time: None,
-        spawn_time: None,
-        spawn_timer: None,
-        ammo: spawn_box.ammo,
-        hitbox: Hitbox {
-            width: 11.0,
-            height: 11.0,
-            angle: 0.0,
-            shape: HitboxShape::Rectangle,
-        },
-    }
-}
