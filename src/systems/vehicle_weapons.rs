@@ -165,6 +165,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                                 angle_to_selected_vehicle,
                                                 standard_angle,
                                                 weapon.stats.tracking_angle,
+                                                weapon.stats.tracking_range,
                                             );
                                         } else if let Some(angle_to_closest_targetable_vehicle) =
                                             vehicle.angle_to_closest_targetable_vehicle
@@ -178,6 +179,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                                 angle_to_selected_vehicle,
                                                 standard_angle,
                                                 weapon.stats.tracking_angle,
+                                                weapon.stats.tracking_range,
                                             );
                                         } else {
                                             fire_angle = standard_angle; //no tracking, no vehicles
@@ -286,13 +288,14 @@ fn calc_tracking_fire_angle(
     angle_to_selected_vehicle: f32,
     standard_angle: f32,
     weapon_tracking_angle: f32,
+    weapon_tracking_range: f32,
 ) -> f32 {
     let fire_angle;
 
-    if dist_to_selected_vehicle <= 200.0 {
+    if dist_to_selected_vehicle <= weapon_tracking_range {
         if weapon_tracking_angle <= 0.001 {
             fire_angle = standard_angle;
-        } else if weapon_tracking_angle >= PI {
+        } else if weapon_tracking_angle >= 2.0*PI {
             fire_angle = angle_to_selected_vehicle;
         } else {
             let mut angle_diff = standard_angle - angle_to_selected_vehicle;
