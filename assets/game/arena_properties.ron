@@ -142,7 +142,9 @@
             effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
         ArenaRectangle (obstacle_type: Zone, x:20.0, y:80.0, width:40.0, height:40.0, rotation: 0.0, 
             effects: Some(ZoneEffects(accel_rate: -20.0, damage_rate: 20.0))),
-        ArenaRectangle (obstacle_type: Zone, x:355.0, y:260.0, width:80.0, height:60.0, rotation: 0.0, 
+        ArenaRectangle (obstacle_type: Zone, x:340.0, y:260.0, width:40.0, height:40.0, rotation: 0.0, 
+            effects: Some(ZoneEffects(accel_rate: 0.0, damage_rate: -20.0))),
+        ArenaRectangle (obstacle_type: Zone, x:380.0, y:260.0, width:40.0, height:40.0, rotation: 0.0, 
             effects: Some(ZoneEffects(accel_rate: 0.0, damage_rate: -20.0))),
     ],
     weapon_spawners: [
@@ -235,7 +237,19 @@
         ArenaCircle (obstacle_type: Wall, x:675.0, y:420.0, radius:40.0),
         ArenaCircle (obstacle_type: Wall, x:820, y:250.0, radius:40.0),
     ],
-    arena_rectangles: [],
+    arena_rectangles: [
+        ArenaRectangle (obstacle_type: Zone, x:225.0, y:160.0, width:20.0, height:20.0, rotation: -90.0, 
+            effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+        ArenaRectangle (obstacle_type: Zone, x:225.0, y:340.0, width:20.0, height:20.0, rotation: -90.0, 
+            effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+        ArenaRectangle (obstacle_type: Zone, x:675.0, y:160.0, width:20.0, height:20.0, rotation: 90.0, 
+            effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+        ArenaRectangle (obstacle_type: Zone, x:675.0, y:340.0, width:20.0, height:20.0, rotation: 90.0, 
+            effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+
+        ArenaRectangle (obstacle_type: Zone, x:450.0, y:250.0, width:40.0, height:40.0, rotation: 0.0, 
+            effects: Some(ZoneEffects(accel_rate: 0.0, damage_rate: -20.0))),
+    ],
     weapon_spawners: [
         WeaponBoxSpawner (x: 450.0, y: 100.0),
         WeaponBoxSpawner (x: 450.0, y: 200.0),
