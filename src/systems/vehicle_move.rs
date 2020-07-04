@@ -1258,7 +1258,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     }
                     else if arena_element.obstacle_type == ObstacleType::Zone {
                         if let Some(zone_effects) = arena_element.effects {
-                            if zone_effects.damage_rate.abs() >= 0.001 {
+                            if zone_effects.damage_rate >= 0.0 {
                                 let vehicle_destroyed: bool = vehicle_damage_model(
                                     vehicle,
                                     None,
@@ -1282,6 +1282,19 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                         }
                                     }
                                 }
+                            }
+                            else if zone_effects.damage_rate < 0.0 { //healing zone
+                                vehicle_damage_model(
+                                    vehicle,
+                                    None,
+                                    None,
+                                    zone_effects.damage_rate * dt,
+                                    0.0,
+                                    33.3,
+                                    0.0,
+                                    100.0,
+                                    DurationDamage::default(),
+                                );
                             }
 
                             if zone_effects.accel_rate.abs() >= 0.001 {

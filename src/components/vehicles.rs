@@ -317,64 +317,118 @@ pub fn vehicle_damage_model(
     health_damage_pct: f32,
     duration_damage: DurationDamage,
 ) -> bool {
+    let mut vehicle_destroyed = false;
 
     let mut shield_damage_applied: bool = false;
     let mut armor_damage_applied: bool = false;
     let mut health_damage_applied: bool = false;
 
-    let mut piercing_damage: f32 = 0.0;
+    if damage >= 0.0 {
+        let mut piercing_damage: f32 = 0.0;
 
-    if piercing_damage_pct > 0.0 {
-        piercing_damage = damage * piercing_damage_pct / 100.0;
-        damage -= piercing_damage;
-    }
+        if piercing_damage_pct > 0.0 {
+            piercing_damage = damage * piercing_damage_pct / 100.0;
+            damage -= piercing_damage;
+        }
 
-    if vehicle.shield.value > 0.0 {
-        if damage * shield_damage_pct > 0.0 {
-            shield_damage_applied = true;
+        if vehicle.shield.value > 0.0 {
+            if damage * shield_damage_pct > 0.0 {
+                shield_damage_applied = true;
 
-            vehicle.shield.value -= damage * shield_damage_pct / 100.0;
-            damage = 0.0;
+                vehicle.shield.value -= damage * shield_damage_pct / 100.0;
+                damage = 0.0;
 
-            if vehicle.shield.value < 0.0 {
-                damage = vehicle.shield.value.abs(); //over damage on shields, needs taken from armor
-                vehicle.shield.value = 0.0;
+                if vehicle.shield.value < 0.0 {
+                    damage = vehicle.shield.value.abs(); //over damage on shields, needs taken from armor
+                    vehicle.shield.value = 0.0;
+                } else {
+                    //take damage to shields, but shields are still alive, reset shield recharge cooldown
+                    vehicle.shield.cooldown_timer = vehicle.shield.cooldown_reset;
+                }
+            }
+            else {
+                damage = 0.0; 
+                //This would happen if the vehicle has shields, but is being hit with a weapon that does no damage to shields
+                //Therefore no damage can be done, unless it is piercing damage
+            }
+        }
+
+        if vehicle.armor.value > 0.0 {
+            if damage * armor_damage_pct > 0.0 {
+                armor_damage_applied = true;
+
+                vehicle.armor.value -= damage * armor_damage_pct / 100.0;
+                damage = 0.0;
+
+                if vehicle.armor.value < 0.0 {
+                    damage = vehicle.armor.value.abs(); //over damage on armor, needs taken from health
+                    vehicle.armor.value = 0.0;
+                }
+            }
+            else {
+                damage = 0.0;
+                //This would happen if the vehicle has armor, but is being hit with a weapon that does no damage to armor
+                //Therefore no damage can be done, unless it is piercing damage
+            }
+        }
+
+        let health_damage: f32 = (damage + piercing_damage) * health_damage_pct / 100.0;
+        if health_damage > 0.0 {
+            health_damage_applied = true;
+        }
+        
+
+        if vehicle.health.value > 0.0 {
+            //only destroy once
+            if vehicle.health.value <= health_damage {
+                vehicle_destroyed = true;
+                vehicle.health.value = 0.0;
             } else {
-                //take damage to shields, but shields are still alive, reset shield recharge cooldown
-                vehicle.shield.cooldown_timer = vehicle.shield.cooldown_reset;
+                vehicle.health.value -= health_damage;
             }
         }
     }
+    else { //damage is negative -> healing
+        //NOTE: Piercing has no effect on healing
 
-    if vehicle.armor.value > 0.0 {
-        if damage * armor_damage_pct > 0.0 {
-            armor_damage_applied = true;
+        if vehicle.health.value < vehicle.health.max { //missing some health
+            if damage * health_damage_pct < 0.0 {
+                health_damage_applied = true;
 
-            vehicle.armor.value -= damage * armor_damage_pct / 100.0;
-            damage = 0.0;
+                vehicle.health.value -= damage * health_damage_pct / 100.0;
+                damage = 0.0;
 
-            if vehicle.armor.value < 0.0 {
-                damage = vehicle.armor.value.abs(); //over damage on armor, needs taken from health
-                vehicle.armor.value = 0.0;
+                if vehicle.health.value > vehicle.health.max { //too much healing, apply to next type
+                    damage = vehicle.health.value - vehicle.health.max;
+                    vehicle.health.value = vehicle.health.max;
+                }
             }
         }
-    }
 
-    let health_damage: f32 = (damage + piercing_damage) * health_damage_pct / 100.0;
-    if health_damage > 0.0 {
-        health_damage_applied = true;
-    }
+        if vehicle.armor.value < vehicle.armor.max { //missing some armor
+            if damage * armor_damage_pct < 0.0 {
+                armor_damage_applied = true;
 
+                vehicle.armor.value -= damage * armor_damage_pct / 100.0;
+                damage = 0.0;
 
-    let mut vehicle_destroyed = false;
+                if vehicle.armor.value > vehicle.armor.max { //too much healing, apply to next type
+                    damage = vehicle.armor.value - vehicle.armor.max;
+                    vehicle.armor.value = vehicle.armor.max;
+                }
+            }
+        }
 
-    if vehicle.health.value > 0.0 {
-        //only destroy once
-        if vehicle.health.value <= health_damage {
-            vehicle_destroyed = true;
-            vehicle.health.value = 0.0;
-        } else {
-            vehicle.health.value -= health_damage;
+        if vehicle.shield.value < vehicle.shield.max { //missing some armor
+            if damage * shield_damage_pct < 0.0 {
+                shield_damage_applied = true;
+
+                vehicle.shield.value -= damage * shield_damage_pct / 100.0;
+
+                if vehicle.shield.value > vehicle.shield.max { //too much healing
+                    vehicle.shield.value = vehicle.shield.max;
+                }
+            }
         }
     }
 

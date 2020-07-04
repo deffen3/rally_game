@@ -173,10 +173,50 @@ pub fn intialize_arena(
         }
         else {
             if let Some(arena_rect_effects) = arena_rect.effects {
-                if arena_rect.obstacle_type == ObstacleType::Zone && arena_rect_effects.damage_rate != 0.0 {
+                if arena_rect.obstacle_type == ObstacleType::Zone && arena_rect_effects.damage_rate > 0.0 {
                     let sprite_render = SpriteRender {
                         sprite_sheet: sprite_sheet_handle.clone(),
                         sprite_number: 73,
+                    };
+
+                    world
+                        .create_entity()
+                        .with(Removal::new(0 as u32))
+                        .with(transform)
+                        .with(sprite_render)
+                        .with(ArenaElement {
+                            obstacle_type: arena_rect.obstacle_type,
+                            is_hill: false,
+                            checkpoint: RaceCheckpointType::NotCheckpoint,
+                            checkpoint_id: 0,
+                            is_weapon_box: false,
+                            is_spawn_point: false,
+                            is_weapon_spawn_point: false,
+                            x: arena_rect.x,
+                            y: arena_rect.y,
+                            z: 0.0,
+                            is_sprite: true,
+                            sprite: 71,
+                            sprite_scale: x_scale,
+                            weapon_names: None,
+                            first_spawn_time: None,
+                            spawn_time: None,
+                            spawn_timer: None,
+                            ammo: None,
+                            hitbox: Hitbox::new(
+                                2.0*sprite_scale_mult * x_scale,
+                                2.0*sprite_scale_mult * y_scale,
+                                0.0,
+                                HitboxShape::Rectangle,
+                            ),
+                            effects: Some(arena_rect_effects),
+                        })
+                        .build();
+                }
+                else if arena_rect.obstacle_type == ObstacleType::Zone && arena_rect_effects.damage_rate < 0.0 { //healing
+                    let sprite_render = SpriteRender {
+                        sprite_sheet: sprite_sheet_handle.clone(),
+                        sprite_number: 74,
                     };
 
                     world
