@@ -142,7 +142,7 @@
             effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
         ArenaRectangle (obstacle_type: Zone, x:20.0, y:80.0, width:40.0, height:40.0, rotation: 0.0, 
             effects: Some(ZoneEffects(accel_rate: -20.0, damage_rate: 20.0))),
-        ArenaRectangle (obstacle_type: Zone, x:335.0, y:260.0, width:40.0, height:40.0, rotation: 0.0, 
+        ArenaRectangle (obstacle_type: Zone, x:355.0, y:260.0, width:80.0, height:60.0, rotation: 0.0, 
             effects: Some(ZoneEffects(accel_rate: 0.0, damage_rate: -20.0))),
     ],
     weapon_spawners: [

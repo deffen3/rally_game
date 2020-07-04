@@ -298,41 +298,42 @@ pub fn intialize_arena(
             
         
 
+        if arena_rect.obstacle_type == ObstacleType::Wall {
+            //setup nav mesh grid
+            let x_offset = sprite_scale_mult*x_scale + nav_mesh_offset;
         
-        //setup nav mesh grid
-        let x_offset = sprite_scale_mult*x_scale + nav_mesh_offset;
-    
-        let xr_minus = (arena_rect.x - x_offset).round();
-        let xr_plus = (arena_rect.x + x_offset).round();
+            let xr_minus = (arena_rect.x - x_offset).round();
+            let xr_plus = (arena_rect.x + x_offset).round();
 
-        let xr_minus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_minus);
-        let xr_plus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_plus);
+            let xr_minus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_minus);
+            let xr_plus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_plus);
 
-        if xr_minus_find_index.is_none() {
-            nav_mesh_grid_xs.push(xr_minus);
+            if xr_minus_find_index.is_none() {
+                nav_mesh_grid_xs.push(xr_minus);
+            }
+            if xr_plus_find_index.is_none() {
+                nav_mesh_grid_xs.push(xr_plus);
+            }
+
+
+            let y_offset = sprite_scale_mult*y_scale + nav_mesh_offset;
+
+            let yr_minus = (arena_rect.y - y_offset).round();
+            let yr_plus = (arena_rect.y + y_offset).round();
+
+            let yr_minus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_minus);
+            let yr_plus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_plus);
+
+            if yr_minus_find_index.is_none() {
+                nav_mesh_grid_ys.push(yr_minus);
+            }
+            if yr_plus_find_index.is_none() {
+                nav_mesh_grid_ys.push(yr_plus);
+            }
+
+
+            nav_mesh_grid_drop.push((xr_minus, xr_plus, yr_minus, yr_plus));
         }
-        if xr_plus_find_index.is_none() {
-            nav_mesh_grid_xs.push(xr_plus);
-        }
-
-
-        let y_offset = sprite_scale_mult*y_scale + nav_mesh_offset;
-
-        let yr_minus = (arena_rect.y - y_offset).round();
-        let yr_plus = (arena_rect.y + y_offset).round();
-
-        let yr_minus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_minus);
-        let yr_plus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_plus);
-
-        if yr_minus_find_index.is_none() {
-            nav_mesh_grid_ys.push(yr_minus);
-        }
-        if yr_plus_find_index.is_none() {
-            nav_mesh_grid_ys.push(yr_plus);
-        }
-
-
-        nav_mesh_grid_drop.push((xr_minus, xr_plus, yr_minus, yr_plus));
     }
 
 
@@ -386,38 +387,40 @@ pub fn intialize_arena(
             })
             .build();        
         
-        //setup nav mesh grid
-        let offset = sprite_scale_mult*scale + nav_mesh_offset;
+        if arena_circle.obstacle_type == ObstacleType::Wall {
+            //setup nav mesh grid
+            let offset = sprite_scale_mult*scale + nav_mesh_offset;
 
-        let xr_minus = (arena_circle.x - offset).round();
-        let xr_plus = (arena_circle.x + offset).round();
+            let xr_minus = (arena_circle.x - offset).round();
+            let xr_plus = (arena_circle.x + offset).round();
 
-        let xr_minus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_minus);
-        let xr_plus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_plus);
+            let xr_minus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_minus);
+            let xr_plus_find_index = nav_mesh_grid_xs.iter().position(|&r| r == xr_plus);
 
-        if xr_minus_find_index.is_none() {
-            nav_mesh_grid_xs.push(xr_minus);
+            if xr_minus_find_index.is_none() {
+                nav_mesh_grid_xs.push(xr_minus);
+            }
+            if xr_plus_find_index.is_none() {
+                nav_mesh_grid_xs.push(xr_plus);
+            }
+
+
+            let yr_minus = (arena_circle.y - offset).round();
+            let yr_plus = (arena_circle.y + offset).round();
+
+            let yr_minus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_minus);
+            let yr_plus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_plus);
+
+            if yr_minus_find_index.is_none() {
+                nav_mesh_grid_ys.push(yr_minus);
+            }
+            if yr_plus_find_index.is_none() {
+                nav_mesh_grid_ys.push(yr_plus);
+            }
+
+
+            nav_mesh_grid_drop.push((xr_minus, xr_plus, yr_minus, yr_plus));
         }
-        if xr_plus_find_index.is_none() {
-            nav_mesh_grid_xs.push(xr_plus);
-        }
-
-
-        let yr_minus = (arena_circle.y - offset).round();
-        let yr_plus = (arena_circle.y + offset).round();
-
-        let yr_minus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_minus);
-        let yr_plus_find_index = nav_mesh_grid_ys.iter().position(|&r| r == yr_plus);
-
-        if yr_minus_find_index.is_none() {
-            nav_mesh_grid_ys.push(yr_minus);
-        }
-        if yr_plus_find_index.is_none() {
-            nav_mesh_grid_ys.push(yr_plus);
-        }
-
-
-        nav_mesh_grid_drop.push((xr_minus, xr_plus, yr_minus, yr_plus));
     }
 
 
