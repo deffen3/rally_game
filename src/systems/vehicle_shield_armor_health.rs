@@ -135,6 +135,22 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
             let vehicle_x = vehicle_transform.translation().x;
             let vehicle_y = vehicle_transform.translation().y;
 
+            let shield_pct;
+            if vehicle.shield.max <= 0.0 {
+                shield_pct = 0.0;
+            }
+            else {
+                shield_pct = vehicle.shield.value / vehicle.shield.max;
+            }
+
+            let armor_pct;
+            if vehicle.armor.max <= 0.0 {
+                armor_pct = 0.0;
+            }
+            else {
+                armor_pct = vehicle.armor.value / vehicle.armor.max;
+            }
+
 
             owner_data_map.insert(
                 player.id,
@@ -142,8 +158,8 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                     vehicle_x,
                     vehicle_y,
                     yaw,
-                    vehicle.shield.value / vehicle.shield.max,
-                    vehicle.armor.value / vehicle.armor.max,
+                    shield_pct,
+                    armor_pct,
                     vehicle.health.value / vehicle.health.max,
                     vehicle.repair.init_timer / vehicle.repair.init_threshold,
                     vehicle.shield.repair_timer / vehicle.shield.repair_threshold,
