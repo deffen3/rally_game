@@ -1053,6 +1053,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
             vehicle.collision_cooldown_timer -= dt;
         }
 
+
+
+
+
         //hitbox collision logic
         let mut player_destroyed: Vec<usize> = Vec::new();
 
@@ -1251,73 +1255,116 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             vehicle.collision_cooldown_timer = 1.0;
                         }
-                    } else if vehicle.state == VehicleState::Active {
-                        //Non-collision related actions can only occur on Active vehicles
-                        if arena_element.is_weapon_box {
-                            let _ = entities.delete(hitbox_entity);
+                    }
+                    else if arena_element.obstacle_type == ObstacleType::Zone {
+                        if let Some(zone_effects) = arena_element.effects {
+                            if zone_effects.damage_rate.abs() >= 0.001 {
+                                let vehicle_destroyed: bool = vehicle_damage_model(
+                                    vehicle,
+                                    None,
+                                    None,
+                                    zone_effects.damage_rate * dt,
+                                    COLLISION_PIERCING_DAMAGE_PCT,
+                                    COLLISION_SHIELD_DAMAGE_PCT,
+                                    COLLISION_ARMOR_DAMAGE_PCT,
+                                    COLLISION_HEALTH_DAMAGE_PCT,
+                                    DurationDamage::default(),
+                                );
 
-                            let new_weapon_name;
-                            if arena_element.weapon_names.is_none() {
-                                //get random weapon from global list
-                                new_weapon_name = get_random_weapon_name(&game_weapon_setup.random_weapon_spawn_chances);
+                                if vehicle_destroyed {
+                                    player_destroyed.push(player.id.clone());
+
+                                    player.deaths += 2; //self-destruct counts for 2
+
+                                    if player.last_hit_timer <= game_mode_setup.last_hit_threshold {
+                                        if let Some(last_hit_by_id) = player.last_hit_by_id {
+                                            earned_collision_kills.push(last_hit_by_id);
+                                        }
+                                    }
+                                }
                             }
-                            else {
-                                //get random weapon based on special chances list just for this weapon spawner
-                                new_weapon_name = get_random_weapon_name_build_chance(&arena_element.weapon_names);
+
+                            if zone_effects.accel_rate.abs() >= 0.001 {
+                                let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
+                                let abs_vel = sq_vel.sqrt();
+                                
+                                let delta_v = zone_effects.accel_rate * dt;
+                                let new_abs_vel = abs_vel + delta_v;       
+
+                                vehicle.dx *= new_abs_vel / abs_vel;
+                                vehicle.dy *= new_abs_vel / abs_vel;
                             }
-
-                            if weapon_array.installed.len() >= 2 {
-                                let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
-
-                                vehicle.weapon_weight -= secondary_weapon.stats.weight;
-
-                                weapon_icons_old_map.insert(player.id,
-                                    (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
-                            }
-
-                            update_weapon_properties(
-                                &mut weapon_array,
-                                SECONDARY_WEAPON_INDEX,
-                                1,
-                                None,
-                                new_weapon_name,
-                                &weapon_store_resource,
-                                &entities,
-                                &weapon_fire_resource,
-                                player.id,
-                                &lazy_update,
-                            );
-
-                            if weapon_array.installed.len() >= 2 {
-                                let new_secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
-                                vehicle.weapon_weight += new_secondary_weapon.stats.weight;
-                            }
-                        } else if arena_element.is_hill {
-                            players_on_hill.push(player.id.clone());
-                            player.on_hill = true;
-
-                            let (r, g, b) = match player.id.clone() {
-                                0 => (1.0, 0.3, 0.3),
-                                1 => (0.3, 0.3, 1.0),
-                                2 => (0.3, 1.0, 0.3),
-                                3 => (1.0, 0.8, 0.3),
-                                _ => (1.0, 1.0, 1.0),
-                            };
-
-                            color_for_hill.push((r, g, b));
-                        } else if (arena_element.checkpoint == RaceCheckpointType::Checkpoint)
-                                && (arena_element.checkpoint_id == player.checkpoint_completed + 1)
-                        {
-                            player.checkpoint_completed = arena_element.checkpoint_id;
-                            debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
                         }
-                        else if arena_element.checkpoint == RaceCheckpointType::Lap {
-                            if player.checkpoint_completed == game_mode_setup.checkpoint_count-1 {
-                                player.laps_completed += 1;
+                    }
+                    else if arena_element.obstacle_type == ObstacleType::Open {
+                        if vehicle.state == VehicleState::Active {
+                            //Non-collision related actions can only occur on Active vehicles
+                            if arena_element.is_weapon_box {
+                                let _ = entities.delete(hitbox_entity);
+
+                                let new_weapon_name;
+                                if arena_element.weapon_names.is_none() {
+                                    //get random weapon from global list
+                                    new_weapon_name = get_random_weapon_name(&game_weapon_setup.random_weapon_spawn_chances);
+                                }
+                                else {
+                                    //get random weapon based on special chances list just for this weapon spawner
+                                    new_weapon_name = get_random_weapon_name_build_chance(&arena_element.weapon_names);
+                                }
+
+                                if weapon_array.installed.len() >= 2 {
+                                    let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+
+                                    vehicle.weapon_weight -= secondary_weapon.stats.weight;
+
+                                    weapon_icons_old_map.insert(player.id,
+                                        (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
+                                }
+
+                                update_weapon_properties(
+                                    &mut weapon_array,
+                                    SECONDARY_WEAPON_INDEX,
+                                    1,
+                                    None,
+                                    new_weapon_name,
+                                    &weapon_store_resource,
+                                    &entities,
+                                    &weapon_fire_resource,
+                                    player.id,
+                                    &lazy_update,
+                                );
+
+                                if weapon_array.installed.len() >= 2 {
+                                    let new_secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+                                    vehicle.weapon_weight += new_secondary_weapon.stats.weight;
+                                }
+                            } else if arena_element.is_hill {
+                                players_on_hill.push(player.id.clone());
+                                player.on_hill = true;
+
+                                let (r, g, b) = match player.id.clone() {
+                                    0 => (1.0, 0.3, 0.3),
+                                    1 => (0.3, 0.3, 1.0),
+                                    2 => (0.3, 1.0, 0.3),
+                                    3 => (1.0, 0.8, 0.3),
+                                    _ => (1.0, 1.0, 1.0),
+                                };
+
+                                color_for_hill.push((r, g, b));
+                            } else if (arena_element.checkpoint == RaceCheckpointType::Checkpoint)
+                                    && (arena_element.checkpoint_id == player.checkpoint_completed + 1)
+                            {
+                                player.checkpoint_completed = arena_element.checkpoint_id;
+                                debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
                             }
-                            player.checkpoint_completed = 0;
-                            debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
-                            debug!("{} laps:{}", player.id, player.laps_completed);
+                            else if arena_element.checkpoint == RaceCheckpointType::Lap {
+                                if player.checkpoint_completed == game_mode_setup.checkpoint_count-1 {
+                                    player.laps_completed += 1;
+                                }
+                                player.checkpoint_completed = 0;
+                                debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
+                                debug!("{} laps:{}", player.id, player.laps_completed);
+                            }
                         }
                     }
                 }

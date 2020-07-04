@@ -33,8 +33,13 @@ pub enum RaceCheckpointType {
 pub enum ObstacleType {
     Open,
     Wall,
-    Damage,
-    Slow
+    Zone,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
+pub struct ZoneEffects {
+    pub accel_rate: f32,
+    pub damage_rate: f32,
 }
 
 
@@ -82,6 +87,7 @@ pub struct ArenaCircle {
     pub x: f32,
     pub y: f32,
     pub radius: f32,
+    pub effect: Option<ZoneEffects>,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
@@ -92,6 +98,7 @@ pub struct ArenaRectangle {
     pub width: f32,
     pub height: f32,
     pub rotation: f32, //degrees
+    pub effects: Option<ZoneEffects>,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
@@ -140,6 +147,7 @@ pub struct ArenaElement {
     pub spawn_timer: Option<f32>,
     pub ammo: Option<u32>,
     pub hitbox: Hitbox,
+    pub effects: Option<ZoneEffects>,
 }
 
 impl Component for ArenaElement {
@@ -230,5 +238,6 @@ pub fn reform_weapon_spawner(spawner: WeaponBoxSpawner) -> ArenaElement {
             angle: 0.0,
             shape: HitboxShape::Rectangle,
         },
+        effects: None,
     }
 }

@@ -137,7 +137,12 @@
         ArenaCircle (obstacle_type: Wall, x:200.0, y:145.0, radius:40.0),
         ArenaCircle (obstacle_type: Wall, x:200.0, y:380.0, radius:40.0),
     ],
-    arena_rectangles: [],
+    arena_rectangles: [
+        ArenaRectangle (obstacle_type: Zone, x:335.0, y:120.0, width:20.0, height:20.0, rotation: 0.0, 
+            effects: Some(ZoneEffects(accel_rate: 200.0, damage_rate: 0.0))),
+        ArenaRectangle (obstacle_type: Zone, x:20.0, y:80.0, width:40.0, height:40.0, rotation: 0.0, 
+            effects: Some(ZoneEffects(accel_rate: -20.0, damage_rate: 20.0))),
+    ],
     weapon_spawners: [
         WeaponBoxSpawner (x: 80.0, y: 120.0),
         WeaponBoxSpawner (x: 80.0, y: 320.0),
