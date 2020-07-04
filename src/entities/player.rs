@@ -286,7 +286,7 @@ pub fn intialize_player(
         let x = -320. + (weapon_array_id as f32)*30.0;
 
         let (icon_scale, weapon_sprite) =
-            get_weapon_icon(player_index, weapon_stats.weapon_fire_type.clone(), &weapon_fire_resource);
+            get_weapon_icon(Some(player_index), weapon_stats.weapon_fire_type.clone(), &weapon_fire_resource);
 
 
         let starting_x = match player_index {

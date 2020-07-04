@@ -200,7 +200,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 &weapon_store_resource,
                                 &entities,
                                 &weapon_fire_resource,
-                                player.id,
+                                Some(player.id),
                                 &lazy_update,
                             );
                         } //else, hadn't picked up a weapon spawn box yet
@@ -1207,8 +1207,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
                         let abs_vel = sq_vel.sqrt();
 
-                        vehicle.dx *= wall_hit_bounce_decel_pct;
-                        vehicle.dy *= wall_hit_bounce_decel_pct;
+                        let (new_dx, new_dy, _new_angle) = calc_bounce_angle(
+                            contact_pt.x, contact_pt.y,
+                            hitbox_x, hitbox_y,
+                            arena_element.hitbox.shape,
+                            vehicle.dx.clone(), vehicle.dy.clone(),
+                        );
+
+                        vehicle.dx = new_dx * wall_hit_bounce_decel_pct;
+                        vehicle.dy = new_dy * wall_hit_bounce_decel_pct;
 
                         player_arena_bounce_map.insert(player.id.clone(), contact_pt);
 
@@ -1343,7 +1350,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     &weapon_store_resource,
                                     &entities,
                                     &weapon_fire_resource,
-                                    player.id,
+                                    Some(player.id),
                                     &lazy_update,
                                 );
 
@@ -1484,4 +1491,64 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
         }
     }
+}
+
+
+
+pub fn calc_bounce_angle(
+    contact_x: f32, contact_y: f32,
+    hitbox_x: f32, hitbox_y: f32,
+    hitbox_shape: HitboxShape,
+    moving_dx: f32, moving_dy: f32,
+) -> (f32, f32, f32) { //(new_dx, new_dy, new_angle)
+    //Input:
+    //contact_pt.x, contact_pt.y
+    //hitbox_x, hitbox_y, hitbox_shape
+
+    //Output:
+    //moving.dx, moving.dy
+    //moving.rotation
+    
+    let x_diff = hitbox_x - contact_x;
+    let y_diff = hitbox_y - contact_y;
+
+    let moving_angle = moving_dy.atan2(moving_dx) + PI/2.0;
+
+    let mut new_angle;
+    if hitbox_shape == HitboxShape::Circle 
+    {
+        let mut contact_perp_angle = y_diff.atan2(x_diff) + PI/2.0;
+        if contact_perp_angle > PI {
+            contact_perp_angle -= 2.0*PI;
+        }
+
+        log::info!("prev_moving_angle: {}", moving_angle/PI*180.0);
+        log::info!("contact_perp_angle: {}", contact_perp_angle/PI*180.0);
+
+        new_angle = contact_perp_angle - moving_angle - PI/2.0;
+
+        log::info!("new_angle: {}", new_angle/PI*180.0);
+
+        if new_angle > PI {
+            new_angle -= 2.0*PI;
+        }
+        else if new_angle < -PI {
+            new_angle += 2.0*PI;
+        }
+
+        log::info!("new_angle: {}", new_angle/PI*180.0);
+    }
+    else 
+    {
+        let contact_perp_angle = y_diff.atan2(x_diff);
+
+        new_angle = contact_perp_angle - moving_angle;
+    }
+
+    let moving_speed = (moving_dx.powi(2) + moving_dy.powi(2)).sqrt();
+
+    let moving_dx_new = moving_speed*-new_angle.sin();
+    let moving_dy_new = moving_speed*new_angle.cos();
+
+    (moving_dx_new, moving_dy_new, new_angle)
 }

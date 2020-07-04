@@ -39,7 +39,7 @@
         health_damage_pct: 0.0,
         ion_malfunction_pct: 0.0,
       ),
-      bounces: 0,
+      bounces: 1,
       chaining_damage: ChainingDamage (
         damage_pct: 0.0,
         radius: 0.0,

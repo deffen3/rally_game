@@ -216,7 +216,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                                 weapon_index,
                                                 fire_position,
                                                 fire_angle,
-                                                player.id,
+                                                Some(player.id),
                                                 &lazy_update,
                                             );
                                         }

@@ -395,7 +395,7 @@ pub struct WeaponFire {
     pub spawn_x: f32,
     pub spawn_y: f32,
     pub spawn_angle: f32,
-    pub owner_player_id: usize,
+    pub owner_player_id: Option<usize>,
     pub shot_life_timer: f32,
     pub chain_hit_ids: Vec<usize>,
     pub stats: WeaponFireStats,
@@ -408,7 +408,7 @@ impl Component for WeaponFire {
 
 impl WeaponFire {
     pub fn new(
-        owner_player_id: usize,
+        owner_player_id: Option<usize>,
         weapon_array_id: usize,
         weapon_name: WeaponNames,
         weapon_fire_type: WeaponFireTypes,
@@ -446,10 +446,19 @@ pub fn update_weapon_properties(
     weapon_store: &ReadExpect<WeaponStoreResource>,
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
-    player_id: usize,
+    player_id: Option<usize>,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
     if let Some(weapon_name) = weapon_name {
+
+        let player_id_sub;
+        if player_id.is_none() {
+            player_id_sub = 0;
+        }
+        else {
+            player_id_sub = player_id.unwrap();
+        }
+
         //Get new weapon data
         let new_weapon_stats = build_named_weapon(weapon_name.clone(), weapon_store);
         let weapon_fire_type = new_weapon_stats.weapon_fire_type;
@@ -465,7 +474,7 @@ pub fn update_weapon_properties(
             get_weapon_icon(player_id, new_weapon_stats.weapon_fire_type, &weapon_fire_resource);
 
 
-        let starting_x = match player_id {
+        let starting_x = match player_id_sub {
             0 => (x),
             1 => (x + dx),
             2 => (x + 2.0*dx),
@@ -490,7 +499,7 @@ pub fn update_weapon_properties(
         // You can change the color at any point to modify the sprite's tint.
         let icon_tint = Tint(Srgba::new(1.0, 1.0, 1.0, 1.0));
 
-        lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id, weapon_array_id, weapon_fire_type));
+        lazy_update.insert(icon_entity, PlayerWeaponIcon::new(player_id_sub, weapon_array_id, weapon_fire_type));
         lazy_update.insert(icon_entity, UiImage::Sprite(weapon_sprite));
         lazy_update.insert(icon_entity, icon_weapon_transform);
         lazy_update.insert(icon_entity, icon_tint);
@@ -574,10 +583,18 @@ pub fn build_named_weapon_from_world(
 
 
 pub fn get_weapon_icon(
-    player_id: usize,
+    player_id: Option<usize>,
     weapon_fire_type: WeaponFireTypes,
     weapon_fire_resource: &WeaponFireResource,
 ) -> (f32, SpriteRender) {
+
+    let player_id_sub;
+    if player_id.is_none() {
+        player_id_sub = 0;
+    }
+    else {
+        player_id_sub = player_id.unwrap();
+    }
 
     let (icon_scale, mut weapon_sprite) = match weapon_fire_type {
         WeaponFireTypes::LaserDouble => (1.5, weapon_fire_resource.laser_double_sprite_render.clone()),
@@ -605,9 +622,9 @@ pub fn get_weapon_icon(
 
     //Player colored weapons
     if weapon_fire_type == WeaponFireTypes::Mine {
-        weapon_sprite = get_mine_sprite(player_id, weapon_fire_resource);
+        weapon_sprite = get_mine_sprite(player_id_sub, weapon_fire_resource);
     } else if weapon_fire_type == WeaponFireTypes::Trap {
-        weapon_sprite = get_trap_sprite(player_id, weapon_fire_resource);
+        weapon_sprite = get_trap_sprite(player_id_sub, weapon_fire_resource);
     }
 
     (icon_scale*3.0, weapon_sprite)

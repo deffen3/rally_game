@@ -30,6 +30,9 @@ use crate::entities::{spawn_weapon_box_from_spawner, hit_spray, explosion_shockw
 
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
+use crate::systems::{calc_bounce_angle};
+
+
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
 
 pub const HIT_SOUND_COOLDOWN_RESET: f32 = 0.30;
@@ -234,6 +237,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                         if !weapon_fire.stats.attached {
                             if weapon_fire.stats.bounces > 0 {
                                 weapon_fire.stats.bounces -= 1;
+                                weapon_fire.owner_player_id = None;
 
                                 let contact_data;
                                 if arena_element.hitbox.shape == HitboxShape::Circle 
@@ -252,53 +256,15 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         
                                 let contact_pt = contact_data.unwrap().world2;
 
-                                //Input:
-                                //contact_pt.x, contact_pt.y
-                                //hitbox_x, hitbox_y
+                                let (new_dx, new_dy, _new_angle) = calc_bounce_angle(
+                                    contact_pt.x.clone(), contact_pt.y.clone(),
+                                    hitbox_x, hitbox_y,
+                                    arena_element.hitbox.shape.clone(),
+                                    weapon_fire.dx.clone(), weapon_fire.dy.clone(),
+                                );
 
-                                //Output:
-                                //weapon_fire.dx, weapon_fire.dy
-                                //weapon_fire_transform.set_rotation_2d
-
-                                
-                                let x_diff = hitbox_x - contact_pt.x;
-                                let y_diff = hitbox_y - contact_pt.y;
-
-                                let mut new_angle;
-                                if arena_element.hitbox.shape == HitboxShape::Circle 
-                                {
-                                    let mut contact_perp_angle = y_diff.atan2(x_diff) + PI/2.0;
-                                    if contact_perp_angle > PI {
-                                        contact_perp_angle -= 2.0*PI;
-                                    }
-
-                                    log::info!("fire_angle: {}", fire_angle/PI*180.0);
-                                    log::info!("contact_perp_angle: {}", contact_perp_angle/PI*180.0);
-
-                                    new_angle = contact_perp_angle - fire_angle - PI/2.0;
-
-                                    log::info!("new_angle: {}", new_angle/PI*180.0);
-
-                                    if new_angle > PI {
-                                        new_angle -= 2.0*PI;
-                                    }
-                                    else if new_angle < -PI {
-                                        new_angle += 2.0*PI;
-                                    }
-
-                                    log::info!("new_angle: {}", new_angle/PI*180.0);
-                                }
-                                else 
-                                {
-                                    let contact_perp_angle = y_diff.atan2(x_diff);
-
-                                    new_angle = contact_perp_angle - fire_angle;
-                                }
-
-                                let weapon_fire_speed = (weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2)).sqrt();
-
-                                weapon_fire.dx = weapon_fire_speed*-new_angle.sin();
-                                weapon_fire.dy = weapon_fire_speed*new_angle.cos();
+                                weapon_fire.dx = new_dx;
+                                weapon_fire.dy = new_dy;
                             }
                             else {
                                 let _ = entities.delete(weapon_fire_entity);
@@ -378,7 +344,8 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                 }
 
                 log::info!("available_locations: {}", number_of_random_spawn_locations);
-                log::info!("spawns_required: {}", game_weapon_setup.random_weapon_spawn_count.min(number_of_random_spawn_locations as u32));
+                log::info!("spawns_required: {}", 
+                    game_weapon_setup.random_weapon_spawn_count.min(number_of_random_spawn_locations as u32));
                 log::info!("spawn_indices: {:?}", available_indices);
 
                 for (idx, arena_element) in random_weapon_spawn_boxes.iter().enumerate() {
@@ -421,7 +388,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
             for (weapon_fire_entity, weapon_fire, weapon_fire_transform) in
                 (&*entities, &mut weapon_fires, &transforms).join()
             {
-                if weapon_fire.owner_player_id != player.id {
+                if weapon_fire.owner_player_id.is_none() || weapon_fire.owner_player_id.unwrap() != player.id {
                     let fire_x = weapon_fire_transform.translation().x;
                     let fire_y = weapon_fire_transform.translation().y;
 
@@ -519,7 +486,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     }
 
                     if weapon_fire_hit {
-                        player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
+                        player.last_hit_by_id = weapon_fire.owner_player_id.clone();
                         player.last_hit_timer = 0.0;
 
                         player_makes_hit_map.insert(weapon_fire.owner_player_id.clone(), player.id);
@@ -529,7 +496,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
-                            Some(weapon_fire.owner_player_id.clone()),
+                            weapon_fire.owner_player_id.clone(),
                             Some(weapon_fire.weapon_name),
                             damage,
                             weapon_fire.stats.piercing_damage_pct,
@@ -645,7 +612,9 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     let vehicle_x = vehicle_transform.translation().x;
                     let vehicle_y = vehicle_transform.translation().y;
 
-                    if !weapon_fire.chain_hit_ids.contains(&player.id) && player.id != weapon_fire.owner_player_id {
+                    if !weapon_fire.chain_hit_ids.contains(&player.id) && 
+                        (weapon_fire.owner_player_id.is_none() || weapon_fire.owner_player_id.unwrap() != player.id) 
+                    {
                         if (hit_x - vehicle_x).powi(2) + (hit_y - vehicle_y).powi(2)
                             < (vehicle.width/2.0 + weapon_fire.stats.chaining_damage.radius).powi(2)
                         {
@@ -722,14 +691,14 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     if (fire_x - vehicle_x).powi(2) + (fire_y - vehicle_y).powi(2)
                         < (vehicle.width/2.0 + weapon_fire.stats.damage_radius).powi(2) 
                     {
-                        player.last_hit_by_id = Some(weapon_fire.owner_player_id.clone());
+                        player.last_hit_by_id = weapon_fire.owner_player_id.clone();
                         player.last_hit_timer = 0.0;
 
                         let damage: f32 = weapon_fire.stats.damage;
                     
                         let vehicle_destroyed: bool = vehicle_damage_model(
                             vehicle,
-                            Some(weapon_fire.owner_player_id.clone()),
+                            weapon_fire.owner_player_id.clone(),
                             Some(weapon_fire.weapon_name),
                             damage,
                             weapon_fire.stats.piercing_damage_pct,
@@ -742,11 +711,13 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                         if vehicle_destroyed && vehicle.state == VehicleState::Active {
                             play_bounce_sound(&*sounds, &storage, audio_output.as_deref());
                     
-                            if player.id != weapon_fire.owner_player_id.clone() {
-                                player_makes_kill_map.insert(
-                                    weapon_fire.owner_player_id.clone(),
-                                    weapon_fire.weapon_name.clone(),
-                                );
+                            if let Some(owner_player_id) = weapon_fire.owner_player_id {
+                                if owner_player_id != player.id {
+                                    player_makes_kill_map.insert(
+                                        weapon_fire.owner_player_id.clone(),
+                                        weapon_fire.weapon_name.clone(),
+                                    );
+                                }
                             }
                     
                             player_got_killed_map
@@ -798,13 +769,13 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         for (player, weapon_array, vehicle, transform) in
             (&mut players, &weapon_arrays, &mut vehicles, &mut transforms).join()
         {
-            let hit_data = player_makes_hit_map.get(&player.id);
+            let hit_data = player_makes_hit_map.get(&Some(player.id));
 
             if let Some(_hit_data) = hit_data {
                 player.last_made_hit_timer = 0.0;
             }
 
-            let killer_data = player_makes_kill_map.get(&player.id);
+            let killer_data = player_makes_kill_map.get(&Some(player.id));
 
             if let Some(killer_data) = killer_data {
                 let weapon_name = killer_data;
@@ -937,7 +908,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                             &weapon_store_resource,
                             &entities,
                             &weapon_fire_resource,
-                            player.id,
+                            Some(player.id),
                             &lazy_update,
                         );
 

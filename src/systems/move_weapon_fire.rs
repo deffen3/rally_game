@@ -88,21 +88,23 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         (&vehicles, &transforms, &players).join()
                     {
                         if vehicle.state == VehicleState::Active {
-                            if weapon_fire.owner_player_id != player.id {
-                                let vehicle_x = vehicle_transform.translation().x;
-                                let vehicle_y = vehicle_transform.translation().y;
+                            if let Some(owner_player_id) = weapon_fire.owner_player_id {
+                                if owner_player_id == player.id {
+                                    let vehicle_x = vehicle_transform.translation().x;
+                                    let vehicle_y = vehicle_transform.translation().y;
 
-                                // let weapon_rotation = transform.rotation();
-                                // let (_, _, weapon_angle) = weapon_rotation.euler_angles();
+                                    // let weapon_rotation = transform.rotation();
+                                    // let (_, _, weapon_angle) = weapon_rotation.euler_angles();
 
-                                let dist = ((vehicle_x - fire_x).powi(2)
-                                    + (vehicle_y - fire_y).powi(2))
-                                .sqrt();
+                                    let dist = ((vehicle_x - fire_x).powi(2)
+                                        + (vehicle_y - fire_y).powi(2))
+                                    .sqrt();
 
-                                if dist < closest_vehicle_dist {
-                                    closest_vehicle_dist = dist;
-                                    closest_vehicle_x_diff = fire_x - vehicle_x;
-                                    closest_vehicle_y_diff = fire_y - vehicle_y;
+                                    if dist < closest_vehicle_dist {
+                                        closest_vehicle_dist = dist;
+                                        closest_vehicle_x_diff = fire_x - vehicle_x;
+                                        closest_vehicle_y_diff = fire_y - vehicle_y;
+                                    }
                                 }
                             }
                         }
@@ -119,38 +121,40 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     for (_vehicle, vehicle_transform, weapon_array, player) in
                         (&vehicles, &transforms, &weapon_arrays, &players).join()
                     {
-                        if weapon_fire.owner_player_id == player.id {
-                            let vehicle_rotation = vehicle_transform.rotation();
-                            let (_, _, yaw) = vehicle_rotation.euler_angles();
+                        if let Some(owner_player_id) = weapon_fire.owner_player_id {
+                            if owner_player_id == player.id {
+                                let vehicle_rotation = vehicle_transform.rotation();
+                                let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-                            for (weapon_idx, weapon_install) in weapon_array.installed.iter().enumerate() {
-                                let weapon = &weapon_install.weapon;
+                                for (weapon_idx, weapon_install) in weapon_array.installed.iter().enumerate() {
+                                    let weapon = &weapon_install.weapon;
 
-                                //undeploy old attached weapons
-                                if weapon_fire.weapon_array_id == weapon_idx 
-                                        && weapon.name != weapon_fire.weapon_name {
-                                    weapon_fire.deployed = false;
-                                }
-
-                                if weapon.name == weapon_fire.weapon_name && weapon.stats.fire_stats.attached {
-                                    //pass on deployed status
-                                    if weapon.deployed == false {
+                                    //undeploy old attached weapons
+                                    if weapon_fire.weapon_array_id == weapon_idx 
+                                            && weapon.name != weapon_fire.weapon_name {
                                         weapon_fire.deployed = false;
-                                        let _ = entities.delete(entity);
                                     }
-                                    else if weapon.deployed == true {
-                                        weapon_fire.deployed = true;
-                                    }
-                                }
 
-                                vehicle_owner_map.insert(
-                                    weapon_fire.owner_player_id,
-                                    (
-                                        vehicle_transform.translation().x,
-                                        vehicle_transform.translation().y,
-                                        yaw,
-                                    ),
-                                );
+                                    if weapon.name == weapon_fire.weapon_name && weapon.stats.fire_stats.attached {
+                                        //pass on deployed status
+                                        if weapon.deployed == false {
+                                            weapon_fire.deployed = false;
+                                            let _ = entities.delete(entity);
+                                        }
+                                        else if weapon.deployed == true {
+                                            weapon_fire.deployed = true;
+                                        }
+                                    }
+
+                                    vehicle_owner_map.insert(
+                                        weapon_fire.owner_player_id,
+                                        (
+                                            vehicle_transform.translation().x,
+                                            vehicle_transform.translation().y,
+                                            yaw,
+                                        ),
+                                    );
+                                }
                             }
                         }
                     }
@@ -234,6 +238,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                             if !weapon_fire.stats.attached {
                                 if weapon_fire.stats.bounces > 0 {
                                     weapon_fire.stats.bounces -= 1;
+                                    weapon_fire.owner_player_id = None;
 
                                     if (fire_x > self.arena_properties.width)
                                         || (fire_x < 0.0) 

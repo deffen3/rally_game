@@ -17,7 +17,7 @@ pub fn chain_fire_weapon(
     spawner_weapon_fire: WeaponFire,
     fire_position: Vector3<f32>,
     fire_angle: f32,
-    player_id: usize,
+    player_id: Option<usize>,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
     let fire_entity: Entity = entities.create();
@@ -67,7 +67,7 @@ pub fn fire_weapon(
     weapon_array_id: usize,
     fire_position: Vector3<f32>,
     fire_angle: f32,
-    player_id: usize,
+    player_id: Option<usize>,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
     let fire_entity: Entity = entities.create();
