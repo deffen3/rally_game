@@ -620,12 +620,6 @@ pub fn intialize_arena(
         }
     }
 
-    log::info!("{} == {}", nav_mesh_vertices.len(), xs_len * ys_len);
-    log::info!("{} == {}", nav_mesh_triangles.len(), 2 * (xs_len-1) * (ys_len-1) - 2*grid_drops);
-
-    //assert!(nav_mesh_vertices.len() == xs_len * ys_len);
-    //assert!(nav_mesh_triangles.len() == 2 * (xs_len-1) * (ys_len-1) - 2*grid_drops);
-
 
     //Store navigation mesh
     let fetched_arena_nav_mesh = world.try_fetch_mut::<ArenaNavMesh>();
