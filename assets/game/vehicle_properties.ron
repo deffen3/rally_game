@@ -75,7 +75,7 @@
     default_weapons: [
       WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
       WeaponNameInstall(firing_group: 0, weapon_name: LaserBeam),
-      WeaponNameInstall(firing_group: 1, weapon_name: ProjectileCannonFire),
+      WeaponNameInstall(firing_group: 1, weapon_name: ProjectileCannon),
     ],
   ),
   CivilianCruiser : VehicleStats (

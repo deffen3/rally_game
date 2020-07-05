@@ -32,7 +32,7 @@ pub enum WeaponNames {
     ProjectileSteadyFire,
     ProjectileBurstFire,
     PiercingProjectile,
-    ProjectileCannonFire,
+    ProjectileCannon,
     Shotgun,
     Mine,
     Trap,
@@ -646,9 +646,9 @@ pub fn get_weapon_icon(
         WeaponFireTypes::Flame => (1.0, weapon_fire_resource.flame_sprite_render.clone()),
         WeaponFireTypes::Grenade => (1.0, weapon_fire_resource.grenade_sprite_render.clone()),
         WeaponFireTypes::Ion => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
-        WeaponFireTypes::BioSpike => (0.75, weapon_fire_resource.ion_sprite_render.clone()),
-        WeaponFireTypes::LightBolt => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
-        WeaponFireTypes::SlimeBall => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
+        WeaponFireTypes::BioSpike => (0.75, weapon_fire_resource.bio_spike_sprite_render.clone()),
+        WeaponFireTypes::LightBolt => (1.0, weapon_fire_resource.light_bolt_sprite_render.clone()),
+        WeaponFireTypes::SlimeBall => (1.0, weapon_fire_resource.slime_ball_sprite_render.clone()),
     };
 
     //Player colored weapons

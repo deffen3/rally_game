@@ -1,10 +1,10 @@
 {
   LaserDoubleGimballed: 0,
   LaserDoubleBurstSide: 4,
-  LaserPulseGimballed: 8,
+  LaserPulse: 8,
   LaserBeam: 8,
   Shotgun: 8,
-  ProjectileCannonFire: 8,
+  ProjectileCannon: 8,
   ProjectileRapidFireTurret: 4,
   ProjectileBurstFire: 5,
   PiercingProjectile: 3,
@@ -16,4 +16,7 @@
   Trap: 2,
   LaserSword: 3,
   BackwardsLaserSword: 1,
+  BioSpiker: 4,
+  StormGun: 4,
+  SlimeLauncher: 4,
 }

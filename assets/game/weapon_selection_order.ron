@@ -1,10 +1,10 @@
 [
   LaserDoubleGimballed,
   LaserDoubleBurstSide,
-  LaserPulseGimballed,
+  LaserPulse,
   LaserBeam,
   Shotgun,
-  ProjectileLarge,
+  ProjectileCannon,
   ProjectileRapidFireTurret,
   ProjectileBurstFire,
   PiercingProjectile,
@@ -16,4 +16,7 @@
   Trap,
   LaserSword,
   BackwardsLaserSword,
+  BioSpiker,
+  StormGun,
+  SlimeLauncher,
 ]
