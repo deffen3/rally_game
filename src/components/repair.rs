@@ -4,7 +4,7 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage, Entity};
 pub struct Repair {
     pub activated: bool,
     pub init_timer: f32,
-    pub init_threshold: f32,
+    pub init_time_threshold: f32,
     pub entity: Entity,
 }
 
