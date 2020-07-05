@@ -311,7 +311,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         {
             let angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI/2.0);
 
-            weapon_fire_transform.set_rotation_2d(angle);
+            weapon_fire_transform.set_rotation_2d(angle + PI);
         }
         
 

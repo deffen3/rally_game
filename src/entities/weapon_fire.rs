@@ -5,6 +5,8 @@ use amethyst::{
     utils::removal::Removal,
 };
 
+use std::f32::consts::PI;
+
 use crate::resources::WeaponFireResource;
 
 use crate::components::{get_weapon_icon, Weapon, WeaponFire};
@@ -41,7 +43,7 @@ pub fn chain_fire_weapon(
         let angle_x_comp: f32 = -fire_angle.sin();
         let angle_y_comp: f32 = fire_angle.cos();
 
-        local_transform.set_rotation_2d(fire_angle);
+        local_transform.set_rotation_2d(fire_angle - PI);
 
         weapon_fire.dx = weapon_fire.stats.shot_speed * angle_x_comp;
         weapon_fire.dy = weapon_fire.stats.shot_speed * angle_y_comp;
@@ -87,7 +89,7 @@ pub fn fire_weapon(
         let angle_x_comp: f32 = -fire_angle.sin();
         let angle_y_comp: f32 = fire_angle.cos();
 
-        local_transform.set_rotation_2d(fire_angle);
+        local_transform.set_rotation_2d(fire_angle - PI);
 
         weapon_fire.dx = weapon_fire.stats.shot_speed * angle_x_comp;
         weapon_fire.dy = weapon_fire.stats.shot_speed * angle_y_comp;
