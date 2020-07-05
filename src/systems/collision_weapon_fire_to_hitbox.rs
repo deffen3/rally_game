@@ -345,10 +345,10 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     available_indices.remove(remove_index);
                 }
 
-                log::info!("available_locations: {}", number_of_random_spawn_locations);
-                log::info!("spawns_required: {}", 
+                log::debug!("available_locations: {}", number_of_random_spawn_locations);
+                log::debug!("spawns_required: {}", 
                     game_weapon_setup.random_weapon_spawn_count.min(number_of_random_spawn_locations as u32));
-                log::info!("spawn_indices: {:?}", available_indices);
+                log::debug!("spawn_indices: {:?}", available_indices);
 
                 for (idx, arena_element) in random_weapon_spawn_boxes.iter().enumerate() {
                     if available_indices.contains(&idx) {
