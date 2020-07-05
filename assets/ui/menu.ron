@@ -544,12 +544,46 @@ Container(
 
 
 
+        Container(
+            transform: (
+                id: "container_customize_weapons",
+                x: -250.,
+                y: -500.,
+                width: 305.,
+                height: 35.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "customize_weapons",
+                        width: 300.,
+                        height: 30.,
+                        tab_order: 13,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "Set Weapon Rules",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 25.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
 
         Container(
             transform: (
                 id: "container_customize_vehicles",
                 x: -250.,
-                y: -500.,
+                y: -550.,
                 width: 305.,
                 height: 35.,
                 anchor: TopRight,
@@ -581,39 +615,7 @@ Container(
 
 
 
-        Container(
-            transform: (
-                id: "container_customize_weapons",
-                x: -250.,
-                y: -550.,
-                width: 305.,
-                height: 35.,
-                anchor: TopRight,
-            ),
-            background: SolidColor(0.8, 0.1, 0.05, 1.0),
-            children: [
-
-                Button(
-                    transform: (
-                        id: "customize_weapons",
-                        width: 300.,
-                        height: 30.,
-                        tab_order: 13,
-                        anchor: Middle,
-                        mouse_reactive: true,
-                    ),
-                    button: (
-                        text: "Set Weapon Rules",
-                        font: File("font/square.ttf", ("TTF", ())),
-                        font_size: 25.,
-                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
-                        normal_image: SolidColor(0., 0., 0., 1.),
-                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
-                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
-                    )
-                ),
-            ]
-        ),
+        
 
 
         Container(

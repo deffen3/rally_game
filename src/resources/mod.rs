@@ -1,7 +1,7 @@
 pub use self::game_mode_setup::{
     GameModeSetup, GameModes, GameScore, GameEndCondition,
     GameWeaponSetup, GameTeamSetup, TeamSetupTypes, GameVehicleSetup,
-    GameWeaponMode,
+    GameWeaponSelectionMode,
 };
 pub use self::match_timer::MatchTimer;
 pub use self::weapon_fire_resource::{initialize_weapon_fire_resource, WeaponFireResource};

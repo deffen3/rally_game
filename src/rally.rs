@@ -18,13 +18,14 @@ use amethyst::{
 
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
+use rand::seq::SliceRandom;
 
 use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
 use crate::resources::{initialize_weapon_fire_resource, 
     GameModeSetup, GameScore, 
-    GameTeamSetup, WeaponFireResource, GameVehicleSetup, 
+    GameTeamSetup, WeaponFireResource, GameVehicleSetup,
     ArenaNavMesh, ArenaNavMeshFinal,
 };
 
@@ -35,8 +36,8 @@ use crate::entities::{
 
 use crate::components::{
     ArenaElement, Hitbox, 
-    Player, PlayerWeaponIcon, Repair, Shield, Armor, Health, Vehicle,
-    WeaponArray, WeaponFire, Particles, get_none_vehicle,
+    Player, PlayerWeaponIcon, Repair, Shield, Armor, Health, Vehicle, get_none_vehicle,
+    WeaponArray, WeaponFire, Particles, WeaponStoreResource,
     ArenaNames, ArenaStoreResource, ArenaProperties,
 };
 
@@ -210,6 +211,15 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         }
         
 
+        {
+            let mut weapon_store_resource = world.fetch_mut::<WeaponStoreResource>();
+
+            let mut rng = rand::thread_rng();
+            let mut new_gun_game_order = weapon_store_resource.gun_game_order.clone();
+            new_gun_game_order.shuffle(&mut rng);
+
+            weapon_store_resource.gun_game_random_order = new_gun_game_order;
+        }
 
         
         let player_status_text = PlayerStatusText {

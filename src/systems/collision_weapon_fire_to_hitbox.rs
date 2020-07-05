@@ -895,6 +895,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     let new_weapon_name = get_next_weapon_name(
                         primary_weapon.name.clone(),
                         &weapon_store_resource,
+                        &game_weapon_setup,
                     );
 
                     if let Some(new_weapon_name) = new_weapon_name.clone() {

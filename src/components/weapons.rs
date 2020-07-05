@@ -13,8 +13,8 @@ use std::{collections::HashMap, fs::File};
 
 use log::{info};
 
-use crate::components::PlayerWeaponIcon;
-use crate::resources::{WeaponFireResource};
+use crate::components::{PlayerWeaponIcon,};
+use crate::resources::{WeaponFireResource, GameWeaponSetup, GameWeaponSelectionMode,};
 
 
 
@@ -137,18 +137,53 @@ pub fn get_random_weapon_name_build_chance(
 pub fn get_next_weapon_name(
     weapon_name: WeaponNames,
     weapon_store_resource: &WeaponStoreResource,
+    game_weapon_setup: &GameWeaponSetup,
 ) -> Option<WeaponNames> {
 
     let length = weapon_store_resource.gun_game_order.len();
-    let index = weapon_store_resource.gun_game_order.iter().position(|&r| r == weapon_name);
 
     let weapon_out: Option<WeaponNames>;
-    if let Some(index) = index {
-        if index == length-1 {
-            weapon_out = Some(weapon_store_resource.gun_game_order[0]); //loop-back around
+    
+    if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameForward {
+        let index = weapon_store_resource.gun_game_order.iter().position(|&r| r == weapon_name);
+        if let Some(index) = index {
+            if index == length-1 {
+                weapon_out = Some(weapon_store_resource.gun_game_order[0]); //loop-back around
+            }
+            else {
+                weapon_out = Some(weapon_store_resource.gun_game_order[index+1]);
+            }
         }
         else {
-            weapon_out = Some(weapon_store_resource.gun_game_order[index+1]);
+            weapon_out = None;
+        }
+    }
+    else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameReverse {
+        let index = weapon_store_resource.gun_game_order.iter().position(|&r| r == weapon_name);
+        if let Some(index) = index {
+            if index == 0 {
+                weapon_out = Some(weapon_store_resource.gun_game_order[length-1]); //loop-back around
+            }
+            else {
+                weapon_out = Some(weapon_store_resource.gun_game_order[index-1]);
+            }
+        }
+        else {
+            weapon_out = None;
+        }
+    }
+    else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameRandom {
+        let index = weapon_store_resource.gun_game_random_order.iter().position(|&r| r == weapon_name);
+        if let Some(index) = index {
+            if index == length-1 {
+                weapon_out = Some(weapon_store_resource.gun_game_random_order[0]); //loop-back around
+            }
+            else {
+                weapon_out = Some(weapon_store_resource.gun_game_random_order[index+1]);
+            }
+        }
+        else {
+            weapon_out = None;
         }
     }
     else {
@@ -237,6 +272,7 @@ pub struct WeaponStoreResource {
     pub properties: HashMap<WeaponNames, WeaponStats>,
     pub spawn_chance: HashMap<WeaponNames, u32>,
     pub gun_game_order: Vec<WeaponNames>,
+    pub gun_game_random_order: Vec<WeaponNames>,
     pub selection_order: Vec<WeaponNames>,
 }
 
@@ -267,7 +303,8 @@ pub fn build_weapon_store(world: &mut World) {
     let weapon_store = WeaponStoreResource {
         properties: weapon_properties_map,
         spawn_chance: weapon_spawn_chance_map,
-        gun_game_order: gun_game_order_map,
+        gun_game_order: gun_game_order_map.clone(),
+        gun_game_random_order: gun_game_order_map,
         selection_order: selection_order_map,
     };
 

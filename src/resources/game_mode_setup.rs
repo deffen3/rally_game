@@ -39,9 +39,10 @@ pub struct GameModeSetup {
 
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum GameWeaponMode {
+pub enum GameWeaponSelectionMode {
     GunGameForward,
     GunGameReverse,
+    GunGameRandom,
     StarterAndPickup,
     CustomStarterAndPickup,
     FullCustom,
@@ -51,7 +52,7 @@ pub enum GameWeaponMode {
 
 
 pub struct GameWeaponSetup {
-    pub mode: GameWeaponMode,
+    pub mode: GameWeaponSelectionMode,
     pub starter_weapon: WeaponNames,
     pub allowable_starter_weapons: Vec<WeaponNames>,
     pub random_weapon_spawns: bool,

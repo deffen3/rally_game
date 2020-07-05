@@ -31,7 +31,7 @@ use crate::components::{
 
 use crate::entities::{malfunction_sparking, acceleration_spray};
 
-use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource, GameWeaponMode};
+use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource, GameWeaponSelectionMode};
 
 use crate::rally::{
     BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
@@ -179,8 +179,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                     
                     if !game_weapon_setup.keep_picked_up_weapons &&
-                        (game_weapon_setup.mode == GameWeaponMode::StarterAndPickup ||
-                        game_weapon_setup.mode == GameWeaponMode::CustomStarterAndPickup)
+                        (game_weapon_setup.mode == GameWeaponSelectionMode::StarterAndPickup ||
+                        game_weapon_setup.mode == GameWeaponSelectionMode::CustomStarterAndPickup)
                     {
                         //Remove weapons picked up in previous life
                         if weapon_array.installed.len() >= 2

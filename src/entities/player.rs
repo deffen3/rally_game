@@ -18,7 +18,7 @@ use crate::components::{
     Vehicle, VehicleStats, get_vehicle_sprites, get_weapon_width_height, WeaponInstall, WeaponNameInstall,
     ArenaStoreResource, ArenaNames, ArenaProperties,
 };
-use crate::resources::{GameModeSetup, GameWeaponSetup, GameWeaponMode, WeaponFireResource};
+use crate::resources::{GameModeSetup, GameWeaponSetup, GameWeaponSelectionMode, WeaponFireResource};
 
 
 pub fn intialize_player(
@@ -36,8 +36,8 @@ pub fn intialize_player(
     {
         let fetched_game_weapon_setup = world.try_fetch::<GameWeaponSetup>();
         if let Some(game_weapon_setup) = fetched_game_weapon_setup {
-            if game_weapon_setup.mode == GameWeaponMode::StarterAndPickup 
-                || game_weapon_setup.mode == GameWeaponMode::CustomStarterAndPickup
+            if game_weapon_setup.mode == GameWeaponSelectionMode::StarterAndPickup 
+                || game_weapon_setup.mode == GameWeaponSelectionMode::CustomStarterAndPickup
             {
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
@@ -48,7 +48,7 @@ pub fn intialize_player(
                     y_offset: None,
                 });
             }
-            else if game_weapon_setup.mode == GameWeaponMode::GunGameForward {
+            else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameForward {
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
                     weapon_name: game_weapon_setup.starter_weapon.clone(),
@@ -58,7 +58,7 @@ pub fn intialize_player(
                     y_offset: None,
                 });
             }
-            else if game_weapon_setup.mode == GameWeaponMode::GunGameReverse {
+            else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameReverse {
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
                     weapon_name: game_weapon_setup.starter_weapon.clone(),
@@ -68,7 +68,17 @@ pub fn intialize_player(
                     y_offset: None,
                 });
             }
-            else if game_weapon_setup.mode == GameWeaponMode::FullCustom {
+            else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameRandom {
+                weapon_named_installs.push(WeaponNameInstall {
+                    firing_group: 0,
+                    weapon_name: game_weapon_setup.starter_weapon.clone(),
+                    ammo: None,
+                    mounted_angle: None,
+                    x_offset: None,
+                    y_offset: None,
+                });
+            }
+            else if game_weapon_setup.mode == GameWeaponSelectionMode::FullCustom {
                 for weapon_name_install in vehicle_stats.default_weapons.iter() {
                     weapon_named_installs.push(WeaponNameInstall {
                         firing_group: weapon_name_install.firing_group,
@@ -80,7 +90,7 @@ pub fn intialize_player(
                     });
                 }
             }
-            else if game_weapon_setup.mode == GameWeaponMode::VehiclePreset {
+            else if game_weapon_setup.mode == GameWeaponSelectionMode::VehiclePreset {
                 for weapon_name_install in vehicle_stats.default_weapons.iter() {
                     weapon_named_installs.push(WeaponNameInstall {
                         firing_group: weapon_name_install.firing_group,
