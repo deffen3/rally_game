@@ -122,7 +122,7 @@ impl<'s> System<'s> for CameraTrackingSystem {
 
         vehicle_min_x = (vehicle_min_x - offset).max(0.0);
         vehicle_max_x = (vehicle_max_x + offset).min(self.arena_properties.width);
-        vehicle_min_y = (vehicle_min_y - offset).max(0.0);
+        vehicle_min_y = (vehicle_min_y - offset).max(-40.0);
         vehicle_max_y = (vehicle_max_y + offset).min(self.arena_properties.height);
 
 
