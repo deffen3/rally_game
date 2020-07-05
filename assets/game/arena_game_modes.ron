@@ -4,5 +4,7 @@
   DeathmatchStock: [LargeCombat, StandardCombat, OpenEmptyMap],
   DeathmatchTimedKD: [StandardCombat, OpenEmptyMap],
   KingOfTheHill: [StandardKingOfTheHill],
+  CaptureTheFlag: [LargeCombat],
   Race: [StandardRace],
+  SurvivalWaves: [LargeCombat],
 }
