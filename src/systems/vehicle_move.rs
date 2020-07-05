@@ -1068,9 +1068,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
         for (player, vehicle, mut weapon_array, transform) in
             (&mut players, &mut vehicles, &mut weapon_arrays, &transforms).join()
         {
-            let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
-            let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
-
             let vehicle_x = transform.translation().x;
             let vehicle_y = transform.translation().y;
 
@@ -1214,8 +1211,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             vehicle.dx.clone(), vehicle.dy.clone(),
                         );
 
-                        vehicle.dx = new_dx * wall_hit_bounce_decel_pct;
-                        vehicle.dy = new_dy * wall_hit_bounce_decel_pct;
+                        vehicle.dx = new_dx * WALL_HIT_BOUNCE_DECEL_PCT;
+                        vehicle.dy = new_dy * WALL_HIT_BOUNCE_DECEL_PCT;
 
                         player_arena_bounce_map.insert(player.id.clone(), contact_pt);
 
@@ -1495,6 +1492,29 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
 
 
+pub fn clean_angle(angle: f32) -> f32 {
+    let mut new_angle: f32;
+
+    if angle > PI {
+        let diff = angle - PI;
+        new_angle = -PI + diff;
+    }
+    else if angle < -PI {
+        let diff = -PI - angle;
+        new_angle = PI - diff;
+    }
+    else {
+        new_angle = angle;
+    }
+
+    if new_angle > PI || new_angle < -PI {
+        new_angle = clean_angle(new_angle);
+    }
+
+    new_angle
+}
+
+
 pub fn calc_bounce_angle(
     contact_x: f32, contact_y: f32,
     hitbox_x: f32, hitbox_y: f32,
@@ -1511,44 +1531,99 @@ pub fn calc_bounce_angle(
     
     let x_diff = hitbox_x - contact_x;
     let y_diff = hitbox_y - contact_y;
+    let contact_angle = y_diff.atan2(x_diff);
 
-    let moving_angle = moving_dy.atan2(moving_dx) + PI/2.0;
+    let moving_angle = moving_dy.atan2(moving_dx);
 
-    let mut new_angle;
+    let new_angle;
     if hitbox_shape == HitboxShape::Circle 
     {
-        let mut contact_perp_angle = y_diff.atan2(x_diff) + PI/2.0;
-        if contact_perp_angle > PI {
-            contact_perp_angle -= 2.0*PI;
-        }
+        let contact_perp_angle = clean_angle(contact_angle + PI/2.0);
 
-        log::info!("prev_moving_angle: {}", moving_angle/PI*180.0);
-        log::info!("contact_perp_angle: {}", contact_perp_angle/PI*180.0);
-
-        new_angle = contact_perp_angle - moving_angle - PI/2.0;
-
-        log::info!("new_angle: {}", new_angle/PI*180.0);
-
-        if new_angle > PI {
-            new_angle -= 2.0*PI;
-        }
-        else if new_angle < -PI {
-            new_angle += 2.0*PI;
-        }
-
-        log::info!("new_angle: {}", new_angle/PI*180.0);
+        new_angle = clean_angle(contact_perp_angle + (contact_perp_angle - moving_angle));
     }
-    else 
+    else //rectangle
     {
-        let contact_perp_angle = y_diff.atan2(x_diff);
+        let contact_perp_angle = 0.0;
 
         new_angle = contact_perp_angle - moving_angle;
     }
 
     let moving_speed = (moving_dx.powi(2) + moving_dy.powi(2)).sqrt();
 
-    let moving_dx_new = moving_speed*-new_angle.sin();
-    let moving_dy_new = moving_speed*new_angle.cos();
+    let moving_dx_new = moving_speed*new_angle.cos();
+    let moving_dy_new = moving_speed*new_angle.sin();
 
     (moving_dx_new, moving_dy_new, new_angle)
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+    use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn test_clean_angle() {
+        assert_approx_eq!(clean_angle(270./180.*PI), -90./180.*PI);
+        assert_approx_eq!(clean_angle(-190./180.*PI), 170./180.*PI);
+        assert_approx_eq!(clean_angle(90./180.*PI), 90./180.*PI);
+        assert_approx_eq!(clean_angle(1800.0/180.*PI), 0./180.*PI, 0.0001);
+        assert_approx_eq!(clean_angle(-1850.0/180.*PI), -50./180.*PI, 0.0001);
+    }
+
+    #[test]
+    fn test_calc_bounce_angle() {
+        let (moving_dx_new, moving_dy_new, _new_angle) = calc_bounce_angle(
+            0.0, 0.0, //contact pt (x,y)
+            1.0, 0.0, //hitbox (x,y)
+            HitboxShape::Circle,
+            -1.0, 1.0, //moving dx, dy
+        );
+
+        assert_approx_eq!(moving_dx_new, 1.0);
+        assert_approx_eq!(moving_dy_new, 1.0);
+    }
+
+    #[test]
+    fn test_calc_bounce_angle2() {
+        let (moving_dx_new, moving_dy_new, _new_angle) = calc_bounce_angle(
+            0.0, 0.0, //contact pt (x,y)
+            0.0, -1.0, //hitbox (x,y)
+            HitboxShape::Circle,
+            1.0, 1.0, //moving dx, dy
+        );
+
+        assert_approx_eq!(moving_dx_new, 1.0);
+        assert_approx_eq!(moving_dy_new, -1.0);
+    }
+
+    #[test]
+    fn test_calc_bounce_angle3() {
+        let (moving_dx_new, moving_dy_new, _new_angle) = calc_bounce_angle(
+            0.0, 0.0, //contact pt (x,y)
+            0.0, -1.0, //hitbox (x,y)
+            HitboxShape::Circle,
+            0.125, 0.9, //moving dx, dy
+        );
+
+        assert_approx_eq!(moving_dx_new, 0.125);
+        assert_approx_eq!(moving_dy_new, -0.900);
+    }
+
+
+    #[test]
+    fn test_calc_bounce_angle4() {
+        let (moving_dx_new, moving_dy_new, _new_angle) = calc_bounce_angle(
+            0.0, 0.0, //contact pt (x,y)
+            1.0/(2.0 as f32).sqrt(), -1.0/(2.0 as f32).sqrt(), //hitbox (x,y)
+            HitboxShape::Circle,
+            0.0, 1.0, //moving dx, dy
+        );
+
+        assert_approx_eq!(moving_dx_new, 1.0);
+        assert_approx_eq!(moving_dy_new, 0.0);
+    }
 }

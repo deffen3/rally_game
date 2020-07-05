@@ -14,6 +14,7 @@ specs-physics = { git = "https://github.com/paulkernfeld/specs-physics" }
 nalgebra = "0.20"
 ncollide2d = "0.22"
 navmesh = "0.8"
+assert_approx_eq = "1.1.0"
 
 [features]
 default = ["vulkan"]
