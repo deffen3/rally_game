@@ -9,6 +9,7 @@ use crate::components::{
     ArenaProperties, ArenaNames, ArenaStoreResource
 };
 use crate::resources::{GameModeSetup};
+use crate::systems::{clean_angle};
 
 use log::debug;
 use std::collections::HashMap;
@@ -89,7 +90,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     {
                         if vehicle.state == VehicleState::Active {
                             if let Some(owner_player_id) = weapon_fire.owner_player_id {
-                                if owner_player_id == player.id {
+                                if owner_player_id != player.id {
                                     let vehicle_x = vehicle_transform.translation().x;
                                     let vehicle_y = vehicle_transform.translation().y;
 
@@ -110,9 +111,9 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         }
                     }
 
-                    let target_angle =
-                        closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0); //rotate by PI/2 to line up with yaw angle
-                                                                                           //let velocity_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
+                    let target_angle = clean_angle(
+                        closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0)
+                    ); //rotate by PI/2 to line up with yaw angle
 
                     heat_seeking_angle_map.insert(entity.id(), target_angle);
                 }

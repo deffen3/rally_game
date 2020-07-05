@@ -2,7 +2,7 @@ pub use self::collision_vehicle_vehicle::CollisionVehToVehSystem;
 pub use self::collision_weapon_fire_to_hitbox::CollisionWeaponFireHitboxSystem;
 pub use self::move_weapon_fire::MoveWeaponFireSystem;
 pub use self::ui_events::UiEventHandlerSystem;
-pub use self::vehicle_move::{VehicleMoveSystem, calc_bounce_angle};
+pub use self::vehicle_move::{VehicleMoveSystem, calc_bounce_angle, clean_angle};
 pub use self::vehicle_shield_armor_health::VehicleShieldArmorHealthSystem;
 pub use self::game_objective_status::VehicleStatusSystem;
 pub use self::vehicle_tracking::VehicleTrackingSystem;

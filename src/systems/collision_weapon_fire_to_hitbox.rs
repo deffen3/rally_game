@@ -30,7 +30,7 @@ use crate::entities::{spawn_weapon_box_from_spawner, hit_spray, explosion_shockw
 
 use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource};
 
-use crate::systems::{calc_bounce_angle};
+use crate::systems::{calc_bounce_angle, clean_angle};
 
 
 use crate::audio::{play_bounce_sound, play_score_sound, Sounds};
@@ -309,9 +309,11 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
         for (weapon_fire, weapon_fire_transform) in
             (&weapon_fires, &mut transforms).join()
         {
-            let angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI/2.0);
+            if !weapon_fire.stats.heat_seeking {
+                let angle = clean_angle(weapon_fire.dy.atan2(weapon_fire.dx) - (PI/2.0));
 
-            weapon_fire_transform.set_rotation_2d(angle + PI);
+                weapon_fire_transform.set_rotation_2d(angle);
+            }
         }
         
 
