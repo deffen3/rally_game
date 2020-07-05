@@ -669,9 +669,9 @@ Container(
             transform: (
                 id: "go_back_container",
                 x: 180,
-                y: 100,
+                y: 80,
                 width: 280.,
-                height: 100.,
+                height: 75.,
                 anchor: BottomLeft,
             ),
             background: SolidColor(1.0, 0.9, 0.9, 1.0),
@@ -681,7 +681,7 @@ Container(
                     transform: (
                         id: "back_to_menu",
                         width: 270.,
-                        height: 90.,
+                        height: 65.,
                         tab_order: 15,
                         anchor: Middle,
                         mouse_reactive: true,
