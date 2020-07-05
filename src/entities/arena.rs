@@ -583,8 +583,6 @@ pub fn intialize_arena(
     log::info!("{:?} {:?}", nav_mesh_grid_xs, nav_mesh_grid_ys);
     log::info!("{:?}", nav_mesh_grid_drop);
 
-    let mut grid_drops: usize = 0;
-
     //if *x >= 0.0 && *x <= arena_properties.width {
     //if *y >= 0.0 && *y <= arena_properties.height {
 
@@ -607,7 +605,6 @@ pub fn intialize_arena(
                             yr_minus >= *drop_y_minus && yr_minus <= *drop_y_plus &&
                             yr_plus >= *drop_y_minus && yr_plus <= *drop_y_plus {
                         dropped = true;
-                        grid_drops += 1;
                         break;
                     }
                 }
