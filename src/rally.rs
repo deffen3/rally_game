@@ -52,7 +52,7 @@ pub const PLAYER_CAMERA: bool = false;
 pub const DEBUG_LINES: bool = false;
 pub const MP_BINDINGS: bool = false;
 pub const CONTROLLER_BINDINGS: bool = true;
-
+//cargo run --features sdl_controller
 
 
 

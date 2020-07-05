@@ -146,6 +146,8 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     GameModes::DeathmatchTimedKD => player.kills - player.deaths,
                     GameModes::Race => player.laps_completed,
                     GameModes::KingOfTheHill => player.objective_points.floor() as i32,
+                    GameModes::CaptureTheFlag => player.objective_points.floor() as i32,
+                    GameModes::SurvivalWaves => player.objective_points.floor() as i32,
                 };
 
                 if vehicle.state != VehicleState::InActive && 

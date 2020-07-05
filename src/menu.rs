@@ -40,6 +40,8 @@ const BUTTON_DEATHMATCH_STOCK: &str = "deathmatch_stock";
 const BUTTON_DEATHMATCH_TIME: &str = "deathmatch_time";
 const BUTTON_KING_OF_THE_HILL: &str = "king_of_the_hill";
 const BUTTON_COMBAT_RACE: &str = "combat_race";
+const BUTTON_CAPTURE_THE_FLAG: &str = "capture_the_flag";
+const BUTTON_SURVIVAL_WAVES: &str = "survival_waves";
 const BUTTON_START_GAME: &str = "start_game";
 
 const EDIT_TEXT_PLAYER_COUNT: &str = "player_count_field";
@@ -70,7 +72,9 @@ pub struct MainMenu {
     button_deathmatch_stock: Option<Entity>,
     button_deathmatch_time: Option<Entity>,
     button_king_of_the_hill: Option<Entity>,
+    button_capture_the_flag: Option<Entity>,
     button_combat_race: Option<Entity>,
+    button_survival_waves: Option<Entity>,
     button_start_game: Option<Entity>,
     edit_text_player_count: Option<Entity>,
     edit_text_bot_count: Option<Entity>,
@@ -223,7 +227,9 @@ impl SimpleState for MainMenu {
             || self.button_deathmatch_stock.is_none()
             || self.button_deathmatch_time.is_none()
             || self.button_king_of_the_hill.is_none()
+            || self.button_capture_the_flag.is_none()
             || self.button_combat_race.is_none()
+            || self.button_survival_waves.is_none()
             || self.button_start_game.is_none()
             || self.button_custom_vehicles.is_none()
             || self.button_custom_weapons.is_none()
@@ -239,7 +245,9 @@ impl SimpleState for MainMenu {
                 self.button_deathmatch_stock = ui_finder.find(BUTTON_DEATHMATCH_STOCK);
                 self.button_deathmatch_time = ui_finder.find(BUTTON_DEATHMATCH_TIME);
                 self.button_king_of_the_hill = ui_finder.find(BUTTON_KING_OF_THE_HILL);
+                self.button_capture_the_flag = ui_finder.find(BUTTON_CAPTURE_THE_FLAG);
                 self.button_combat_race = ui_finder.find(BUTTON_COMBAT_RACE);
+                self.button_survival_waves = ui_finder.find(BUTTON_SURVIVAL_WAVES);
                 self.button_start_game = ui_finder.find(BUTTON_START_GAME);
                 self.button_custom_vehicles = ui_finder.find(BUTTON_CUSTOM_VEHICLES);
                 self.button_custom_weapons = ui_finder.find(BUTTON_CUSTOM_WEAPONS);
@@ -525,7 +533,20 @@ impl SimpleState for MainMenu {
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 10;
                         game_mode_setup.stock_lives = -1;
-                        
+                        game_mode_setup.game_end_condition = GameEndCondition::AllButOneExtended; //extended for a few seconds after
+                        self.init_base_rules = true;
+                    } else if Some(target) == self.button_capture_the_flag {
+                        game_mode_setup.game_mode = GameModes::CaptureTheFlag;
+                        game_mode_setup.match_time_limit = -1.0;
+                        game_mode_setup.points_to_win = 10;
+                        game_mode_setup.stock_lives = -1;
+                        game_mode_setup.game_end_condition = GameEndCondition::First; //extended for a few seconds after
+                        self.init_base_rules = true;
+                    } else if Some(target) == self.button_survival_waves {
+                        game_mode_setup.game_mode = GameModes::SurvivalWaves;
+                        game_mode_setup.match_time_limit = -1.0;
+                        game_mode_setup.points_to_win = 10;
+                        game_mode_setup.stock_lives = -1;
                         game_mode_setup.game_end_condition = GameEndCondition::AllButOneExtended; //extended for a few seconds after
                         self.init_base_rules = true;
                     }
@@ -581,6 +602,16 @@ impl SimpleState for MainMenu {
                         game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
                         game_weapon_setup.random_weapon_spawns = true;
                         game_weapon_setup.keep_picked_up_weapons = true;
+                    } else if Some(target) == self.button_capture_the_flag {
+                        game_weapon_setup.mode = GameWeaponMode::StarterAndPickup;
+                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                        game_weapon_setup.random_weapon_spawns = true;
+                        game_weapon_setup.keep_picked_up_weapons = false;
+                    } else if Some(target) == self.button_survival_waves {
+                        game_weapon_setup.mode = GameWeaponMode::StarterAndPickup;
+                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                        game_weapon_setup.random_weapon_spawns = true;
+                        game_weapon_setup.keep_picked_up_weapons = false;
                     }
                 }
 
@@ -640,7 +671,9 @@ impl SimpleState for MainMenu {
         self.button_deathmatch_stock = None;
         self.button_deathmatch_time = None;
         self.button_king_of_the_hill = None;
+        self.button_capture_the_flag = None;
         self.button_combat_race = None;
+        self.button_survival_waves = None;
         self.button_start_game = None;
         self.edit_text_player_count = None;
         self.edit_text_bot_count = None;
@@ -663,6 +696,8 @@ fn get_game_rules_text(game_mode: GameModes) -> String {
         GameModes::DeathmatchTimedKD => "Deathmatch - Timed:\nMatch ends after set time. Highest score of Kills minus Deaths is the winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.".to_string(),
         GameModes::KingOfTheHill => "King of the Hill:\nPlayers gains points for being the only person in the special 'hill' zone. First player to a certain number of points wins. New weapons can be picked up from arena.".to_string(),
         GameModes::Race => "Combat Race:\nIt's a race with weapons active. First player to complete the required number of laps wins. New weapons can be picked up from the arena race track.".to_string(),
+        GameModes::CaptureTheFlag => "Capture the Flag:\nPlayers gain a point every time they return the flag back to their zone. New weapons can be picked up from arena".to_string(),
+        GameModes::SurvivalWaves => "Survival - Waves:\nSee how long you can stay alive (number of waves of enemies). Last player alive wins. New weapons can be picked up from arena".to_string(),
     }
 }
 
@@ -670,9 +705,11 @@ fn get_points_label_text(game_mode: GameModes) -> String {
     match game_mode {
         GameModes::ClassicGunGame => "Points to Win:".to_string(),
         GameModes::DeathmatchKills => "Kills to Win:".to_string(),
-        GameModes::DeathmatchStock => "Kills to Win:".to_string(),
+        GameModes::DeathmatchStock => "Kills to Win:".to_string(), //Objective is typically based on lives, and Kills are typically ignored
         GameModes::DeathmatchTimedKD => "Points to Win:".to_string(),
         GameModes::KingOfTheHill => "Points to Win:".to_string(),
         GameModes::Race => "Laps to Win:".to_string(),
+        GameModes::CaptureTheFlag => "Flags to Win:".to_string(),
+        GameModes::SurvivalWaves => "Waves to Win:".to_string(),
     }
 }

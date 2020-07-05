@@ -10,6 +10,8 @@ pub enum GameModes {
     DeathmatchTimedKD, //Match ends after set time. Kills-Deaths is winner. Self-destructs are minus 2 deaths. New weapons can be picked up from arena.
     Race,
     KingOfTheHill, //Player gains points for being the only person in the special "hill" zone. First player to a certain number of points wins. New weapons can be picked up from arena.
+    CaptureTheFlag, //Player gains points for returning the flag to their side. First player to a certain number of points wins. New weapons can be picked up from arena.
+    SurvivalWaves, //See how long you can stay alive (measure in number of waves of enemies). Last player alive wins. New weapons can be picked up from arena.
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
