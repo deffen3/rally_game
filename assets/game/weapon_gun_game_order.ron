@@ -5,7 +5,7 @@
   Missile,
   LaserBeam,
   Shotgun,
-  ProjectileCannonFire,
+  ProjectileCannon,
   LaserPulseGimballed,
   Rockets,
   ProjectileBurstFire,
