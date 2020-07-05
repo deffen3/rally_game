@@ -19,6 +19,8 @@ use na::{Isometry2, Vector2};
 use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{Ball, Cuboid};
 
+
+
 use crate::components::{
     check_respawn_vehicle, get_random_weapon_name, get_random_weapon_name_build_chance, kill_restart_vehicle,
     update_weapon_properties, vehicle_damage_model, BotMode, ArenaElement, HitboxShape, Player,
@@ -34,7 +36,7 @@ use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireReso
 use crate::rally::{
     BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
     COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
-    DEBUG_LINES,
+    DEBUG_LINES, MovementBindingTypes, AxisBinding, MP_BINDINGS,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -71,7 +73,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
         WriteStorage<'s, Vehicle>,
         WriteStorage<'s, WeaponArray>,
         Read<'s, Time>,
-        Read<'s, InputHandler<StringBindings>>,
+        Read<'s, InputHandler<StringBindings>>, //<MovementBindingTypes>
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
@@ -228,9 +230,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
             let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
 
-            //let vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
-            //let vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
-
+            // let mut vehicle_accel: Option<f32>;
+            // let mut vehicle_turn: Option<f32>;
+            // let mut vehicle_strafe: Option<f32>;
+            // if MP_BINDINGS {
+            //     vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
+            //     vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
+            //     vehicle_strafe = input.axis_value(&AxisBinding::VehicleStrafe(player.id));
+            // }
             let (mut vehicle_accel, mut vehicle_turn, mut vehicle_strafe) = match player.id {
                 0 => (input.axis_value("p1_accel"), input.axis_value("p1_turn"), input.axis_value("p1_strafe")),
                 1 => (input.axis_value("p2_accel"), input.axis_value("p2_turn"), input.axis_value("p2_strafe")),
@@ -238,6 +245,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 3 => (input.axis_value("p4_accel"), input.axis_value("p4_turn"), input.axis_value("p4_strafe")),
                 _ => (None, None, None),
             };
+                
+            
 
             let vehicle_x = transform.translation().x;
             let vehicle_y = transform.translation().y;

@@ -13,6 +13,10 @@ use crate::components::{BotMode, Player, Vehicle, VehicleState, WeaponArray};
 use crate::entities::fire_weapon;
 use crate::resources::WeaponFireResource;
 
+use crate::rally::{
+    MovementBindingTypes, ActionBinding, MP_BINDINGS,
+};
+
 
 #[derive(SystemDesc)]
 pub struct VehicleWeaponsSystem;
@@ -28,7 +32,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
         ReadExpect<'s, WeaponFireResource>,
         ReadExpect<'s, LazyUpdate>,
         Read<'s, Time>,
-        Read<'s, InputHandler<StringBindings>>, //<MovementBindingTypes>>,
+        Read<'s, InputHandler<StringBindings>>, //MovementBindingTypes
     );
 
     fn run(
@@ -75,6 +79,10 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                     }
                 }
                 else {
+                    // if MP_BINDINGS {
+                    //     primary_fire = input.action_is_down(&ActionBinding::VehiclePriFire(player.id));
+                    //     secondary_fire = input.action_is_down(&ActionBinding::VehicleAltFire(player.id));
+                    // }
                     primary_fire = match player.id {
                         0 => input.action_is_down("p1_fire"),
                         1 => input.action_is_down("p2_fire"),

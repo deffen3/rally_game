@@ -13,6 +13,10 @@ use crate::components::{
     Player, Vehicle, VehicleState, BotMode,
 };
 
+use crate::rally::{
+    MovementBindingTypes, ActionBinding, MP_BINDINGS,
+};
+
 
 #[derive(SystemDesc)]
 pub struct VehicleShieldArmorHealthSystem;
@@ -24,7 +28,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Tint>,
         Read<'s, Time>,
-        Read<'s, InputHandler<StringBindings>>,
+        Read<'s, InputHandler<StringBindings>>, //MovementBindingTypes
     );
 
     fn run(
@@ -76,6 +80,9 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 vehicle_repair = Some(true);
             }
             else {
+                // if MP_BINDINGS {
+                //     vehicle_repair = input.action_is_down(&ActionBinding::VehicleRepair(player.id));
+                // }
                 vehicle_repair = match player.id {
                     0 => input.action_is_down("p1_repair"),
                     1 => input.action_is_down("p2_repair"),
@@ -83,6 +90,7 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                     3 => input.action_is_down("p4_repair"),
                     _ => None,
                 };
+                
             }
 
             if let Some(repair) = vehicle_repair {

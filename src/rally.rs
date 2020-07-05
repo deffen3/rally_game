@@ -2,7 +2,7 @@ use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::Time,
     ecs::prelude::{Dispatcher, DispatcherBuilder, Entity},
-    input::{is_close_requested, is_key_down},
+    input::{is_close_requested, is_key_down, BindingTypes},
     prelude::*,
     renderer::{
         debug_drawing::{DebugLines, DebugLinesComponent, DebugLinesParams},
@@ -15,6 +15,9 @@ use amethyst::{
     },
     winit::VirtualKeyCode,
 };
+
+use serde::{Deserialize, Serialize};
+use std::fmt::{self, Display};
 
 use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
@@ -43,8 +46,15 @@ use crate::systems::{
     VehicleWeaponsSystem, MoveParticlesSystem, PathingLinesSystem, CameraTrackingSystem,
 };
 
+
+
 pub const PLAYER_CAMERA: bool = false;
 pub const DEBUG_LINES: bool = false;
+pub const MP_BINDINGS: bool = false;
+pub const CONTROLLER_BINDINGS: bool = true;
+
+
+
 
 //Damage at speed of 100
 pub const BASE_COLLISION_DAMAGE: f32 = 20.0;
@@ -427,16 +437,19 @@ pub fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> H
     )
 }
 
-/*
+
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AxisBinding {
     VehicleAccel(usize),
     VehicleTurn(usize),
+    VehicleStrafe(usize),
 }
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActionBinding {
-    VehicleShoot(usize),
+    VehiclePriFire(usize),
+    VehicleAltFire(usize),
+    VehicleRepair(usize),
 }
 
 impl Display for AxisBinding {
@@ -458,4 +471,3 @@ impl BindingTypes for MovementBindingTypes {
     type Axis = AxisBinding;
     type Action = ActionBinding;
 }
-*/

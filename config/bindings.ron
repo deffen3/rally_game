@@ -14,7 +14,6 @@
     "p4_strafe": Emulated(pos: Key(U), neg: Key(O)),
   },
   actions: {
-    "open_menu": [[Key(Escape)]],
     "p1_fire": [[Key(Space)]],
     "p1_alt_fire": [[Key(LAlt)]],
     "p1_repair": [[Key(R)]],

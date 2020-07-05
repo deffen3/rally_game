@@ -15,9 +15,12 @@ nalgebra = "0.20"
 ncollide2d = "0.22"
 navmesh = "0.8"
 assert_approx_eq = "1.1.0"
+sdl2 = "0.33"
+
 
 [features]
 default = ["vulkan"]
 empty = ["amethyst/empty"]
 metal = ["amethyst/metal"]
 vulkan = ["amethyst/vulkan"]
+sdl_controller = ["amethyst/sdl_controller"]
