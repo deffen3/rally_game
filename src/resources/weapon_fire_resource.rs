@@ -34,6 +34,9 @@ pub struct WeaponFireResource {
     pub smoke_spray_sprite_render: SpriteRender,
     pub ion_sprite_render: SpriteRender,
     pub shockwave_sprite_render: SpriteRender,
+    pub bio_spike_sprite_render: SpriteRender,
+    pub light_bolt_sprite_render: SpriteRender,
+    pub slime_ball_sprite_render: SpriteRender,
 }
 
 pub fn initialize_weapon_fire_resource(
@@ -146,8 +149,20 @@ pub fn initialize_weapon_fire_resource(
             sprite_number: 42,
         },
         shockwave_sprite_render: SpriteRender {
-            sprite_sheet: sprite_sheet_handle,
+            sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 43,
+        },
+        bio_spike_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 75,
+        },
+        light_bolt_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 76,
+        },
+        slime_ball_sprite_render: SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 77,
         },
         
     };

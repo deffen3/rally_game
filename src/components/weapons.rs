@@ -43,6 +43,30 @@ pub enum WeaponNames {
     SmartRocketGrenade,
     Flamethrower,
     IonCannon,
+    BioSpiker,
+    StormGun,
+    SlimeLauncher,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
+pub enum WeaponFireTypes {
+    LaserBeam,
+    LaserPulse,
+    LaserDouble,
+    ProjectileSmall,
+    ProjectileMedium,
+    ProjectileLarge,
+    Mine,
+    Trap,
+    Missile,
+    Rockets,
+    LaserSword,
+    Flame,
+    Grenade,
+    Ion,
+    BioSpike,
+    LightBolt,
+    SlimeBall,
 }
 
 
@@ -250,23 +274,6 @@ pub fn build_weapon_store(world: &mut World) {
     world.insert(weapon_store.clone());
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
-pub enum WeaponFireTypes {
-    LaserBeam,
-    LaserPulse,
-    LaserDouble,
-    ProjectileRapidFire,
-    ProjectileBurstFire,
-    ProjectileCannonFire,
-    Mine,
-    Trap,
-    Missile,
-    Rockets,
-    LaserSword,
-    Flame,
-    Grenade,
-    Ion,
-}
 
 #[derive(Clone)]
 pub struct Weapon {
@@ -584,6 +591,32 @@ pub fn build_named_weapon_from_world(
 }
 
 
+pub fn get_weapon_width_height(weapon_fire_type: WeaponFireTypes) -> (f32, f32)
+{
+    let (width, height) = match weapon_fire_type {
+        WeaponFireTypes::LaserDouble => (3.0, 6.0),
+        WeaponFireTypes::LaserBeam => (1.0, 12.0),
+        WeaponFireTypes::LaserPulse => (2.0, 5.0),
+        WeaponFireTypes::ProjectileMedium => (1.0, 4.0),
+        WeaponFireTypes::ProjectileSmall => (1.0, 2.0),
+        WeaponFireTypes::ProjectileLarge => (3.0, 3.0),
+        WeaponFireTypes::Missile => (5.0, 6.0),
+        WeaponFireTypes::Rockets => (5.0, 4.0),
+        WeaponFireTypes::Mine => (4.0, 4.0),
+        WeaponFireTypes::Grenade => (4.0, 4.0),
+        WeaponFireTypes::Trap => (2.0, 4.0),
+        WeaponFireTypes::LaserSword => (3.0, 15.0),
+        WeaponFireTypes::Flame => (6.0, 4.0),
+        WeaponFireTypes::Ion => (5.0, 5.0),
+        WeaponFireTypes::BioSpike => (3.0, 9.0),
+        WeaponFireTypes::LightBolt => (3.0, 7.0),
+        WeaponFireTypes::SlimeBall => (6.0, 5.0),
+    };
+
+    (width, height)
+}
+
+
 pub fn get_weapon_icon(
     player_id: Option<usize>,
     weapon_fire_type: WeaponFireTypes,
@@ -602,16 +635,9 @@ pub fn get_weapon_icon(
         WeaponFireTypes::LaserDouble => (1.5, weapon_fire_resource.laser_double_sprite_render.clone()),
         WeaponFireTypes::LaserBeam => (0.5, weapon_fire_resource.laser_beam_sprite_render.clone()),
         WeaponFireTypes::LaserPulse => (1.5, weapon_fire_resource.laser_burst_sprite_render.clone()),
-        WeaponFireTypes::ProjectileBurstFire => {
-            (1.5, weapon_fire_resource.projectile_burst_render.clone())
-        }
-        WeaponFireTypes::ProjectileRapidFire => {
-            (1.5, weapon_fire_resource.projectile_rapid_render.clone())
-        }
-        WeaponFireTypes::ProjectileCannonFire => (
-            1.5,
-            weapon_fire_resource.projectile_cannon_sprite_render.clone(),
-        ),
+        WeaponFireTypes::ProjectileMedium => (1.5, weapon_fire_resource.projectile_burst_render.clone()),
+        WeaponFireTypes::ProjectileSmall => (1.5, weapon_fire_resource.projectile_rapid_render.clone()),
+        WeaponFireTypes::ProjectileLarge => (1.5, weapon_fire_resource.projectile_cannon_sprite_render.clone()),
         WeaponFireTypes::Missile => (1.0, weapon_fire_resource.missile_sprite_render.clone()),
         WeaponFireTypes::Rockets => (1.0, weapon_fire_resource.rockets_sprite_render.clone()),
         WeaponFireTypes::Mine => (1.0, weapon_fire_resource.mine_p1_sprite_render.clone()),
@@ -620,6 +646,9 @@ pub fn get_weapon_icon(
         WeaponFireTypes::Flame => (1.0, weapon_fire_resource.flame_sprite_render.clone()),
         WeaponFireTypes::Grenade => (1.0, weapon_fire_resource.grenade_sprite_render.clone()),
         WeaponFireTypes::Ion => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
+        WeaponFireTypes::BioSpike => (0.75, weapon_fire_resource.ion_sprite_render.clone()),
+        WeaponFireTypes::LightBolt => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
+        WeaponFireTypes::SlimeBall => (1.0, weapon_fire_resource.ion_sprite_render.clone()),
     };
 
     //Player colored weapons
@@ -656,27 +685,4 @@ pub fn get_trap_sprite(
         3 => weapon_fire_resource.trap_p4_sprite_render.clone(),
         _ => weapon_fire_resource.trap_p1_sprite_render.clone(),
     }
-}
-
-
-pub fn get_weapon_width_height(weapon_fire_type: WeaponFireTypes) -> (f32, f32)
-{
-    let (width, height) = match weapon_fire_type {
-        WeaponFireTypes::LaserDouble => (3.0, 6.0),
-        WeaponFireTypes::LaserBeam => (1.0, 12.0),
-        WeaponFireTypes::LaserPulse => (2.0, 5.0),
-        WeaponFireTypes::ProjectileBurstFire => (1.0, 4.0),
-        WeaponFireTypes::ProjectileRapidFire => (1.0, 2.0),
-        WeaponFireTypes::ProjectileCannonFire => (3.0, 3.0),
-        WeaponFireTypes::Missile => (5.0, 6.0),
-        WeaponFireTypes::Rockets => (5.0, 4.0),
-        WeaponFireTypes::Mine => (4.0, 4.0),
-        WeaponFireTypes::Grenade => (4.0, 4.0),
-        WeaponFireTypes::Trap => (2.0, 4.0),
-        WeaponFireTypes::LaserSword => (3.0, 15.0),
-        WeaponFireTypes::Flame => (6.0, 4.0),
-        WeaponFireTypes::Ion => (5.0, 5.0),
-    };
-
-    (width, height)
 }

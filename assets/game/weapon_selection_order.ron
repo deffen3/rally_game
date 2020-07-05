@@ -4,7 +4,7 @@
   LaserPulseGimballed,
   LaserBeam,
   Shotgun,
-  ProjectileCannonFire,
+  ProjectileLarge,
   ProjectileRapidFireTurret,
   ProjectileBurstFire,
   PiercingProjectile,
