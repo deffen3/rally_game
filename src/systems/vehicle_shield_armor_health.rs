@@ -98,14 +98,14 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                         vehicle.shield.repair_timer = 0.0;
                     }
 
-                    if vehicle.repair.init_timer >= vehicle.repair.init_time_threshold {
-                        //repair successful started
+                    if vehicle.repair.init_timer >= vehicle.repair.init_time_threshold || vehicle.health.value >= vehicle.health.max {
+                        //repair successful started or not needed
                         if vehicle.health.value < vehicle.health.max {
                             vehicle.health.value += vehicle.health.repair_rate * dt;
                             vehicle.health.value = vehicle.health.value.min(vehicle.health.max);
-                        } else if vehicle.shield.value <= 0.0 && vehicle.shield.max > 0.0 {
+                        } else if vehicle.shield.value <= 0.0 && vehicle.shield.max > 0.0 { //shield reboot initializing
                             vehicle.shield.repair_timer += dt;
-                            if vehicle.shield.repair_timer > vehicle.shield.repair_reboot_time {
+                            if vehicle.shield.repair_timer > vehicle.shield.repair_reboot_time { //shield successfully rebooted
                                 vehicle.shield.value = 1.0;
                             }
                         } else {
