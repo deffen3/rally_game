@@ -21,7 +21,7 @@ pub use self::vehicles::{
 };
 pub use self::weapons::{
     build_named_weapon, build_named_weapon_from_world, build_weapon_store, get_mine_sprite,
-    get_next_weapon_name, get_random_weapon_name, get_random_weapon_name_build_chance, get_trap_sprite, get_weapon_icon,
+    get_next_gg_weapon_name, get_random_weapon_name, get_random_weapon_name_build_chance, get_trap_sprite, get_weapon_icon,
     update_weapon_properties, Weapon, WeaponFire, WeaponNames, WeaponStats, WeaponInstall, WeaponNameInstall,
     WeaponStoreResource, WeaponFireTypes, WeaponArray, DurationDamage, get_weapon_width_height,
 };

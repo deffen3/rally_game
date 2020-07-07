@@ -134,7 +134,7 @@ pub fn get_random_weapon_name_build_chance(
 
 
 
-pub fn get_next_weapon_name(
+pub fn get_next_gg_weapon_name(
     weapon_name: WeaponNames,
     weapon_store_resource: &WeaponStoreResource,
     game_weapon_setup: &GameWeaponSetup,

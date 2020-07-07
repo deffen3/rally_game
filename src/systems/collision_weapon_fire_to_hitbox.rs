@@ -20,7 +20,7 @@ use ncollide2d::query::{self, Proximity, Ray, RayCast};
 use ncollide2d::shape::{Ball, Cuboid};
 
 use crate::components::{
-    get_next_weapon_name, kill_restart_vehicle, update_weapon_properties,
+    get_next_gg_weapon_name, kill_restart_vehicle, update_weapon_properties,
     vehicle_damage_model, ArenaElement, HitboxShape, Player, PlayerWeaponIcon, Vehicle, VehicleState, WeaponArray,
     WeaponFire, WeaponStoreResource, DurationDamage, WeaponNames,
     ArenaStoreResource, ArenaProperties, ArenaNames, ObstacleType,
@@ -892,7 +892,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                 if player.gun_game_kills > player.kills {
                     //if kill was using player's current weapon
                     player.kills += 1;
-                    let new_weapon_name = get_next_weapon_name(
+                    let new_weapon_name = get_next_gg_weapon_name(
                         primary_weapon.name.clone(),
                         &weapon_store_resource,
                         &game_weapon_setup,
