@@ -34,6 +34,7 @@ pub struct GameModeSetup {
     pub bot_players: usize,
     pub last_hit_threshold: f32,
     pub arena_name: ArenaNames,
+    pub p1_keyboard: bool,
 }
 
 

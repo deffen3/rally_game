@@ -653,6 +653,64 @@ Container(
         ),
 
 
+        Container(
+            transform: (
+                id: "container_controls_keyboard",
+                x: -45,
+                y: -685,
+                width: 65.,
+                height: 30.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "controls_keyboard",
+                        width: 60.,
+                        height: 25.,
+                        tab_order: 14,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "P1 CONTROLS",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 10.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+        Label(
+            transform: (
+                id: "controls_keyboard_result",
+                x: -45,
+                y: -715,
+                width: 65.,
+                height: 30.,
+                anchor: TopRight,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "KEYBOARD",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 10.,
+                color: (0.8, 0.1, 0.05, 1.0),
+                align: Middle,
+            )
+        ),
+
+
+
+
         Label(
             transform: (
                 id: "player_count_text",

@@ -13,9 +13,6 @@ use crate::components::{
     Player, Vehicle, VehicleState, BotMode,
 };
 
-use crate::rally::{
-    MovementBindingTypes, ActionBinding, MP_BINDINGS,
-};
 
 
 #[derive(SystemDesc)]

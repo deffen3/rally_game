@@ -36,7 +36,7 @@ use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireReso
 use crate::rally::{
     BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
     COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
-    DEBUG_LINES, MovementBindingTypes, AxisBinding, MP_BINDINGS,
+    DEBUG_LINES,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -230,22 +230,61 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let wall_hit_non_bounce_decel_pct: f32 = WALL_HIT_BOUNCE_DECEL_PCT;
             let wall_hit_bounce_decel_pct: f32 = -wall_hit_non_bounce_decel_pct;
 
-            // let mut vehicle_accel: Option<f32>;
-            // let mut vehicle_turn: Option<f32>;
-            // let mut vehicle_strafe: Option<f32>;
+            let mut vehicle_accel: Option<f32>;
+            let mut vehicle_turn: Option<f32>;
+            let mut vehicle_strafe: Option<f32>;
             // if MP_BINDINGS {
             //     vehicle_accel = input.axis_value(&AxisBinding::VehicleAccel(player.id));
             //     vehicle_turn = input.axis_value(&AxisBinding::VehicleTurn(player.id));
             //     vehicle_strafe = input.axis_value(&AxisBinding::VehicleStrafe(player.id));
             // }
-            let (mut vehicle_accel, mut vehicle_turn, mut vehicle_strafe) = match player.id {
-                0 => (input.axis_value("p1_accel"), input.axis_value("p1_turn"), input.axis_value("p1_strafe")),
-                1 => (input.axis_value("p2_accel"), input.axis_value("p2_turn"), input.axis_value("p2_strafe")),
-                2 => (input.axis_value("p3_accel"), input.axis_value("p3_turn"), input.axis_value("p3_strafe")),
-                3 => (input.axis_value("p4_accel"), input.axis_value("p4_turn"), input.axis_value("p4_strafe")),
-                _ => (None, None, None),
-            };
-                
+
+            if game_mode_setup.p1_keyboard { //p1 using keyboard, p2 using controller 0, ...
+                vehicle_accel = match player.id {
+                    0 => input.axis_value("p1kb_accel"),
+                    1 => input.axis_value("p1_accel"), //not a typo: p2 or player.id == 1, is using the first controller
+                    2 => input.axis_value("p2_accel"), 
+                    3 => input.axis_value("p3_accel"),
+                    _ => None,
+                };
+                vehicle_turn = match player.id {
+                    0 => input.axis_value("p1kb_turn"),
+                    1 => input.axis_value("p1_turn"), 
+                    2 => input.axis_value("p2_turn"), 
+                    3 => input.axis_value("p3_turn"), 
+                    _ => None,
+                };
+                vehicle_strafe = match player.id {
+                    0 => input.axis_value("p1kb_strafe"),
+                    1 => input.axis_value("p1_strafe"),
+                    2 => input.axis_value("p2_strafe"),
+                    3 => input.axis_value("p3_strafe"),
+                    _ => None,
+                };
+            }
+            else { //all 4 controllers
+                vehicle_accel = match player.id {
+                    0 => input.axis_value("p1_accel"),
+                    1 => input.axis_value("p2_accel"), 
+                    2 => input.axis_value("p3_accel"), 
+                    3 => input.axis_value("p4_accel"),
+                    _ => None,
+                };
+                vehicle_turn = match player.id {
+                    0 => input.axis_value("p1_turn"),
+                    1 => input.axis_value("p2_turn"), 
+                    2 => input.axis_value("p3_turn"), 
+                    3 => input.axis_value("p4_turn"), 
+                    _ => None,
+                };
+                vehicle_strafe = match player.id {
+                    0 => input.axis_value("p1_strafe"),
+                    1 => input.axis_value("p2_strafe"),
+                    2 => input.axis_value("p3_strafe"),
+                    3 => input.axis_value("p4_strafe"),
+                    _ => None,
+                };
+            }
             
 
             let vehicle_x = transform.translation().x;

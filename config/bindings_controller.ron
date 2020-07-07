@@ -1,5 +1,8 @@
 (
   axes: {
+    "p1kb_accel": Emulated(pos: Key(W), neg: Key(S)),
+    "p1kb_turn": Emulated(pos: Key(A), neg: Key(D)),
+    "p1kb_strafe": Emulated(pos: Key(Q), neg: Key(E)),
     "p1_accel": Controller(controller_id: 0, axis: LeftY, invert: true, dead_zone: 0.1),
     "p2_accel": Controller(controller_id: 1, axis: LeftY, invert: true, dead_zone: 0.1),
     "p3_accel": Controller(controller_id: 2, axis: LeftY, invert: true, dead_zone: 0.1),
@@ -12,11 +15,12 @@
     "p2_strafe": Controller(controller_id: 1, axis: RightX, invert: true, dead_zone: 0.1),
     "p3_strafe": Controller(controller_id: 2, axis: RightX, invert: true, dead_zone: 0.1),
     "p4_strafe": Controller(controller_id: 3, axis: RightX, invert: true, dead_zone: 0.1),
+    
   },
   actions: {
-    "p1_fire": [[Controller(0, RightShoulder)]],
-    "p1_alt_fire": [[Controller(0, LeftShoulder)]],
-    "p1_repair": [[Controller(0, X)]],
+    "p1_fire": [[Key(Space)], [Controller(0, RightShoulder)]],
+    "p1_alt_fire": [[Key(LAlt)], [Controller(0, LeftShoulder)]],
+    "p1_repair": [[Key(R)], [Controller(0, X)]],
     "p2_fire": [[Controller(1, RightShoulder)]],
     "p2_alt_fire": [[Controller(1, LeftShoulder)]],
     "p2_repair": [[Controller(1, X)]],

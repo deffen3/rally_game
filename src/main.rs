@@ -29,7 +29,7 @@ mod entities;
 mod resources;
 mod systems;
 
-use crate::rally::{MovementBindingTypes, MP_BINDINGS, CONTROLLER_BINDINGS};
+
 use crate::welcome::WelcomeScreen;
 
 fn main() -> amethyst::Result<()> {
@@ -49,16 +49,16 @@ fn main() -> amethyst::Result<()> {
     //     input_bundle_mp = InputBundle::<MovementBindingTypes>::new()
     //         .with_bindings_from_file(binding_path)?;
     // }
-    if CONTROLLER_BINDINGS {
-        binding_path = config_dir.join("bindings_controller.ron");
-        input_bundle =
-            InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
-    }
-    else {
-        binding_path = config_dir.join("bindings.ron");
-        input_bundle =
-            InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
-    }
+
+    binding_path = config_dir.join("bindings_controller.ron");
+    input_bundle =
+        InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
+    
+    // else {
+    //     binding_path = config_dir.join("bindings.ron");
+    //     input_bundle =
+    //         InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
+    // }
 
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?

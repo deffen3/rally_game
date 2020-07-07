@@ -13,10 +13,6 @@ use crate::components::{BotMode, Player, Vehicle, VehicleState, WeaponArray};
 use crate::entities::fire_weapon;
 use crate::resources::WeaponFireResource;
 
-use crate::rally::{
-    MovementBindingTypes, ActionBinding, MP_BINDINGS,
-};
-
 
 #[derive(SystemDesc)]
 pub struct VehicleWeaponsSystem;

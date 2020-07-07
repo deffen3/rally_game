@@ -63,6 +63,9 @@ const BUTTON_FFA: &str = "FFA_button";
 const BUTTON_2V2: &str = "2v2_button";
 const BUTTON_1V3: &str = "1v3_button";
 
+const BUTTON_SET_CONTROLS_KEYBOARD: &str = "controls_keyboard";
+const TEXT_CONTROLS_KEYBOARD: &str = "controls_keyboard_result";
+
 
 #[derive(Default, Debug)]
 pub struct MainMenu {
@@ -91,6 +94,8 @@ pub struct MainMenu {
     button_ffa: Option<Entity>,
     button_2v2: Option<Entity>,
     button_1v3: Option<Entity>,
+    button_set_controls_keyboard: Option<Entity>,
+    controls_keyboard_result: Option<Entity>,
 }
 
 impl SimpleState for MainMenu {
@@ -158,6 +163,7 @@ impl SimpleState for MainMenu {
                 bot_players: INIT_BOT_COUNT,
                 last_hit_threshold: 5.0,
                 arena_name: ArenaNames::StandardCombat,
+                p1_keyboard: true,
             });
 
             //these are only defaults if a game-mode is not selected
@@ -237,6 +243,8 @@ impl SimpleState for MainMenu {
             || self.button_ffa.is_none()
             || self.button_2v2.is_none()
             || self.button_1v3.is_none()
+            || self.button_set_controls_keyboard.is_none()
+            || self.controls_keyboard_result.is_none()
             || self.text_player_teams.is_none()
         {
             world.exec(|ui_finder: UiFinder<'_>| {
@@ -255,6 +263,8 @@ impl SimpleState for MainMenu {
                 self.button_ffa = ui_finder.find(BUTTON_FFA);
                 self.button_2v2 = ui_finder.find(BUTTON_2V2);
                 self.button_1v3 = ui_finder.find(BUTTON_1V3);
+                self.button_set_controls_keyboard = ui_finder.find(BUTTON_SET_CONTROLS_KEYBOARD);
+                self.controls_keyboard_result = ui_finder.find(TEXT_CONTROLS_KEYBOARD);
                 self.text_player_teams = ui_finder.find(TEXT_PLAYER_TEAMS);
             });
         }
@@ -306,6 +316,15 @@ impl SimpleState for MainMenu {
         let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
 
         if let Some(mut game_mode_setup) = fetched_game_mode_setup {
+            if let Some(p1_keyboard_text) = self.controls_keyboard_result.and_then(|entity| ui_text.get_mut(entity)) {
+                if game_mode_setup.p1_keyboard {
+                    p1_keyboard_text.text = "KEYBOARD".to_string();
+                }
+                else {
+                    p1_keyboard_text.text = "CONTROLLER".to_string();
+                }
+            }
+
             //Set game mode to match user input after intialization has been completed
             if let Some(player_count) = self.edit_text_player_count.and_then(|entity| ui_text.get_mut(entity)) {
                 if player_count_init {
@@ -493,7 +512,9 @@ impl SimpleState for MainMenu {
                 let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
 
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
-                    if Some(target) == self.button_classic_gun_game {
+                    if Some(target) == self.button_set_controls_keyboard {
+                        game_mode_setup.p1_keyboard = !game_mode_setup.p1_keyboard;
+                    } else if Some(target) == self.button_classic_gun_game {
                         game_mode_setup.game_mode = GameModes::ClassicGunGame;
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 14;
@@ -684,6 +705,7 @@ impl SimpleState for MainMenu {
         self.button_ffa = None;
         self.button_2v2 = None;
         self.button_1v3 = None;
+        self.button_set_controls_keyboard = None;
         self.text_player_teams = None;
     }
 }
