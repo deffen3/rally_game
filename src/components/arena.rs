@@ -1,12 +1,11 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage, World};
 
-use ron::de::from_reader;
 use serde::Deserialize;
-use std::{collections::HashMap, fs::File};
+use std::collections::HashMap;
 
 use crate::resources::{GameModes};
 use crate::components::{WeaponNames, Hitbox, HitboxShape};
-
+use crate::load_ron_asset;
 
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
@@ -172,8 +171,6 @@ pub struct ArenaProperties {
 }
 
 
-
-
 #[derive(Clone)]
 pub struct ArenaStoreResource {
     pub properties: HashMap<ArenaNames, ArenaProperties>,
@@ -181,33 +178,11 @@ pub struct ArenaStoreResource {
 }
 
 
-/* Release rally.exe (crashes):
-"\\\\?\\C:\\Users\\Mike\\rust\\amethyst\\rally_game\\target\\release\\assets/game/vehicles.ron"
-
-cargo run
-"C:\\Users\\Mike\\rust\\amethyst\\rally_game\\assets/game/vehicles.ron"
-*/
-
 pub fn build_arena_store(world: &mut World) {
-    // let app_root = current_dir();
-    // let input_path = app_root.unwrap().join("assets/game/vehicles.ron");
-
-    let input_path_properties = format!("{}/assets/game/arena_properties.ron", env!("CARGO_MANIFEST_DIR"));
-    let input_path_modes = format!("{}/assets/game/arena_game_modes.ron", env!("CARGO_MANIFEST_DIR"));
-    
-    let f_properties = File::open(&input_path_properties).expect("Failed opening file");
-    let f_modes = File::open(&input_path_modes).expect("Failed opening file");
-
-    let arena_properties_map: HashMap<ArenaNames, ArenaProperties> =
-        from_reader(f_properties).expect("Failed to load config");
-    let arena_game_modes_map: HashMap<GameModes, Vec<ArenaNames>> =
-        from_reader(f_modes).expect("Failed to load config");
-
-    let arena_store = ArenaStoreResource {
-        properties: arena_properties_map,
-        game_modes: arena_game_modes_map,
-    };
-    world.insert(arena_store.clone());
+    world.insert(ArenaStoreResource {
+        properties: load_ron_asset(&["game", "arena_properties.ron"]),
+        game_modes: load_ron_asset(&["game", "arena_game_modes.ron"]),
+    });
 }
 
 

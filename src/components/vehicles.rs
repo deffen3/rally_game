@@ -1,15 +1,12 @@
 use amethyst::{
     core::Transform,
     ecs::prelude::{Component, DenseVecStorage, Entity, World},
-    //utils::{application_root_dir},
 };
 
 use rand::Rng;
 use std::f32::consts::PI;
-use ron::de::from_reader;
 use serde::Deserialize;
-use std::{collections::HashMap, fs::File};
-//use std::env::current_dir;
+use std::collections::HashMap;
 
 use crate::components::{
     Armor, Health, Player, Repair, Shield, DurationDamage, 
@@ -17,7 +14,7 @@ use crate::components::{
 };
 use crate::resources::GameModes;
 use crate::entities::ui::PlayerStatusText;
-
+use crate::load_ron_asset;
 
 
 //VehicleNames correspond to the vehicle_properties.ron
@@ -459,36 +456,11 @@ pub struct VehicleStoreResource {
 }
 
 
-/* Release rally.exe (crashes):
-"\\\\?\\C:\\Users\\Mike\\rust\\amethyst\\rally_game\\target\\release\\assets/game/vehicles.ron"
-
-cargo run
-"C:\\Users\\Mike\\rust\\amethyst\\rally_game\\assets/game/vehicles.ron"
-*/
-
 pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
-    // let app_root = current_dir();
-    // let input_path = app_root.unwrap().join("assets/game/vehicles.ron");
-
-    let input_path_properties = format!("{}/assets/game/vehicle_properties.ron", env!("CARGO_MANIFEST_DIR"));
-    let input_path_order = format!("{}/assets/game/vehicle_selection_order.ron", env!("CARGO_MANIFEST_DIR"));
-    let input_type_sprites = format!("{}/assets/game/vehicle_type_sprites.ron", env!("CARGO_MANIFEST_DIR"));
-    
-    let f_properties = File::open(&input_path_properties).expect("Failed opening file");
-    let f_order = File::open(&input_path_order).expect("Failed opening file");
-    let f_type_sprites = File::open(&input_type_sprites).expect("Failed opening file");
-
-    let vehicle_properties_map: HashMap<VehicleNames, VehicleStats> =
-        from_reader(f_properties).expect("Failed to load config");
-    let vehicle_order_list: Vec<VehicleNames> =
-        from_reader(f_order).expect("Failed to load config");
-    let vehicle_type_sprites: HashMap<VehicleTypes, (usize, usize, usize)> =
-        from_reader(f_type_sprites).expect("Failed to load config");
-
     let vehicle_store = VehicleStoreResource {
-        properties: vehicle_properties_map,
-        order: vehicle_order_list,
-        type_sprites: vehicle_type_sprites,
+        properties: load_ron_asset(&["game", "vehicle_properties.ron"]),
+        order: load_ron_asset(&["game", "vehicle_selection_order.ron"]),
+        type_sprites: load_ron_asset(&["game", "vehicle_type_sprites.ron"]),
     };
     world.insert(vehicle_store.clone());
 

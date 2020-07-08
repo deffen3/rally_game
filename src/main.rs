@@ -10,8 +10,10 @@ use amethyst::{
         RenderingBundle,
     },
     ui::{RenderUi, UiBundle},
-    utils::{application_root_dir, fps_counter::FpsCounterBundle},
+    utils::{application_dir, application_root_dir, fps_counter::FpsCounterBundle},
 };
+use std::fs::File;
+use std::path::PathBuf;
 
 mod credits;
 mod menu;
@@ -31,6 +33,17 @@ mod systems;
 
 
 use crate::welcome::WelcomeScreen;
+use serde::de::DeserializeOwned;
+
+fn load_ron_asset<T: DeserializeOwned>(path: &[&str]) -> T {
+    let mut path_buf = PathBuf::from("assets");
+    path_buf.extend(path);
+    let path = application_dir(path_buf).expect("Failed to find application directory");
+
+    let file = File::open(&path).expect(&format!("Failed to open file: {:?}", path));
+
+    ron::de::from_reader(file).expect("Failed to load config")
+}
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
