@@ -17,6 +17,7 @@ pub fn chain_fire_weapon(
     spawner_weapon_fire: WeaponFire,
     fire_position: Vector3<f32>,
     fire_angle: f32,
+    weapon_angle_offset: f32,
     player_id: Option<usize>,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
@@ -29,6 +30,7 @@ pub fn chain_fire_weapon(
         weapon_array_id,
         spawner_weapon_fire.weapon_name.clone(),
         spawner_weapon_fire.weapon_fire_type,
+        weapon_angle_offset,
         spawner_weapon_fire.stats,
     );
 
@@ -69,6 +71,7 @@ pub fn fire_weapon(
     weapon_array_id: usize,
     fire_position: Vector3<f32>,
     fire_angle: f32,
+    weapon_angle_offset: f32,
     player_id: Option<usize>,
     lazy_update: &ReadExpect<LazyUpdate>,
 ) {
@@ -79,6 +82,7 @@ pub fn fire_weapon(
         weapon_array_id,
         weapon.name.clone(),
         weapon.stats.weapon_fire_type,
+        weapon_angle_offset,
         weapon.stats.fire_stats,
     );
 

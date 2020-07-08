@@ -638,42 +638,55 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 let turn_value = 1.0;
 
                                 if weapon_array.installed.len() > 0 {
-                                    let primary_weapon =
-                                        &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
+                                    let primary_weapon_install =
+                                        &weapon_array.installed[PRIMARY_WEAPON_INDEX];
+
+                                    let mounted_angle;
+
+                                    if let Some(mounted_angle_from_install) =
+                                        primary_weapon_install.mounted_angle
+                                    {
+                                        mounted_angle = mounted_angle_from_install;
+                                    } else {
+                                        mounted_angle = 0.0;
+                                    }
+
                                     //Prepare magnitude of Turning and Acceleration input
-                                    if player.bot_mode == BotMode::Swording {
-                                        if primary_weapon
-                                            .stats
-                                            .fire_stats
-                                            .mount_angle_special_offset
-                                            > PI / 2.0
-                                            || primary_weapon
+                                    if player.bot_mode == BotMode::Swording
+                                        || player.bot_mode == BotMode::Chasing
+                                    {
+                                        if (mounted_angle
+                                            + primary_weapon_install
+                                                .weapon
                                                 .stats
                                                 .fire_stats
-                                                .mount_angle_special_offset
-                                                < -PI / 2.0
+                                                .mount_angle_special_offset)
+                                            > PI / 4.0
+                                            || (mounted_angle
+                                                + primary_weapon_install
+                                                    .weapon
+                                                    .stats
+                                                    .fire_stats
+                                                    .mount_angle_special_offset)
+                                                < -PI / 4.0
                                         {
-                                            vehicle_accel = Some(-1.0); //drive backwards sword fighting
+                                            vehicle_accel = Some(-0.6); //drive backwards sword fighting
                                         } else {
-                                            vehicle_accel = Some(1.0); //drive forwards sword fighting
+                                            vehicle_accel = Some(0.6); //drive forwards sword fighting
                                         }
-                                    } else if player.bot_mode == BotMode::Chasing {
-                                        vehicle_accel = Some(0.6);
                                     }
 
                                     //Solve for Angle and Direction to turn
-                                    let mut angle_diff = vehicle_angle
-                                        + primary_weapon
-                                            .stats
-                                            .fire_stats
-                                            .mount_angle_special_offset
-                                        - attack_angle;
-
-                                    if angle_diff > PI {
-                                        angle_diff = -(2.0 * PI - angle_diff);
-                                    } else if angle_diff < -PI {
-                                        angle_diff = -(-2.0 * PI - angle_diff);
-                                    }
+                                    let angle_diff = clean_angle(
+                                        vehicle_angle
+                                            + mounted_angle
+                                            + primary_weapon_install
+                                                .weapon
+                                                .stats
+                                                .fire_stats
+                                                .mount_angle_special_offset
+                                            - attack_angle,
+                                    );
 
                                     if angle_diff > 0.001 {
                                         vehicle_turn = Some(-turn_value);

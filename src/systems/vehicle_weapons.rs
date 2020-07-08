@@ -152,9 +152,10 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                         }
 
                                         //typical angle this weapon should fire at
-                                        let standard_angle = vehicle_angle
-                                            + install_mounted_angle
+                                        let weapon_angle_offset = install_mounted_angle
                                             + weapon.stats.fire_stats.mount_angle_special_offset;
+
+                                        let standard_angle = vehicle_angle + weapon_angle_offset;
 
                                         //result angle the weapon fires at, after adding any auto-aim or spread modifiers
                                         let mut fire_angle: f32;
@@ -224,6 +225,7 @@ impl<'s> System<'s> for VehicleWeaponsSystem {
                                                 weapon_index,
                                                 fire_position,
                                                 fire_angle,
+                                                weapon_angle_offset,
                                                 Some(player.id),
                                                 &lazy_update,
                                             );

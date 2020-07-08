@@ -203,7 +203,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         if let Some(vehicle_owner_data) = vehicle_owner_data {
                             let (x, y, vehicle_angle) = vehicle_owner_data;
 
-                            let angle = vehicle_angle + weapon_fire.spawn_angle;
+                            let angle = vehicle_angle + weapon_fire.weapon_angle_offset;
 
                             let yaw_x_comp = -angle.sin(); //left is -, right is +
                             let yaw_y_comp = angle.cos(); //up is +, down is -

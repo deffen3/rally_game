@@ -694,6 +694,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                         weapon_fire_chain_prong.clone(),
                         fire_position,
                         fire_angle,
+                        0.0,
                         weapon_fire_chain_prong.owner_player_id.clone(),
                         &lazy_update,
                     );
