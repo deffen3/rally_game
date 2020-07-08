@@ -9,7 +9,7 @@ use amethyst::{
 
 use crate::components::{Player, Vehicle, VehicleState};
 
-use crate::resources::{GameModeSetup, GameModes, MatchTimer, GameScore, GameEndCondition};
+use crate::resources::{GameEndCondition, GameModeSetup, GameModes, GameScore, MatchTimer};
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleStatusSystem {
@@ -45,12 +45,12 @@ impl<'s> System<'s> for VehicleStatusSystem {
     fn run(
         &mut self,
         (
-            players, 
-            vehicles, 
-            mut ui_text, 
-            time, 
-            game_mode_setup, 
-            mut game_score, 
+            players,
+            vehicles,
+            mut ui_text,
+            time,
+            game_mode_setup,
+            mut game_score,
             mut match_timer
         ): Self::SystemData,
     ) {
@@ -85,42 +85,29 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
         //for (player, vehicle) in (players, vehicles).join() {
         for (player, vehicle) in (&players, &vehicles).join() {
-
             if let Some(shield_status) = vehicle.player_status_text.shield {
-                ui_text
-                    .get_mut(shield_status)
-                    .unwrap()
-                    .text = format!("{:.0}", vehicle.shield.value.ceil());
+                ui_text.get_mut(shield_status).unwrap().text =
+                    format!("{:.0}", vehicle.shield.value.ceil());
             }
 
             if let Some(armor_status) = vehicle.player_status_text.armor {
-                ui_text
-                    .get_mut(armor_status)
-                    .unwrap()
-                    .text = format!("{:.0}", vehicle.armor.value.ceil());
+                ui_text.get_mut(armor_status).unwrap().text =
+                    format!("{:.0}", vehicle.armor.value.ceil());
             }
-            
+
             if let Some(health_status) = vehicle.player_status_text.health {
-                ui_text
-                    .get_mut(health_status)
-                    .unwrap()
-                    .text = format!("{:.0}", vehicle.health.value.ceil());
+                ui_text.get_mut(health_status).unwrap().text =
+                    format!("{:.0}", vehicle.health.value.ceil());
             }
 
             if game_mode_setup.stock_lives > 0 {
                 if let Some(lives_remaining) = vehicle.player_status_text.lives {
-                    ui_text
-                        .get_mut(lives_remaining)
-                        .unwrap()
-                        .text = format!("{:.0} x", game_mode_setup.stock_lives - player.deaths);
+                    ui_text.get_mut(lives_remaining).unwrap().text =
+                        format!("{:.0} x", game_mode_setup.stock_lives - player.deaths);
                 }
-            }
-            else {
+            } else {
                 if let Some(lives_remaining) = vehicle.player_status_text.lives {
-                    ui_text
-                        .get_mut(lives_remaining)
-                        .unwrap()
-                        .text = "".to_string()
+                    ui_text.get_mut(lives_remaining).unwrap().text = "".to_string()
                 }
             }
 
@@ -150,17 +137,17 @@ impl<'s> System<'s> for VehicleStatusSystem {
                     GameModes::SurvivalWaves => player.objective_points.floor() as i32,
                 };
 
-                if vehicle.state != VehicleState::InActive && 
-                        !self.losers.contains(&player.id) &&
-                        !self.winners.contains(&player.id) {
+                if vehicle.state != VehicleState::InActive
+                    && !self.losers.contains(&player.id)
+                    && !self.winners.contains(&player.id)
+                {
                     self.player_active_timer[player.id] = match_timer.time;
                 }
-                
-                if !self.losers.contains(&player.id) &&
-                        !self.winners.contains(&player.id) {
-                    self.stats[player.id.clone()] = (displayed_player_score, player.kills, player.deaths);
+
+                if !self.losers.contains(&player.id) && !self.winners.contains(&player.id) {
+                    self.stats[player.id.clone()] =
+                        (displayed_player_score, player.kills, player.deaths);
                 }
-                
 
                 if (game_mode_setup.stock_lives > 0)
                     && (player.deaths >= game_mode_setup.stock_lives
@@ -180,10 +167,7 @@ impl<'s> System<'s> for VehicleStatusSystem {
                         self.placements[player.id.clone()] = place;
 
                         if let Some(points_status) = vehicle.player_status_text.points {
-                            ui_text
-                                .get_mut(points_status)
-                                .unwrap()
-                                .text = text_out;
+                            ui_text.get_mut(points_status).unwrap().text = text_out;
                         }
                     }
                 } else if game_mode_setup.points_to_win > 0
@@ -203,64 +187,55 @@ impl<'s> System<'s> for VehicleStatusSystem {
                         self.placements[player.id.clone()] = place;
 
                         if let Some(points_status) = vehicle.player_status_text.points {
-                            ui_text
-                                .get_mut(points_status)
-                                .unwrap()
-                                .text = text_out;
+                            ui_text.get_mut(points_status).unwrap().text = text_out;
                         }
                     }
                 } else {
                     if let Some(points_status) = vehicle.player_status_text.points {
-                        ui_text
-                            .get_mut(points_status)
-                            .unwrap()
-                            .text = format!("{:.0}", displayed_player_score);
+                        ui_text.get_mut(points_status).unwrap().text =
+                            format!("{:.0}", displayed_player_score);
                     }
                 }
-            }
-            else {
+            } else {
                 //handle timed games here, player with most points should be displayed as 1st, etc...
                 game_score.game_ended = true;
             }
         }
 
-
         //Non-time based game-end condition
         if game_mode_setup.game_end_condition == GameEndCondition::First {
-            if game_mode_setup.game_mode == GameModes::DeathmatchStock { //first to lose, typically not played this way
+            if game_mode_setup.game_mode == GameModes::DeathmatchStock {
+                //first to lose, typically not played this way
                 if self.losers.len() > 0 {
                     game_score.game_ended = true;
                 }
-            }
-            else if self.winners.len() > 0 {
+            } else if self.winners.len() > 0 {
                 game_score.game_ended = true;
             }
-        }
-        else if game_mode_setup.game_end_condition == GameEndCondition::AllButOne {
+        } else if game_mode_setup.game_end_condition == GameEndCondition::AllButOne {
             //If all but one player has won (or all but one player has lost)
-            if self.winners.len() >= game_mode_setup.max_players - 1 || 
-                    self.losers.len() >= game_mode_setup.max_players - 1 {
+            if self.winners.len() >= game_mode_setup.max_players - 1
+                || self.losers.len() >= game_mode_setup.max_players - 1
+            {
                 game_score.game_ended = true;
             }
-        }
-        else if game_mode_setup.game_end_condition == GameEndCondition::AllButOneExtended {
-            if self.winners.len() >= game_mode_setup.max_players - 1 || 
-                    self.losers.len() >= game_mode_setup.max_players - 1 {
+        } else if game_mode_setup.game_end_condition == GameEndCondition::AllButOneExtended {
+            if self.winners.len() >= game_mode_setup.max_players - 1
+                || self.losers.len() >= game_mode_setup.max_players - 1
+            {
                 self.extended_timer += dt;
             }
 
             if self.extended_timer >= 10.0 {
                 game_score.game_ended = true;
             }
-        }
-        else if game_mode_setup.game_end_condition == GameEndCondition::All {
-            if self.winners.len() == game_mode_setup.max_players || 
-                    self.losers.len() == game_mode_setup.max_players {
+        } else if game_mode_setup.game_end_condition == GameEndCondition::All {
+            if self.winners.len() == game_mode_setup.max_players
+                || self.losers.len() == game_mode_setup.max_players
+            {
                 game_score.game_ended = true;
             }
         }
-        
-
 
         if game_score.game_ended {
             //Resolve all other placements that are still 0 value
@@ -271,7 +246,14 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
                 let timer = self.player_active_timer[player_index];
 
-                index_placement_score.push((player_index, placement, *score, *kills, *deaths, timer));
+                index_placement_score.push((
+                    player_index,
+                    placement,
+                    *score,
+                    *kills,
+                    *deaths,
+                    timer,
+                ));
             }
 
             log::info!("{:?}", index_placement_score);
@@ -281,15 +263,22 @@ impl<'s> System<'s> for VehicleStatusSystem {
 
             log::info!("{:?}", index_placement_score);
 
-
             let mut index_final_placement_score: Vec<(usize, i32, i32, i32, i32, f32)> = Vec::new();
 
-            for (new_placement, (player_index, _, score, kills, deaths, timer)) in index_placement_score.iter().enumerate() {
-                index_final_placement_score.push((*player_index, (new_placement as i32)+1, *score, *kills, *deaths, *timer));
+            for (new_placement, (player_index, _, score, kills, deaths, timer)) in
+                index_placement_score.iter().enumerate()
+            {
+                index_final_placement_score.push((
+                    *player_index,
+                    (new_placement as i32) + 1,
+                    *score,
+                    *kills,
+                    *deaths,
+                    *timer,
+                ));
             }
 
             log::info!("{:?}", index_final_placement_score);
-            
 
             game_score.placements = index_final_placement_score;
         }

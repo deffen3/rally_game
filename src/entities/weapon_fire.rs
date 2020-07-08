@@ -11,8 +11,6 @@ use crate::resources::WeaponFireResource;
 
 use crate::components::{get_weapon_icon, Weapon, WeaponFire};
 
-
-
 pub fn chain_fire_weapon(
     entities: &Entities,
     weapon_fire_resource: &ReadExpect<WeaponFireResource>,
@@ -52,15 +50,17 @@ pub fn chain_fire_weapon(
     };
     lazy_update.insert(fire_entity, weapon_fire);
 
-    let (_icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, spawner_weapon_fire.weapon_fire_type, weapon_fire_resource);
+    let (_icon_scale, weapon_sprite) = get_weapon_icon(
+        player_id,
+        spawner_weapon_fire.weapon_fire_type,
+        weapon_fire_resource,
+    );
 
     lazy_update.insert(fire_entity, weapon_sprite);
     lazy_update.insert(fire_entity, local_transform);
 
     lazy_update.insert(fire_entity, Removal::new(0 as u32));
 }
-
 
 pub fn fire_weapon(
     entities: &Entities,
@@ -108,8 +108,11 @@ pub fn fire_weapon(
     };
     lazy_update.insert(fire_entity, weapon_fire);
 
-    let (_icon_scale, weapon_sprite) =
-        get_weapon_icon(player_id, weapon.stats.weapon_fire_type, weapon_fire_resource);
+    let (_icon_scale, weapon_sprite) = get_weapon_icon(
+        player_id,
+        weapon.stats.weapon_fire_type,
+        weapon_fire_resource,
+    );
 
     lazy_update.insert(fire_entity, weapon_sprite);
     lazy_update.insert(fire_entity, local_transform);

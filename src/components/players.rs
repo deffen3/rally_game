@@ -93,7 +93,15 @@ impl Component for PlayerWeaponIcon {
 }
 
 impl PlayerWeaponIcon {
-    pub fn new(player_id: usize, weapon_id: usize, weapon_fire_type: WeaponFireTypes) -> PlayerWeaponIcon {
-        PlayerWeaponIcon { player_id, weapon_id, weapon_fire_type }
+    pub fn new(
+        player_id: usize,
+        weapon_id: usize,
+        weapon_fire_type: WeaponFireTypes,
+    ) -> PlayerWeaponIcon {
+        PlayerWeaponIcon {
+            player_id,
+            weapon_id,
+            weapon_fire_type,
+        }
     }
 }

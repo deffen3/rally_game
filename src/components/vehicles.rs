@@ -5,20 +5,18 @@ use amethyst::{
 };
 
 use rand::Rng;
-use std::f32::consts::PI;
 use ron::de::from_reader;
 use serde::Deserialize;
+use std::f32::consts::PI;
 use std::{collections::HashMap, fs::File};
 //use std::env::current_dir;
 
 use crate::components::{
-    Armor, Health, Player, Repair, Shield, DurationDamage, 
-    WeaponNames, WeaponNameInstall, ArenaProperties,
+    ArenaProperties, Armor, DurationDamage, Health, Player, Repair, Shield, WeaponNameInstall,
+    WeaponNames,
 };
-use crate::resources::GameModes;
 use crate::entities::ui::PlayerStatusText;
-
-
+use crate::resources::GameModes;
 
 //VehicleNames correspond to the vehicle_properties.ron
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
@@ -31,7 +29,6 @@ pub enum VehicleNames {
     TSpeeder,
 }
 
-
 //VehicleTypes correspond to sprites
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
 pub enum VehicleTypes {
@@ -42,10 +39,6 @@ pub enum VehicleTypes {
     Interceptor,
     TSpeeder,
 }
-
-
-
-
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum VehicleMovementType {
@@ -60,7 +53,6 @@ pub enum VehicleState {
     InActive,
     InRespawn,
 }
-
 
 pub struct Vehicle {
     pub movement_type: VehicleMovementType,
@@ -99,7 +91,6 @@ pub struct Vehicle {
     pub state: VehicleState,
     pub player_status_text: PlayerStatusText,
 }
-
 
 impl Component for Vehicle {
     type Storage = DenseVecStorage<Self>;
@@ -179,7 +170,6 @@ impl Vehicle {
     }
 }
 
-
 pub fn determine_vehicle_weight(vehicle: &Vehicle) -> f32 {
     //typical vehicle weight = 100 at S:100/A:100/H:100 with normal engine efficiency
 
@@ -191,7 +181,6 @@ pub fn determine_vehicle_weight(vehicle: &Vehicle) -> f32 {
     //typical weapon weight adds about 10.0
     //  for a total of about 110.0
 
-    
     //a lighter racing vehicle with s:25/A:0/H:100 would weigh:
     //  B:20 + H:20 + S:3.75 + E:20 + W:10 = 73.75,
     //  and therefore would have about 50% quicker acceleration
@@ -201,7 +190,6 @@ pub fn determine_vehicle_weight(vehicle: &Vehicle) -> f32 {
     //  B:20 + H:30 + S:30 + A:50 + E:20 + W:10 = 160,
     //  and therefore would have about 45% slower acceleration
     //  but would take almost 550 damage, an 83% increase
-
 
     //NOTE: lost armor does not contribute to weight, only the current value of armor matters
     let vehicle_weight = (20.0 + vehicle.health.max * 20. / 100.)
@@ -221,8 +209,6 @@ pub fn determine_vehicle_weight_stats(vehicle: VehicleStats) -> f32 {
 
     vehicle_weight
 }
-
-
 
 pub fn kill_restart_vehicle(
     player: &Player,
@@ -278,7 +264,6 @@ pub fn check_respawn_vehicle(
             vehicle.ion_malfunction_pct = 0.0;
             vehicle.duration_damages = Vec::new();
 
-
             vehicle.shield.value = vehicle.shield.max;
             vehicle.shield.cooldown_timer = -1.;
 
@@ -290,14 +275,15 @@ pub fn check_respawn_vehicle(
                 transform.set_translation_xyz(vehicle.death_x, vehicle.death_y, 0.0);
             } else {
                 //Ensure that the spawn_index != last_spawn_index
-                spawn_index = rng.gen_range(0, arena_properties.player_spawn_points.len()-1) as u32;
+                spawn_index =
+                    rng.gen_range(0, arena_properties.player_spawn_points.len() - 1) as u32;
                 if spawn_index >= last_spawn_index {
                     spawn_index += 1;
                 }
-                
+
                 let player_spawn = arena_properties.player_spawn_points[spawn_index as usize];
-            
-                transform.set_rotation_2d(player_spawn.rotation/180.0*PI);
+
+                transform.set_rotation_2d(player_spawn.rotation / 180.0 * PI);
                 transform.set_translation_xyz(player_spawn.x, player_spawn.y, 0.0);
             }
         }
@@ -346,9 +332,8 @@ pub fn vehicle_damage_model(
                         //take damage to shields, but shields are still alive, reset shield recharge cooldown
                         vehicle.shield.cooldown_timer = vehicle.shield.cooldown_reset;
                     }
-                }
-                else {
-                    damage = 0.0; 
+                } else {
+                    damage = 0.0;
                     //This would happen if the vehicle has shields, but is being hit with a weapon that does no damage to shields
                     //Therefore no damage can be done, unless it is piercing damage
                 }
@@ -365,8 +350,7 @@ pub fn vehicle_damage_model(
                         damage = vehicle.armor.value.abs(); //over damage on armor, needs taken from health
                         vehicle.armor.value = 0.0;
                     }
-                }
-                else {
+                } else {
                     damage = 0.0;
                     //This would happen if the vehicle has armor, but is being hit with a weapon that does no damage to armor
                     //Therefore no damage can be done, unless it is piercing damage
@@ -377,7 +361,6 @@ pub fn vehicle_damage_model(
             if health_damage > 0.0 {
                 health_damage_applied = true;
             }
-            
 
             if vehicle.health.value > 0.0 {
                 //only destroy once
@@ -388,68 +371,73 @@ pub fn vehicle_damage_model(
                     vehicle.health.value -= health_damage;
                 }
             }
-        }
-        else { //damage is negative -> healing
+        } else {
+            //damage is negative -> healing
             //NOTE: Piercing has no effect on healing
 
-            if vehicle.health.value < vehicle.health.max { //missing some health
+            if vehicle.health.value < vehicle.health.max {
+                //missing some health
                 if damage * health_damage_pct < 0.0 {
                     health_damage_applied = true;
 
                     vehicle.health.value -= damage * health_damage_pct / 100.0;
                     damage = 0.0;
 
-                    if vehicle.health.value > vehicle.health.max { //too much healing, apply to next type
+                    if vehicle.health.value > vehicle.health.max {
+                        //too much healing, apply to next type
                         damage = vehicle.health.value - vehicle.health.max;
                         vehicle.health.value = vehicle.health.max;
                     }
                 }
             }
 
-            if vehicle.armor.value < vehicle.armor.max { //missing some armor
+            if vehicle.armor.value < vehicle.armor.max {
+                //missing some armor
                 if damage * armor_damage_pct < 0.0 {
                     armor_damage_applied = true;
 
                     vehicle.armor.value -= damage * armor_damage_pct / 100.0;
                     damage = 0.0;
 
-                    if vehicle.armor.value > vehicle.armor.max { //too much healing, apply to next type
+                    if vehicle.armor.value > vehicle.armor.max {
+                        //too much healing, apply to next type
                         damage = vehicle.armor.value - vehicle.armor.max;
                         vehicle.armor.value = vehicle.armor.max;
                     }
                 }
             }
 
-            if vehicle.shield.value < vehicle.shield.max { //missing some armor
+            if vehicle.shield.value < vehicle.shield.max {
+                //missing some armor
                 if damage * shield_damage_pct < 0.0 {
                     shield_damage_applied = true;
 
                     vehicle.shield.value -= damage * shield_damage_pct / 100.0;
 
-                    if vehicle.shield.value > vehicle.shield.max { //too much healing
+                    if vehicle.shield.value > vehicle.shield.max {
+                        //too much healing
                         vehicle.shield.value = vehicle.shield.max;
                     }
                 }
             }
         }
 
-        //Check if duration damage should be applied, 
+        //Check if duration damage should be applied,
         //  which should only be in cases where the correct damage type was done
         //  by the original damage shot
-        if duration_damage.timer >= 0.0 && 
-            ((shield_damage_applied && duration_damage.shield_damage_pct > 0.0) || 
-            (armor_damage_applied && duration_damage.armor_damage_pct > 0.0) || 
-            (health_damage_applied && duration_damage.health_damage_pct > 0.0))
+        if duration_damage.timer >= 0.0
+            && ((shield_damage_applied && duration_damage.shield_damage_pct > 0.0)
+                || (armor_damage_applied && duration_damage.armor_damage_pct > 0.0)
+                || (health_damage_applied && duration_damage.health_damage_pct > 0.0))
         {
-            vehicle.duration_damages.push((damager_id, weapon_name, duration_damage));
+            vehicle
+                .duration_damages
+                .push((damager_id, weapon_name, duration_damage));
         }
     }
 
     vehicle_destroyed
 }
-
-
-
 
 #[derive(Clone)]
 pub struct VehicleStoreResource {
@@ -457,7 +445,6 @@ pub struct VehicleStoreResource {
     pub order: Vec<VehicleNames>,
     pub type_sprites: HashMap<VehicleTypes, (usize, usize, usize)>,
 }
-
 
 /* Release rally.exe (crashes):
 "\\\\?\\C:\\Users\\Mike\\rust\\amethyst\\rally_game\\target\\release\\assets/game/vehicles.ron"
@@ -470,10 +457,19 @@ pub fn build_vehicle_store(world: &mut World) -> VehicleStoreResource {
     // let app_root = current_dir();
     // let input_path = app_root.unwrap().join("assets/game/vehicles.ron");
 
-    let input_path_properties = format!("{}/assets/game/vehicle_properties.ron", env!("CARGO_MANIFEST_DIR"));
-    let input_path_order = format!("{}/assets/game/vehicle_selection_order.ron", env!("CARGO_MANIFEST_DIR"));
-    let input_type_sprites = format!("{}/assets/game/vehicle_type_sprites.ron", env!("CARGO_MANIFEST_DIR"));
-    
+    let input_path_properties = format!(
+        "{}/assets/game/vehicle_properties.ron",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let input_path_order = format!(
+        "{}/assets/game/vehicle_selection_order.ron",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let input_type_sprites = format!(
+        "{}/assets/game/vehicle_type_sprites.ron",
+        env!("CARGO_MANIFEST_DIR")
+    );
+
     let f_properties = File::open(&input_path_properties).expect("Failed opening file");
     let f_order = File::open(&input_path_order).expect("Failed opening file");
     let f_type_sprites = File::open(&input_type_sprites).expect("Failed opening file");
@@ -521,40 +517,35 @@ pub fn get_none_vehicle() -> VehicleStats {
     }
 }
 
-
-
 pub fn get_vehicle_sprites(world: &World, vehicle_type: VehicleTypes) -> (usize, usize, usize) {
     let vehicle_store = world.fetch::<VehicleStoreResource>();
 
     let vehicle_sprites_option = vehicle_store.type_sprites.get(&vehicle_type);
-    
+
     let vehicle_sprites_out: (usize, usize, usize);
 
     if let Some(vehicle_properties) = vehicle_sprites_option {
         vehicle_sprites_out = *vehicle_properties;
+    } else {
+        vehicle_sprites_out = (0, 0, 0);
     }
-    else {
-        vehicle_sprites_out = (0,0,0);
-    }
-    
+
     vehicle_sprites_out
 }
-
 
 pub fn get_next_vehicle_name(world: &World, name: VehicleNames) -> VehicleNames {
     let vehicle_store = world.fetch::<VehicleStoreResource>();
 
     let length = vehicle_store.order.len();
     let index = vehicle_store.order.iter().position(|&r| r == name).unwrap();
-    
+
     let vehicle_out: VehicleNames;
-    if index == length-1 {
+    if index == length - 1 {
         vehicle_out = vehicle_store.order[0]
+    } else {
+        vehicle_out = vehicle_store.order[index + 1];
     }
-    else {
-        vehicle_out = vehicle_store.order[index+1];
-    }
-    
+
     vehicle_out
 }
 
@@ -566,16 +557,13 @@ pub fn get_prev_vehicle_name(world: &World, name: VehicleNames) -> VehicleNames 
 
     let vehicle_out: VehicleNames;
     if index == 0 {
-        vehicle_out = vehicle_store.order[length-1]
+        vehicle_out = vehicle_store.order[length - 1]
+    } else {
+        vehicle_out = vehicle_store.order[index - 1];
     }
-    else {
-        vehicle_out = vehicle_store.order[index-1];
-    }
-    
+
     vehicle_out
 }
-
-
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct VehicleStats {

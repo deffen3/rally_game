@@ -9,25 +9,16 @@ use amethyst::{
     utils::removal::Removal,
 };
 
-use std::f32::{consts::PI};
+use std::f32::consts::PI;
 
 use crate::components::{
-    ArenaElement, ArenaNames, ArenaStoreResource, ArenaProperties,
-    Hitbox, HitboxShape, RaceCheckpointType, reform_weapon_spawner,
-    ObstacleType,
+    reform_weapon_spawner, ArenaElement, ArenaNames, ArenaProperties, ArenaStoreResource, Hitbox,
+    HitboxShape, ObstacleType, RaceCheckpointType,
 };
 
-use crate::resources::{
-    GameModeSetup, 
-    ArenaNavMesh, ArenaNavMeshFinal
-};
+use crate::resources::{ArenaNavMesh, ArenaNavMeshFinal, GameModeSetup};
 
-use navmesh::{NavMesh, NavVec3, NavTriangle};
-
-
-
-
-
+use navmesh::{NavMesh, NavTriangle, NavVec3};
 
 pub fn intialize_arena(
     world: &mut World,
@@ -47,7 +38,7 @@ pub fn intialize_arena(
     }
 
     let arena_properties;
-    {        
+    {
         let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
 
         if let Some(arena_store) = fetched_arena_store {
@@ -55,13 +46,10 @@ pub fn intialize_arena(
                 Some(arena_props_get) => (*arena_props_get).clone(),
                 _ => ArenaProperties::default(),
             };
-        }
-        else {
+        } else {
             arena_properties = ArenaProperties::default();
         }
     }
-
-
 
     //Initialize Nav Mesh Grid
     let debug_line_z = 0.0;
@@ -69,20 +57,17 @@ pub fn intialize_arena(
 
     let mut nav_mesh_grid_xs: Vec<f32> = Vec::new();
     nav_mesh_grid_xs.push(0.0 + nav_mesh_offset);
-    nav_mesh_grid_xs.push(0.0 + 3.0*nav_mesh_offset);
+    nav_mesh_grid_xs.push(0.0 + 3.0 * nav_mesh_offset);
     nav_mesh_grid_xs.push(arena_properties.width - nav_mesh_offset);
-    nav_mesh_grid_xs.push(arena_properties.width - 3.0*nav_mesh_offset);
+    nav_mesh_grid_xs.push(arena_properties.width - 3.0 * nav_mesh_offset);
 
     let mut nav_mesh_grid_ys: Vec<f32> = Vec::new();
     nav_mesh_grid_ys.push(0.0 + nav_mesh_offset);
-    nav_mesh_grid_ys.push(0.0 + 3.0*nav_mesh_offset);
+    nav_mesh_grid_ys.push(0.0 + 3.0 * nav_mesh_offset);
     nav_mesh_grid_ys.push(arena_properties.height - nav_mesh_offset);
-    nav_mesh_grid_ys.push(arena_properties.height - 3.0*nav_mesh_offset);
+    nav_mesh_grid_ys.push(arena_properties.height - 3.0 * nav_mesh_offset);
 
     let mut nav_mesh_grid_drop: Vec<(f32, f32, f32, f32)> = Vec::new();
-
-
-
 
     //Build Arena from properties
 
@@ -109,27 +94,22 @@ pub fn intialize_arena(
             .build();
     }
 
-
-
     //Arena Rectangles
     for arena_rect in arena_properties.arena_rectangles.iter() {
         let sprite_scale_mult = 20.0;
-        let x_scale = arena_rect.width/2.0 / sprite_scale_mult;
-        let y_scale = arena_rect.height/2.0 / sprite_scale_mult;
+        let x_scale = arena_rect.width / 2.0 / sprite_scale_mult;
+        let y_scale = arena_rect.height / 2.0 / sprite_scale_mult;
 
         //add visual sprite
         let mut transform = Transform::default();
-        
-        transform.set_rotation_2d(arena_rect.rotation/180.0 * PI);
+
+        transform.set_rotation_2d(arena_rect.rotation / 180.0 * PI);
         if arena_rect.obstacle_type == ObstacleType::Wall {
             transform.set_translation_xyz(arena_rect.x, arena_rect.y, 0.38);
-        }
-        else {
+        } else {
             transform.set_translation_xyz(arena_rect.x, arena_rect.y, -0.01);
         }
         transform.set_scale(Vector3::new(x_scale, y_scale, 0.0));
-        
-
 
         if arena_rect.obstacle_type == ObstacleType::Wall {
             let sprite_render = SpriteRender {
@@ -162,18 +142,19 @@ pub fn intialize_arena(
                     spawn_timer: None,
                     ammo: None,
                     hitbox: Hitbox::new(
-                        2.0*sprite_scale_mult * x_scale,
-                        2.0*sprite_scale_mult * y_scale,
+                        2.0 * sprite_scale_mult * x_scale,
+                        2.0 * sprite_scale_mult * y_scale,
                         0.0,
                         HitboxShape::Rectangle,
                     ),
                     effects: None,
                 })
                 .build();
-        }
-        else {
+        } else {
             if let Some(arena_rect_effects) = arena_rect.effects {
-                if arena_rect.obstacle_type == ObstacleType::Zone && arena_rect_effects.damage_rate > 0.0 {
+                if arena_rect.obstacle_type == ObstacleType::Zone
+                    && arena_rect_effects.damage_rate > 0.0
+                {
                     let sprite_render = SpriteRender {
                         sprite_sheet: sprite_sheet_handle.clone(),
                         sprite_number: 73,
@@ -204,16 +185,18 @@ pub fn intialize_arena(
                             spawn_timer: None,
                             ammo: None,
                             hitbox: Hitbox::new(
-                                2.0*sprite_scale_mult * x_scale,
-                                2.0*sprite_scale_mult * y_scale,
+                                2.0 * sprite_scale_mult * x_scale,
+                                2.0 * sprite_scale_mult * y_scale,
                                 0.0,
                                 HitboxShape::Rectangle,
                             ),
                             effects: Some(arena_rect_effects),
                         })
                         .build();
-                }
-                else if arena_rect.obstacle_type == ObstacleType::Zone && arena_rect_effects.damage_rate < 0.0 { //healing
+                } else if arena_rect.obstacle_type == ObstacleType::Zone
+                    && arena_rect_effects.damage_rate < 0.0
+                {
+                    //healing
                     let sprite_render = SpriteRender {
                         sprite_sheet: sprite_sheet_handle.clone(),
                         sprite_number: 74,
@@ -244,16 +227,17 @@ pub fn intialize_arena(
                             spawn_timer: None,
                             ammo: None,
                             hitbox: Hitbox::new(
-                                2.0*sprite_scale_mult * x_scale,
-                                2.0*sprite_scale_mult * y_scale,
+                                2.0 * sprite_scale_mult * x_scale,
+                                2.0 * sprite_scale_mult * y_scale,
                                 0.0,
                                 HitboxShape::Rectangle,
                             ),
                             effects: Some(arena_rect_effects),
                         })
                         .build();
-                }
-                else if arena_rect.obstacle_type == ObstacleType::Zone && arena_rect_effects.accel_rate != 0.0 {
+                } else if arena_rect.obstacle_type == ObstacleType::Zone
+                    && arena_rect_effects.accel_rate != 0.0
+                {
                     let sprite_render = SpriteRender {
                         sprite_sheet: sprite_sheet_handle.clone(),
                         sprite_number: 72,
@@ -284,8 +268,8 @@ pub fn intialize_arena(
                             spawn_timer: None,
                             ammo: None,
                             hitbox: Hitbox::new(
-                                2.0*sprite_scale_mult * x_scale,
-                                2.0*sprite_scale_mult * y_scale,
+                                2.0 * sprite_scale_mult * x_scale,
+                                2.0 * sprite_scale_mult * y_scale,
                                 0.0,
                                 HitboxShape::Rectangle,
                             ),
@@ -295,13 +279,11 @@ pub fn intialize_arena(
                 }
             }
         }
-            
-        
 
         if arena_rect.obstacle_type == ObstacleType::Wall {
             //setup nav mesh grid
-            let x_offset = sprite_scale_mult*x_scale + nav_mesh_offset;
-        
+            let x_offset = sprite_scale_mult * x_scale + nav_mesh_offset;
+
             let xr_minus = (arena_rect.x - x_offset).round();
             let xr_plus = (arena_rect.x + x_offset).round();
 
@@ -315,8 +297,7 @@ pub fn intialize_arena(
                 nav_mesh_grid_xs.push(xr_plus);
             }
 
-
-            let y_offset = sprite_scale_mult*y_scale + nav_mesh_offset;
+            let y_offset = sprite_scale_mult * y_scale + nav_mesh_offset;
 
             let yr_minus = (arena_rect.y - y_offset).round();
             let yr_plus = (arena_rect.y + y_offset).round();
@@ -331,11 +312,9 @@ pub fn intialize_arena(
                 nav_mesh_grid_ys.push(yr_plus);
             }
 
-
             nav_mesh_grid_drop.push((xr_minus, xr_plus, yr_minus, yr_plus));
         }
     }
-
 
     //Arena Circles
     for arena_circle in arena_properties.arena_circles.iter() {
@@ -344,7 +323,7 @@ pub fn intialize_arena(
 
         //add visual sprite
         let mut circle_transform = Transform::default();
-        
+
         circle_transform.set_translation_xyz(arena_circle.x, arena_circle.y, 0.38);
         circle_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
@@ -378,18 +357,18 @@ pub fn intialize_arena(
                 spawn_timer: None,
                 ammo: None,
                 hitbox: Hitbox::new(
-                    2.0*sprite_scale_mult * scale,
-                    2.0*sprite_scale_mult * scale,
+                    2.0 * sprite_scale_mult * scale,
+                    2.0 * sprite_scale_mult * scale,
                     0.0,
                     HitboxShape::Circle,
                 ),
                 effects: None,
             })
-            .build();        
-        
+            .build();
+
         if arena_circle.obstacle_type == ObstacleType::Wall {
             //setup nav mesh grid
-            let offset = sprite_scale_mult*scale + nav_mesh_offset;
+            let offset = sprite_scale_mult * scale + nav_mesh_offset;
 
             let xr_minus = (arena_circle.x - offset).round();
             let xr_plus = (arena_circle.x + offset).round();
@@ -404,7 +383,6 @@ pub fn intialize_arena(
                 nav_mesh_grid_xs.push(xr_plus);
             }
 
-
             let yr_minus = (arena_circle.y - offset).round();
             let yr_plus = (arena_circle.y + offset).round();
 
@@ -418,11 +396,9 @@ pub fn intialize_arena(
                 nav_mesh_grid_ys.push(yr_plus);
             }
 
-
             nav_mesh_grid_drop.push((xr_minus, xr_plus, yr_minus, yr_plus));
         }
     }
-
 
     //Arena King Hill
     for king_hill in arena_properties.king_hills.iter() {
@@ -467,19 +443,13 @@ pub fn intialize_arena(
                 spawn_time: None,
                 spawn_timer: None,
                 ammo: None,
-                hitbox: Hitbox::new(
-                    20.0 * scale,
-                    20.0 * scale,
-                    0.0,
-                    HitboxShape::Circle,
-                ),
+                hitbox: Hitbox::new(20.0 * scale, 20.0 * scale, 0.0, HitboxShape::Circle),
                 effects: None,
             })
             .with(Transparent)
             .with(king_tint)
             .build();
     }
-
 
     //Race Checkpoints and Finish Lines
     for (idx, race_checkpoint) in arena_properties.race_checkpoints.iter().enumerate() {
@@ -488,15 +458,16 @@ pub fn intialize_arena(
         let checkpoint_line_sprite_render;
         let checkpoint_type;
 
-        if idx == 0 { //checkered finish line
+        if idx == 0 {
+            //checkered finish line
             checkpoint_type = RaceCheckpointType::Lap;
 
             checkpoint_line_sprite_render = SpriteRender {
                 sprite_sheet: sprite_sheet_handle.clone(),
                 sprite_number: 30,
             };
-        }
-        else { //solid white checkpoint line
+        } else {
+            //solid white checkpoint line
             checkpoint_type = RaceCheckpointType::Checkpoint;
 
             checkpoint_line_sprite_render = SpriteRender {
@@ -504,18 +475,17 @@ pub fn intialize_arena(
                 sprite_number: 31,
             };
         }
-        
+
         let mut checkpoint_line_transform = Transform::default();
 
-        checkpoint_line_transform.set_rotation_2d(race_checkpoint.rotation/180.0 * PI);
+        checkpoint_line_transform.set_rotation_2d(race_checkpoint.rotation / 180.0 * PI);
         checkpoint_line_transform.set_translation_xyz(race_checkpoint.x, race_checkpoint.y, -0.02);
         checkpoint_line_transform.set_scale(Vector3::new(scale, scale, 0.0));
 
-        
-        let width = (20.0 * scale * (race_checkpoint.rotation/180.0*PI).cos().abs())
-            + (2.0 * scale * (race_checkpoint.rotation/180.0*PI).sin().abs());
-        let height = (2.0 * scale * (race_checkpoint.rotation/180.0*PI).cos().abs()) 
-            + (20.0 * scale * (race_checkpoint.rotation/180.0*PI).sin().abs());
+        let width = (20.0 * scale * (race_checkpoint.rotation / 180.0 * PI).cos().abs())
+            + (2.0 * scale * (race_checkpoint.rotation / 180.0 * PI).sin().abs());
+        let height = (2.0 * scale * (race_checkpoint.rotation / 180.0 * PI).cos().abs())
+            + (20.0 * scale * (race_checkpoint.rotation / 180.0 * PI).sin().abs());
 
         world
             .create_entity()
@@ -541,17 +511,11 @@ pub fn intialize_arena(
                 spawn_time: None,
                 spawn_timer: None,
                 ammo: None,
-                hitbox: Hitbox::new(
-                    width,
-                    height,
-                    0.0,
-                    HitboxShape::Rectangle,
-                ),
+                hitbox: Hitbox::new(width, height, 0.0, HitboxShape::Rectangle),
                 effects: None,
             })
             .build();
     }
-
 
     //Add non-mesh Arena items
 
@@ -563,17 +527,15 @@ pub fn intialize_arena(
             .build();
     }
 
-
-
     //Build navigation mesh from grid
     let mut nav_mesh_vertices: Vec<(f32, f32, f32)> = Vec::new();
     let mut nav_mesh_triangles: Vec<(usize, usize, usize)> = Vec::new();
 
     //Filter and sort
-    nav_mesh_grid_xs.retain(|&x| x>= 0.0 && x<= arena_properties.width);
+    nav_mesh_grid_xs.retain(|&x| x >= 0.0 && x <= arena_properties.width);
     nav_mesh_grid_xs.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
-    nav_mesh_grid_ys.retain(|&y| y>= 0.0 && y<= arena_properties.height);
+    nav_mesh_grid_ys.retain(|&y| y >= 0.0 && y <= arena_properties.height);
     nav_mesh_grid_ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
     let xs_len = nav_mesh_grid_xs.len();
@@ -592,31 +554,42 @@ pub fn intialize_arena(
 
             let vertex_idx = nav_mesh_vertices.len() - 1;
 
-            if (x_idx > 0) && (y_idx > 0) { //don't evaluate first index, otherwise underflow
+            if (x_idx > 0) && (y_idx > 0) {
+                //don't evaluate first index, otherwise underflow
                 let xr_minus = nav_mesh_vertices[vertex_idx - 1].0; //bottom-left x
                 let xr_plus = nav_mesh_vertices[vertex_idx - xs_len].0; //top-right x
                 let yr_minus = nav_mesh_vertices[vertex_idx - 1].1; //bottom-left y
                 let yr_plus = nav_mesh_vertices[vertex_idx - xs_len].1; //top-right y
 
                 let mut dropped = false;
-                for (drop_x_minus, drop_x_plus, drop_y_minus, drop_y_plus) in nav_mesh_grid_drop.iter() {
-                    if xr_minus >= *drop_x_minus && xr_minus <= *drop_x_plus && 
-                            xr_plus >= *drop_x_minus && xr_plus <= *drop_x_plus &&
-                            yr_minus >= *drop_y_minus && yr_minus <= *drop_y_plus &&
-                            yr_plus >= *drop_y_minus && yr_plus <= *drop_y_plus {
+                for (drop_x_minus, drop_x_plus, drop_y_minus, drop_y_plus) in
+                    nav_mesh_grid_drop.iter()
+                {
+                    if xr_minus >= *drop_x_minus
+                        && xr_minus <= *drop_x_plus
+                        && xr_plus >= *drop_x_minus
+                        && xr_plus <= *drop_x_plus
+                        && yr_minus >= *drop_y_minus
+                        && yr_minus <= *drop_y_plus
+                        && yr_plus >= *drop_y_minus
+                        && yr_plus <= *drop_y_plus
+                    {
                         dropped = true;
                         break;
                     }
                 }
 
                 if !dropped {
-                    nav_mesh_triangles.push((vertex_idx - 1, vertex_idx - xs_len - 1, vertex_idx - xs_len));
+                    nav_mesh_triangles.push((
+                        vertex_idx - 1,
+                        vertex_idx - xs_len - 1,
+                        vertex_idx - xs_len,
+                    ));
                     nav_mesh_triangles.push((vertex_idx - 1, vertex_idx, vertex_idx - xs_len));
                 }
             }
         }
     }
-
 
     //Store navigation mesh
     let fetched_arena_nav_mesh = world.try_fetch_mut::<ArenaNavMesh>();
@@ -628,11 +601,10 @@ pub fn intialize_arena(
         let fetched_arena_nav_mesh_final = world.try_fetch_mut::<ArenaNavMeshFinal>();
 
         if let Some(mut arena_nav_mesh_final) = fetched_arena_nav_mesh_final {
-
             let mut nav_vecs: Vec<NavVec3> = Vec::new();
             let mut nav_triangles: Vec<NavTriangle> = Vec::new();
 
-            for (x,y,z) in arena_nav_mesh.vertices.iter() {
+            for (x, y, z) in arena_nav_mesh.vertices.iter() {
                 nav_vecs.push(NavVec3::new(*x, *y, *z));
             }
 
@@ -640,14 +612,12 @@ pub fn intialize_arena(
                 nav_triangles.push(NavTriangle {
                     first: *v1 as u32,
                     second: *v2 as u32,
-                    third: *v3 as u32
+                    third: *v3 as u32,
                 });
             }
 
-            arena_nav_mesh_final.mesh = Some(NavMesh::new(
-                nav_vecs.clone(),
-                nav_triangles.clone()
-            ).unwrap());
+            arena_nav_mesh_final.mesh =
+                Some(NavMesh::new(nav_vecs.clone(), nav_triangles.clone()).unwrap());
         }
     }
 }

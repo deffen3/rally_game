@@ -8,9 +8,7 @@ use amethyst::{
 
 use crate::menu::MainMenu;
 
-
 const BUTTON_BACK_TO_MENU: &str = "back_to_menu";
-
 
 #[derive(Default, Debug)]
 pub struct CustomWeaponsMenu {
@@ -23,16 +21,16 @@ impl SimpleState for CustomWeaponsMenu {
         // create UI from prefab and save the reference.
         let world = data.world;
 
-        self.ui_root =
-            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/custom_weapons.ron", ())));
+        self.ui_root = Some(
+            world.exec(|mut creator: UiCreator<'_>| creator.create("ui/custom_weapons.ron", ())),
+        );
     }
 
     fn update(&mut self, state_data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         // only search for buttons if they have not been found yet
         let StateData { world, .. } = state_data;
 
-        if self.button_back_to_menu.is_none()
-        {
+        if self.button_back_to_menu.is_none() {
             world.exec(|ui_finder: UiFinder<'_>| {
                 self.button_back_to_menu = ui_finder.find(BUTTON_BACK_TO_MENU);
             });

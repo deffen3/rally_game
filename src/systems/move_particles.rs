@@ -1,7 +1,7 @@
-use amethyst::core::{Time, Transform};
 use amethyst::core::math::Vector3;
+use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
-use amethyst::ecs::{Entities, Join, Read, System, SystemData, WriteStorage, ReadStorage};
+use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage};
 
 use crate::components::{Particles, Shockwave};
 
@@ -28,16 +28,17 @@ impl<'s> System<'s> for MoveParticlesSystem {
 
             if particle.life_timer < 0.0 {
                 let _ = entities.delete(entity);
-            }
-            else {
+            } else {
                 transform.prepend_translation_x(particle.dx * dt);
                 transform.prepend_translation_y(particle.dy * dt);
             }
         }
 
-        for (particle, shockwave, transform) in (&mut particles, &shockwaves, &mut transforms).join() {
+        for (particle, shockwave, transform) in
+            (&mut particles, &shockwaves, &mut transforms).join()
+        {
             let pct_expansion = 1.0 - (particle.life_timer / shockwave.time);
-            let live_shockwave_radius = pct_expansion * shockwave.radius/2.0;
+            let live_shockwave_radius = pct_expansion * shockwave.radius / 2.0;
 
             //sprite is 21x21 pixels, we'll call is radius=10
             //so scale of 1 = 10 pixel radius

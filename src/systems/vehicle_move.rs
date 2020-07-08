@@ -1,42 +1,43 @@
 use amethyst::{
-    core::{math::Vector3, Time, Transform},
-    derive::SystemDesc,
-    ecs::{Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, Write, System, SystemData, World,
-        WriteStorage},
-    input::{InputHandler, StringBindings},
-    renderer::{debug_drawing::{DebugLines}, palette::Srgba, resources::Tint},
     assets::AssetStorage,
     audio::{output::Output, Source},
+    core::{math::Vector3, Time, Transform},
+    derive::SystemDesc,
+    ecs::{
+        Entities, Join, LazyUpdate, Read, ReadExpect, ReadStorage, System, SystemData, World,
+        Write, WriteStorage,
+    },
+    input::{InputHandler, StringBindings},
+    renderer::{debug_drawing::DebugLines, palette::Srgba, resources::Tint},
 };
 
-use log::{debug};
+use log::debug;
 use rand::Rng;
-use std::f32::consts::PI;
 use std::collections::HashMap;
+use std::f32::consts::PI;
 
 extern crate nalgebra as na;
 use na::{Isometry2, Vector2};
 use ncollide2d::query::{self, Proximity};
 use ncollide2d::shape::{Ball, Cuboid};
 
-
-
 use crate::components::{
-    check_respawn_vehicle, get_random_weapon_name, get_random_weapon_name_build_chance, kill_restart_vehicle,
-    update_weapon_properties, vehicle_damage_model, BotMode, ArenaElement, HitboxShape, Player,
-    PlayerWeaponIcon, RaceCheckpointType, Vehicle, VehicleState, WeaponArray, WeaponStoreResource,
-    determine_vehicle_weight, VehicleMovementType, DurationDamage, 
-    ArenaStoreResource, ArenaNames, ArenaProperties, ObstacleType,
+    check_respawn_vehicle, determine_vehicle_weight, get_random_weapon_name,
+    get_random_weapon_name_build_chance, kill_restart_vehicle, update_weapon_properties,
+    vehicle_damage_model, ArenaElement, ArenaNames, ArenaProperties, ArenaStoreResource, BotMode,
+    DurationDamage, HitboxShape, ObstacleType, Player, PlayerWeaponIcon, RaceCheckpointType,
+    Vehicle, VehicleMovementType, VehicleState, WeaponArray, WeaponStoreResource,
 };
 
-use crate::entities::{malfunction_sparking, acceleration_spray};
+use crate::entities::{acceleration_spray, malfunction_sparking};
 
-use crate::resources::{GameModeSetup, GameModes, GameWeaponSetup, WeaponFireResource, GameWeaponSelectionMode};
+use crate::resources::{
+    GameModeSetup, GameModes, GameWeaponSelectionMode, GameWeaponSetup, WeaponFireResource,
+};
 
 use crate::rally::{
-    BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT,
-    COLLISION_HEALTH_DAMAGE_PCT, COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT,
-    DEBUG_LINES,
+    BASE_COLLISION_DAMAGE, COLLISION_ARMOR_DAMAGE_PCT, COLLISION_HEALTH_DAMAGE_PCT,
+    COLLISION_PIERCING_DAMAGE_PCT, COLLISION_SHIELD_DAMAGE_PCT, DEBUG_LINES,
 };
 
 use crate::audio::{play_bounce_sound, Sounds};
@@ -55,7 +56,6 @@ const ROCKET_SPRAY_COOLDOWN_RESET: f32 = 0.05;
 
 const PRIMARY_WEAPON_INDEX: usize = 0;
 const SECONDARY_WEAPON_INDEX: usize = 1;
-
 
 #[derive(SystemDesc, Default)]
 pub struct VehicleMoveSystem {
@@ -91,28 +91,26 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut rng = rand::thread_rng();
         self.last_spawn_index = rng.gen_range(0, 4);
 
-
         let arena_name;
         {
             let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
-    
+
             if let Some(game_mode_setup) = fetched_game_mode_setup {
                 arena_name = game_mode_setup.arena_name.clone();
             } else {
                 arena_name = ArenaNames::OpenEmptyMap;
             }
         }
-    
-        {        
+
+        {
             let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
-    
+
             if let Some(arena_store) = fetched_arena_store {
                 self.arena_properties = match arena_store.properties.get(&arena_name) {
                     Some(arena_props_get) => (*arena_props_get).clone(),
                     _ => ArenaProperties::default(),
                 };
-            }
-            else {
+            } else {
                 self.arena_properties = ArenaProperties::default();
             }
         }
@@ -152,8 +150,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
         let mut earned_collision_kills: Vec<usize> = Vec::new();
 
         //Turn and Accel
-        for (player, vehicle, transform, mut weapon_array) in
-            (&mut players, &mut vehicles, &mut transforms, &mut weapon_arrays).join()
+        for (player, vehicle, transform, mut weapon_array) in (
+            &mut players,
+            &mut vehicles,
+            &mut transforms,
+            &mut weapon_arrays,
+        )
+            .join()
         {
             if vehicle.state == VehicleState::InRespawn {
                 self.last_spawn_index = check_respawn_vehicle(
@@ -166,8 +169,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 );
 
                 //if just now respawned and state changed into VehicleState::Active
-                if vehicle.state == VehicleState::Active 
-                {
+                if vehicle.state == VehicleState::Active {
                     if game_weapon_setup.new_ammo_on_respawn {
                         for weapon_install in weapon_array.installed.iter_mut() {
                             if !weapon_install.ammo.is_none() {
@@ -177,21 +179,25 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         }
                     }
 
-                    
-                    if !game_weapon_setup.keep_picked_up_weapons &&
-                        (game_weapon_setup.mode == GameWeaponSelectionMode::StarterAndPickup ||
-                        game_weapon_setup.mode == GameWeaponSelectionMode::CustomStarterAndPickup)
+                    if !game_weapon_setup.keep_picked_up_weapons
+                        && (game_weapon_setup.mode == GameWeaponSelectionMode::StarterAndPickup
+                            || game_weapon_setup.mode
+                                == GameWeaponSelectionMode::CustomStarterAndPickup)
                     {
                         //Remove weapons picked up in previous life
-                        if weapon_array.installed.len() >= 2
-                        {
-                            let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+                        if weapon_array.installed.len() >= 2 {
+                            let secondary_weapon =
+                                &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
 
                             vehicle.weapon_weight -= secondary_weapon.stats.weight;
-                            
+
                             weapon_icons_old_map.insert(
                                 player.id,
-                                (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
+                                (
+                                    SECONDARY_WEAPON_INDEX,
+                                    secondary_weapon.stats.weapon_fire_type.clone(),
+                                ),
+                            );
 
                             update_weapon_properties(
                                 &mut weapon_array,
@@ -209,9 +215,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     }
                 }
             }
-            
-            let vehicle_weight = determine_vehicle_weight(vehicle);
 
+            let vehicle_weight = determine_vehicle_weight(vehicle);
 
             let rotate_accel_rate: f32 = 120.0 * vehicle.engine_force / vehicle_weight;
             let rotate_friction_decel_rate: f32 = 75.0 * vehicle.engine_force / vehicle_weight;
@@ -239,19 +244,20 @@ impl<'s> System<'s> for VehicleMoveSystem {
             //     vehicle_strafe = input.axis_value(&AxisBinding::VehicleStrafe(player.id));
             // }
 
-            if game_mode_setup.p1_keyboard { //p1 using keyboard, p2 using controller 0, ...
+            if game_mode_setup.p1_keyboard {
+                //p1 using keyboard, p2 using controller 0, ...
                 vehicle_accel = match player.id {
                     0 => input.axis_value("p1kb_accel"),
                     1 => input.axis_value("p1_accel"), //not a typo: p2 or player.id == 1, is using the first controller
-                    2 => input.axis_value("p2_accel"), 
+                    2 => input.axis_value("p2_accel"),
                     3 => input.axis_value("p3_accel"),
                     _ => None,
                 };
                 vehicle_turn = match player.id {
                     0 => input.axis_value("p1kb_turn"),
-                    1 => input.axis_value("p1_turn"), 
-                    2 => input.axis_value("p2_turn"), 
-                    3 => input.axis_value("p3_turn"), 
+                    1 => input.axis_value("p1_turn"),
+                    2 => input.axis_value("p2_turn"),
+                    3 => input.axis_value("p3_turn"),
                     _ => None,
                 };
                 vehicle_strafe = match player.id {
@@ -261,20 +267,20 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     3 => input.axis_value("p3_strafe"),
                     _ => None,
                 };
-            }
-            else { //all 4 controllers
+            } else {
+                //all 4 controllers
                 vehicle_accel = match player.id {
                     0 => input.axis_value("p1_accel"),
-                    1 => input.axis_value("p2_accel"), 
-                    2 => input.axis_value("p3_accel"), 
+                    1 => input.axis_value("p2_accel"),
+                    2 => input.axis_value("p3_accel"),
                     3 => input.axis_value("p4_accel"),
                     _ => None,
                 };
                 vehicle_turn = match player.id {
                     0 => input.axis_value("p1_turn"),
-                    1 => input.axis_value("p2_turn"), 
-                    2 => input.axis_value("p3_turn"), 
-                    3 => input.axis_value("p4_turn"), 
+                    1 => input.axis_value("p2_turn"),
+                    2 => input.axis_value("p3_turn"),
+                    3 => input.axis_value("p4_turn"),
                     _ => None,
                 };
                 vehicle_strafe = match player.id {
@@ -285,15 +291,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     _ => None,
                 };
             }
-            
 
             let vehicle_x = transform.translation().x;
             let vehicle_y = transform.translation().y;
 
             let vehicle_rotation = transform.rotation();
             let (_, _, vehicle_angle) = vehicle_rotation.euler_angles();
-            
-            
 
             //Issue Bot commands
             if player.is_bot {
@@ -307,26 +310,26 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if game_mode_setup.game_mode == GameModes::Race {
                             player.bot_mode = BotMode::Racing;
                             debug!("{} Racing", player.id);
-                        }
-                        else {
+                        } else {
                             player.bot_mode = BotMode::RunRandom;
                             debug!("{} Run Random", player.id);
                         }
-                    }
-                    else if player.bot_mode == BotMode::Racing {
+                    } else if player.bot_mode == BotMode::Racing {
                         //Determine which point to race to
 
                         let next_checkpoint;
-                        if player.checkpoint_completed as usize >= (self.arena_properties.race_checkpoints.len() - 1) {
-                            next_checkpoint = self.arena_properties.race_checkpoints[0]; //return to finish line
+                        if player.checkpoint_completed as usize
+                            >= (self.arena_properties.race_checkpoints.len() - 1)
+                        {
+                            next_checkpoint = self.arena_properties.race_checkpoints[0];
+                        //return to finish line
+                        } else {
+                            //go to next checkpoint
+                            next_checkpoint = self.arena_properties.race_checkpoints
+                                [(player.checkpoint_completed + 1) as usize];
                         }
-                        else { //go to next checkpoint
-                            next_checkpoint = self.arena_properties.race_checkpoints[(player.checkpoint_completed + 1) as usize];
-                        }
-                        
 
                         player.path_target = Some((next_checkpoint.x, next_checkpoint.y, 0.0));
-
 
                         if let Some(path_plan) = player.path_plan.clone() {
                             if path_plan.len() >= 2 {
@@ -368,16 +371,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 if angle_diff.abs() < 0.2 {
                                     if approx_t_to_arrival < approx_t_to_rest {
                                         vehicle_accel = Some(0.5);
-                                    }
-                                    else {
+                                    } else {
                                         vehicle_accel = Some(0.8);
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 vehicle_accel = Some(0.0);
                                 vehicle_turn = Some(0.0);
-                            }                                
+                            }
                         }
                         player.last_accel_input = vehicle_accel;
                         player.last_turn_input = vehicle_turn;
@@ -385,26 +386,27 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if player.bot_move_cooldown < 0.0 {
                             player.bot_move_cooldown = player.bot_move_cooldown_reset;
                         }
-                    }
-                    else if player.bot_mode == BotMode::RunTo
+                    } else if player.bot_mode == BotMode::RunTo
                         || player.bot_mode == BotMode::RunRandom
                         || player.bot_mode == BotMode::RunBlind
                         || player.bot_mode == BotMode::TakeTheHill
                         || player.bot_mode == BotMode::Mining
                         || player.bot_mode == BotMode::Repairing
                     {
-                        if game_mode_setup.game_mode == GameModes::KingOfTheHill && player.on_hill == false {
+                        if game_mode_setup.game_mode == GameModes::KingOfTheHill
+                            && player.on_hill == false
+                        {
                             player.bot_mode = BotMode::TakeTheHill;
                             debug!("{} TakeTheHill", player.id);
-                        }
-                        else {
+                        } else {
                             //check to change mode
                             if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
                                 if dist_to_closest_vehicle <= BOT_ENGAGE_DISTANCE
                                     && player.bot_move_cooldown < 0.0
                                 {
                                     if weapon_array.installed.len() > 0 {
-                                        let primary_weapon = &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
+                                        let primary_weapon =
+                                            &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
                                         //change modes to attack
                                         if primary_weapon.stats.fire_stats.attached {
                                             //Typically just LaserSword
@@ -412,7 +414,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                             debug!("{} Swording", player.id);
                                             player.bot_move_cooldown = 5.0;
                                             player.last_made_hit_timer = 0.0;
-                                        } else if primary_weapon.stats.fire_stats.shot_speed <= 0.0 {
+                                        } else if primary_weapon.stats.fire_stats.shot_speed <= 0.0
+                                        {
                                             //Typically just Mines or Traps
                                             player.bot_mode = BotMode::Mining;
                                             debug!("{} Mining", player.id);
@@ -436,39 +439,41 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         {
                             if player.bot_mode == BotMode::TakeTheHill {
                                 if player.on_hill == false {
-                                    player.path_target = Some((self.arena_properties.width/2.0, (self.arena_properties.height)/2.0 , 0.0));
-                                }
-                                else {
+                                    player.path_target = Some((
+                                        self.arena_properties.width / 2.0,
+                                        (self.arena_properties.height) / 2.0,
+                                        0.0,
+                                    ));
+                                } else {
                                     player.path_target = None;
-                                }   
-                            }
-                            else if player.bot_mode == BotMode::RunTo
-                                    || player.bot_mode == BotMode::RunRandom
-                                    || player.bot_mode == BotMode::Mining
-                                    || player.bot_mode == BotMode::Repairing
+                                }
+                            } else if player.bot_mode == BotMode::RunTo
+                                || player.bot_mode == BotMode::RunRandom
+                                || player.bot_mode == BotMode::Mining
+                                || player.bot_mode == BotMode::Repairing
                             {
                                 if player.path_target.is_none() || player.path_cooldown <= 0.0 {
-                                    let random_x = rng.gen_range(0.0, self.arena_properties.width) as f32;
-                                    let random_y = rng.gen_range(0.0, self.arena_properties.height) as f32;
+                                    let random_x =
+                                        rng.gen_range(0.0, self.arena_properties.width) as f32;
+                                    let random_y =
+                                        rng.gen_range(0.0, self.arena_properties.height) as f32;
 
                                     player.path_target = Some((random_x, random_y, 0.0));
 
                                     player.path_cooldown = player.path_cooldown_reset;
                                 }
-                            }
-                            else if player.bot_mode == BotMode::RunBlind {
+                            } else if player.bot_mode == BotMode::RunBlind {
+                                player.path_target = None;
+                            } else {
                                 player.path_target = None;
                             }
-                            else {
-                                player.path_target = None;
-                            }
-
 
                             if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-                                if (vehicle.health.value < vehicle.health.max ||
-                                        (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0)) && 
-                                        dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE &&
-                                        player.last_hit_timer > 1.0 {
+                                if (vehicle.health.value < vehicle.health.max
+                                    || (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0))
+                                    && dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE
+                                    && player.last_hit_timer > 1.0
+                                {
                                     player.bot_mode = BotMode::Repairing;
                                 }
                             }
@@ -485,7 +490,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     let dist = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
 
                                     let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
-                                    let abs_vel = sq_vel.sqrt()*10.0; //Why does velocity not seem accurate without this weird multiplier???
+                                    let abs_vel = sq_vel.sqrt() * 10.0; //Why does velocity not seem accurate without this weird multiplier???
 
                                     let approx_t_to_arrival = dist / abs_vel;
                                     let approx_t_to_rest = abs_vel / thrust_friction_decel_rate;
@@ -513,24 +518,21 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     if angle_diff.abs() < 0.2 {
                                         if approx_t_to_arrival < approx_t_to_rest {
                                             vehicle_accel = Some(0.5);
-                                        }
-                                        else {
+                                        } else {
                                             vehicle_accel = Some(0.8);
                                         }
                                     }
-                                }
-                                else {
+                                } else {
                                     vehicle_accel = Some(0.0);
                                     vehicle_turn = Some(0.0);
-                                }                                
-                            }
-                            else { //random movement input when no path is specified
+                                }
+                            } else {
+                                //random movement input when no path is specified
                                 if player.bot_move_cooldown < 0.0 {
                                     //issue new move command
                                     vehicle_accel = Some(rng.gen_range(0.3, 0.5) as f32);
                                     vehicle_turn = Some(rng.gen_range(-0.3, 0.3) as f32);
-                                }
-                                else {
+                                } else {
                                     //hold previous random move
                                     vehicle_accel = player.last_accel_input;
                                     vehicle_turn = player.last_turn_input;
@@ -553,7 +555,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         let continue_with_attacking_mode;
 
                         if let Some(dist_to_closest_vehicle) = vehicle.dist_to_closest_vehicle {
-
                             //if the closest vehicle is too far away to engage
                             if dist_to_closest_vehicle > BOT_DISENGAGE_DISTANCE
                                 && player.bot_move_cooldown < 0.0
@@ -572,18 +573,21 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     debug!("{} Chasing", player.id);
                                     player.last_made_hit_timer = 0.0;
                                 }
-                            } else { //closest vehicle is close enough to engage
+                            } else {
+                                //closest vehicle is close enough to engage
                                 //vehicle is close, but the bot isn't hitting it within 3 seconds
-                                if player.last_made_hit_timer > 3.0 && player.bot_mode != BotMode::Swording {
+                                if player.last_made_hit_timer > 3.0
+                                    && player.bot_mode != BotMode::Swording
+                                {
                                     continue_with_attacking_mode = false;
 
                                     player.bot_mode = BotMode::RunRandom;
                                     player.bot_move_cooldown = BOT_NO_HIT_MOVE_COOLDOWN;
-                                }
-                                else {
+                                } else {
                                     //closest vehicle is out of current weapon range though
-                                    if weapon_array.installed.len() > 0 { 
-                                        let primary_weapon = &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
+                                    if weapon_array.installed.len() > 0 {
+                                        let primary_weapon =
+                                            &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
                                         if dist_to_closest_vehicle > primary_weapon.range_calc {
                                             player.bot_mode = BotMode::Chasing;
                                             debug!("{} Chasing", player.id);
@@ -593,7 +597,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     continue_with_attacking_mode = true;
                                 }
                             }
-                        } else { //no closest vehicle exists, only vehicle alive right now?
+                        } else {
+                            //no closest vehicle exists, only vehicle alive right now?
                             continue_with_attacking_mode = false;
 
                             player.bot_move_cooldown = player.bot_move_cooldown_reset;
@@ -609,7 +614,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 player.last_made_hit_timer = 0.0;
                             }
                         }
-                        
 
                         if continue_with_attacking_mode {
                             //continue with Attacking mode
@@ -625,13 +629,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     player.bot_move_cooldown = player.bot_move_cooldown_reset;
                                     if left_or_right_strafe {
                                         vehicle_strafe = Some(0.8);
-                                    }
-                                    else {
+                                    } else {
                                         vehicle_strafe = Some(-0.8);
                                     }
-                                    
-                                }
-                                else {
+                                } else {
                                     player.bot_move_cooldown = player.bot_move_cooldown_reset;
                                     vehicle_strafe = Some(0.0);
                                 }
@@ -641,11 +642,20 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 let turn_value = 1.0;
 
                                 if weapon_array.installed.len() > 0 {
-                                    let primary_weapon = &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
+                                    let primary_weapon =
+                                        &weapon_array.installed[PRIMARY_WEAPON_INDEX].weapon;
                                     //Prepare magnitude of Turning and Acceleration input
                                     if player.bot_mode == BotMode::Swording {
-                                        if primary_weapon.stats.fire_stats.mount_angle_special_offset > PI / 2.0
-                                            || primary_weapon.stats.fire_stats.mount_angle_special_offset < -PI / 2.0
+                                        if primary_weapon
+                                            .stats
+                                            .fire_stats
+                                            .mount_angle_special_offset
+                                            > PI / 2.0
+                                            || primary_weapon
+                                                .stats
+                                                .fire_stats
+                                                .mount_angle_special_offset
+                                                < -PI / 2.0
                                         {
                                             vehicle_accel = Some(-1.0); //drive backwards sword fighting
                                         } else {
@@ -656,8 +666,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                     }
 
                                     //Solve for Angle and Direction to turn
-                                    let mut angle_diff =
-                                        vehicle_angle + primary_weapon.stats.fire_stats.mount_angle_special_offset - attack_angle;
+                                    let mut angle_diff = vehicle_angle
+                                        + primary_weapon
+                                            .stats
+                                            .fire_stats
+                                            .mount_angle_special_offset
+                                        - attack_angle;
 
                                     if angle_diff > PI {
                                         angle_diff = -(2.0 * PI - angle_diff);
@@ -691,8 +705,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         if game_mode_setup.game_mode == GameModes::Race {
                             player.bot_mode = BotMode::Racing;
                             debug!("{} Racing", player.id);
-                        }
-                        else if player.bot_move_cooldown < 0.0 {
+                        } else if player.bot_move_cooldown < 0.0 {
                             player.bot_mode = BotMode::RunRandom;
                             debug!("{} Run Random", player.id);
                         }
@@ -703,18 +716,17 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let veh_x_comp = -vehicle_angle.sin(); //left is -, right is +
             let veh_y_comp = vehicle_angle.cos(); //up is +, down is -
 
-            let veh_x_strafe_comp = -(vehicle_angle + PI/2.0).sin();
-            let veh_y_strafe_comp = (vehicle_angle + PI/2.0).cos();
-
+            let veh_x_strafe_comp = -(vehicle_angle + PI / 2.0).sin();
+            let veh_y_strafe_comp = (vehicle_angle + PI / 2.0).cos();
 
             //Apply malfunction for damaged vehicles
             if vehicle.state == VehicleState::Active {
                 vehicle.malfunction_cooldown_timer -= dt;
 
                 //if vehicle low on health, or has taken ion damage, or is currently malfunctioning
-                if vehicle.health.value <= (0.5 * vehicle.health.max) || 
-                        vehicle.ion_malfunction_pct > 0.0 ||
-                        vehicle.malfunction > 0.0
+                if vehicle.health.value <= (0.5 * vehicle.health.max)
+                    || vehicle.ion_malfunction_pct > 0.0
+                    || vehicle.malfunction > 0.0
                 {
                     vehicle.malfunction_cooldown_timer -= dt;
 
@@ -729,11 +741,11 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         //  so 35% no malfunction, 65% malfunction
 
                         let malfunction_occurs: bool;
-                        if malfunction_chance - 0.25 > (vehicle.health.value / vehicle.health.max) ||
-                                malfunction_chance > (1.-vehicle.ion_malfunction_pct/100.) {
+                        if malfunction_chance - 0.25 > (vehicle.health.value / vehicle.health.max)
+                            || malfunction_chance > (1. - vehicle.ion_malfunction_pct / 100.)
+                        {
                             malfunction_occurs = true;
-                        }
-                        else {
+                        } else {
                             malfunction_occurs = false;
                         }
 
@@ -748,17 +760,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 sparks_position,
                                 &lazy_update,
                             );
-                        }
-                        else {
+                        } else {
                             vehicle.malfunction = 0.0; //no malfunction
                         }
-                        
+
                         vehicle.malfunction_cooldown_timer = 0.5; //reset timer
                         vehicle.ion_malfunction_pct = 0.0; //clear ion malfunctions
                     }
-                    //else unchanged, use old malfunction value
-                }
-                else {
+                //else unchanged, use old malfunction value
+                } else {
                     vehicle.malfunction_cooldown_timer = -1.0;
                     vehicle.malfunction = 0.0;
                     vehicle.ion_malfunction_pct = 0.0; //clear ion malfunctions
@@ -775,7 +785,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     let scaled_amount: f32 = if vehicle.repair.activated {
                         0.0 as f32
                     } else if vehicle.malfunction > 0.0 {
-                        thrust_accel_rate * move_amount * (100.0-vehicle.malfunction) as f32
+                        thrust_accel_rate * move_amount * (100.0 - vehicle.malfunction) as f32
                     } else if vehicle.stuck_accel_effect_timer > 0.0 {
                         thrust_accel_rate
                     } else if move_amount > 0.0 {
@@ -788,12 +798,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     vehicle.dy += scaled_amount * veh_y_comp * dt;
 
                     let position = Vector3::new(
-                        vehicle_x - veh_x_comp*vehicle.height/2.0,
-                        vehicle_y - veh_y_comp*vehicle.height/2.0, 
-                        0.5
+                        vehicle_x - veh_x_comp * vehicle.height / 2.0,
+                        vehicle_y - veh_y_comp * vehicle.height / 2.0,
+                        0.5,
                     );
 
-                    let is_smoking = (vehicle.health.value / vehicle.health.max) < 4./5.;
+                    let is_smoking = (vehicle.health.value / vehicle.health.max) < 4. / 5.;
 
                     if scaled_amount >= 0.01 && self.rocket_spray_timer < 0.0 {
                         acceleration_spray(
@@ -802,7 +812,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             is_smoking,
                             position,
                             vehicle_angle + PI,
-                            scaled_amount.abs()*80.0,
+                            scaled_amount.abs() * 80.0,
                             &lazy_update,
                         );
                     }
@@ -810,13 +820,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
 
             //Update vehicle side strafing from strafing input
-            if vehicle.movement_type == VehicleMovementType::Hover &&
-                    vehicle.state == VehicleState::Active {
+            if vehicle.movement_type == VehicleMovementType::Hover
+                && vehicle.state == VehicleState::Active
+            {
                 if let Some(strafe_amount) = vehicle_strafe {
                     let scaled_amount: f32 = if vehicle.repair.activated {
                         0.0 as f32
                     } else if vehicle.malfunction > 0.0 {
-                        thrust_strafe_accel_rate * strafe_amount * (100.0-vehicle.malfunction) as f32
+                        thrust_strafe_accel_rate
+                            * strafe_amount
+                            * (100.0 - vehicle.malfunction) as f32
                     } else {
                         thrust_strafe_accel_rate * strafe_amount as f32
                     };
@@ -826,10 +839,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 }
             }
 
-
             let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
             let abs_vel = sq_vel.sqrt();
-
 
             //Apply friction
             //this needs to be applied to vehicle momentum angle, not vehicle_angle angle
@@ -840,8 +851,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
             let compare_velocity_angle;
             if abs_vel >= 0.001 {
                 compare_velocity_angle = velocity_angle;
-            }
-            else {
+            } else {
                 compare_velocity_angle = vehicle_angle; //no velocity = no slip
             }
 
@@ -853,50 +863,57 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 slip_angle = 2.0 * PI + slip_angle;
             }
 
-            let slip_pct = 1.0 - ((slip_angle.abs() - PI/2.0).abs() / (PI/2.0));
+            let slip_pct = 1.0 - ((slip_angle.abs() - PI / 2.0).abs() / (PI / 2.0));
 
-            log::debug!("{} {} {} {}", velocity_angle, vehicle_angle, slip_angle, slip_pct);
-
+            log::debug!(
+                "{} {} {} {}",
+                velocity_angle,
+                vehicle_angle,
+                slip_angle,
+                slip_pct
+            );
 
             if vehicle.movement_type == VehicleMovementType::Hover {
                 vehicle.dx -= thrust_friction_decel_rate * velocity_x_comp * dt;
                 vehicle.dy -= thrust_friction_decel_rate * velocity_y_comp * dt;
-            }
-            else if vehicle.movement_type == VehicleMovementType::Car {
+            } else if vehicle.movement_type == VehicleMovementType::Car {
                 // let veh_x_comp = -vehicle_angle.sin(); //left is -, right is +
                 // let veh_y_comp = vehicle_angle.cos(); //up is +, down is -
-    
+
                 // let veh_x_strafe_comp = -(vehicle_angle + PI/2.0).sin();
                 // let veh_y_strafe_comp = (vehicle_angle + PI/2.0).cos();
 
                 // let tire_longitudinal_friction_decel_rate: f32 = 0.5;
                 // let tire_lateral_friction_decel_rate: f32 = 2.0;
 
-                vehicle.dx -= tire_longitudinal_friction_decel_rate * velocity_x_comp * (1.0 - slip_pct) * dt;
-                vehicle.dy -= tire_longitudinal_friction_decel_rate * velocity_y_comp * (1.0 - slip_pct) * dt;
+                vehicle.dx -=
+                    tire_longitudinal_friction_decel_rate * velocity_x_comp * (1.0 - slip_pct) * dt;
+                vehicle.dy -=
+                    tire_longitudinal_friction_decel_rate * velocity_y_comp * (1.0 - slip_pct) * dt;
 
                 vehicle.dx -= tire_lateral_friction_decel_rate * velocity_x_comp * slip_pct * dt;
                 vehicle.dy -= tire_lateral_friction_decel_rate * velocity_y_comp * slip_pct * dt;
+            } else if vehicle.movement_type == VehicleMovementType::Tank {
+                vehicle.dx -= tank_track_longitudinal_friction_decel_rate
+                    * velocity_x_comp
+                    * (1.0 - slip_pct)
+                    * dt;
+                vehicle.dy -= tank_track_longitudinal_friction_decel_rate
+                    * velocity_y_comp
+                    * (1.0 - slip_pct)
+                    * dt;
+
+                vehicle.dx -=
+                    tank_track_lateral_friction_decel_rate * velocity_x_comp * (slip_pct) * dt;
+                vehicle.dy -=
+                    tank_track_lateral_friction_decel_rate * velocity_y_comp * (slip_pct) * dt;
             }
-            else if vehicle.movement_type == VehicleMovementType::Tank {
 
-                vehicle.dx -= tank_track_longitudinal_friction_decel_rate * velocity_x_comp * (1.0 - slip_pct) * dt;
-                vehicle.dy -= tank_track_longitudinal_friction_decel_rate * velocity_y_comp * (1.0 - slip_pct) * dt;
-
-                vehicle.dx -= tank_track_lateral_friction_decel_rate * velocity_x_comp * (slip_pct) * dt;
-                vehicle.dy -= tank_track_lateral_friction_decel_rate * velocity_y_comp * (slip_pct) * dt;
-            }
-            
-
-
-
-            
             //Apply vehicle slow down effect
             if vehicle.restricted_velocity_timer <= 0.0 {
                 //restore max velocity to unrestricted
                 vehicle.restricted_max_velocity = vehicle.max_velocity;
-            }
-            else {
+            } else {
                 vehicle.restricted_velocity_timer -= dt;
             }
 
@@ -904,7 +921,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 vehicle.dx *= vehicle.restricted_max_velocity / abs_vel;
                 vehicle.dy *= vehicle.restricted_max_velocity / abs_vel;
             }
-
 
             //Transform on vehicle velocity
             if vehicle.dx.abs() > 0.1 {
@@ -921,7 +937,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     let scaled_amount: f32 = if vehicle.repair.activated == true {
                         0.0 as f32
                     } else if vehicle.malfunction > 0.0 {
-                        rotate_accel_rate * turn_amount * (100.0-vehicle.malfunction) as f32
+                        rotate_accel_rate * turn_amount * (100.0 - vehicle.malfunction) as f32
                     } else {
                         rotate_accel_rate * turn_amount as f32
                     };
@@ -930,15 +946,12 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     if vehicle.movement_type == VehicleMovementType::Car {
                         if abs_vel >= 0.01 {
                             turnable = true;
-                        }
-                        else {
+                        } else {
                             turnable = false;
                         }
-                    }
-                    else {
+                    } else {
                         turnable = true;
                     }
-
 
                     if turnable {
                         if scaled_amount > 0.1 || scaled_amount < -0.1 {
@@ -956,15 +969,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         } else {
                             vehicle.dr = 0.0;
                         }
-                    }
-                    else {
+                    } else {
                         vehicle.dr = 0.0
                     }
 
-
                     vehicle.dr = vehicle.dr.min(2.5).max(-2.5);
 
-                    transform.set_rotation_2d(vehicle_angle + vehicle.dr*dt);
+                    transform.set_rotation_2d(vehicle_angle + vehicle.dr * dt);
                 }
             }
 
@@ -1003,7 +1014,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 if vehicle.state == VehicleState::Active {
                     if vehicle.collision_cooldown_timer <= 0.0 {
-                        let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel/100.0 * velocity_x_comp.abs();
+                        let damage: f32 =
+                            BASE_COLLISION_DAMAGE * abs_vel / 100.0 * velocity_x_comp.abs();
                         debug!("Player {} has collided with {} damage", player.id, damage);
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
@@ -1048,7 +1060,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                 if vehicle.state == VehicleState::Active {
                     if vehicle.collision_cooldown_timer <= 0.0 {
-                        let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel/100.0 * velocity_y_comp.abs();
+                        let damage: f32 =
+                            BASE_COLLISION_DAMAGE * abs_vel / 100.0 * velocity_y_comp.abs();
                         debug!("Player {} has collided with {} damage", player.id, damage);
 
                         let vehicle_destroyed: bool = vehicle_damage_model(
@@ -1101,10 +1114,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
             vehicle.collision_cooldown_timer -= dt;
         }
 
-
-
-
-
         //hitbox collision logic
         let mut player_destroyed: Vec<usize> = Vec::new();
 
@@ -1124,8 +1133,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
             let collision_margin = 5.0;
 
-            let vehicle_collider_shape = Cuboid::new(Vector2::new(vehicle.width/2.0, vehicle.height/2.0));
-            let vehicle_collider_pos = Isometry2::new(Vector2::new(vehicle_x, vehicle_y), vehicle_angle);
+            let vehicle_collider_shape =
+                Cuboid::new(Vector2::new(vehicle.width / 2.0, vehicle.height / 2.0));
+            let vehicle_collider_pos =
+                Isometry2::new(Vector2::new(vehicle_x, vehicle_y), vehicle_angle);
 
             player.on_hill = false; //reset
 
@@ -1143,8 +1154,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let collision = query::proximity(
-                        &vehicle_collider_pos, &vehicle_collider_shape,
-                        &hitbox_collider_pos, &hitbox_collider_shape,
+                        &vehicle_collider_pos,
+                        &vehicle_collider_shape,
+                        &hitbox_collider_pos,
+                        &hitbox_collider_shape,
                         collision_margin,
                     );
 
@@ -1152,25 +1165,29 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         hit = true;
 
                         contact_data = query::contact(
-                            &vehicle_collider_pos, &vehicle_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape,
-                            0.0);
-                    }
-                    else if collision == Proximity::WithinMargin {
+                            &vehicle_collider_pos,
+                            &vehicle_collider_shape,
+                            &hitbox_collider_pos,
+                            &hitbox_collider_shape,
+                            0.0,
+                        );
+                    } else if collision == Proximity::WithinMargin {
                         hit = false;
-                    }
-                    else {
+                    } else {
                         hit = false;
                     }
                 } else if arena_element.hitbox.shape == HitboxShape::Rectangle {
                     let hitbox_collider_shape = Cuboid::new(Vector2::new(
-                        arena_element.hitbox.width/2.0, arena_element.hitbox.height/2.0)
-                    );
+                        arena_element.hitbox.width / 2.0,
+                        arena_element.hitbox.height / 2.0,
+                    ));
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let collision = query::proximity(
-                        &vehicle_collider_pos, &vehicle_collider_shape,
-                        &hitbox_collider_pos, &hitbox_collider_shape,
+                        &vehicle_collider_pos,
+                        &vehicle_collider_shape,
+                        &hitbox_collider_pos,
+                        &hitbox_collider_shape,
                         collision_margin,
                     );
 
@@ -1178,25 +1195,29 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         hit = true;
 
                         contact_data = query::contact(
-                            &vehicle_collider_pos, &vehicle_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape,
-                            0.0);
-                    }
-                    else if collision == Proximity::WithinMargin {
+                            &vehicle_collider_pos,
+                            &vehicle_collider_shape,
+                            &hitbox_collider_pos,
+                            &hitbox_collider_shape,
+                            0.0,
+                        );
+                    } else if collision == Proximity::WithinMargin {
                         hit = false;
-                    }
-                    else {
+                    } else {
                         hit = false;
                     }
                 } else if arena_element.hitbox.shape == HitboxShape::InnerQuarterCircle {
                     let hitbox_collider_shape = Cuboid::new(Vector2::new(
-                        arena_element.hitbox.width/2.0, arena_element.hitbox.height/2.0)
-                    );
+                        arena_element.hitbox.width / 2.0,
+                        arena_element.hitbox.height / 2.0,
+                    ));
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let collision = query::proximity(
-                        &vehicle_collider_pos, &vehicle_collider_shape,
-                        &hitbox_collider_pos, &hitbox_collider_shape,
+                        &vehicle_collider_pos,
+                        &vehicle_collider_shape,
+                        &hitbox_collider_pos,
+                        &hitbox_collider_shape,
                         collision_margin,
                     );
 
@@ -1204,25 +1225,29 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         hit = true;
 
                         contact_data = query::contact(
-                            &vehicle_collider_pos, &vehicle_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape,
-                            0.0);
-                    }
-                    else if collision == Proximity::WithinMargin {
+                            &vehicle_collider_pos,
+                            &vehicle_collider_shape,
+                            &hitbox_collider_pos,
+                            &hitbox_collider_shape,
+                            0.0,
+                        );
+                    } else if collision == Proximity::WithinMargin {
                         hit = false;
-                    }
-                    else {
+                    } else {
                         hit = false;
                     }
                 } else if arena_element.hitbox.shape == HitboxShape::OuterQuarterCircle {
                     let hitbox_collider_shape = Cuboid::new(Vector2::new(
-                        arena_element.hitbox.width/2.0, arena_element.hitbox.height/2.0)
-                    );
+                        arena_element.hitbox.width / 2.0,
+                        arena_element.hitbox.height / 2.0,
+                    ));
                     let hitbox_collider_pos = Isometry2::new(Vector2::new(hitbox_x, hitbox_y), 0.0);
 
                     let collision = query::proximity(
-                        &vehicle_collider_pos, &vehicle_collider_shape,
-                        &hitbox_collider_pos, &hitbox_collider_shape,
+                        &vehicle_collider_pos,
+                        &vehicle_collider_shape,
+                        &hitbox_collider_pos,
+                        &hitbox_collider_shape,
                         collision_margin,
                     );
 
@@ -1230,14 +1255,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         hit = true;
 
                         contact_data = query::contact(
-                            &vehicle_collider_pos, &vehicle_collider_shape,
-                            &hitbox_collider_pos, &hitbox_collider_shape,
-                            0.0);
-                    }
-                    else if collision == Proximity::WithinMargin {
+                            &vehicle_collider_pos,
+                            &vehicle_collider_shape,
+                            &hitbox_collider_pos,
+                            &hitbox_collider_shape,
+                            0.0,
+                        );
+                    } else if collision == Proximity::WithinMargin {
                         hit = false;
-                    }
-                    else {
+                    } else {
                         hit = false;
                     }
                 } else {
@@ -1253,10 +1279,13 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         let abs_vel = sq_vel.sqrt();
 
                         let (new_dx, new_dy, _new_angle) = calc_bounce_angle(
-                            contact_pt.x, contact_pt.y,
-                            hitbox_x, hitbox_y,
+                            contact_pt.x,
+                            contact_pt.y,
+                            hitbox_x,
+                            hitbox_y,
                             arena_element.hitbox.shape,
-                            vehicle.dx.clone(), vehicle.dy.clone(),
+                            vehicle.dx.clone(),
+                            vehicle.dy.clone(),
                         );
 
                         vehicle.dx = new_dx * WALL_HIT_BOUNCE_DECEL_PCT;
@@ -1274,7 +1303,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
                         }
 
                         if vehicle.collision_cooldown_timer <= 0.0 {
-                            let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel/100.0;
+                            let damage: f32 = BASE_COLLISION_DAMAGE * abs_vel / 100.0;
                             debug!("Player {} has collided with {} damage", player.id, damage);
 
                             let vehicle_destroyed: bool = vehicle_damage_model(
@@ -1307,8 +1336,7 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                             vehicle.collision_cooldown_timer = 1.0;
                         }
-                    }
-                    else if arena_element.obstacle_type == ObstacleType::Zone {
+                    } else if arena_element.obstacle_type == ObstacleType::Zone {
                         if let Some(zone_effects) = arena_element.effects {
                             if zone_effects.damage_rate >= 0.0 {
                                 let vehicle_destroyed: bool = vehicle_damage_model(
@@ -1334,8 +1362,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                         }
                                     }
                                 }
-                            }
-                            else if zone_effects.damage_rate < 0.0 { //healing zone
+                            } else if zone_effects.damage_rate < 0.0 {
+                                //healing zone
                                 vehicle_damage_model(
                                     vehicle,
                                     None,
@@ -1352,16 +1380,15 @@ impl<'s> System<'s> for VehicleMoveSystem {
                             if zone_effects.accel_rate.abs() >= 0.001 {
                                 let sq_vel = vehicle.dx.powi(2) + vehicle.dy.powi(2);
                                 let abs_vel = sq_vel.sqrt();
-                                
+
                                 let delta_v = zone_effects.accel_rate * dt;
-                                let new_abs_vel = abs_vel + delta_v;       
+                                let new_abs_vel = abs_vel + delta_v;
 
                                 vehicle.dx *= new_abs_vel / abs_vel;
                                 vehicle.dy *= new_abs_vel / abs_vel;
                             }
                         }
-                    }
-                    else if arena_element.obstacle_type == ObstacleType::Open {
+                    } else if arena_element.obstacle_type == ObstacleType::Open {
                         if vehicle.state == VehicleState::Active {
                             //Non-collision related actions can only occur on Active vehicles
                             if arena_element.is_weapon_box {
@@ -1370,20 +1397,29 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 let new_weapon_name;
                                 if arena_element.weapon_names.is_none() {
                                     //get random weapon from global list
-                                    new_weapon_name = get_random_weapon_name(&game_weapon_setup.random_weapon_spawn_chances);
-                                }
-                                else {
+                                    new_weapon_name = get_random_weapon_name(
+                                        &game_weapon_setup.random_weapon_spawn_chances,
+                                    );
+                                } else {
                                     //get random weapon based on special chances list just for this weapon spawner
-                                    new_weapon_name = get_random_weapon_name_build_chance(&arena_element.weapon_names);
+                                    new_weapon_name = get_random_weapon_name_build_chance(
+                                        &arena_element.weapon_names,
+                                    );
                                 }
 
                                 if weapon_array.installed.len() >= 2 {
-                                    let secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+                                    let secondary_weapon =
+                                        &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
 
                                     vehicle.weapon_weight -= secondary_weapon.stats.weight;
 
-                                    weapon_icons_old_map.insert(player.id,
-                                        (SECONDARY_WEAPON_INDEX, secondary_weapon.stats.weapon_fire_type.clone()));
+                                    weapon_icons_old_map.insert(
+                                        player.id,
+                                        (
+                                            SECONDARY_WEAPON_INDEX,
+                                            secondary_weapon.stats.weapon_fire_type.clone(),
+                                        ),
+                                    );
                                 }
 
                                 update_weapon_properties(
@@ -1400,7 +1436,8 @@ impl<'s> System<'s> for VehicleMoveSystem {
                                 );
 
                                 if weapon_array.installed.len() >= 2 {
-                                    let new_secondary_weapon = &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
+                                    let new_secondary_weapon =
+                                        &weapon_array.installed[SECONDARY_WEAPON_INDEX].weapon;
                                     vehicle.weapon_weight += new_secondary_weapon.stats.weight;
                                 }
                             } else if arena_element.is_hill {
@@ -1417,13 +1454,14 @@ impl<'s> System<'s> for VehicleMoveSystem {
 
                                 color_for_hill.push((r, g, b));
                             } else if (arena_element.checkpoint == RaceCheckpointType::Checkpoint)
-                                    && (arena_element.checkpoint_id == player.checkpoint_completed + 1)
+                                && (arena_element.checkpoint_id == player.checkpoint_completed + 1)
                             {
                                 player.checkpoint_completed = arena_element.checkpoint_id;
                                 debug!("{} checkpoints:{}", player.id, player.checkpoint_completed);
-                            }
-                            else if arena_element.checkpoint == RaceCheckpointType::Lap {
-                                if player.checkpoint_completed == game_mode_setup.checkpoint_count-1 {
+                            } else if arena_element.checkpoint == RaceCheckpointType::Lap {
+                                if player.checkpoint_completed
+                                    == game_mode_setup.checkpoint_count - 1
+                                {
                                     player.laps_completed += 1;
                                 }
                                 player.checkpoint_completed = 0;
@@ -1434,8 +1472,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
                     }
                 }
             }
-
-            
         }
 
         for (player, vehicle, transform) in (&mut players, &mut vehicles, &mut transforms).join() {
@@ -1463,8 +1499,10 @@ impl<'s> System<'s> for VehicleMoveSystem {
                 let vehicle_x = transform.translation().x;
                 let vehicle_y = transform.translation().y;
 
-                transform.set_translation_x(vehicle_x - (contact_x - vehicle_x)/10. + vehicle.dx*dt);
-                transform.set_translation_y(vehicle_y - (contact_y - vehicle_y)/10. + vehicle.dy*dt);
+                transform
+                    .set_translation_x(vehicle_x - (contact_x - vehicle_x) / 10. + vehicle.dx * dt);
+                transform
+                    .set_translation_y(vehicle_y - (contact_y - vehicle_y) / 10. + vehicle.dy * dt);
             }
         }
 
@@ -1484,7 +1522,6 @@ impl<'s> System<'s> for VehicleMoveSystem {
             }
         }
 
-
         //Remove inactive Weapon UI Icons
         for (entity, player_icon) in (&*entities, &player_weapon_icons).join() {
             let weapon_icons_old = weapon_icons_old_map.get(&player_icon.player_id);
@@ -1492,7 +1529,9 @@ impl<'s> System<'s> for VehicleMoveSystem {
             if let Some(weapon_icons_old) = weapon_icons_old {
                 let (weapon_id, weapon_fire_type) = weapon_icons_old;
 
-                if *weapon_id == player_icon.weapon_id && *weapon_fire_type == player_icon.weapon_fire_type {
+                if *weapon_id == player_icon.weapon_id
+                    && *weapon_fire_type == player_icon.weapon_fire_type
+                {
                     let _ = entities.delete(entity);
                 }
             }
@@ -1502,35 +1541,72 @@ impl<'s> System<'s> for VehicleMoveSystem {
             self.rocket_spray_timer = ROCKET_SPRAY_COOLDOWN_RESET;
         }
 
-
         if DEBUG_LINES {
-            for (arena_element, hitbox_transform) in
-                (&arena_elements, &transforms).join()
-            {
+            for (arena_element, hitbox_transform) in (&arena_elements, &transforms).join() {
                 let hitbox_x = hitbox_transform.translation().x;
                 let hitbox_y = hitbox_transform.translation().y;
 
                 debug_lines_resource.draw_line(
-                    [hitbox_x - arena_element.hitbox.width/2.0, hitbox_y - arena_element.hitbox.height/2.0, 0.3].into(),
-                    [hitbox_x - arena_element.hitbox.width/2.0, hitbox_y + arena_element.hitbox.height/2.0, 0.3].into(),
+                    [
+                        hitbox_x - arena_element.hitbox.width / 2.0,
+                        hitbox_y - arena_element.hitbox.height / 2.0,
+                        0.3,
+                    ]
+                    .into(),
+                    [
+                        hitbox_x - arena_element.hitbox.width / 2.0,
+                        hitbox_y + arena_element.hitbox.height / 2.0,
+                        0.3,
+                    ]
+                    .into(),
                     Srgba::new(0.7, 0.2, 0.2, 0.2),
                 );
 
                 debug_lines_resource.draw_line(
-                    [hitbox_x - arena_element.hitbox.width/2.0, hitbox_y + arena_element.hitbox.height/2.0, 0.3].into(),
-                    [hitbox_x + arena_element.hitbox.width/2.0, hitbox_y + arena_element.hitbox.height/2.0, 0.3].into(),
+                    [
+                        hitbox_x - arena_element.hitbox.width / 2.0,
+                        hitbox_y + arena_element.hitbox.height / 2.0,
+                        0.3,
+                    ]
+                    .into(),
+                    [
+                        hitbox_x + arena_element.hitbox.width / 2.0,
+                        hitbox_y + arena_element.hitbox.height / 2.0,
+                        0.3,
+                    ]
+                    .into(),
                     Srgba::new(0.7, 0.2, 0.2, 0.2),
                 );
 
                 debug_lines_resource.draw_line(
-                    [hitbox_x + arena_element.hitbox.width/2.0, hitbox_y + arena_element.hitbox.height/2.0, 0.3].into(),
-                    [hitbox_x + arena_element.hitbox.width/2.0, hitbox_y - arena_element.hitbox.height/2.0, 0.3].into(),
+                    [
+                        hitbox_x + arena_element.hitbox.width / 2.0,
+                        hitbox_y + arena_element.hitbox.height / 2.0,
+                        0.3,
+                    ]
+                    .into(),
+                    [
+                        hitbox_x + arena_element.hitbox.width / 2.0,
+                        hitbox_y - arena_element.hitbox.height / 2.0,
+                        0.3,
+                    ]
+                    .into(),
                     Srgba::new(0.7, 0.2, 0.2, 0.2),
                 );
 
                 debug_lines_resource.draw_line(
-                    [hitbox_x + arena_element.hitbox.width/2.0, hitbox_y - arena_element.hitbox.height/2.0, 0.3].into(),
-                    [hitbox_x - arena_element.hitbox.width/2.0, hitbox_y - arena_element.hitbox.height/2.0, 0.3].into(),
+                    [
+                        hitbox_x + arena_element.hitbox.width / 2.0,
+                        hitbox_y - arena_element.hitbox.height / 2.0,
+                        0.3,
+                    ]
+                    .into(),
+                    [
+                        hitbox_x - arena_element.hitbox.width / 2.0,
+                        hitbox_y - arena_element.hitbox.height / 2.0,
+                        0.3,
+                    ]
+                    .into(),
                     Srgba::new(0.7, 0.2, 0.2, 0.2),
                 );
             }
@@ -1538,20 +1614,16 @@ impl<'s> System<'s> for VehicleMoveSystem {
     }
 }
 
-
-
 pub fn clean_angle(angle: f32) -> f32 {
     let mut new_angle: f32;
 
     if angle > PI {
         let diff = angle - PI;
         new_angle = -PI + diff;
-    }
-    else if angle < -PI {
+    } else if angle < -PI {
         let diff = -PI - angle;
         new_angle = PI - diff;
-    }
-    else {
+    } else {
         new_angle = angle;
     }
 
@@ -1562,13 +1634,16 @@ pub fn clean_angle(angle: f32) -> f32 {
     new_angle
 }
 
-
 pub fn calc_bounce_angle(
-    contact_x: f32, contact_y: f32,
-    hitbox_x: f32, hitbox_y: f32,
+    contact_x: f32,
+    contact_y: f32,
+    hitbox_x: f32,
+    hitbox_y: f32,
     hitbox_shape: HitboxShape,
-    moving_dx: f32, moving_dy: f32,
-) -> (f32, f32, f32) { //(new_dx, new_dy, new_angle)
+    moving_dx: f32,
+    moving_dy: f32,
+) -> (f32, f32, f32) {
+    //(new_dx, new_dy, new_angle)
     //Input:
     //contact_pt.x, contact_pt.y
     //hitbox_x, hitbox_y, hitbox_shape
@@ -1576,7 +1651,7 @@ pub fn calc_bounce_angle(
     //Output:
     //moving.dx, moving.dy
     //moving.rotation
-    
+
     let x_diff = hitbox_x - contact_x;
     let y_diff = hitbox_y - contact_y;
     let contact_angle = y_diff.atan2(x_diff);
@@ -1584,13 +1659,12 @@ pub fn calc_bounce_angle(
     let moving_angle = moving_dy.atan2(moving_dx);
 
     let new_angle;
-    if hitbox_shape == HitboxShape::Circle 
-    {
-        let contact_perp_angle = clean_angle(contact_angle + PI/2.0);
+    if hitbox_shape == HitboxShape::Circle {
+        let contact_perp_angle = clean_angle(contact_angle + PI / 2.0);
 
         new_angle = clean_angle(contact_perp_angle + (contact_perp_angle - moving_angle));
-    }
-    else //rectangle
+    } else
+    //rectangle
     {
         let contact_perp_angle = 0.0;
 
@@ -1599,13 +1673,11 @@ pub fn calc_bounce_angle(
 
     let moving_speed = (moving_dx.powi(2) + moving_dy.powi(2)).sqrt();
 
-    let moving_dx_new = moving_speed*new_angle.cos();
-    let moving_dy_new = moving_speed*new_angle.sin();
+    let moving_dx_new = moving_speed * new_angle.cos();
+    let moving_dy_new = moving_speed * new_angle.sin();
 
     (moving_dx_new, moving_dy_new, new_angle)
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -1615,20 +1687,23 @@ mod tests {
 
     #[test]
     fn test_clean_angle() {
-        assert_approx_eq!(clean_angle(270./180.*PI), -90./180.*PI);
-        assert_approx_eq!(clean_angle(-190./180.*PI), 170./180.*PI);
-        assert_approx_eq!(clean_angle(90./180.*PI), 90./180.*PI);
-        assert_approx_eq!(clean_angle(1800.0/180.*PI), 0./180.*PI, 0.0001);
-        assert_approx_eq!(clean_angle(-1850.0/180.*PI), -50./180.*PI, 0.0001);
+        assert_approx_eq!(clean_angle(270. / 180. * PI), -90. / 180. * PI);
+        assert_approx_eq!(clean_angle(-190. / 180. * PI), 170. / 180. * PI);
+        assert_approx_eq!(clean_angle(90. / 180. * PI), 90. / 180. * PI);
+        assert_approx_eq!(clean_angle(1800.0 / 180. * PI), 0. / 180. * PI, 0.0001);
+        assert_approx_eq!(clean_angle(-1850.0 / 180. * PI), -50. / 180. * PI, 0.0001);
     }
 
     #[test]
     fn test_calc_bounce_angle() {
         let (moving_dx_new, moving_dy_new, _new_angle) = calc_bounce_angle(
-            0.0, 0.0, //contact pt (x,y)
-            1.0, 0.0, //hitbox (x,y)
+            0.0,
+            0.0, //contact pt (x,y)
+            1.0,
+            0.0, //hitbox (x,y)
             HitboxShape::Circle,
-            -1.0, 1.0, //moving dx, dy
+            -1.0,
+            1.0, //moving dx, dy
         );
 
         assert_approx_eq!(moving_dx_new, 1.0);
@@ -1638,10 +1713,13 @@ mod tests {
     #[test]
     fn test_calc_bounce_angle2() {
         let (moving_dx_new, moving_dy_new, _new_angle) = calc_bounce_angle(
-            0.0, 0.0, //contact pt (x,y)
-            0.0, -1.0, //hitbox (x,y)
+            0.0,
+            0.0, //contact pt (x,y)
+            0.0,
+            -1.0, //hitbox (x,y)
             HitboxShape::Circle,
-            1.0, 1.0, //moving dx, dy
+            1.0,
+            1.0, //moving dx, dy
         );
 
         assert_approx_eq!(moving_dx_new, 1.0);
@@ -1651,24 +1729,29 @@ mod tests {
     #[test]
     fn test_calc_bounce_angle3() {
         let (moving_dx_new, moving_dy_new, _new_angle) = calc_bounce_angle(
-            0.0, 0.0, //contact pt (x,y)
-            0.0, -1.0, //hitbox (x,y)
+            0.0,
+            0.0, //contact pt (x,y)
+            0.0,
+            -1.0, //hitbox (x,y)
             HitboxShape::Circle,
-            0.125, 0.9, //moving dx, dy
+            0.125,
+            0.9, //moving dx, dy
         );
 
         assert_approx_eq!(moving_dx_new, 0.125);
         assert_approx_eq!(moving_dy_new, -0.900);
     }
 
-
     #[test]
     fn test_calc_bounce_angle4() {
         let (moving_dx_new, moving_dy_new, _new_angle) = calc_bounce_angle(
-            0.0, 0.0, //contact pt (x,y)
-            1.0/(2.0 as f32).sqrt(), -1.0/(2.0 as f32).sqrt(), //hitbox (x,y)
+            0.0,
+            0.0, //contact pt (x,y)
+            1.0 / (2.0 as f32).sqrt(),
+            -1.0 / (2.0 as f32).sqrt(), //hitbox (x,y)
             HitboxShape::Circle,
-            0.0, 1.0, //moving dx, dy
+            0.0,
+            1.0, //moving dx, dy
         );
 
         assert_approx_eq!(moving_dx_new, 1.0);

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::components::{WeaponNames, VehicleNames, VehicleStats, ArenaNames};
+use crate::components::{ArenaNames, VehicleNames, VehicleStats, WeaponNames};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Deserialize, Hash)]
 pub enum GameModes {
@@ -37,8 +37,6 @@ pub struct GameModeSetup {
     pub p1_keyboard: bool,
 }
 
-
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GameWeaponSelectionMode {
     GunGameForward,
@@ -49,8 +47,6 @@ pub enum GameWeaponSelectionMode {
     FullCustom,
     VehiclePreset,
 }
-
-
 
 pub struct GameWeaponSetup {
     pub mode: GameWeaponSelectionMode,
@@ -66,21 +62,15 @@ pub struct GameWeaponSetup {
     pub new_ammo_on_respawn: bool,
 }
 
-
 pub struct GameVehicleSetup {
     pub names: [VehicleNames; 4],
     pub stats: [VehicleStats; 4],
 }
 
-
-
 pub struct GameScore {
     pub game_ended: bool,
     pub placements: Vec<(usize, i32, i32, i32, i32, f32)>,
 }
-
-
-
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TeamSetupTypes {

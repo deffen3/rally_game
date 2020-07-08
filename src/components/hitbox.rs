@@ -2,10 +2,6 @@ use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
 use serde::Deserialize;
 
-
-
-
-
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum HitboxShape {
     Rectangle,
@@ -27,12 +23,7 @@ impl Component for Hitbox {
 }
 
 impl Hitbox {
-    pub fn new(
-        width: f32,
-        height: f32,
-        angle: f32,
-        shape: HitboxShape,
-    ) -> Hitbox {
+    pub fn new(width: f32, height: f32, angle: f32, shape: HitboxShape) -> Hitbox {
         Hitbox {
             width,
             height,

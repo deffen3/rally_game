@@ -2,7 +2,7 @@ use amethyst::{
     assets::Loader,
     ecs::prelude::{Entity, Join},
     prelude::*,
-    ui::{Anchor, TtfFormat, UiText, UiTransform, UiFinder},
+    ui::{Anchor, TtfFormat, UiFinder, UiText, UiTransform},
     utils::removal::Removal,
 };
 
@@ -11,7 +11,6 @@ use crate::resources::MatchTimer;
 use crate::components::{Player, Vehicle};
 
 //use crate::resources::GameModeSetup;
-
 
 pub fn initialize_timer_ui(world: &mut World) {
     let font = world.read_resource::<Loader>().load(
@@ -71,7 +70,6 @@ pub fn connect_players_to_ui(world: &mut World) -> bool {
     // let dx = 80.;
     // let dx2 = 10.;
 
-
     // let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
     // let max_players;
@@ -114,35 +112,35 @@ pub fn connect_players_to_ui(world: &mut World) -> bool {
 
     for player_index in 0..4 {
         world.exec(|finder: UiFinder<'_>| {
-            let search_string = format!("p{}_shield", player_index+1);
+            let search_string = format!("p{}_shield", player_index + 1);
 
             if let Some(entity) = finder.find(&search_string) {
                 player_status_texts[player_index].shield = Some(entity);
             }
         });
         world.exec(|finder: UiFinder<'_>| {
-            let search_string = format!("p{}_armor", player_index+1);
+            let search_string = format!("p{}_armor", player_index + 1);
 
             if let Some(entity) = finder.find(&search_string) {
                 player_status_texts[player_index].armor = Some(entity);
             }
         });
         world.exec(|finder: UiFinder<'_>| {
-            let search_string = format!("p{}_health", player_index+1);
+            let search_string = format!("p{}_health", player_index + 1);
 
             if let Some(entity) = finder.find(&search_string) {
                 player_status_texts[player_index].health = Some(entity);
             }
         });
         world.exec(|finder: UiFinder<'_>| {
-            let search_string = format!("p{}_points", player_index+1);
+            let search_string = format!("p{}_points", player_index + 1);
 
             if let Some(entity) = finder.find(&search_string) {
                 player_status_texts[player_index].points = Some(entity);
             }
         });
         world.exec(|finder: UiFinder<'_>| {
-            let search_string = format!("p{}_lives_remaining", player_index+1);
+            let search_string = format!("p{}_lives_remaining", player_index + 1);
 
             if let Some(entity) = finder.find(&search_string) {
                 player_status_texts[player_index].lives = Some(entity);

@@ -25,7 +25,6 @@ impl<'s> System<'s> for VehicleTrackingSystem {
         for (player1, _vehicle1, vehicle1_transform, weapon_array) in
             (&players, &vehicles, &transforms, &weapon_arrays).join()
         {
-
             if weapon_array.installed.len() > 0 {
                 let primary_weapon = &weapon_array.installed[0].weapon;
 
@@ -43,21 +42,23 @@ impl<'s> System<'s> for VehicleTrackingSystem {
                 let install_mounted_angle;
                 if weapon_array.installed[0].mounted_angle.is_none() {
                     install_mounted_angle = 0.0;
-                }
-                else {
+                } else {
                     install_mounted_angle = weapon_array.installed[0].mounted_angle.unwrap();
                 }
 
                 //typical angle this weapon should fire at
-                let standard_angle = vehicle_angle + install_mounted_angle + 
-                    primary_weapon.stats.fire_stats.mount_angle_special_offset;
+                let standard_angle = vehicle_angle
+                    + install_mounted_angle
+                    + primary_weapon.stats.fire_stats.mount_angle_special_offset;
 
-                for (player2, vehicle2, vehicle2_transform) in (&players, &vehicles, &transforms).join()
+                for (player2, vehicle2, vehicle2_transform) in
+                    (&players, &vehicles, &transforms).join()
                 {
                     //Other player must be active and not on the same team
-                    if player1.id != player2.id && 
-                            player1.team != player2.team &&
-                            vehicle2.state == VehicleState::Active {
+                    if player1.id != player2.id
+                        && player1.team != player2.team
+                        && vehicle2.state == VehicleState::Active
+                    {
                         let vehicle2_x = vehicle2_transform.translation().x;
                         let vehicle2_y = vehicle2_transform.translation().y;
 

@@ -1,25 +1,20 @@
 use amethyst::{
-    core::{Time},
+    core::Time,
     ecs::prelude::Entity,
     input::{is_close_requested, is_key_down},
     prelude::*,
     ui::{UiCreator, UiEvent, UiEventType, UiFinder, UiText},
+    utils::removal::exec_removal,
     winit::VirtualKeyCode,
-    utils::{
-        removal::{exec_removal},
-    },
 };
 
 use crate::menu::MainMenu;
 
-use crate::resources::{GameScore};
-
+use crate::resources::GameScore;
 
 const SCORE_SCREEN_TIMER_INIT: f32 = 1.0;
 
 const BUTTON_BACK_TO_MENU: &str = "back_to_menu";
-
-
 
 const P1_TITLE: &str = "p1_title";
 const P2_TITLE: &str = "p2_title";
@@ -51,12 +46,10 @@ const P2_TIMER: &str = "p2_timer";
 const P3_TIMER: &str = "p3_timer";
 const P4_TIMER: &str = "p4_timer";
 
-
-
 #[derive(Default, Debug)]
 pub struct ScoreScreen {
     ui_root: Option<Entity>,
-    
+
     button_back_to_menu: Option<Entity>,
 
     p1_title: Option<Entity>,
@@ -89,7 +82,6 @@ pub struct ScoreScreen {
     p3_timer: Option<Entity>,
     p4_timer: Option<Entity>,
 
-
     load_timer: f32,
     loaded: bool,
 }
@@ -121,8 +113,7 @@ impl SimpleState for ScoreScreen {
 
             if let Some(time) = fetched_time {
                 dt = time.delta_seconds();
-            }
-            else {
+            } else {
                 dt = 0.01;
             }
         }
@@ -131,39 +122,40 @@ impl SimpleState for ScoreScreen {
             if !self.loaded && self.load_timer <= 0.0 {
                 self.loaded = true;
                 self.ui_root =
-                    Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/score_screen.ron", ())));
-            }
-            else {
+                    Some(world.exec(|mut creator: UiCreator<'_>| {
+                        creator.create("ui/score_screen.ron", ())
+                    }));
+            } else {
                 self.load_timer -= dt;
             }
         }
 
         {
-            if self.button_back_to_menu.is_none() ||
-                self.p1_title.is_none() ||
-                self.p2_title.is_none() ||
-                self.p3_title.is_none() ||
-                self.p4_title.is_none() ||
-                self.p1_place.is_none() ||
-                self.p2_place.is_none() ||
-                self.p3_place.is_none() ||
-                self.p4_place.is_none() ||
-                self.p1_score.is_none() ||
-                self.p2_score.is_none() ||
-                self.p3_score.is_none() ||
-                self.p4_score.is_none() ||
-                self.p1_kills.is_none() ||
-                self.p2_kills.is_none() ||
-                self.p3_kills.is_none() ||
-                self.p4_kills.is_none() ||
-                self.p1_deaths.is_none() ||
-                self.p2_deaths.is_none() ||
-                self.p3_deaths.is_none() ||
-                self.p4_deaths.is_none() ||
-                self.p1_timer.is_none() ||
-                self.p2_timer.is_none() ||
-                self.p3_timer.is_none() ||
-                self.p4_timer.is_none()
+            if self.button_back_to_menu.is_none()
+                || self.p1_title.is_none()
+                || self.p2_title.is_none()
+                || self.p3_title.is_none()
+                || self.p4_title.is_none()
+                || self.p1_place.is_none()
+                || self.p2_place.is_none()
+                || self.p3_place.is_none()
+                || self.p4_place.is_none()
+                || self.p1_score.is_none()
+                || self.p2_score.is_none()
+                || self.p3_score.is_none()
+                || self.p4_score.is_none()
+                || self.p1_kills.is_none()
+                || self.p2_kills.is_none()
+                || self.p3_kills.is_none()
+                || self.p4_kills.is_none()
+                || self.p1_deaths.is_none()
+                || self.p2_deaths.is_none()
+                || self.p3_deaths.is_none()
+                || self.p4_deaths.is_none()
+                || self.p1_timer.is_none()
+                || self.p2_timer.is_none()
+                || self.p3_timer.is_none()
+                || self.p4_timer.is_none()
             {
                 world.exec(|ui_finder: UiFinder<'_>| {
                     self.button_back_to_menu = ui_finder.find(BUTTON_BACK_TO_MENU);
@@ -194,7 +186,6 @@ impl SimpleState for ScoreScreen {
                 });
             }
         }
-
 
         let mut ui_text = world.write_storage::<UiText>();
         let fetched_game_score = world.try_fetch::<GameScore>();
@@ -289,7 +280,6 @@ impl SimpleState for ScoreScreen {
 
                 p4_timer.text = format!("{:.0}:{:0>2.0}", match_time_minutes, match_time_seconds);
             }
-
         }
 
         Trans::None

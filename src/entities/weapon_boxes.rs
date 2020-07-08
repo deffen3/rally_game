@@ -4,17 +4,11 @@ use amethyst::{
     utils::removal::Removal,
 };
 
-
 use std::f32::consts::PI;
 
-use crate::resources::{
-    WeaponFireResource
-};
+use crate::resources::WeaponFireResource;
 
-use crate::components::{
-    ArenaElement,
-};
-
+use crate::components::ArenaElement;
 
 pub fn spawn_weapon_box_from_spawner(
     entities: &Entities,
@@ -23,9 +17,9 @@ pub fn spawn_weapon_box_from_spawner(
     weapon_spawner: &ArenaElement,
 ) {
     let box_entity: Entity = entities.create();
-        
+
     let mut local_transform = Transform::default();
-    
+
     local_transform.set_rotation_2d(PI / 8.0);
     local_transform.set_translation_xyz(weapon_spawner.x, weapon_spawner.y, 0.3);
 

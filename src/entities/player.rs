@@ -4,8 +4,8 @@ use amethyst::{
     ecs::prelude::{Entity, World},
     prelude::*,
     renderer::{palette::Srgba, resources::Tint, SpriteRender, SpriteSheet, Transparent},
+    ui::{Anchor, UiImage, UiTransform},
     utils::removal::Removal,
-    ui::{UiTransform, UiImage, Anchor},
 };
 
 use crate::entities::ui::PlayerStatusText;
@@ -13,13 +13,13 @@ use amethyst::core::math::Vector3;
 use std::f32::consts::PI;
 
 use crate::components::{
-    Player, PlayerWeaponIcon, 
-    build_named_weapon_from_world, get_weapon_icon, WeaponArray, Weapon,
-    Vehicle, VehicleStats, get_vehicle_sprites, get_weapon_width_height, WeaponInstall, WeaponNameInstall,
-    ArenaStoreResource, ArenaNames, ArenaProperties,
+    build_named_weapon_from_world, get_vehicle_sprites, get_weapon_icon, get_weapon_width_height,
+    ArenaNames, ArenaProperties, ArenaStoreResource, Player, PlayerWeaponIcon, Vehicle,
+    VehicleStats, Weapon, WeaponArray, WeaponInstall, WeaponNameInstall,
 };
-use crate::resources::{GameModeSetup, GameWeaponSetup, GameWeaponSelectionMode, WeaponFireResource};
-
+use crate::resources::{
+    GameModeSetup, GameWeaponSelectionMode, GameWeaponSetup, WeaponFireResource,
+};
 
 pub fn intialize_player(
     world: &mut World,
@@ -31,12 +31,11 @@ pub fn intialize_player(
     player_status_text: PlayerStatusText,
     vehicle_stats: VehicleStats,
 ) -> Entity {
-
     let mut weapon_named_installs: Vec<WeaponNameInstall> = Vec::new();
     {
         let fetched_game_weapon_setup = world.try_fetch::<GameWeaponSetup>();
         if let Some(game_weapon_setup) = fetched_game_weapon_setup {
-            if game_weapon_setup.mode == GameWeaponSelectionMode::StarterAndPickup 
+            if game_weapon_setup.mode == GameWeaponSelectionMode::StarterAndPickup
                 || game_weapon_setup.mode == GameWeaponSelectionMode::CustomStarterAndPickup
             {
                 weapon_named_installs.push(WeaponNameInstall {
@@ -47,8 +46,7 @@ pub fn intialize_player(
                     x_offset: None,
                     y_offset: None,
                 });
-            }
-            else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameForward {
+            } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameForward {
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
                     weapon_name: game_weapon_setup.starter_weapon.clone(),
@@ -57,8 +55,7 @@ pub fn intialize_player(
                     x_offset: None,
                     y_offset: None,
                 });
-            }
-            else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameReverse {
+            } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameReverse {
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
                     weapon_name: game_weapon_setup.starter_weapon.clone(),
@@ -67,8 +64,7 @@ pub fn intialize_player(
                     x_offset: None,
                     y_offset: None,
                 });
-            }
-            else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameRandom {
+            } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameRandom {
                 weapon_named_installs.push(WeaponNameInstall {
                     firing_group: 0,
                     weapon_name: game_weapon_setup.starter_weapon.clone(),
@@ -77,8 +73,18 @@ pub fn intialize_player(
                     x_offset: None,
                     y_offset: None,
                 });
-            }
-            else if game_weapon_setup.mode == GameWeaponSelectionMode::FullCustom {
+            } else if game_weapon_setup.mode == GameWeaponSelectionMode::FullCustom {
+                for weapon_name_install in vehicle_stats.default_weapons.iter() {
+                    weapon_named_installs.push(WeaponNameInstall {
+                        firing_group: weapon_name_install.firing_group,
+                        weapon_name: weapon_name_install.weapon_name,
+                        ammo: weapon_name_install.ammo,
+                        mounted_angle: weapon_name_install.mounted_angle,
+                        x_offset: weapon_name_install.x_offset,
+                        y_offset: weapon_name_install.y_offset,
+                    });
+                }
+            } else if game_weapon_setup.mode == GameWeaponSelectionMode::VehiclePreset {
                 for weapon_name_install in vehicle_stats.default_weapons.iter() {
                     weapon_named_installs.push(WeaponNameInstall {
                         firing_group: weapon_name_install.firing_group,
@@ -90,23 +96,9 @@ pub fn intialize_player(
                     });
                 }
             }
-            else if game_weapon_setup.mode == GameWeaponSelectionMode::VehiclePreset {
-                for weapon_name_install in vehicle_stats.default_weapons.iter() {
-                    weapon_named_installs.push(WeaponNameInstall {
-                        firing_group: weapon_name_install.firing_group,
-                        weapon_name: weapon_name_install.weapon_name,
-                        ammo: weapon_name_install.ammo,
-                        mounted_angle: weapon_name_install.mounted_angle,
-                        x_offset: weapon_name_install.x_offset,
-                        y_offset: weapon_name_install.y_offset,
-                    });
-                }
-            }            
         }
     }
 
-    
-    
     //Get Arena's properties
     let arena_name;
     {
@@ -120,7 +112,7 @@ pub fn intialize_player(
     }
 
     let arena_properties;
-    {        
+    {
         let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
 
         if let Some(arena_store) = fetched_arena_store {
@@ -128,31 +120,29 @@ pub fn intialize_player(
                 Some(arena_props_get) => (*arena_props_get).clone(),
                 _ => ArenaProperties::default(),
             };
-        }
-        else {
+        } else {
             arena_properties = ArenaProperties::default();
         }
     }
 
-    
-    
     let player_spawn = arena_properties.player_spawn_points[player_index];
 
     let mut vehicle_transform = Transform::default();
-    vehicle_transform.set_rotation_2d(player_spawn.rotation/180.0*PI);
+    vehicle_transform.set_rotation_2d(player_spawn.rotation / 180.0 * PI);
     vehicle_transform.set_translation_xyz(player_spawn.x, player_spawn.y, 0.0);
-    vehicle_transform.set_scale(Vector3::new(1.0/vehicle_stats.sprite_scalar, 1.0/vehicle_stats.sprite_scalar, 0.0));
+    vehicle_transform.set_scale(Vector3::new(
+        1.0 / vehicle_stats.sprite_scalar,
+        1.0 / vehicle_stats.sprite_scalar,
+        0.0,
+    ));
 
-
-    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) = get_vehicle_sprites(
-        &world, vehicle_stats.vehicle_type
-    );
+    let (vehicle_sprite_number, shield_sprite_number, armor_sprite_number) =
+        get_vehicle_sprites(&world, vehicle_stats.vehicle_type);
 
     let vehicle_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
         sprite_number: vehicle_sprite_number + player_index,
     };
-
 
     //Create Health Entity
     let mut health_transform = Transform::default();
@@ -206,7 +196,11 @@ pub fn intialize_player(
     let mut armor_transform = Transform::default();
     armor_transform.set_rotation_2d(player_spawn.rotation as f32);
     armor_transform.set_translation_xyz(player_spawn.x as f32, player_spawn.y as f32, 0.2);
-    armor_transform.set_scale(Vector3::new(1.0/vehicle_stats.sprite_scalar, 1.0/vehicle_stats.sprite_scalar, 0.0));
+    armor_transform.set_scale(Vector3::new(
+        1.0 / vehicle_stats.sprite_scalar,
+        1.0 / vehicle_stats.sprite_scalar,
+        0.0,
+    ));
 
     let armor_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
@@ -230,7 +224,11 @@ pub fn intialize_player(
     let mut shield_transform = Transform::default();
     shield_transform.set_rotation_2d(player_spawn.rotation as f32);
     shield_transform.set_translation_xyz(player_spawn.x as f32, player_spawn.y as f32, 0.1);
-    shield_transform.set_scale(Vector3::new(1.0/vehicle_stats.sprite_scalar, 1.0/vehicle_stats.sprite_scalar, 0.0));
+    shield_transform.set_scale(Vector3::new(
+        1.0 / vehicle_stats.sprite_scalar,
+        1.0 / vehicle_stats.sprite_scalar,
+        0.0,
+    ));
 
     let shield_sprite_render = SpriteRender {
         sprite_sheet: sprite_sheet_handle,
@@ -250,9 +248,6 @@ pub fn intialize_player(
         .with(shield_tint)
         .build();
 
-
-
-
     //UI vehicle icons
     let x = -450.;
     let y = 45.;
@@ -261,8 +256,8 @@ pub fn intialize_player(
         let starting_x = match player_index {
             0 => (x),
             1 => (x + dx),
-            2 => (x + 2.0*dx),
-            3 => (x + 3.0*dx),
+            2 => (x + 2.0 * dx),
+            3 => (x + 3.0 * dx),
             _ => (0.0),
         };
 
@@ -273,8 +268,8 @@ pub fn intialize_player(
             starting_x,
             y,
             0.2,
-            vehicle_stats.width*3.0,
-            vehicle_stats.height*3.0,
+            vehicle_stats.width * 3.0,
+            vehicle_stats.height * 3.0,
         );
 
         world
@@ -285,29 +280,32 @@ pub fn intialize_player(
             .build();
     }
 
-    
     let mut total_weapon_weight = 0.0;
     let mut installed_weapons: Vec<WeaponInstall> = Vec::new();
 
     for (weapon_array_id, weapon_name_install) in weapon_named_installs.iter().enumerate() {
-        let weapon_stats = build_named_weapon_from_world(weapon_name_install.weapon_name.clone(), world);
+        let weapon_stats =
+            build_named_weapon_from_world(weapon_name_install.weapon_name.clone(), world);
 
         //UI initial weapon icon
-        let x = -320. + (weapon_array_id as f32)*30.0;
+        let x = -320. + (weapon_array_id as f32) * 30.0;
 
-        let (icon_scale, weapon_sprite) =
-            get_weapon_icon(Some(player_index), weapon_stats.weapon_fire_type.clone(), &weapon_fire_resource);
-
+        let (icon_scale, weapon_sprite) = get_weapon_icon(
+            Some(player_index),
+            weapon_stats.weapon_fire_type.clone(),
+            &weapon_fire_resource,
+        );
 
         let starting_x = match player_index {
             0 => (x),
             1 => (x + dx),
-            2 => (x + 2.0*dx),
-            3 => (x + 3.0*dx),
+            2 => (x + 2.0 * dx),
+            3 => (x + 3.0 * dx),
             _ => (0.0),
         };
 
-        let (weapon_width, weapon_height) = get_weapon_width_height(weapon_stats.weapon_fire_type.clone());
+        let (weapon_width, weapon_height) =
+            get_weapon_width_height(weapon_stats.weapon_fire_type.clone());
 
         let icon_weapon_transform = UiTransform::new(
             "PWeaponIcon".to_string(),
@@ -338,7 +336,6 @@ pub fn intialize_player(
             .with(Transparent)
             .build();
 
-
         let weapon = Weapon::new(
             weapon_name_install.weapon_name,
             weapon_icon,
@@ -346,7 +343,7 @@ pub fn intialize_player(
             weapon_name_install.ammo,
         );
 
-        installed_weapons.push(WeaponInstall{
+        installed_weapons.push(WeaponInstall {
             weapon,
             firing_group: weapon_name_install.firing_group,
             ammo: weapon_name_install.ammo,
@@ -354,7 +351,7 @@ pub fn intialize_player(
             x_offset: weapon_name_install.x_offset,
             y_offset: weapon_name_install.y_offset,
         });
-        
+
         total_weapon_weight += weapon_stats.weight;
     }
 

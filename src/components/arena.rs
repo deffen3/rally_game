@@ -4,10 +4,8 @@ use ron::de::from_reader;
 use serde::Deserialize;
 use std::{collections::HashMap, fs::File};
 
-use crate::resources::{GameModes};
-use crate::components::{WeaponNames, Hitbox, HitboxShape};
-
-
+use crate::components::{Hitbox, HitboxShape, WeaponNames};
+use crate::resources::GameModes;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
 pub enum ArenaNames {
@@ -18,9 +16,6 @@ pub enum ArenaNames {
     ChaosCombat,
     LargeCombat,
 }
-
-
-
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum RaceCheckpointType {
@@ -42,12 +37,10 @@ pub struct ZoneEffects {
     pub damage_rate: f32,
 }
 
-
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub enum EnemyNames {
     AutoTurret,
 }
-
 
 #[derive(Copy, Clone, Debug, PartialEq, Deserialize)]
 pub struct PlayerSpawnPoint {
@@ -124,8 +117,6 @@ pub struct ArenaFloor {
     pub height: f32,
 }
 
-
-
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ArenaElement {
     pub obstacle_type: ObstacleType,
@@ -154,8 +145,6 @@ impl Component for ArenaElement {
     type Storage = DenseVecStorage<Self>;
 }
 
-
-
 #[derive(Clone, Debug, PartialEq, Deserialize, Default)]
 pub struct ArenaProperties {
     pub width: f32,
@@ -168,18 +157,14 @@ pub struct ArenaProperties {
     pub race_checkpoints: Vec<ArenaRaceCheckpoint>,
     pub player_spawn_points: Vec<PlayerSpawnPoint>,
     pub enemy_spawn_points: Vec<EnemySpawnPoint>, //not implemented yet
-    pub custom_elements: Vec<ArenaElement>, //not implemented yet
+    pub custom_elements: Vec<ArenaElement>,       //not implemented yet
 }
-
-
-
 
 #[derive(Clone)]
 pub struct ArenaStoreResource {
     pub properties: HashMap<ArenaNames, ArenaProperties>,
     pub game_modes: HashMap<GameModes, Vec<ArenaNames>>,
 }
-
 
 /* Release rally.exe (crashes):
 "\\\\?\\C:\\Users\\Mike\\rust\\amethyst\\rally_game\\target\\release\\assets/game/vehicles.ron"
@@ -192,9 +177,15 @@ pub fn build_arena_store(world: &mut World) {
     // let app_root = current_dir();
     // let input_path = app_root.unwrap().join("assets/game/vehicles.ron");
 
-    let input_path_properties = format!("{}/assets/game/arena_properties.ron", env!("CARGO_MANIFEST_DIR"));
-    let input_path_modes = format!("{}/assets/game/arena_game_modes.ron", env!("CARGO_MANIFEST_DIR"));
-    
+    let input_path_properties = format!(
+        "{}/assets/game/arena_properties.ron",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let input_path_modes = format!(
+        "{}/assets/game/arena_game_modes.ron",
+        env!("CARGO_MANIFEST_DIR")
+    );
+
     let f_properties = File::open(&input_path_properties).expect("Failed opening file");
     let f_modes = File::open(&input_path_modes).expect("Failed opening file");
 
@@ -209,8 +200,6 @@ pub fn build_arena_store(world: &mut World) {
     };
     world.insert(arena_store.clone());
 }
-
-
 
 pub fn reform_weapon_spawner(spawner: WeaponBoxSpawner) -> ArenaElement {
     ArenaElement {
