@@ -8,31 +8,28 @@ use amethyst::{
 
 use std::collections::HashMap;
 
-use crate::rally::GameplayState;
-use crate::welcome::WelcomeScreen;
+use crate::custom_arena::CustomArenaMenu;
 use crate::custom_vehicles::CustomVehiclesMenu;
 use crate::custom_weapons::CustomWeaponsMenu;
-use crate::custom_arena::CustomArenaMenu;
+use crate::rally::GameplayState;
+use crate::welcome::WelcomeScreen;
 
 use crate::components::{
-    build_weapon_store, WeaponNames, WeaponStoreResource,
-    build_vehicle_store, VehicleNames, VehicleStats, get_none_vehicle, 
-    build_arena_store, ArenaNames, ArenaStoreResource,
+    build_arena_store, build_vehicle_store, build_weapon_store, get_none_vehicle, ArenaNames,
+    ArenaStoreResource, VehicleNames, VehicleStats, WeaponNames, WeaponStoreResource,
 };
 
-use crate::resources::{GameModeSetup, GameModes, GameScore, GameEndCondition,
-    GameWeaponSetup, GameVehicleSetup, GameTeamSetup, TeamSetupTypes,
-    GameWeaponSelectionMode,
+use crate::resources::{
+    GameEndCondition, GameModeSetup, GameModes, GameScore, GameTeamSetup, GameVehicleSetup,
+    GameWeaponSelectionMode, GameWeaponSetup, TeamSetupTypes,
 };
-
 
 pub const MAX_PLAYER_COUNT: usize = 4;
 pub const MIN_PLAYER_COUNT: usize = 1;
 pub const MIN_BOT_COUNT: usize = 0;
 
 pub const INIT_PLAYER_COUNT: usize = 4;
-pub const INIT_BOT_COUNT: usize = INIT_PLAYER_COUNT-1;
-
+pub const INIT_BOT_COUNT: usize = INIT_PLAYER_COUNT - 1;
 
 const BUTTON_CLASSIC_GUN_GAME: &str = "classic_gun_game";
 const BUTTON_DEATHMATCH_KILLS: &str = "deathmatch_kills";
@@ -65,7 +62,6 @@ const BUTTON_1V3: &str = "1v3_button";
 
 const BUTTON_SET_CONTROLS_KEYBOARD: &str = "controls_keyboard";
 const TEXT_CONTROLS_KEYBOARD: &str = "controls_keyboard_result";
-
 
 #[derive(Default, Debug)]
 pub struct MainMenu {
@@ -103,9 +99,7 @@ impl SimpleState for MainMenu {
         // create UI from prefab and save the reference.
         let world = data.world;
 
-
         build_arena_store(world);
-
 
         build_weapon_store(world);
 
@@ -114,7 +108,6 @@ impl SimpleState for MainMenu {
             let weapon_store_resource = world.fetch::<WeaponStoreResource>();
             let weapon_spawn_relative_chance_map = &weapon_store_resource.spawn_chance;
 
-
             let mut chance_total: u32 = 0;
 
             for (_key, value) in weapon_spawn_relative_chance_map.iter() {
@@ -122,7 +115,6 @@ impl SimpleState for MainMenu {
             }
 
             let mut chance_aggregate: f32 = 0.0;
-            
 
             for (key, value) in weapon_spawn_relative_chance_map.iter() {
                 if *value > 0 {
@@ -135,15 +127,13 @@ impl SimpleState for MainMenu {
             log::debug!("{:?}", weapon_spawn_chances);
         }
 
-
         let game_mode_needs_init: bool;
         {
             let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
 
             if let Some(_game_mode_setup) = fetched_game_mode_setup {
                 game_mode_needs_init = false;
-            }
-            else {
+            } else {
                 game_mode_needs_init = true;
             }
         }
@@ -172,7 +162,7 @@ impl SimpleState for MainMenu {
                 mode: GameWeaponSelectionMode::GunGameForward,
                 starter_weapon: WeaponNames::LaserDoubleGimballed,
                 allowable_starter_weapons: vec![WeaponNames::LaserDoubleGimballed],
-                random_weapon_spawns: false,                
+                random_weapon_spawns: false,
                 random_weapon_spawn_count: 2,
                 random_weapon_spawn_timer: 20.0,
                 random_weapon_spawn_first_timer: 20.0,
@@ -186,29 +176,29 @@ impl SimpleState for MainMenu {
                 mode: TeamSetupTypes::FreeForAll,
                 teams: [0, 1, 2, 3],
             });
-            
 
             world.insert(GameScore {
                 game_ended: false,
                 placements: Vec::new(),
             });
 
-
             let vehicle_store = build_vehicle_store(world);
 
-            let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &vehicle_store.properties;
+            let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> =
+                &vehicle_store.properties;
 
-            let standard_vehicle_stats = match vehicle_configs_map.get(&VehicleNames::MediumCombat) {
+            let standard_vehicle_stats = match vehicle_configs_map.get(&VehicleNames::MediumCombat)
+            {
                 Some(vehicle_config) => vehicle_config.clone(),
-                _ => get_none_vehicle()
+                _ => get_none_vehicle(),
             };
 
             world.insert(GameVehicleSetup {
                 names: [
-                    VehicleNames::MediumCombat, 
                     VehicleNames::MediumCombat,
                     VehicleNames::MediumCombat,
-                    VehicleNames::MediumCombat
+                    VehicleNames::MediumCombat,
+                    VehicleNames::MediumCombat,
                 ],
                 stats: [
                     standard_vehicle_stats.clone(),
@@ -284,7 +274,6 @@ impl SimpleState for MainMenu {
             self.init_base_rules = true;
         }
 
-        
         let mut player_count_init: bool = false;
         let mut bot_count_init: bool = false;
         let mut game_mode_rules_init: bool = false;
@@ -311,153 +300,158 @@ impl SimpleState for MainMenu {
             });
         }
 
-
         let mut ui_text = world.write_storage::<UiText>();
         let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
 
         if let Some(mut game_mode_setup) = fetched_game_mode_setup {
-            if let Some(p1_keyboard_text) = self.controls_keyboard_result.and_then(|entity| ui_text.get_mut(entity)) {
+            if let Some(p1_keyboard_text) = self
+                .controls_keyboard_result
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
                 if game_mode_setup.p1_keyboard {
                     p1_keyboard_text.text = "KEYBOARD".to_string();
-                }
-                else {
+                } else {
                     p1_keyboard_text.text = "CONTROLLER".to_string();
                 }
             }
 
             //Set game mode to match user input after intialization has been completed
-            if let Some(player_count) = self.edit_text_player_count.and_then(|entity| ui_text.get_mut(entity)) {
+            if let Some(player_count) = self
+                .edit_text_player_count
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
                 if player_count_init {
                     player_count.text = game_mode_setup.max_players.to_string();
-                }
-                else if let Ok(value) = player_count.text.parse::<usize>() {
+                } else if let Ok(value) = player_count.text.parse::<usize>() {
                     if value > MAX_PLAYER_COUNT {
                         game_mode_setup.max_players = MAX_PLAYER_COUNT;
                         player_count.text = game_mode_setup.max_players.to_string();
-                    }
-                    else if value < MIN_PLAYER_COUNT {
+                    } else if value < MIN_PLAYER_COUNT {
                         game_mode_setup.max_players = MIN_PLAYER_COUNT;
                         player_count.text = game_mode_setup.max_players.to_string();
-                    }
-                    else {
+                    } else {
                         game_mode_setup.max_players = value;
                     }
-                }
-                else {
+                } else {
                     game_mode_setup.max_players = MIN_PLAYER_COUNT;
                 }
             }
 
-            if let Some(bot_count) = self.edit_text_bot_count.and_then(|entity| ui_text.get_mut(entity)) {
+            if let Some(bot_count) = self
+                .edit_text_bot_count
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
                 if bot_count_init {
                     bot_count.text = game_mode_setup.bot_players.to_string();
-                }
-                else if let Ok(value) = bot_count.text.parse::<usize>() {
+                } else if let Ok(value) = bot_count.text.parse::<usize>() {
                     if value > game_mode_setup.max_players {
                         game_mode_setup.bot_players = game_mode_setup.max_players;
                         bot_count.text = game_mode_setup.bot_players.to_string();
-                    }
-                    else if value < MIN_BOT_COUNT {
+                    } else if value < MIN_BOT_COUNT {
                         game_mode_setup.bot_players = MIN_BOT_COUNT;
                         bot_count.text = game_mode_setup.bot_players.to_string();
-                    }
-                    else {
+                    } else {
                         game_mode_setup.bot_players = value;
                     }
-                }
-                else {
+                } else {
                     game_mode_setup.bot_players = MIN_BOT_COUNT;
                 }
             }
-
 
             if let Some(game_rules) = self.text_rules.and_then(|entity| ui_text.get_mut(entity)) {
                 game_rules.text = get_game_rules_text(game_mode_setup.game_mode.clone());
             }
 
-
-            if let Some(points_to_win_label) = self.text_points_to_win_label.and_then(|entity| ui_text.get_mut(entity)) {
+            if let Some(points_to_win_label) = self
+                .text_points_to_win_label
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
                 points_to_win_label.text = get_points_label_text(game_mode_setup.game_mode.clone());
             }
-            
 
-            if let Some(points_to_win) = self.edit_text_points_to_win.and_then(|entity| ui_text.get_mut(entity)) {
-                if self.init_base_rules { //Initialization of base rules
+            if let Some(points_to_win) = self
+                .edit_text_points_to_win
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
+                if self.init_base_rules {
+                    //Initialization of base rules
                     let setup_points_to_win = game_mode_setup.points_to_win.clone();
                     if setup_points_to_win <= 0 {
                         points_to_win.text = "".to_string();
-                    }
-                    else {
+                    } else {
                         points_to_win.text = setup_points_to_win.to_string();
                     }
-                }
-                else { //Accepting User Input to modify base rules
+                } else {
+                    //Accepting User Input to modify base rules
                     if let Ok(value) = points_to_win.text.parse::<i32>() {
                         if value < 1 {
                             points_to_win.text = "".to_string();
                             game_mode_setup.points_to_win = -1;
-                        }
-                        else {
+                        } else {
                             game_mode_setup.points_to_win = value;
                         }
                     }
                 }
             }
-            
 
-
-            if let Some(stock_lives) = self.edit_text_stock_lives.and_then(|entity| ui_text.get_mut(entity)) {
-                if self.init_base_rules { //Initialization of base rules
+            if let Some(stock_lives) = self
+                .edit_text_stock_lives
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
+                if self.init_base_rules {
+                    //Initialization of base rules
                     let setup_stock_lives = game_mode_setup.stock_lives.clone();
                     if setup_stock_lives <= 0 {
                         stock_lives.text = "".to_string();
-                    }
-                    else {
+                    } else {
                         stock_lives.text = setup_stock_lives.to_string();
                     }
-                }
-                else { //Accepting User Input to modify base rules
+                } else {
+                    //Accepting User Input to modify base rules
                     if let Ok(value) = stock_lives.text.parse::<i32>() {
                         if value < 1 {
                             stock_lives.text = "".to_string();
                             game_mode_setup.stock_lives = -1;
-                        }
-                        else {
+                        } else {
                             game_mode_setup.stock_lives = value;
                         }
                     }
                 }
             }
 
-            if let Some(time_limit) = self.edit_text_time_limit.and_then(|entity| ui_text.get_mut(entity)) {
-                if self.init_base_rules { //Initialization of base rules
+            if let Some(time_limit) = self
+                .edit_text_time_limit
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
+                if self.init_base_rules {
+                    //Initialization of base rules
                     let setup_match_time_limit = game_mode_setup.match_time_limit.clone();
                     if setup_match_time_limit <= 0.0 {
                         time_limit.text = "".to_string();
+                    } else {
+                        time_limit.text = (setup_match_time_limit / 60.).floor().to_string();
                     }
-                    else {
-                        time_limit.text = (setup_match_time_limit/60.).floor().to_string();
-                    }
-                }
-                else { //Accepting User Input to modify base rules
+                } else {
+                    //Accepting User Input to modify base rules
                     if let Ok(value) = time_limit.text.parse::<f32>() {
                         if value <= 0.0 {
                             time_limit.text = "".to_string();
                             game_mode_setup.match_time_limit = -1.0;
-                        }
-                        else {
-                            game_mode_setup.match_time_limit = value*60.;
+                        } else {
+                            game_mode_setup.match_time_limit = value * 60.;
                         }
                     }
                 }
-            }            
+            }
         }
-
 
         let fetched_game_team_setup = world.try_fetch::<GameTeamSetup>();
 
         if let Some(game_team_setup) = fetched_game_team_setup {
-            if let Some(team_setup) = self.text_player_teams.and_then(|entity| ui_text.get_mut(entity)) {
+            if let Some(team_setup) = self
+                .text_player_teams
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
                 let team_setup_text = match game_team_setup.teams {
                     [0, 1, 2, 3] => "FFA".to_string(),
                     [0, 0, 1, 1] => "P1 P2 v P3 P4".to_string(),
@@ -467,13 +461,12 @@ impl SimpleState for MainMenu {
                     [1, 0, 1, 1] => "P2 v P1 P3 P4".to_string(),
                     [1, 1, 0, 1] => "P3 v P1 P2 P4".to_string(),
                     [1, 1, 1, 0] => "P4 v P1 P2 P3".to_string(),
-                    _ => "???".to_string()
+                    _ => "???".to_string(),
                 };
 
                 team_setup.text = team_setup_text;
             }
         }
-
 
         if self.init_base_rules {
             self.init_base_rules = false;
@@ -519,7 +512,7 @@ impl SimpleState for MainMenu {
                         game_mode_setup.match_time_limit = -1.0;
                         game_mode_setup.points_to_win = 14;
                         game_mode_setup.stock_lives = -1;
-                        game_mode_setup.game_end_condition = GameEndCondition::First;                        
+                        game_mode_setup.game_end_condition = GameEndCondition::First;
                         self.init_base_rules = true;
                     } else if Some(target) == self.button_deathmatch_kills {
                         game_mode_setup.game_mode = GameModes::DeathmatchKills;
@@ -574,10 +567,11 @@ impl SimpleState for MainMenu {
 
                     //Select default arena map
                     if let Some(arena_store) = fetched_arena_store {
-                        let game_mode_arena = match arena_store.game_modes.get(&game_mode_setup.game_mode) {
-                            Some(game_mode_arenas) => game_mode_arenas[0],
-                            _ => ArenaNames::OpenEmptyMap,
-                        };
+                        let game_mode_arena =
+                            match arena_store.game_modes.get(&game_mode_setup.game_mode) {
+                                Some(game_mode_arenas) => game_mode_arenas[0],
+                                _ => ArenaNames::OpenEmptyMap,
+                            };
                         game_mode_setup.arena_name = game_mode_arena;
 
                         let checkpoint_count = match arena_store.properties.get(&game_mode_arena) {
@@ -585,8 +579,7 @@ impl SimpleState for MainMenu {
                             _ => 0,
                         };
                         game_mode_setup.checkpoint_count = checkpoint_count as i32;
-                    }
-                    else {
+                    } else {
                         game_mode_setup.arena_name = ArenaNames::OpenEmptyMap;
                         game_mode_setup.checkpoint_count = 0;
                     }
@@ -646,7 +639,7 @@ impl SimpleState for MainMenu {
                         game_team_setup.teams = match game_team_setup.teams {
                             [0, 0, 1, 1] => [0, 1, 0, 1],
                             [0, 1, 0, 1] => [0, 1, 1, 0],
-                            _ => [0, 0, 1, 1]
+                            _ => [0, 0, 1, 1],
                         };
                     }
                     if Some(target) == self.button_1v3 {
@@ -655,7 +648,7 @@ impl SimpleState for MainMenu {
                             [0, 1, 1, 1] => [1, 0, 1, 1],
                             [1, 0, 1, 1] => [1, 1, 0, 1],
                             [1, 1, 0, 1] => [1, 1, 1, 0],
-                            _ => [0, 1, 1, 1]
+                            _ => [0, 1, 1, 1],
                         };
                     }
                 }

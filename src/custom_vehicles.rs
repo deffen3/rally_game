@@ -1,17 +1,13 @@
 use amethyst::{
-    assets::{Handle},
+    assets::Handle,
     ecs::prelude::Entity,
     input::{is_close_requested, is_key_down},
     prelude::*,
+    renderer::{SpriteRender, SpriteSheet},
+    ui::{Anchor, UiImage, UiTransform},
     ui::{UiCreator, UiEvent, UiEventType, UiFinder, UiText},
-    renderer::{
-        SpriteSheet, SpriteRender,
-    },
+    utils::removal::{exec_removal, Removal},
     winit::VirtualKeyCode,
-    utils::{
-        removal::{exec_removal, Removal},
-    },
-    ui::{UiTransform, UiImage, Anchor},
 };
 
 use std::collections::HashMap;
@@ -19,13 +15,12 @@ use std::collections::HashMap;
 use crate::menu::MainMenu;
 use crate::rally::load_sprite_sheet;
 
-use crate::resources::{GameVehicleSetup};
+use crate::resources::GameVehicleSetup;
 
-use crate::components::{determine_vehicle_weight_stats, 
-    VehicleStoreResource, get_next_vehicle_name, get_prev_vehicle_name,
-    VehicleNames, VehicleStats, VehicleTypes, get_none_vehicle, get_vehicle_sprites,
+use crate::components::{
+    determine_vehicle_weight_stats, get_next_vehicle_name, get_none_vehicle, get_prev_vehicle_name,
+    get_vehicle_sprites, VehicleNames, VehicleStats, VehicleStoreResource, VehicleTypes,
 };
-
 
 const BUTTON_BACK_TO_MENU: &str = "back_to_menu";
 
@@ -37,8 +32,6 @@ const TEXT_SHIELDS: &str = "shields";
 const TEXT_ARMOR: &str = "armor";
 const TEXT_HEALTH: &str = "health";
 const TEXT_WEIGHT: &str = "weight";
-
-
 
 #[derive(Default, Debug)]
 pub struct CustomVehiclesMenu {
@@ -76,8 +69,9 @@ impl SimpleState for CustomVehiclesMenu {
             "texture/rally_spritesheet.ron".to_string(),
         ));
 
-        self.ui_root =
-            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/custom_vehicles.ron", ())));
+        self.ui_root = Some(
+            world.exec(|mut creator: UiCreator<'_>| creator.create("ui/custom_vehicles.ron", ())),
+        );
 
         self.player_cur_vehicle_name = [None; 4];
     }
@@ -86,8 +80,7 @@ impl SimpleState for CustomVehiclesMenu {
         // only search for buttons if they have not been found yet
         let StateData { world, .. } = state_data;
 
-        if self.button_back_to_menu.is_none()
-        {
+        if self.button_back_to_menu.is_none() {
             world.exec(|ui_finder: UiFinder<'_>| {
                 self.button_back_to_menu = ui_finder.find(BUTTON_BACK_TO_MENU);
             });
@@ -103,18 +96,24 @@ impl SimpleState for CustomVehiclesMenu {
                 || self.text_player_weight[player_index].is_none()
             {
                 world.exec(|ui_finder: UiFinder<'_>| {
-                    self.button_player_prev_vehicle[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, BUTTON_PREV_VEHICLE));
-                    self.button_player_next_vehicle[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, BUTTON_NEXT_VEHICLE));
+                    self.button_player_prev_vehicle[player_index] =
+                        ui_finder.find(&format!("p{}_{}", player_index + 1, BUTTON_PREV_VEHICLE));
+                    self.button_player_next_vehicle[player_index] =
+                        ui_finder.find(&format!("p{}_{}", player_index + 1, BUTTON_NEXT_VEHICLE));
 
-                    self.text_player_vehicle_name[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_VEHICLE_NAME));
-                    self.text_player_shields[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_SHIELDS));
-                    self.text_player_armor[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_ARMOR));
-                    self.text_player_health[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_HEALTH));
-                    self.text_player_weight[player_index] = ui_finder.find(&format!("p{}_{}", player_index+1, TEXT_WEIGHT));
+                    self.text_player_vehicle_name[player_index] =
+                        ui_finder.find(&format!("p{}_{}", player_index + 1, TEXT_VEHICLE_NAME));
+                    self.text_player_shields[player_index] =
+                        ui_finder.find(&format!("p{}_{}", player_index + 1, TEXT_SHIELDS));
+                    self.text_player_armor[player_index] =
+                        ui_finder.find(&format!("p{}_{}", player_index + 1, TEXT_ARMOR));
+                    self.text_player_health[player_index] =
+                        ui_finder.find(&format!("p{}_{}", player_index + 1, TEXT_HEALTH));
+                    self.text_player_weight[player_index] =
+                        ui_finder.find(&format!("p{}_{}", player_index + 1, TEXT_WEIGHT));
                 });
             }
         }
-
 
         for player_index in 0..4 {
             let player_vehicle_name: Option<VehicleNames>;
@@ -129,32 +128,43 @@ impl SimpleState for CustomVehiclesMenu {
                 if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
                     let veh_stats = game_vehicle_setup.stats[player_index].clone();
 
-                    if let Some(veh_name) = self.text_player_vehicle_name[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_name) = self.text_player_vehicle_name[player_index]
+                        .and_then(|entity| ui_text.get_mut(entity))
+                    {
                         veh_name.text = veh_stats.display_name.clone();
                     }
 
-                    if let Some(veh_shields) = self.text_player_shields[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_shields) = self.text_player_shields[player_index]
+                        .and_then(|entity| ui_text.get_mut(entity))
+                    {
                         veh_shields.text = veh_stats.max_shield.to_string();
                     }
 
-                    if let Some(veh_armor) = self.text_player_armor[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_armor) = self.text_player_armor[player_index]
+                        .and_then(|entity| ui_text.get_mut(entity))
+                    {
                         veh_armor.text = veh_stats.max_armor.to_string();
                     }
 
-                    if let Some(veh_health) = self.text_player_health[player_index].and_then(|entity| ui_text.get_mut(entity)) {
+                    if let Some(veh_health) = self.text_player_health[player_index]
+                        .and_then(|entity| ui_text.get_mut(entity))
+                    {
                         veh_health.text = veh_stats.max_health.to_string();
                     }
 
-                    if let Some(veh_weight) = self.text_player_weight[player_index].and_then(|entity| ui_text.get_mut(entity)) {
-                        veh_weight.text = determine_vehicle_weight_stats(veh_stats.clone()).to_string();
+                    if let Some(veh_weight) = self.text_player_weight[player_index]
+                        .and_then(|entity| ui_text.get_mut(entity))
+                    {
+                        veh_weight.text =
+                            determine_vehicle_weight_stats(veh_stats.clone()).to_string();
                     }
 
                     player_vehicle_name = Some(game_vehicle_setup.names[player_index].clone());
-                    player_vehicle_sprite_type = Some(game_vehicle_setup.stats[player_index].vehicle_type.clone());
+                    player_vehicle_sprite_type =
+                        Some(game_vehicle_setup.stats[player_index].vehicle_type.clone());
                     player_vehicle_width = game_vehicle_setup.stats[player_index].width.clone();
                     player_vehicle_height = game_vehicle_setup.stats[player_index].height.clone();
-                }
-                else {
+                } else {
                     player_vehicle_name = None;
                     player_vehicle_sprite_type = None;
                     player_vehicle_width = 0.0;
@@ -168,25 +178,25 @@ impl SimpleState for CustomVehiclesMenu {
                 if let Some(vehicle_name) = player_vehicle_name.clone() {
                     if *player_cur_vehicle_name != vehicle_name {
                         player_change_icon = true;
-                    }
-                    else {
+                    } else {
                         player_change_icon = false;
                     }
-                }
-                else {
+                } else {
                     player_change_icon = false;
                 }
-            }
-            else {
+            } else {
                 player_change_icon = true;
             }
 
             if player_change_icon {
                 {
-                    exec_removal(&world.entities(), &world.read_storage(), player_index as u32);
+                    exec_removal(
+                        &world.entities(),
+                        &world.read_storage(),
+                        player_index as u32,
+                    );
                 }
             }
-
 
             let (x, y) = match player_index {
                 0 => (-250.0, -250.0),
@@ -198,8 +208,8 @@ impl SimpleState for CustomVehiclesMenu {
 
             if player_change_icon {
                 //UI vehicle icon
-                let (vehicle_sprite_number, _, _) = get_vehicle_sprites(world, player_vehicle_sprite_type.unwrap());
-            
+                let (vehicle_sprite_number, _, _) =
+                    get_vehicle_sprites(world, player_vehicle_sprite_type.unwrap());
                 let vehicle_sprite_render = SpriteRender {
                     sprite_sheet: self.sprite_sheet_handle.clone().unwrap(),
                     sprite_number: vehicle_sprite_number + player_index,
@@ -241,7 +251,6 @@ impl SimpleState for CustomVehiclesMenu {
         data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
-
         match event {
             StateEvent::Window(event) => {
                 if is_close_requested(&event) {
@@ -257,30 +266,31 @@ impl SimpleState for CustomVehiclesMenu {
             StateEvent::Ui(UiEvent {
                 event_type: UiEventType::Click,
                 target,
-            }) => { 
+            }) => {
                 if Some(target) == self.button_back_to_menu {
                     log::info!("[Trans::Switch] Switching back to MainMenu!");
                     return Trans::Switch(Box::new(MainMenu::default()));
                 }
 
-
                 let fetched_game_vehicle_setup = data.world.try_fetch_mut::<GameVehicleSetup>();
 
                 if let Some(mut game_vehicle_setup) = fetched_game_vehicle_setup {
                     for player_index in 0..4 {
-
                         if Some(target) == self.button_player_next_vehicle[player_index] {
                             game_vehicle_setup.names[player_index] = get_next_vehicle_name(
                                 data.world,
-                                game_vehicle_setup.names[player_index].clone()
+                                game_vehicle_setup.names[player_index].clone(),
                             );
-                            
-                            let fetched_game_vehicle_store = data.world.try_fetch::<VehicleStoreResource>();
 
+                            let fetched_game_vehicle_store =
+                                data.world.try_fetch::<VehicleStoreResource>();
                             if let Some(game_vehicle_store) = fetched_game_vehicle_store {
-                                let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &game_vehicle_store.properties;
-                
-                                let veh_stats = match vehicle_configs_map.get(&game_vehicle_setup.names[player_index]) {
+                                let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> =
+                                    &game_vehicle_store.properties;
+
+                                let veh_stats = match vehicle_configs_map
+                                    .get(&game_vehicle_setup.names[player_index])
+                                {
                                     Some(vehicle_config) => vehicle_config.clone(),
                                     _ => get_none_vehicle(),
                                 };
@@ -291,18 +301,20 @@ impl SimpleState for CustomVehiclesMenu {
                         if Some(target) == self.button_player_prev_vehicle[player_index] {
                             game_vehicle_setup.names[player_index] = get_prev_vehicle_name(
                                 data.world,
-                                game_vehicle_setup.names[player_index].clone()
+                                game_vehicle_setup.names[player_index].clone(),
                             );
-                            
-                            
-                            let fetched_game_vehicle_store = data.world.try_fetch::<VehicleStoreResource>();
 
+                            let fetched_game_vehicle_store =
+                                data.world.try_fetch::<VehicleStoreResource>();
                             if let Some(game_vehicle_store) = fetched_game_vehicle_store {
-                                let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> = &game_vehicle_store.properties;
-                
-                                let veh_stats = match vehicle_configs_map.get(&game_vehicle_setup.names[player_index]) {
+                                let vehicle_configs_map: &HashMap<VehicleNames, VehicleStats> =
+                                    &game_vehicle_store.properties;
+
+                                let veh_stats = match vehicle_configs_map
+                                    .get(&game_vehicle_setup.names[player_index])
+                                {
                                     Some(vehicle_config) => vehicle_config.clone(),
-                                    _ => get_none_vehicle()
+                                    _ => get_none_vehicle(),
                                 };
 
                                 game_vehicle_setup.stats[player_index] = veh_stats;
@@ -326,7 +338,11 @@ impl SimpleState for CustomVehiclesMenu {
         }
 
         for player_index in 0..4 {
-            exec_removal(&data.world.entities(), &data.world.read_storage(), player_index as u32);
+            exec_removal(
+                &data.world.entities(),
+                &data.world.read_storage(),
+                player_index as u32,
+            );
         }
 
         self.ui_root = None;

@@ -6,7 +6,7 @@ use amethyst::{
     prelude::*,
     renderer::{
         debug_drawing::{DebugLines, DebugLinesComponent, DebugLinesParams},
-        ImageFormat, SpriteSheet, SpriteSheetFormat, Texture
+        ImageFormat, SpriteSheet, SpriteSheetFormat, Texture,
     },
     ui::{UiCreator, UiFinder, UiText, UiTransform},
     utils::{
@@ -16,45 +16,40 @@ use amethyst::{
     winit::VirtualKeyCode,
 };
 
+use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
-use rand::seq::SliceRandom;
 
 use crate::pause::PauseMenuState;
 use crate::score_screen::ScoreScreen;
 
-use crate::resources::{initialize_weapon_fire_resource, 
-    GameModeSetup, GameScore, 
-    GameTeamSetup, WeaponFireResource, GameVehicleSetup,
-    ArenaNavMesh, ArenaNavMeshFinal,
+use crate::resources::{
+    initialize_weapon_fire_resource, ArenaNavMesh, ArenaNavMeshFinal, GameModeSetup, GameScore,
+    GameTeamSetup, GameVehicleSetup, WeaponFireResource,
 };
 
 use crate::entities::{
-    intialize_arena, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
-    connect_players_to_ui, intialize_player, PlayerStatusText, 
+    connect_players_to_ui, initialize_camera, initialize_camera_to_player, initialize_timer_ui,
+    intialize_arena, intialize_player, PlayerStatusText,
 };
 
 use crate::components::{
-    ArenaElement, Hitbox, 
-    Player, PlayerWeaponIcon, Repair, Shield, Armor, Health, Vehicle, get_none_vehicle,
-    WeaponArray, WeaponFire, Particles, WeaponStoreResource,
-    ArenaNames, ArenaStoreResource, ArenaProperties,
+    get_none_vehicle, ArenaElement, ArenaNames, ArenaProperties, ArenaStoreResource, Armor, Health,
+    Hitbox, Particles, Player, PlayerWeaponIcon, Repair, Shield, Vehicle, WeaponArray, WeaponFire,
+    WeaponStoreResource,
 };
 
 use crate::systems::{
-    CollisionVehToVehSystem, CollisionWeaponFireHitboxSystem, MoveWeaponFireSystem,
-    VehicleMoveSystem, VehicleShieldArmorHealthSystem, VehicleStatusSystem, VehicleTrackingSystem,
-    VehicleWeaponsSystem, MoveParticlesSystem, PathingLinesSystem, CameraTrackingSystem,
+    CameraTrackingSystem, CollisionVehToVehSystem, CollisionWeaponFireHitboxSystem,
+    MoveParticlesSystem, MoveWeaponFireSystem, PathingLinesSystem, VehicleMoveSystem,
+    VehicleShieldArmorHealthSystem, VehicleStatusSystem, VehicleTrackingSystem,
+    VehicleWeaponsSystem,
 };
-
-
 
 pub const PLAYER_CAMERA: bool = false;
 pub const DEBUG_LINES: bool = false;
 
 //cargo run --features sdl_controller
-
-
 
 //Damage at speed of 100
 pub const BASE_COLLISION_DAMAGE: f32 = 20.0;
@@ -62,7 +57,6 @@ pub const COLLISION_PIERCING_DAMAGE_PCT: f32 = 0.0;
 pub const COLLISION_SHIELD_DAMAGE_PCT: f32 = 25.0;
 pub const COLLISION_ARMOR_DAMAGE_PCT: f32 = 80.0;
 pub const COLLISION_HEALTH_DAMAGE_PCT: f32 = 100.0;
-
 
 #[derive(Default)]
 pub struct GameplayState<'a, 'b> {
@@ -108,7 +102,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         world.register::<PlayerWeaponIcon>();
 
-
         // Setup debug lines as a resource
         world.insert(DebugLines::new());
         // Configure width of lines. Optional step
@@ -117,12 +110,7 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         // Setup debug lines as a component and add lines to render axis&grid
         let debug_lines_component = DebugLinesComponent::new();
 
-        world
-            .create_entity()
-            .with(debug_lines_component)
-            .build();
-
-
+        world.create_entity().with(debug_lines_component).build();
 
         world.register::<Removal<u32>>();
 
@@ -140,27 +128,20 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
         let weapon_fire_resource: WeaponFireResource =
             initialize_weapon_fire_resource(world, self.sprite_sheet_handle.clone().unwrap());
 
-
         initialize_timer_ui(world);
-
 
         world.insert(ArenaNavMesh {
             vertices: Vec::new(),
             triangles: Vec::new(),
         });
 
-        world.insert(ArenaNavMeshFinal {
-            mesh: None,
-        });
-
+        world.insert(ArenaNavMeshFinal { mesh: None });
 
         intialize_arena(
             world,
             self.sprite_sheet_handle.clone().unwrap(),
             self.texture_sheet_handle.clone().unwrap(),
         );
-
-
 
         let max_players;
         let bot_players;
@@ -179,9 +160,8 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             }
         }
 
-        
         let arena_properties;
-        {        
+        {
             let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
 
             if let Some(arena_store) = fetched_arena_store {
@@ -189,14 +169,10 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                     Some(arena_props_get) => (*arena_props_get).clone(),
                     _ => ArenaProperties::default(),
                 };
-            }
-            else {
+            } else {
                 arena_properties = ArenaProperties::default();
             }
         }
-
-
-
 
         let player_to_team;
         {
@@ -208,7 +184,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 player_to_team = [0, 1, 2, 3];
             }
         }
-        
 
         {
             let mut weapon_store_resource = world.fetch_mut::<WeaponStoreResource>();
@@ -220,13 +195,12 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             weapon_store_resource.gun_game_random_order = new_gun_game_order;
         }
 
-        
         let player_status_text = PlayerStatusText {
             shield: None,
             armor: None,
             health: None,
             points: None,
-            lives: None
+            lives: None,
         };
 
         for player_index in 0..max_players {
@@ -237,14 +211,12 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
                 if let Some(game_vehicle_setup) = fetched_game_vehicle_setup {
                     vehicle_stats = game_vehicle_setup.stats[player_index].clone();
-                }
-                else {
+                } else {
                     vehicle_stats = get_none_vehicle();
                 }
             }
 
             let is_bot = player_index >= max_players - bot_players;
-            
 
             let player = intialize_player(
                 world,
@@ -288,7 +260,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             "collision_vehicle_vehicle_system",
             &[],
         );
-        
         dispatcher_builder.add(
             VehicleShieldArmorHealthSystem,
             "vehicle_shield_armor_health_system",
@@ -300,8 +271,11 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
 
         dispatcher_builder.add(PathingLinesSystem::default(), "pathing_lines_system", &[]);
 
-        dispatcher_builder.add(CameraTrackingSystem::default(), "camera_tracking_system", &[]);
-        
+        dispatcher_builder.add(
+            CameraTrackingSystem::default(),
+            "camera_tracking_system",
+            &[],
+        );
 
         // Build and setup the `Dispatcher`.
         let mut dispatcher = dispatcher_builder.build();
@@ -325,15 +299,13 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 .expect("Failed to remove Game Screen");
         }
 
-
         let fetched_game_score = data.world.try_fetch::<GameScore>();
 
         if let Some(game_score) = fetched_game_score {
             if !game_score.game_ended {
                 exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
             }
-        }
-        else {
+        } else {
             exec_removal(&data.world.entities(), &data.world.read_storage(), 0 as u32);
         }
 
@@ -404,7 +376,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             }
         }
 
-
         if !self.player_ui_initialized {
             let connected_success = connect_players_to_ui(world);
 
@@ -412,7 +383,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
                 self.player_ui_initialized = true;
             }
         }
-
 
         let fetched_game_score = world.try_fetch::<GameScore>();
 
@@ -445,7 +415,6 @@ pub fn load_sprite_sheet(world: &mut World, storage: String, store: String) -> H
         &sprite_sheet_store,
     )
 }
-
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AxisBinding {

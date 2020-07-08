@@ -9,11 +9,7 @@ use amethyst::{
 use rand::Rng;
 use std::collections::HashMap;
 
-use crate::components::{
-    Player, Vehicle, VehicleState, BotMode,
-};
-
-
+use crate::components::{BotMode, Player, Vehicle, VehicleState};
 
 #[derive(SystemDesc)]
 pub struct VehicleShieldArmorHealthSystem;
@@ -36,10 +32,13 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
 
         let mut owner_data_map = HashMap::new();
 
-        for (player, vehicle, vehicle_transform) in (&mut players, &mut vehicles, &transforms).join() {
+        for (player, vehicle, vehicle_transform) in
+            (&mut players, &mut vehicles, &transforms).join()
+        {
             //Healing is automatically done if health is damaged
-            if (vehicle.heal_pulse_rate > 0.0 && vehicle.health.value > 0.0) && 
-                    (vehicle.health.max > 0.0 && vehicle.health.value < vehicle.health.max) {
+            if (vehicle.heal_pulse_rate > 0.0 && vehicle.health.value > 0.0)
+                && (vehicle.health.max > 0.0 && vehicle.health.value < vehicle.health.max)
+            {
                 if vehicle.heal_cooldown_timer < 0.0 {
                     //healing applied
                     vehicle.health.value += vehicle.heal_pulse_amount;
@@ -54,8 +53,9 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
             }
 
             //Shields are automatically re-charged if shields are damaged
-            if (vehicle.shield.value > 0.0) && 
-                    (vehicle.shield.max > 0.0 && vehicle.shield.value < vehicle.shield.max) {
+            if (vehicle.shield.value > 0.0)
+                && (vehicle.shield.max > 0.0 && vehicle.shield.value < vehicle.shield.max)
+            {
                 if vehicle.shield.cooldown_timer < 0.0 {
                     //recharging
                     vehicle.shield.value += vehicle.shield.recharge_rate * dt;
@@ -70,13 +70,11 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 }
             }
 
-
             //Repairing must be initiated by the player
             let vehicle_repair;
             if player.is_bot && player.bot_mode == BotMode::Repairing {
                 vehicle_repair = Some(true);
-            }
-            else {
+            } else {
                 // if MP_BINDINGS {
                 //     vehicle_repair = input.action_is_down(&ActionBinding::VehicleRepair(player.id));
                 // }
@@ -87,12 +85,13 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                     3 => input.action_is_down("p4_repair"),
                     _ => None,
                 };
-                
             }
 
             if let Some(repair) = vehicle_repair {
                 if repair && vehicle.state == VehicleState::Active {
-                    if vehicle.health.value < vehicle.health.max || (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0) {
+                    if vehicle.health.value < vehicle.health.max
+                        || (vehicle.shield.max > 0.0 && vehicle.shield.value == 0.0)
+                    {
                         //repair initiated
                         vehicle.repair.activated = true;
                         vehicle.repair.init_timer += dt;
@@ -103,14 +102,18 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                         vehicle.shield.repair_timer = 0.0;
                     }
 
-                    if vehicle.repair.init_timer >= vehicle.repair.init_time_threshold || vehicle.health.value >= vehicle.health.max {
+                    if vehicle.repair.init_timer >= vehicle.repair.init_time_threshold
+                        || vehicle.health.value >= vehicle.health.max
+                    {
                         //repair successful started or not needed
                         if vehicle.health.value < vehicle.health.max {
                             vehicle.health.value += vehicle.health.repair_rate * dt;
                             vehicle.health.value = vehicle.health.value.min(vehicle.health.max);
-                        } else if vehicle.shield.value <= 0.0 && vehicle.shield.max > 0.0 { //shield reboot initializing
+                        } else if vehicle.shield.value <= 0.0 && vehicle.shield.max > 0.0 {
+                            //shield reboot initializing
                             vehicle.shield.repair_timer += dt;
-                            if vehicle.shield.repair_timer > vehicle.shield.repair_reboot_time { //shield successfully rebooted
+                            if vehicle.shield.repair_timer > vehicle.shield.repair_reboot_time {
+                                //shield successfully rebooted
                                 vehicle.shield.value = 1.0;
                             }
                         } else {
@@ -133,7 +136,6 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 vehicle.shield.repair_timer = 0.0;
             }
 
-            
             let vehicle_rotation = vehicle_transform.rotation();
             let (_, _, yaw) = vehicle_rotation.euler_angles();
 
@@ -143,19 +145,16 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
             let shield_pct;
             if vehicle.shield.max <= 0.0 {
                 shield_pct = 0.0;
-            }
-            else {
+            } else {
                 shield_pct = vehicle.shield.value / vehicle.shield.max;
             }
 
             let armor_pct;
             if vehicle.armor.max <= 0.0 {
                 armor_pct = 0.0;
-            }
-            else {
+            } else {
                 armor_pct = vehicle.armor.value / vehicle.armor.max;
             }
-
 
             owner_data_map.insert(
                 player.id,
@@ -171,7 +170,6 @@ impl<'s> System<'s> for VehicleShieldArmorHealthSystem {
                 ),
             );
         }
-
 
         //visual updates
         for (player, vehicle) in (&players, &mut vehicles).join() {

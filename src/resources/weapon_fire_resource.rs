@@ -164,7 +164,6 @@ pub fn initialize_weapon_fire_resource(
             sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 77,
         },
-        
     };
     world.insert(weapon_fire_resource.clone());
 

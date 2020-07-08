@@ -1,15 +1,15 @@
 use amethyst::{
     core::{Time, Transform},
     derive::SystemDesc,
-    ecs::{Entities, Join, Read, ReadStorage, System, SystemData, WriteStorage, World}
+    ecs::{Entities, Join, Read, ReadStorage, System, SystemData, World, WriteStorage},
 };
 
 use crate::components::{
-    Player, Vehicle, VehicleState, WeaponArray, WeaponFire,
-    ArenaProperties, ArenaNames, ArenaStoreResource
+    ArenaNames, ArenaProperties, ArenaStoreResource, Player, Vehicle, VehicleState, WeaponArray,
+    WeaponFire,
 };
-use crate::resources::{GameModeSetup};
-use crate::systems::{clean_angle};
+use crate::resources::GameModeSetup;
+use crate::systems::clean_angle;
 
 use log::debug;
 use std::collections::HashMap;
@@ -19,7 +19,6 @@ use std::f32::consts::PI;
 pub struct MoveWeaponFireSystem {
     pub arena_properties: ArenaProperties,
 }
-
 
 impl<'s> System<'s> for MoveWeaponFireSystem {
     type SystemData = (
@@ -36,24 +35,21 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
         let arena_name;
         {
             let fetched_game_mode_setup = world.try_fetch::<GameModeSetup>();
-    
             if let Some(game_mode_setup) = fetched_game_mode_setup {
                 arena_name = game_mode_setup.arena_name.clone();
             } else {
                 arena_name = ArenaNames::OpenEmptyMap;
             }
         }
-    
-        {        
+
+        {
             let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
-    
             if let Some(arena_store) = fetched_arena_store {
                 self.arena_properties = match arena_store.properties.get(&arena_name) {
                     Some(arena_props_get) => (*arena_props_get).clone(),
                     _ => ArenaProperties::default(),
                 };
-            }
-            else {
+            } else {
                 self.arena_properties = ArenaProperties::default();
             }
         }
@@ -70,7 +66,11 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
 
         for (entity, weapon_fire, transform) in (&entities, &mut weapon_fires, &transforms).join() {
             weapon_fire.shot_life_timer += dt;
-            weapon_fire.stats.damage = (weapon_fire.stats.damage - (weapon_fire.stats.damage*(weapon_fire.stats.damage_reduction_pct_rate/100.0) * dt)).max(0.0);
+            weapon_fire.stats.damage = (weapon_fire.stats.damage
+                - (weapon_fire.stats.damage
+                    * (weapon_fire.stats.damage_reduction_pct_rate / 100.0)
+                    * dt))
+                .max(0.0);
 
             if weapon_fire.stats.shot_life_limit >= 0.0
                 && weapon_fire.shot_life_timer >= weapon_fire.stats.shot_life_limit
@@ -112,7 +112,7 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     }
 
                     let target_angle = clean_angle(
-                        closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0)
+                        closest_vehicle_y_diff.atan2(closest_vehicle_x_diff) + (PI / 2.0),
                     ); //rotate by PI/2 to line up with yaw angle
 
                     heat_seeking_angle_map.insert(entity.id(), target_angle);
@@ -127,22 +127,26 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                 let vehicle_rotation = vehicle_transform.rotation();
                                 let (_, _, yaw) = vehicle_rotation.euler_angles();
 
-                                for (weapon_idx, weapon_install) in weapon_array.installed.iter().enumerate() {
+                                for (weapon_idx, weapon_install) in
+                                    weapon_array.installed.iter().enumerate()
+                                {
                                     let weapon = &weapon_install.weapon;
 
                                     //undeploy old attached weapons
-                                    if weapon_fire.weapon_array_id == weapon_idx 
-                                            && weapon.name != weapon_fire.weapon_name {
+                                    if weapon_fire.weapon_array_id == weapon_idx
+                                        && weapon.name != weapon_fire.weapon_name
+                                    {
                                         weapon_fire.deployed = false;
                                     }
 
-                                    if weapon.name == weapon_fire.weapon_name && weapon.stats.fire_stats.attached {
+                                    if weapon.name == weapon_fire.weapon_name
+                                        && weapon.stats.fire_stats.attached
+                                    {
                                         //pass on deployed status
                                         if weapon.deployed == false {
                                             weapon_fire.deployed = false;
                                             let _ = entities.delete(entity);
-                                        }
-                                        else if weapon.deployed == true {
+                                        } else if weapon.deployed == true {
                                             weapon_fire.deployed = true;
                                         }
                                     }
@@ -181,17 +185,20 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                         let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
                         let abs_vel = sq_vel.sqrt();
 
-                        weapon_fire.dx += weapon_fire.stats.heat_seeking_agility * velocity_x_comp * dt;
+                        weapon_fire.dx +=
+                            weapon_fire.stats.heat_seeking_agility * velocity_x_comp * dt;
                         weapon_fire.dx *= weapon_fire.stats.shot_speed / abs_vel;
 
-                        weapon_fire.dy += weapon_fire.stats.heat_seeking_agility * velocity_y_comp * dt;
+                        weapon_fire.dy +=
+                            weapon_fire.stats.heat_seeking_agility * velocity_y_comp * dt;
                         weapon_fire.dy *= weapon_fire.stats.shot_speed / abs_vel;
                     }
                 }
 
                 if weapon_fire.stats.attached {
                     if weapon_fire.deployed {
-                        let vehicle_owner_data = vehicle_owner_map.get(&weapon_fire.owner_player_id);
+                        let vehicle_owner_data =
+                            vehicle_owner_map.get(&weapon_fire.owner_player_id);
 
                         if let Some(vehicle_owner_data) = vehicle_owner_data {
                             let (x, y, vehicle_angle) = vehicle_owner_data;
@@ -210,7 +217,8 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                     } else {
                         let _ = entities.delete(entity);
                     }
-                } else { //move to updated position based on velocity
+                } else {
+                    //move to updated position based on velocity
                     if weapon_fire.stats.shot_speed > 0.0 {
                         if weapon_fire.stats.accel_rate.abs() > 0.0 {
                             let sq_vel = weapon_fire.dx.powi(2) + weapon_fire.dy.powi(2);
@@ -241,28 +249,24 @@ impl<'s> System<'s> for MoveWeaponFireSystem {
                                     weapon_fire.stats.bounces -= 1;
                                     weapon_fire.owner_player_id = None;
 
-                                    if (fire_x > self.arena_properties.width)
-                                        || (fire_x < 0.0) 
-                                    {
+                                    if (fire_x > self.arena_properties.width) || (fire_x < 0.0) {
                                         weapon_fire.dx *= -1.0;
 
-                                        let new_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0); 
+                                        let new_angle =
+                                            weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
                                         //rotate by PI/2 to line up with 0deg is pointed towards top
-                                        
                                         transform.set_rotation_2d(new_angle);
-                                    }
-                                    else if (fire_y > self.arena_properties.height)
+                                    } else if (fire_y > self.arena_properties.height)
                                         || (fire_y < 0.0)
                                     {
                                         weapon_fire.dy *= -1.0;
 
-                                        let new_angle = weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0); 
+                                        let new_angle =
+                                            weapon_fire.dy.atan2(weapon_fire.dx) + (PI / 2.0);
                                         //rotate by PI/2 to line up with 0deg is pointed towards top
-                                        
                                         transform.set_rotation_2d(new_angle);
                                     }
-                                }
-                                else {
+                                } else {
                                     let _ = entities.delete(entity);
                                 }
                             }
