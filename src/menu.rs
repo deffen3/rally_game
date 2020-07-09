@@ -51,6 +51,10 @@ const TEXT_POINTS_TO_WIN_LABEL: &str = "points_to_win_text";
 const EDIT_TEXT_STOCK_LIVES: &str = "stock_lives_field";
 const EDIT_TEXT_TIME_LIMIT: &str = "time_limit_field";
 
+const TEXT_WEAPON_SELECT_MODE: &str = "weapon_select_mode";
+const BUTTON_NEXT_WEAPON_SELECT_MODE: &str = "next_weapon_select_mode";
+const BUTTON_PREV_WEAPON_SELECT_MODE: &str = "prev_weapon_select_mode";
+
 const BUTTON_CUSTOM_VEHICLES: &str = "customize_vehicles";
 const BUTTON_CUSTOM_WEAPONS: &str = "customize_weapons";
 const BUTTON_CUSTOM_ARENA: &str = "customize_arena";
@@ -83,6 +87,9 @@ pub struct MainMenu {
     edit_text_stock_lives: Option<Entity>,
     edit_text_time_limit: Option<Entity>,
     init_base_rules: bool,
+    text_weapon_select_mode: Option<Entity>,
+    button_next_weapon_select_mode: Option<Entity>,
+    button_prev_weapon_select_mode: Option<Entity>,
     button_custom_vehicles: Option<Entity>,
     button_custom_weapons: Option<Entity>,
     button_custom_arena: Option<Entity>,
@@ -227,6 +234,9 @@ impl SimpleState for MainMenu {
             || self.button_combat_race.is_none()
             || self.button_survival_waves.is_none()
             || self.button_start_game.is_none()
+            || self.text_weapon_select_mode.is_none()
+            || self.button_next_weapon_select_mode.is_none()
+            || self.button_prev_weapon_select_mode.is_none()
             || self.button_custom_vehicles.is_none()
             || self.button_custom_weapons.is_none()
             || self.button_custom_arena.is_none()
@@ -247,6 +257,11 @@ impl SimpleState for MainMenu {
                 self.button_combat_race = ui_finder.find(BUTTON_COMBAT_RACE);
                 self.button_survival_waves = ui_finder.find(BUTTON_SURVIVAL_WAVES);
                 self.button_start_game = ui_finder.find(BUTTON_START_GAME);
+                self.text_weapon_select_mode = ui_finder.find(TEXT_WEAPON_SELECT_MODE);
+                self.button_next_weapon_select_mode =
+                    ui_finder.find(BUTTON_NEXT_WEAPON_SELECT_MODE);
+                self.button_prev_weapon_select_mode =
+                    ui_finder.find(BUTTON_PREV_WEAPON_SELECT_MODE);
                 self.button_custom_vehicles = ui_finder.find(BUTTON_CUSTOM_VEHICLES);
                 self.button_custom_weapons = ui_finder.find(BUTTON_CUSTOM_WEAPONS);
                 self.button_custom_arena = ui_finder.find(BUTTON_CUSTOM_ARENA);
@@ -301,6 +316,19 @@ impl SimpleState for MainMenu {
         }
 
         let mut ui_text = world.write_storage::<UiText>();
+
+        let fetched_game_weapon_setup = world.try_fetch_mut::<GameWeaponSetup>();
+
+        if let Some(game_weapon_setup) = fetched_game_weapon_setup {
+            if let Some(weapon_select_mode) = self
+                .text_weapon_select_mode
+                .and_then(|entity| ui_text.get_mut(entity))
+            {
+                weapon_select_mode.text =
+                    get_weapon_select_mode_text(game_weapon_setup.mode.clone());
+            }
+        }
+
         let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
 
         if let Some(mut game_mode_setup) = fetched_game_mode_setup {
@@ -583,49 +611,111 @@ impl SimpleState for MainMenu {
                         game_mode_setup.arena_name = ArenaNames::OpenEmptyMap;
                         game_mode_setup.checkpoint_count = 0;
                     }
-                }
 
-                if let Some(mut game_weapon_setup) = fetched_game_weapon_setup {
-                    if Some(target) == self.button_classic_gun_game {
-                        game_weapon_setup.mode = GameWeaponSelectionMode::GunGameForward;
-                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                        game_weapon_setup.random_weapon_spawns = false;
-                        game_weapon_setup.keep_picked_up_weapons = false;
-                    } else if Some(target) == self.button_deathmatch_kills {
-                        game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
-                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                        game_weapon_setup.random_weapon_spawns = true;
-                        game_weapon_setup.keep_picked_up_weapons = false;
-                    } else if Some(target) == self.button_deathmatch_stock {
-                        game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
-                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                        game_weapon_setup.random_weapon_spawns = true;
-                        game_weapon_setup.keep_picked_up_weapons = false;
-                    } else if Some(target) == self.button_deathmatch_time {
-                        game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
-                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                        game_weapon_setup.random_weapon_spawns = true;
-                        game_weapon_setup.keep_picked_up_weapons = false;
-                    } else if Some(target) == self.button_king_of_the_hill {
-                        game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
-                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                        game_weapon_setup.random_weapon_spawns = true;
-                        game_weapon_setup.keep_picked_up_weapons = false;
-                    } else if Some(target) == self.button_combat_race {
-                        game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
-                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                        game_weapon_setup.random_weapon_spawns = true;
-                        game_weapon_setup.keep_picked_up_weapons = true;
-                    } else if Some(target) == self.button_capture_the_flag {
-                        game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
-                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                        game_weapon_setup.random_weapon_spawns = true;
-                        game_weapon_setup.keep_picked_up_weapons = false;
-                    } else if Some(target) == self.button_survival_waves {
-                        game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
-                        game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                        game_weapon_setup.random_weapon_spawns = true;
-                        game_weapon_setup.keep_picked_up_weapons = false;
+                    if let Some(mut game_weapon_setup) = fetched_game_weapon_setup {
+                        if Some(target) == self.button_next_weapon_select_mode {
+                            if game_mode_setup.game_mode == GameModes::ClassicGunGame {
+                                game_weapon_setup.mode = match game_weapon_setup.mode {
+                                    GameWeaponSelectionMode::GunGameForward => {
+                                        GameWeaponSelectionMode::GunGameReverse
+                                    }
+                                    GameWeaponSelectionMode::GunGameReverse => {
+                                        GameWeaponSelectionMode::GunGameRandom
+                                    }
+                                    GameWeaponSelectionMode::GunGameRandom => {
+                                        GameWeaponSelectionMode::GunGameForward
+                                    }
+                                    _ => GameWeaponSelectionMode::GunGameForward,
+                                }
+                            } else {
+                                game_weapon_setup.mode = match game_weapon_setup.mode {
+                                    GameWeaponSelectionMode::StarterAndPickup => {
+                                        GameWeaponSelectionMode::CustomStarterAndPickup
+                                    }
+                                    GameWeaponSelectionMode::CustomStarterAndPickup => {
+                                        GameWeaponSelectionMode::FullCustom
+                                    }
+                                    GameWeaponSelectionMode::FullCustom => {
+                                        GameWeaponSelectionMode::VehiclePreset
+                                    }
+                                    GameWeaponSelectionMode::VehiclePreset => {
+                                        GameWeaponSelectionMode::StarterAndPickup
+                                    }
+                                    _ => GameWeaponSelectionMode::StarterAndPickup,
+                                }
+                            }
+                        } else if Some(target) == self.button_prev_weapon_select_mode {
+                            if game_mode_setup.game_mode == GameModes::ClassicGunGame {
+                                game_weapon_setup.mode = match game_weapon_setup.mode {
+                                    GameWeaponSelectionMode::GunGameForward => {
+                                        GameWeaponSelectionMode::GunGameRandom
+                                    }
+                                    GameWeaponSelectionMode::GunGameReverse => {
+                                        GameWeaponSelectionMode::GunGameForward
+                                    }
+                                    GameWeaponSelectionMode::GunGameRandom => {
+                                        GameWeaponSelectionMode::GunGameReverse
+                                    }
+                                    _ => GameWeaponSelectionMode::GunGameForward,
+                                }
+                            } else {
+                                game_weapon_setup.mode = match game_weapon_setup.mode {
+                                    GameWeaponSelectionMode::StarterAndPickup => {
+                                        GameWeaponSelectionMode::VehiclePreset
+                                    }
+                                    GameWeaponSelectionMode::CustomStarterAndPickup => {
+                                        GameWeaponSelectionMode::StarterAndPickup
+                                    }
+                                    GameWeaponSelectionMode::FullCustom => {
+                                        GameWeaponSelectionMode::CustomStarterAndPickup
+                                    }
+                                    GameWeaponSelectionMode::VehiclePreset => {
+                                        GameWeaponSelectionMode::FullCustom
+                                    }
+                                    _ => GameWeaponSelectionMode::StarterAndPickup,
+                                }
+                            }
+                        } else if Some(target) == self.button_classic_gun_game {
+                            game_weapon_setup.mode = GameWeaponSelectionMode::GunGameForward;
+                            game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                            game_weapon_setup.random_weapon_spawns = false;
+                            game_weapon_setup.keep_picked_up_weapons = false;
+                        } else if Some(target) == self.button_deathmatch_kills {
+                            game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
+                            game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                            game_weapon_setup.random_weapon_spawns = true;
+                            game_weapon_setup.keep_picked_up_weapons = false;
+                        } else if Some(target) == self.button_deathmatch_stock {
+                            game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
+                            game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                            game_weapon_setup.random_weapon_spawns = true;
+                            game_weapon_setup.keep_picked_up_weapons = false;
+                        } else if Some(target) == self.button_deathmatch_time {
+                            game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
+                            game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                            game_weapon_setup.random_weapon_spawns = true;
+                            game_weapon_setup.keep_picked_up_weapons = false;
+                        } else if Some(target) == self.button_king_of_the_hill {
+                            game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
+                            game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                            game_weapon_setup.random_weapon_spawns = true;
+                            game_weapon_setup.keep_picked_up_weapons = false;
+                        } else if Some(target) == self.button_combat_race {
+                            game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
+                            game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                            game_weapon_setup.random_weapon_spawns = true;
+                            game_weapon_setup.keep_picked_up_weapons = true;
+                        } else if Some(target) == self.button_capture_the_flag {
+                            game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
+                            game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                            game_weapon_setup.random_weapon_spawns = true;
+                            game_weapon_setup.keep_picked_up_weapons = false;
+                        } else if Some(target) == self.button_survival_waves {
+                            game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
+                            game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
+                            game_weapon_setup.random_weapon_spawns = true;
+                            game_weapon_setup.keep_picked_up_weapons = false;
+                        }
                     }
                 }
 
@@ -694,7 +784,12 @@ impl SimpleState for MainMenu {
         self.edit_text_points_to_win = None;
         self.edit_text_stock_lives = None;
         self.edit_text_time_limit = None;
+        self.text_weapon_select_mode = None;
+        self.button_next_weapon_select_mode = None;
+        self.button_prev_weapon_select_mode = None;
         self.button_custom_vehicles = None;
+        self.button_custom_weapons = None;
+        self.button_custom_arena = None;
         self.button_ffa = None;
         self.button_2v2 = None;
         self.button_1v3 = None;
@@ -726,5 +821,17 @@ fn get_points_label_text(game_mode: GameModes) -> String {
         GameModes::Race => "Laps to Win:".to_string(),
         GameModes::CaptureTheFlag => "Flags to Win:".to_string(),
         GameModes::SurvivalWaves => "Waves to Win:".to_string(),
+    }
+}
+
+fn get_weapon_select_mode_text(weapon_select_mode: GameWeaponSelectionMode) -> String {
+    match weapon_select_mode {
+        GameWeaponSelectionMode::GunGameForward => "Gun-Game Forward".to_string(),
+        GameWeaponSelectionMode::GunGameReverse => "Gun-Game Reverse".to_string(),
+        GameWeaponSelectionMode::GunGameRandom => "Gun-Game Random".to_string(),
+        GameWeaponSelectionMode::StarterAndPickup => "Starter + Pickup".to_string(),
+        GameWeaponSelectionMode::CustomStarterAndPickup => "Custom Starter + Pickup".to_string(),
+        GameWeaponSelectionMode::FullCustom => "Full Custom".to_string(),
+        GameWeaponSelectionMode::VehiclePreset => "Vehicle Presets".to_string(),
     }
 }

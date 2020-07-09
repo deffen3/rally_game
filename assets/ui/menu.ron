@@ -544,11 +544,102 @@ Container(
 
 
 
+        Label(
+            transform: (
+                id: "weapon_select_mode",
+                width: 500.,
+                height: 55.,
+                x: -250.,
+                y: -475.,
+                anchor: TopRight,
+                stretch: XY(x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+                mouse_reactive: true,
+                selectable: 0,
+            ),
+            text: (
+                text: "???",
+                font: File("font/square.ttf", ("TTF", ())),
+                font_size: 20.,
+                color: (0.8, 0.7, 0.7, 1.0),
+                align: Middle,
+            )
+        ),
+
+        Container(
+            transform: (
+                id: "prev_weapon_select_mode_container",
+                x: -400.,
+                y: -475.,
+                width: 30.,
+                height: 30.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "prev_weapon_select_mode",
+                        width: 25.,
+                        height: 25.,
+                        tab_order: 15,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "<",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 20.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),
+            ]
+        ),
+
+        Container(
+            transform: (
+                id: "next_weapon_select_mode_container",
+                x: -100.,
+                y: -475.,
+                width: 30.,
+                height: 30.,
+                anchor: TopRight,
+            ),
+            background: SolidColor(0.8, 0.1, 0.05, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "next_weapon_select_mode",
+                        width: 25.,
+                        height: 25.,
+                        tab_order: 15,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: ">",
+                        font: File("font/square.ttf", ("TTF", ())),
+                        font_size: 20.,
+                        normal_text_color: (0.8, 0.1, 0.05, 1.0),
+                        normal_image: SolidColor(0., 0., 0., 1.),
+                        hover_image: SolidColor(0.1, 0.1, 0.1, 1.),
+                        press_image: SolidColor(0.15, 0.15, 0.15, 1.),
+                    )
+                ),   
+            ]
+        ),
+
+
+
         Container(
             transform: (
                 id: "container_customize_weapons",
                 x: -250.,
-                y: -500.,
+                y: -525.,
                 width: 305.,
                 height: 35.,
                 anchor: TopRight,
@@ -583,7 +674,7 @@ Container(
             transform: (
                 id: "container_customize_vehicles",
                 x: -250.,
-                y: -550.,
+                y: -575.,
                 width: 305.,
                 height: 35.,
                 anchor: TopRight,
@@ -614,15 +705,11 @@ Container(
         ),
 
 
-
-        
-
-
         Container(
             transform: (
                 id: "container_customize_arena",
                 x: -250.,
-                y: -600.,
+                y: -625.,
                 width: 305.,
                 height: 35.,
                 anchor: TopRight,
