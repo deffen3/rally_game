@@ -119,3 +119,11 @@ Mac OS X users may explicitly choose `"metal"` with the following command:
 ```bash
 cargo run --no-default-features --features "metal"
 ```
+
+
+For final distributable .exe release target on Windows (with controller support, slow safety checks disabled, and cmd window disabled):
+
+```bash
+cargo rustc --release --features "sdl_controller, no-slow-safety-checks" -- -Clink-args="/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
+```
+... and make sure the following are included in release folder: configs, assets, and SDL2.dll
