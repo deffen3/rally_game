@@ -65,6 +65,8 @@ pub struct GameWeaponSetup {
 pub struct GameVehicleSetup {
     pub names: [VehicleNames; 4],
     pub stats: [VehicleStats; 4],
+    pub base_stats: [VehicleStats; 4],
+    pub custom_stats: [VehicleStats; 4],
 }
 
 pub struct GameScore {

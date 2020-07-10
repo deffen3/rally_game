@@ -476,7 +476,7 @@ pub fn get_none_vehicle() -> VehicleStats {
         shield_radius: 0.0,
         heal_pulse_amount: 0.0,
         heal_pulse_rate: 0.0,
-        default_weapons: vec![],
+        weapons_installed: vec![],
     }
 }
 
@@ -545,5 +545,5 @@ pub struct VehicleStats {
     pub shield_radius: f32,
     pub heal_pulse_amount: f32,
     pub heal_pulse_rate: f32,
-    pub default_weapons: Vec<WeaponNameInstall>,
+    pub weapons_installed: Vec<WeaponNameInstall>,
 }

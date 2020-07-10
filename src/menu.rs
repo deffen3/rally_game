@@ -6,6 +6,7 @@ use amethyst::{
     winit::VirtualKeyCode,
 };
 
+use rand::seq::SliceRandom;
 use std::collections::HashMap;
 
 use crate::custom_arena::CustomArenaMenu;
@@ -15,8 +16,9 @@ use crate::rally::GameplayState;
 use crate::welcome::WelcomeScreen;
 
 use crate::components::{
-    build_arena_store, build_vehicle_store, build_weapon_store, get_none_vehicle, ArenaNames,
-    ArenaStoreResource, VehicleNames, VehicleStats, WeaponNames, WeaponStoreResource,
+    build_arena_store, build_vehicle_store, build_weapon_store, get_next_gg_weapon_name,
+    get_none_vehicle, ArenaNames, ArenaStoreResource, VehicleNames, VehicleStats,
+    WeaponNameInstall, WeaponNames, WeaponStoreResource,
 };
 
 use crate::resources::{
@@ -70,6 +72,7 @@ const TEXT_CONTROLS_KEYBOARD: &str = "controls_keyboard_result";
 #[derive(Default, Debug)]
 pub struct MainMenu {
     ui_root: Option<Entity>,
+
     button_classic_gun_game: Option<Entity>,
     button_deathmatch_kills: Option<Entity>,
     button_deathmatch_stock: Option<Entity>,
@@ -86,7 +89,6 @@ pub struct MainMenu {
     text_points_to_win_label: Option<Entity>,
     edit_text_stock_lives: Option<Entity>,
     edit_text_time_limit: Option<Entity>,
-    init_base_rules: bool,
     text_weapon_select_mode: Option<Entity>,
     button_next_weapon_select_mode: Option<Entity>,
     button_prev_weapon_select_mode: Option<Entity>,
@@ -99,6 +101,9 @@ pub struct MainMenu {
     button_1v3: Option<Entity>,
     button_set_controls_keyboard: Option<Entity>,
     controls_keyboard_result: Option<Entity>,
+
+    init_base_rules: bool,
+    init_vehicle_weapons: bool,
 }
 
 impl SimpleState for MainMenu {
@@ -213,11 +218,26 @@ impl SimpleState for MainMenu {
                     standard_vehicle_stats.clone(),
                     standard_vehicle_stats.clone(),
                 ],
+                base_stats: [
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                ],
+                custom_stats: [
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                    standard_vehicle_stats.clone(),
+                ],
             });
         }
 
         self.ui_root =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/menu.ron", ())));
+
+        self.init_base_rules = true;
+        self.init_vehicle_weapons = true;
     }
 
     fn update(&mut self, state_data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -317,15 +337,163 @@ impl SimpleState for MainMenu {
 
         let mut ui_text = world.write_storage::<UiText>();
 
+        //Changing vehicle weapons based on selection mode
         let fetched_game_weapon_setup = world.try_fetch_mut::<GameWeaponSetup>();
+        let fetched_game_vehicle_setup = world.try_fetch_mut::<GameVehicleSetup>();
+        let fetched_weapon_store_resource = world.try_fetch_mut::<WeaponStoreResource>();
 
-        if let Some(game_weapon_setup) = fetched_game_weapon_setup {
-            if let Some(weapon_select_mode) = self
-                .text_weapon_select_mode
-                .and_then(|entity| ui_text.get_mut(entity))
-            {
-                weapon_select_mode.text =
-                    get_weapon_select_mode_text(game_weapon_setup.mode.clone());
+        if let Some(mut game_weapon_setup) = fetched_game_weapon_setup {
+            if let Some(mut weapon_store_resource) = fetched_weapon_store_resource {
+                if let Some(weapon_select_mode) = self
+                    .text_weapon_select_mode
+                    .and_then(|entity| ui_text.get_mut(entity))
+                {
+                    weapon_select_mode.text =
+                        get_weapon_select_mode_text(game_weapon_setup.mode.clone());
+                }
+
+                if self.init_vehicle_weapons {
+                    if let Some(mut game_vehicle_setup) = fetched_game_vehicle_setup {
+                        if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameForward
+                            || game_weapon_setup.mode == GameWeaponSelectionMode::GunGameReverse
+                        {
+                            game_weapon_setup.random_weapon_spawns = false;
+
+                            //Use gun-game weapon selector to setup first weapon
+                            for vehicle_stats in game_vehicle_setup.stats.iter_mut() {
+                                vehicle_stats.weapons_installed = Vec::new();
+
+                                let weapon_name = get_next_gg_weapon_name(
+                                    None,
+                                    &weapon_store_resource,
+                                    &game_weapon_setup,
+                                );
+
+                                if let Some(weapon_name) = weapon_name {
+                                    vehicle_stats.weapons_installed.push(WeaponNameInstall {
+                                        firing_group: 0,
+                                        weapon_name,
+                                        ammo: None,
+                                        mounted_angle: None,
+                                        x_offset: None,
+                                        y_offset: None,
+                                    });
+                                }
+                            }
+                        } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameRandom {
+                            game_weapon_setup.random_weapon_spawns = false;
+
+                            //First shuffle to create random gun-game order, then use selector
+                            {
+                                let mut rng = rand::thread_rng();
+                                let mut new_gun_game_order =
+                                    weapon_store_resource.gun_game_order.clone();
+                                new_gun_game_order.shuffle(&mut rng);
+                                weapon_store_resource.gun_game_random_order = new_gun_game_order;
+                            }
+
+                            for vehicle_stats in game_vehicle_setup.stats.iter_mut() {
+                                vehicle_stats.weapons_installed = Vec::new();
+
+                                let weapon_name = get_next_gg_weapon_name(
+                                    None,
+                                    &weapon_store_resource,
+                                    &game_weapon_setup,
+                                );
+
+                                if let Some(weapon_name) = weapon_name {
+                                    vehicle_stats.weapons_installed.push(WeaponNameInstall {
+                                        firing_group: 0,
+                                        weapon_name,
+                                        ammo: None,
+                                        mounted_angle: None,
+                                        x_offset: None,
+                                        y_offset: None,
+                                    });
+                                }
+                            }
+                        } else if game_weapon_setup.mode
+                            == GameWeaponSelectionMode::StarterAndPickup
+                        {
+                            game_weapon_setup.random_weapon_spawns = true;
+
+                            //Set as global starter weapon
+                            for vehicle_stats in game_vehicle_setup.stats.iter_mut() {
+                                vehicle_stats.weapons_installed = Vec::new();
+
+                                vehicle_stats.weapons_installed.push(WeaponNameInstall {
+                                    firing_group: 0,
+                                    weapon_name: game_weapon_setup.starter_weapon.clone(),
+                                    ammo: None,
+                                    mounted_angle: None,
+                                    x_offset: None,
+                                    y_offset: None,
+                                });
+                            }
+                        } else if game_weapon_setup.mode
+                            == GameWeaponSelectionMode::CustomStarterAndPickup
+                        {
+                            game_weapon_setup.random_weapon_spawns = true;
+
+                            //Grab just the first custom weapon as the starter
+                            let game_vehicle_setup_custom_stats =
+                                game_vehicle_setup.custom_stats.clone();
+
+                            for (vehicle_idx, vehicle_stats) in
+                                game_vehicle_setup.stats.iter_mut().enumerate()
+                            {
+                                vehicle_stats.weapons_installed = Vec::new();
+
+                                if game_vehicle_setup_custom_stats[vehicle_idx]
+                                    .weapons_installed
+                                    .len()
+                                    > 0
+                                {
+                                    vehicle_stats.weapons_installed.push(WeaponNameInstall {
+                                        firing_group: 0,
+                                        weapon_name: game_vehicle_setup_custom_stats[vehicle_idx]
+                                            .weapons_installed[0]
+                                            .weapon_name,
+                                        ammo: None,
+                                        mounted_angle: None,
+                                        x_offset: None,
+                                        y_offset: None,
+                                    });
+                                }
+                            }
+                        } else if game_weapon_setup.mode == GameWeaponSelectionMode::FullCustom {
+                            game_weapon_setup.random_weapon_spawns = false;
+
+                            //Restore vehicle's weapon stats to previous custom selections
+                            let game_vehicle_setup_custom_stats =
+                                game_vehicle_setup.custom_stats.clone();
+
+                            for (vehicle_idx, vehicle_stats) in
+                                game_vehicle_setup.stats.iter_mut().enumerate()
+                            {
+                                vehicle_stats.weapons_installed = game_vehicle_setup_custom_stats
+                                    [vehicle_idx]
+                                    .weapons_installed
+                                    .clone();
+                            }
+                        } else if game_weapon_setup.mode == GameWeaponSelectionMode::VehiclePreset {
+                            game_weapon_setup.random_weapon_spawns = false;
+
+                            //Restore vehicle's weapon stats to preset base weapon stats
+                            let game_vehicle_setup_base_stats =
+                                game_vehicle_setup.base_stats.clone();
+
+                            for (vehicle_idx, vehicle_stats) in
+                                game_vehicle_setup.stats.iter_mut().enumerate()
+                            {
+                                vehicle_stats.weapons_installed = game_vehicle_setup_base_stats
+                                    [vehicle_idx]
+                                    .weapons_installed
+                                    .clone();
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -496,8 +664,13 @@ impl SimpleState for MainMenu {
             }
         }
 
+        //Reset after updates
         if self.init_base_rules {
             self.init_base_rules = false;
+        }
+
+        if self.init_vehicle_weapons {
+            self.init_vehicle_weapons = false;
         }
 
         Trans::None
@@ -529,7 +702,6 @@ impl SimpleState for MainMenu {
                 let fetched_game_mode_setup = world.try_fetch_mut::<GameModeSetup>();
                 let fetched_game_weapon_setup = world.try_fetch_mut::<GameWeaponSetup>();
                 let fetched_game_team_setup = world.try_fetch_mut::<GameTeamSetup>();
-
                 let fetched_arena_store = world.try_fetch::<ArenaStoreResource>();
 
                 if let Some(mut game_mode_setup) = fetched_game_mode_setup {
@@ -613,6 +785,8 @@ impl SimpleState for MainMenu {
                     }
 
                     if let Some(mut game_weapon_setup) = fetched_game_weapon_setup {
+                        let prev_game_weapon_setup_mode = game_weapon_setup.mode.clone();
+
                         if Some(target) == self.button_next_weapon_select_mode {
                             if game_mode_setup.game_mode == GameModes::ClassicGunGame {
                                 game_weapon_setup.mode = match game_weapon_setup.mode {
@@ -678,43 +852,31 @@ impl SimpleState for MainMenu {
                         } else if Some(target) == self.button_classic_gun_game {
                             game_weapon_setup.mode = GameWeaponSelectionMode::GunGameForward;
                             game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                            game_weapon_setup.random_weapon_spawns = false;
-                            game_weapon_setup.keep_picked_up_weapons = false;
                         } else if Some(target) == self.button_deathmatch_kills {
                             game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
                             game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                            game_weapon_setup.random_weapon_spawns = true;
-                            game_weapon_setup.keep_picked_up_weapons = false;
                         } else if Some(target) == self.button_deathmatch_stock {
                             game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
                             game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                            game_weapon_setup.random_weapon_spawns = true;
-                            game_weapon_setup.keep_picked_up_weapons = false;
                         } else if Some(target) == self.button_deathmatch_time {
                             game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
                             game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                            game_weapon_setup.random_weapon_spawns = true;
-                            game_weapon_setup.keep_picked_up_weapons = false;
                         } else if Some(target) == self.button_king_of_the_hill {
                             game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
                             game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                            game_weapon_setup.random_weapon_spawns = true;
-                            game_weapon_setup.keep_picked_up_weapons = false;
                         } else if Some(target) == self.button_combat_race {
                             game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
                             game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                            game_weapon_setup.random_weapon_spawns = true;
-                            game_weapon_setup.keep_picked_up_weapons = true;
                         } else if Some(target) == self.button_capture_the_flag {
                             game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
                             game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                            game_weapon_setup.random_weapon_spawns = true;
-                            game_weapon_setup.keep_picked_up_weapons = false;
                         } else if Some(target) == self.button_survival_waves {
                             game_weapon_setup.mode = GameWeaponSelectionMode::StarterAndPickup;
                             game_weapon_setup.starter_weapon = WeaponNames::LaserDoubleGimballed;
-                            game_weapon_setup.random_weapon_spawns = true;
-                            game_weapon_setup.keep_picked_up_weapons = false;
+                        }
+
+                        if game_weapon_setup.mode != prev_game_weapon_setup_mode {
+                            self.init_vehicle_weapons = true;
                         }
                     }
                 }

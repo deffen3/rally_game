@@ -15,11 +15,9 @@ use std::f32::consts::PI;
 use crate::components::{
     build_named_weapon_from_world, get_vehicle_sprites, get_weapon_icon, get_weapon_width_height,
     ArenaNames, ArenaProperties, ArenaStoreResource, Player, PlayerWeaponIcon, Vehicle,
-    VehicleStats, Weapon, WeaponArray, WeaponInstall, WeaponNameInstall,
+    VehicleStats, Weapon, WeaponArray, WeaponInstall,
 };
-use crate::resources::{
-    GameModeSetup, GameWeaponSelectionMode, GameWeaponSetup, WeaponFireResource,
-};
+use crate::resources::{GameModeSetup, WeaponFireResource};
 
 pub fn intialize_player(
     world: &mut World,
@@ -31,74 +29,6 @@ pub fn intialize_player(
     player_status_text: PlayerStatusText,
     vehicle_stats: VehicleStats,
 ) -> Entity {
-    let mut weapon_named_installs: Vec<WeaponNameInstall> = Vec::new();
-    {
-        let fetched_game_weapon_setup = world.try_fetch::<GameWeaponSetup>();
-        if let Some(game_weapon_setup) = fetched_game_weapon_setup {
-            if game_weapon_setup.mode == GameWeaponSelectionMode::StarterAndPickup
-                || game_weapon_setup.mode == GameWeaponSelectionMode::CustomStarterAndPickup
-            {
-                weapon_named_installs.push(WeaponNameInstall {
-                    firing_group: 0,
-                    weapon_name: game_weapon_setup.starter_weapon.clone(),
-                    ammo: None,
-                    mounted_angle: None,
-                    x_offset: None,
-                    y_offset: None,
-                });
-            } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameForward {
-                weapon_named_installs.push(WeaponNameInstall {
-                    firing_group: 0,
-                    weapon_name: game_weapon_setup.starter_weapon.clone(),
-                    ammo: None,
-                    mounted_angle: None,
-                    x_offset: None,
-                    y_offset: None,
-                });
-            } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameReverse {
-                weapon_named_installs.push(WeaponNameInstall {
-                    firing_group: 0,
-                    weapon_name: game_weapon_setup.starter_weapon.clone(),
-                    ammo: None,
-                    mounted_angle: None,
-                    x_offset: None,
-                    y_offset: None,
-                });
-            } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameRandom {
-                weapon_named_installs.push(WeaponNameInstall {
-                    firing_group: 0,
-                    weapon_name: game_weapon_setup.starter_weapon.clone(),
-                    ammo: None,
-                    mounted_angle: None,
-                    x_offset: None,
-                    y_offset: None,
-                });
-            } else if game_weapon_setup.mode == GameWeaponSelectionMode::FullCustom {
-                for weapon_name_install in vehicle_stats.default_weapons.iter() {
-                    weapon_named_installs.push(WeaponNameInstall {
-                        firing_group: weapon_name_install.firing_group,
-                        weapon_name: weapon_name_install.weapon_name,
-                        ammo: weapon_name_install.ammo,
-                        mounted_angle: weapon_name_install.mounted_angle,
-                        x_offset: weapon_name_install.x_offset,
-                        y_offset: weapon_name_install.y_offset,
-                    });
-                }
-            } else if game_weapon_setup.mode == GameWeaponSelectionMode::VehiclePreset {
-                for weapon_name_install in vehicle_stats.default_weapons.iter() {
-                    weapon_named_installs.push(WeaponNameInstall {
-                        firing_group: weapon_name_install.firing_group,
-                        weapon_name: weapon_name_install.weapon_name,
-                        ammo: weapon_name_install.ammo,
-                        mounted_angle: weapon_name_install.mounted_angle,
-                        x_offset: weapon_name_install.x_offset,
-                        y_offset: weapon_name_install.y_offset,
-                    });
-                }
-            }
-        }
-    }
-
     //Get Arena's properties
     let arena_name;
     {
@@ -283,7 +213,8 @@ pub fn intialize_player(
     let mut total_weapon_weight = 0.0;
     let mut installed_weapons: Vec<WeaponInstall> = Vec::new();
 
-    for (weapon_array_id, weapon_name_install) in weapon_named_installs.iter().enumerate() {
+    for (weapon_array_id, weapon_name_install) in vehicle_stats.weapons_installed.iter().enumerate()
+    {
         let weapon_stats =
             build_named_weapon_from_world(weapon_name_install.weapon_name.clone(), world);
 

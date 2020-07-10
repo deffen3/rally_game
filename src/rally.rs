@@ -16,7 +16,6 @@ use amethyst::{
     winit::VirtualKeyCode,
 };
 
-use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display};
 
@@ -36,7 +35,6 @@ use crate::entities::{
 use crate::components::{
     get_none_vehicle, ArenaElement, ArenaNames, ArenaProperties, ArenaStoreResource, Armor, Health,
     Hitbox, Particles, Player, PlayerWeaponIcon, Repair, Shield, Vehicle, WeaponArray, WeaponFire,
-    WeaponStoreResource,
 };
 
 use crate::systems::{
@@ -183,16 +181,6 @@ impl<'a, 'b> SimpleState for GameplayState<'a, 'b> {
             } else {
                 player_to_team = [0, 1, 2, 3];
             }
-        }
-
-        {
-            let mut weapon_store_resource = world.fetch_mut::<WeaponStoreResource>();
-
-            let mut rng = rand::thread_rng();
-            let mut new_gun_game_order = weapon_store_resource.gun_game_order.clone();
-            new_gun_game_order.shuffle(&mut rng);
-
-            weapon_store_resource.gun_game_random_order = new_gun_game_order;
         }
 
         let player_status_text = PlayerStatusText {

@@ -20,7 +20,7 @@
     shield_cooldown: 5.0,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
-    default_weapons: [
+    weapons_installed: [
       WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
       WeaponNameInstall(firing_group: 1, weapon_name: ProjectileRapidFireTurret),
     ],
@@ -46,7 +46,7 @@
     shield_cooldown: 5.0,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
-    default_weapons: [
+    weapons_installed: [
       WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
       WeaponNameInstall(firing_group: 1, weapon_name: BackwardsLaserSword),
     ],
@@ -72,7 +72,7 @@
     shield_cooldown: 5.0,
     shield_repair_reboot_time: 5.0,
     shield_radius: 17.0,
-    default_weapons: [
+    weapons_installed: [
       WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
       WeaponNameInstall(firing_group: 0, weapon_name: LaserBeam),
       WeaponNameInstall(firing_group: 1, weapon_name: ProjectileCannon),
@@ -99,7 +99,7 @@
     shield_cooldown: 5.0,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
-    default_weapons: [],
+    weapons_installed: [],
   ),
   Interceptor : VehicleStats (
     display_name: "Interceptor",
@@ -122,7 +122,7 @@
     shield_cooldown: 5.0,
     shield_repair_reboot_time: 5.0,
     shield_radius: 17.0,
-    default_weapons: [
+    weapons_installed: [
       WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
       WeaponNameInstall(firing_group: 1, weapon_name: LaserBeam),
     ],
@@ -148,7 +148,7 @@
     shield_cooldown: 5.0,
     shield_repair_reboot_time: 5.0,
     shield_radius: 14.0,
-    default_weapons: [
+    weapons_installed: [
       WeaponNameInstall(firing_group: 0, weapon_name: LaserDoubleGimballed),
     ],
   ),

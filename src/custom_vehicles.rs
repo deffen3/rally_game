@@ -162,6 +162,7 @@ impl SimpleState for CustomVehiclesMenu {
                     player_vehicle_name = Some(game_vehicle_setup.names[player_index].clone());
                     player_vehicle_sprite_type =
                         Some(game_vehicle_setup.stats[player_index].vehicle_type.clone());
+
                     player_vehicle_width = game_vehicle_setup.stats[player_index].width.clone();
                     player_vehicle_height = game_vehicle_setup.stats[player_index].height.clone();
                 } else {
@@ -295,7 +296,9 @@ impl SimpleState for CustomVehiclesMenu {
                                     _ => get_none_vehicle(),
                                 };
 
-                                game_vehicle_setup.stats[player_index] = veh_stats;
+                                game_vehicle_setup.stats[player_index] = veh_stats.clone();
+                                game_vehicle_setup.base_stats[player_index] = veh_stats.clone();
+                                game_vehicle_setup.custom_stats[player_index] = veh_stats;
                             }
                         }
                         if Some(target) == self.button_player_prev_vehicle[player_index] {
@@ -317,7 +320,9 @@ impl SimpleState for CustomVehiclesMenu {
                                     _ => get_none_vehicle(),
                                 };
 
-                                game_vehicle_setup.stats[player_index] = veh_stats;
+                                game_vehicle_setup.stats[player_index] = veh_stats.clone();
+                                game_vehicle_setup.base_stats[player_index] = veh_stats.clone();
+                                game_vehicle_setup.custom_stats[player_index] = veh_stats;
                             }
                         }
                     }

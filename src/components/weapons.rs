@@ -126,56 +126,71 @@ pub fn get_random_weapon_name_build_chance(
 }
 
 pub fn get_next_gg_weapon_name(
-    weapon_name: WeaponNames,
+    weapon_name: Option<WeaponNames>,
     weapon_store_resource: &WeaponStoreResource,
     game_weapon_setup: &GameWeaponSetup,
 ) -> Option<WeaponNames> {
+    //if weapon_name is None, start at beginning of the list
+
     let length = weapon_store_resource.gun_game_order.len();
 
     let weapon_out: Option<WeaponNames>;
     if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameForward {
-        let index = weapon_store_resource
-            .gun_game_order
-            .iter()
-            .position(|&r| r == weapon_name);
-        if let Some(index) = index {
-            if index == length - 1 {
-                weapon_out = Some(weapon_store_resource.gun_game_order[0]); //loop-back around
+        if let Some(weapon_name) = weapon_name {
+            let index = weapon_store_resource
+                .gun_game_order
+                .iter()
+                .position(|&r| r == weapon_name);
+            if let Some(index) = index {
+                if index == length - 1 {
+                    weapon_out = Some(weapon_store_resource.gun_game_order[0]); //loop-back around
+                } else {
+                    weapon_out = Some(weapon_store_resource.gun_game_order[index + 1]);
+                }
             } else {
-                weapon_out = Some(weapon_store_resource.gun_game_order[index + 1]);
+                weapon_out = None;
             }
         } else {
-            weapon_out = None;
+            weapon_out = Some(weapon_store_resource.gun_game_order[0]); //start at beginning
         }
     } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameReverse {
-        let index = weapon_store_resource
-            .gun_game_order
-            .iter()
-            .position(|&r| r == weapon_name);
-        if let Some(index) = index {
-            if index == 0 {
-                weapon_out = Some(weapon_store_resource.gun_game_order[length - 1]);
-            //loop-back around
+        if let Some(weapon_name) = weapon_name {
+            let index = weapon_store_resource
+                .gun_game_order
+                .iter()
+                .position(|&r| r == weapon_name);
+            if let Some(index) = index {
+                if index == 0 {
+                    weapon_out = Some(weapon_store_resource.gun_game_order[length - 1]);
+                //loop-back around
+                } else {
+                    weapon_out = Some(weapon_store_resource.gun_game_order[index - 1]);
+                }
             } else {
-                weapon_out = Some(weapon_store_resource.gun_game_order[index - 1]);
+                weapon_out = None;
             }
         } else {
-            weapon_out = None;
+            weapon_out = Some(weapon_store_resource.gun_game_order[length - 1]);
+            //start at end, which is beginning in this mode
         }
     } else if game_weapon_setup.mode == GameWeaponSelectionMode::GunGameRandom {
-        let index = weapon_store_resource
-            .gun_game_random_order
-            .iter()
-            .position(|&r| r == weapon_name);
-        if let Some(index) = index {
-            if index == length - 1 {
-                weapon_out = Some(weapon_store_resource.gun_game_random_order[0]);
-            //loop-back around
+        if let Some(weapon_name) = weapon_name {
+            let index = weapon_store_resource
+                .gun_game_random_order
+                .iter()
+                .position(|&r| r == weapon_name);
+            if let Some(index) = index {
+                if index == length - 1 {
+                    weapon_out = Some(weapon_store_resource.gun_game_random_order[0]);
+                //loop-back around
+                } else {
+                    weapon_out = Some(weapon_store_resource.gun_game_random_order[index + 1]);
+                }
             } else {
-                weapon_out = Some(weapon_store_resource.gun_game_random_order[index + 1]);
+                weapon_out = None;
             }
         } else {
-            weapon_out = None;
+            weapon_out = Some(weapon_store_resource.gun_game_random_order[0]); //start at beginning
         }
     } else {
         weapon_out = None;

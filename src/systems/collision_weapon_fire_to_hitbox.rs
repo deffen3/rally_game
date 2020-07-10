@@ -910,7 +910,7 @@ impl<'s> System<'s> for CollisionWeaponFireHitboxSystem {
                     //if kill was using player's current weapon
                     player.kills += 1;
                     let new_weapon_name = get_next_gg_weapon_name(
-                        primary_weapon.name.clone(),
+                        Some(primary_weapon.name.clone()),
                         &weapon_store_resource,
                         &game_weapon_setup,
                     );
