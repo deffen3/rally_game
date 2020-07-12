@@ -1,6 +1,6 @@
 {
   LaserDoubleGimballed : WeaponStats (
-    display_name: "Laser Double Gimballed",
+    display_name: "Double-Laser (Gimballed)",
     weapon_fire_type: LaserDouble,
     tracking_angle: 0.34,
     tracking_range: 200.0,
@@ -55,7 +55,7 @@
     ),
   ),
   LaserDouble : WeaponStats (
-    display_name: "Laser Double Fixed",
+    display_name: "Double-Laser (Fixed)",
     weapon_fire_type: LaserDouble,
     tracking_angle: 0.0,
     tracking_range: 200.0,
@@ -110,7 +110,7 @@
     ),
   ),
   LaserDoubleBurstSide : WeaponStats (
-    display_name: "Laser Double Burst Turret",
+    display_name: "Double-Laser (Burst, Turret)",
     weapon_fire_type: LaserDouble,
     tracking_angle: 3.1415,
     tracking_range: 200.0,
@@ -165,7 +165,7 @@
     ),
   ),
   LaserBeam : WeaponStats (
-    display_name: "Laser Beam",
+    display_name: "Beam Laser (Spin-Up)",
     weapon_fire_type: LaserBeam,
     tracking_angle: 0.0,
     tracking_range: 200.0,
@@ -220,7 +220,7 @@
     ),
   ),
   LaserPulse : WeaponStats (
-    display_name: "Laser Reflector Pulse",
+    display_name: "Reflector-Laser (Pulse)",
     weapon_fire_type: LaserPulse,
     tracking_angle: 0.0,
     tracking_range: 200.0,
@@ -275,7 +275,7 @@
     ),
   ),
   LaserPulseGimballed : WeaponStats (
-    display_name: "Laser Reflector Pulse Gimballed",
+    display_name: "Reflector-Laser (Pulse, Gimballed)",
     weapon_fire_type: LaserPulse,
     tracking_angle: 0.34,
     tracking_range: 200.0,
@@ -330,7 +330,7 @@
     ),
   ),
   ProjectileBurstFire : WeaponStats (
-    display_name: "Projectile Burst Fire",
+    display_name: "Projectile (Burst)",
     weapon_fire_type: ProjectileMedium,
     tracking_angle: 0.0,
     tracking_range: 200.0,
@@ -385,7 +385,7 @@
     ),
   ),
   Shotgun : WeaponStats (
-    display_name: "Projectile Shotgun",
+    display_name: "Shotgun",
     weapon_fire_type: ProjectileSmall,
     tracking_angle: 0.0,
     tracking_range: 200.0,
@@ -440,7 +440,7 @@
     ),
   ),
   ProjectileSteadyFire : WeaponStats (
-    display_name: "Projectile Long-Range",
+    display_name: "Projectile (Long-Range)",
     weapon_fire_type: ProjectileMedium,
     tracking_angle: 0.0,
     tracking_range: 200.0,
@@ -550,7 +550,7 @@
     ),
   ),
   ProjectileRapidFireTurret : WeaponStats (
-    display_name: "Projectile Rapid-Fire Turret",
+    display_name: "Projectile (Rapid-Fire, Turret)",
     weapon_fire_type: ProjectileSmall,
     tracking_angle: 6.29,
     tracking_range: 200.0,
@@ -605,7 +605,7 @@
     ),
   ),
   ProjectileRapidFire : WeaponStats (
-    display_name: "Projectile Rapid-Fire",
+    display_name: "Projectile (Rapid-Fire, Fixed)",
     weapon_fire_type: ProjectileSmall,
     tracking_angle: 0.0,
     tracking_range: 200.0,
