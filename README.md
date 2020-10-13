@@ -96,6 +96,16 @@ There are various weapons with various properties, including:
 1. Make use of ncollide coarse and fine phase detection algorithm
 1. Improve missile heat-seeking tracking - pretty good now, still not great though
 
+---
+
+How to make a game fun?
+1. Overcoming a challenge (not too easy, not too hard)
+1. Sense of progression
+1. Sense of wonder
+
+Maybe I need some type of mode where you go through procedurally generated rooms where you fight 1 or a few enemies.
+When you die you can re-customize your vehicle. Of course you want it to specialize somewhat against the enemies in your current room, but you'd also like to make it generally robust enough to defeat enemies in the next rooms.
+Maybe make the goal time based, life based, and room based?
 
 ---
 
